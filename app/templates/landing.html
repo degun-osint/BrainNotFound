@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainNotFound</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container" style="text-align: center; padding: 4rem 1rem;">
+        <h1>>_ BrainNotFound</h1>
+        <p class="text-light">Plateforme d'evaluation intelligente</p>
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Se connecter</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Creer un compte</a>
+        </div>
+        <p class="text-sm text-light" style="margin-top: 3rem;">
+            Pour personnaliser cette page, copiez <code>private.example/</code> vers <code>private/</code>
+        </p>
+    </div>
+</body>
+</html>

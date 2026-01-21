@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Creer une Organisation - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Creer une nouvelle organisation</h1>
+
+<div class="card">
+    <div class="card-header">Informations de l'organisation</div>
+
+    <div class="info-box bg-gray mb-2">
+        <strong>Information :</strong> Une organisation represente une entite cliente (ecole, universite, entreprise).
+        Vous pouvez definir des limites d'utilisation et assigner des administrateurs dedies.
+    </div>
+
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group flex-1">
+                <label class="form-label" for="name">Nom de l'organisation *</label>
+                <input type="text" id="name" name="name" class="form-input"
+                       placeholder="Ex: Universite de Paris, Ecole ABC..." required autofocus>
+            </div>
+            <div class="form-group" style="width: 200px;">
+                <label class="form-label" for="slug">Slug (URL)</label>
+                <input type="text" id="slug" name="slug" class="form-input font-mono"
+                       placeholder="auto-genere" pattern="[a-z][a-z0-9-]*[a-z0-9]">
+                <small class="text-light">Laissez vide pour generer automatiquement</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-textarea form-textarea-short"
+                      placeholder="Description optionnelle de l'organisation..."></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group flex-1">
+                <label class="form-label" for="contact_name">Nom du contact</label>
+                <input type="text" id="contact_name" name="contact_name" class="form-input"
+                       placeholder="Jean Dupont">
+            </div>
+            <div class="form-group flex-1">
+                <label class="form-label" for="contact_email">Email du contact</label>
+                <input type="email" id="contact_email" name="contact_email" class="form-input"
+                       placeholder="contact@organisation.fr">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Limites fixes</h3>
+        <div class="info-box bg-gray mb-2">
+            <strong>Note :</strong> 0 = illimite
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="max_users">Max utilisateurs</label>
+                <input type="number" id="max_users" name="max_users" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="max_quizzes">Max quiz</label>
+                <input type="number" id="max_quizzes" name="max_quizzes" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="max_groups">Max groupes</label>
+                <input type="number" id="max_groups" name="max_groups" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Limites mensuelles IA</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="monthly_ai_corrections">Corrections IA / mois</label>
+                <input type="number" id="monthly_ai_corrections" name="monthly_ai_corrections" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_quiz_generations">Generations quiz / mois</label>
+                <input type="number" id="monthly_quiz_generations" name="monthly_quiz_generations" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_class_analyses">Analyses classe / mois</label>
+                <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Abonnement</h3>
+        <div class="form-group">
+            <label class="form-label" for="subscription_expires_at">Date d'expiration</label>
+            <input type="date" id="subscription_expires_at" name="subscription_expires_at" class="form-input"
+                   style="width: 200px;">
+            <small class="text-light">Laisser vide pour un abonnement sans expiration</small>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Creer l'organisation
+            </button>
+            <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

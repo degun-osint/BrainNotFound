@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BrainNotFound - Plateforme d'évaluation intelligente avec correction IA pour l'éducation">
+    <title>BrainNotFound - Évaluation intelligente avec IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+</head>
+<body class="landing-body">
+    <!-- Navbar -->
+    <nav class="landing-nav">
+        <div class="landing-nav-container">
+            <a href="{{ url_for('auth.index') }}" class="landing-logo">
+                <span class="logo-prefix">&gt;_</span> BrainNotFound
+            </a>
+            <div class="landing-nav-links">
+                <a href="#features" class="landing-nav-link">Fonctionnalités</a>
+                <a href="#pricing" class="landing-nav-link">Tarifs</a>
+                <a href="{{ url_for('docs.index') }}" class="landing-nav-link">Documentation</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-small">Se connecter</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-white btn-small">Créer un compte</a>
+            </div>
+            <button class="landing-mobile-toggle" onclick="toggleMobileMenu()">
+                <i class="iconoir-menu"></i>
+            </button>
+        </div>
+        <div class="landing-mobile-menu" id="mobile-menu">
+            <a href="#features">Fonctionnalités</a>
+            <a href="#pricing">Tarifs</a>
+            <a href="{{ url_for('docs.index') }}">Documentation</a>
+            <a href="{{ url_for('auth.login') }}">Se connecter</a>
+            <a href="{{ url_for('auth.register') }}">Créer un compte</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="landing-hero-content">
+            <h1 class="landing-hero-title">
+                Créez vos examens en markdown avec <span class="text-gradient">l'IA</span> (ou pas)
+            </h1>
+            <p class="landing-hero-subtitle">
+                Créez des quiz en Markdown, faites vous aider par notre LLM, correction assistée sur les questions ouvertes,
+                et suivez la progression de vos étudiants en temps réel.
+            </p>
+            <div class="landing-hero-actions">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-large">
+                    <i class="iconoir-rocket"></i> Vous avez un code de classe ?
+                </a>
+                <a href="#features" class="btn btn-secondary btn-large">
+                    <i class="iconoir-eye"></i> Découvrir
+                </a>
+            </div>
+            <p class="landing-hero-note">
+                <i class="iconoir-check-circle"></i> Open-source et auto-hébergeable
+            </p>
+        </div>
+        <div class="landing-hero-visual">
+            <div class="landing-code-preview">
+                <div class="code-header">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span class="code-title">quiz.md</span>
+                </div>
+                <pre class="code-content"><code># Introduction à Python
+
+## QCM - Quel mot-clé définit une fonction ? [2 pts]
+- [ ] def_function
+- [x] def
+- [ ] function
+- [ ] func
+
+## OUVERTE - Expliquez la différence entre liste et tuple [5 pts]
+### Réponse attendue
+Une liste est mutable (modifiable) tandis qu'un tuple
+est immutable. Les listes utilisent [] et les tuples ().</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="landing-features" id="features">
+        <div class="landing-section-header">
+            <h2>Tout ce dont vous avez besoin</h2>
+            <p>Une solution complète pour évaluer et suivre vos étudiants</p>
+        </div>
+        <div class="landing-features-grid">
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-page-edit"></i>
+                </div>
+                <h3>Création en Markdown</h3>
+                <p>Rédigez vos quiz dans un format simple et lisible. QCM, questions ouvertes, tout est possible.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-brain"></i>
+                </div>
+                <h3>Correction par IA</h3>
+                <p>Les QCM sont corrigés automatiquement. Les questions ouvertes sont évaluées par Claude avec feedback personnalisé. Mais vous gardez la main !</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-building"></i>
+                </div>
+                <h3>Multi-organisations</h3>
+                <p>Gérez plusieurs écoles, organisations ou départements de manière indépendante sur une seule instance.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-stats-report"></i>
+                </div>
+                <h3>Analytics complets</h3>
+                <p>Suivez les résultats, identifiez les lacunes et exportez les données pour vos rapports.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-group"></i>
+                </div>
+                <h3>Gestion des groupes</h3>
+                <p>Organisez vos étudiants par classe, promotion ou projet avec des codes d'accès uniques.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-timer"></i>
+                </div>
+                <h3>Quiz temporisés</h3>
+                <p>Définissez des limites de temps et des périodes de disponibilité pour vos évaluations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="landing-pricing" id="pricing">
+        <div class="landing-section-header">
+            <h2>Choisissez votre version</h2>
+            <p>Open-source et gratuit, ou hébergé avec support premium</p>
+        </div>
+
+        <!-- Community vs SaaS -->
+        <div class="landing-pricing-grid mb-3">
+            <div class="landing-pricing-card">
+                <div class="landing-pricing-header">
+                    <h3>Community</h3>
+                    <div class="landing-pricing-price">
+                        <span class="price">Gratuit</span>
+                        <span class="period">pour toujours</span>
+                    </div>
+                </div>
+                <ul class="landing-pricing-features">
+                    <li><i class="iconoir-check"></i> Auto-hebergement</li>
+                    <li><i class="iconoir-check"></i> Code source ouvert</li>
+                    <li><i class="iconoir-check"></i> Toutes les fonctionnalites</li>
+                    <li><i class="iconoir-check"></i> Correction IA illimitee*</li>
+                    <li><i class="iconoir-check"></i> Multi-organisations</li>
+                    <li><i class="iconoir-check"></i> Support communautaire</li>
+                </ul>
+                <p class="landing-pricing-note">* Votre cle API Anthropic requise</p>
+                <a href="https://github.com/degun-osint/brainnotfound" target="_blank" class="btn btn-secondary btn-block">
+                    <i class="iconoir-github"></i> Voir sur GitHub
+                </a>
+            </div>
+            <div class="landing-pricing-card featured">
+                <div class="landing-pricing-badge">SaaS</div>
+                <div class="landing-pricing-header">
+                    <h3>Heberge</h3>
+                    <div class="landing-pricing-price">
+                        <span class="price">A partir de 29<small>€/mois</small></span>
+                        <span class="period">-20% en annuel</span>
+                    </div>
+                </div>
+                <ul class="landing-pricing-features">
+                    <li><i class="iconoir-check"></i> Hebergement & maintenance</li>
+                    <li><i class="iconoir-check"></i> Mises a jour automatiques</li>
+                    <li><i class="iconoir-check"></i> Sauvegardes quotidiennes</li>
+                    <li><i class="iconoir-check"></i> Support prioritaire</li>
+                    <li><i class="iconoir-check"></i> Correction IA incluse</li>
+                    <li><i class="iconoir-check"></i> Analytics avances</li>
+                </ul>
+                <p class="landing-pricing-note">Choisissez votre forfait ci-dessous</p>
+                <a href="#plans" class="btn btn-primary btn-block">
+                    <i class="iconoir-arrow-down"></i> Voir les forfaits
+                </a>
+            </div>
+        </div>
+
+        <!-- SaaS Plans -->
+        <div class="landing-plans" id="plans">
+            <h3 class="text-center mb-2">Forfaits SaaS</h3>
+            <p class="text-center text-light mb-2">Tous les forfaits incluent l'hebergement, la maintenance et les mises a jour</p>
+
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h4>Solo</h4>
+                        <div class="plan-price">
+                            <span class="price-monthly">29€<small>/mois</small></span>
+                            <span class="price-yearly">279€/an <span class="discount-tag">-20%</span></span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li><strong>2</strong> groupes</li>
+                        <li><strong>50</strong> etudiants</li>
+                        <li><strong>10</strong> quiz actifs</li>
+                        <li><strong>500</strong> corrections IA/mois</li>
+                        <li><strong>5</strong> generations quiz/mois</li>
+                        <li><strong>5</strong> analyses classe/mois</li>
+                        <li>Support <strong>email</strong></li>
+                    </ul>
+                    <a href="mailto:thebot@brainnotfound.app?subject=Forfait Solo" class="btn btn-secondary btn-block">
+                        Choisir Solo
+                    </a>
+                </div>
+
+                <div class="plan-card popular">
+                    <div class="plan-badge">Populaire</div>
+                    <div class="plan-header">
+                        <h4>Pro</h4>
+                        <div class="plan-price">
+                            <span class="price-monthly">79€<small>/mois</small></span>
+                            <span class="price-yearly">759€/an <span class="discount-tag">-20%</span></span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li><strong>10</strong> groupes</li>
+                        <li><strong>200</strong> etudiants</li>
+                        <li><strong>50</strong> quiz actifs</li>
+                        <li><strong>2 500</strong> corrections IA/mois</li>
+                        <li><strong>25</strong> generations quiz/mois</li>
+                        <li><strong>25</strong> analyses classe/mois</li>
+                        <li>Support <strong>email prioritaire</strong></li>
+                    </ul>
+                    <a href="mailto:thebot@brainnotfound.app?subject=Forfait Pro" class="btn btn-primary btn-block">
+                        Choisir Pro
+                    </a>
+                </div>
+
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h4>Ecole</h4>
+                        <div class="plan-price">
+                            <span class="price-monthly">199€<small>/mois</small></span>
+                            <span class="price-yearly">1 919€/an <span class="discount-tag">-20%</span></span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li><strong>50</strong> groupes</li>
+                        <li><strong>1 000</strong> etudiants</li>
+                        <li><strong>200</strong> quiz actifs</li>
+                        <li><strong>15 000</strong> corrections IA/mois</li>
+                        <li><strong>100</strong> generations quiz/mois</li>
+                        <li><strong>100</strong> analyses classe/mois</li>
+                        <li>Support <strong>visio</strong></li>
+                    </ul>
+                    <a href="mailto:thebot@brainnotfound.app?subject=Forfait Ecole" class="btn btn-secondary btn-block">
+                        Choisir Ecole
+                    </a>
+                </div>
+
+                <div class="plan-card enterprise">
+                    <div class="plan-header">
+                        <h4>Institution</h4>
+                        <div class="plan-price">
+                            <span class="price-monthly">499€<small>/mois</small></span>
+                            <span class="price-yearly">4 799€/an <span class="discount-tag">-20%</span></span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li><strong>Illimite</strong> groupes</li>
+                        <li><strong>Illimite</strong> etudiants</li>
+                        <li><strong>Illimite</strong> quiz actifs</li>
+                        <li><strong>Illimite</strong> corrections IA/mois</li>
+                        <li><strong>Illimite</strong> generations quiz/mois</li>
+                        <li><strong>Illimite</strong> analyses classe/mois</li>
+                        <li>Support <strong>dedie</strong></li>
+                    </ul>
+                    <a href="mailto:thebot@brainnotfound.app?subject=Forfait Institution" class="btn btn-secondary btn-block">
+                        Nous contacter
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-center text-light mt-2">
+                <i class="iconoir-info-circle"></i> Besoin d'un forfait sur mesure ? <a href="mailto:thebot@brainnotfound.app">Contactez-nous</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="landing-cta">
+        <div class="landing-cta-content">
+            <h2>Prêt à transformer vos évaluations ?</h2>
+            <p>Rejoignez les enseignants qui utilisent déjà BrainNotFound pour évaluer intelligemment.</p>
+            <div class="landing-cta-actions">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-large">
+                    Créer un compte gratuit
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-large">
+                    Se connecter
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/degun-osint/brainnotfound" target="_blank"><i class="iconoir-github"></i> GitHub</a>
+                <span class="footer-separator">|</span>
+                <a href="{{ url_for('auth.login') }}">Se connecter</a>
+                <span class="footer-separator">|</span>
+                <a href="{{ url_for('auth.register') }}">Créer un compte</a>
+            </div>
+            <p>made with &lt;3 by <a href="https://manufacture-osint.fr" target="_blank" style="color: inherit;">Degun - Manufacture Française d'Osint</a></p>
+            <p class="text-sm text-light mt-1">Open-source sous licence <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL v3</a></p>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" data-tooltip="Changer le thème">
+        <i class="iconoir-sun-light" id="theme-icon-light"></i>
+        <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
+    </button>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const lightIcon = document.getElementById('theme-icon-light');
+            const darkIcon = document.getElementById('theme-icon-dark');
+            if (theme === 'dark') {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'inline';
+            } else {
+                lightIcon.style.display = 'inline';
+                darkIcon.style.display = 'none';
+            }
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close mobile menu if open
+                    document.getElementById('mobile-menu').classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

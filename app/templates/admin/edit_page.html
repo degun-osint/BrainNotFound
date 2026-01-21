@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Modifier' if page else 'Nouvelle' }} page - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">{{ 'Modifier la page' if page else 'Nouvelle page' }}</h1>
+
+<form method="POST">
+    <div class="grid grid-cols-3 gap-lg">
+        <!-- Main content (2/3) -->
+        <div class="col-span-2">
+            <div class="card mb-2">
+                <div class="card-header">
+                    <i class="iconoir-page"></i> Contenu
+                </div>
+                <div class="p-2">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Titre *</label>
+                        <input type="text" id="title" name="title" class="form-input"
+                               value="{{ page.title if page else '' }}" required maxlength="200"
+                               placeholder="Ex: Mentions legales">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="slug" class="form-label">Slug (URL)</label>
+                        <div class="flex items-center gap-sm">
+                            <span class="text-light">/page/</span>
+                            <input type="text" id="slug" name="slug" class="form-input"
+                                   value="{{ page.slug if page else '' }}" maxlength="200"
+                                   placeholder="mentions-legales" pattern="[a-z0-9-]+">
+                        </div>
+                        <small class="text-light">Laissez vide pour generer automatiquement depuis le titre</small>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label for="content" class="form-label">Contenu (Markdown)</label>
+                        <textarea id="content" name="content" class="form-textarea" rows="20"
+                                  placeholder="# Titre
+
+Votre contenu en **Markdown**...
+
+## Sous-titre
+
+- Liste item 1
+- Liste item 2
+
+[Lien](https://example.com)">{{ page.content if page else '' }}</textarea>
+                        <small class="text-light">Supporte le Markdown : titres (#), gras (**), italique (*), liens, listes, tableaux, code</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar (1/3) -->
+        <div>
+            <div class="card mb-2">
+                <div class="card-header">
+                    <i class="iconoir-settings"></i> Options
+                </div>
+                <div class="p-2">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_published" {{ 'checked' if page and page.is_published }}>
+                            <span>Page publiee</span>
+                        </label>
+                        <small class="text-light d-block">Les pages non publiees ne sont pas visibles</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location" class="form-label">Afficher dans</label>
+                        <select id="location" name="location" class="form-select">
+                            <option value="footer" {{ 'selected' if not page or page.location == 'footer' }}>Footer uniquement</option>
+                            <option value="menu" {{ 'selected' if page and page.location == 'menu' }}>Menu uniquement</option>
+                            <option value="both" {{ 'selected' if page and page.location == 'both' }}>Menu et Footer</option>
+                            <option value="none" {{ 'selected' if page and page.location == 'none' }}>Aucun (accessible par URL)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="display_order" class="form-label">Ordre d'affichage</label>
+                        <input type="number" id="display_order" name="display_order" class="form-input"
+                               value="{{ page.display_order if page else 0 }}" min="0" max="999">
+                        <small class="text-light">Plus petit = affiche en premier</small>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="open_new_tab" {{ 'checked' if page and page.open_new_tab }}>
+                            <span>Ouvrir dans un nouvel onglet</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="iconoir-info-circle"></i> Aide Markdown
+                </div>
+                <div class="p-2">
+                    <pre class="text-small" style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; overflow-x: auto;"># Titre 1
+## Titre 2
+### Titre 3
+
+**Gras** et *italique*
+
+- Liste a puces
+- Item 2
+
+1. Liste numerotee
+2. Item 2
+
+[Lien](https://url.com)
+
+| Col 1 | Col 2 |
+|-------|-------|
+| A     | B     |
+
+`code inline`
+
+```
+bloc de code
+```</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-md mt-2">
+        <button type="submit" class="btn btn-primary">
+            <i class="iconoir-floppy-disk"></i> {{ 'Enregistrer' if page else 'Creer la page' }}
+        </button>
+        {% if page %}
+        <a href="{{ url_for('admin.preview_page', page_id=page.id) }}" class="btn btn-secondary" target="_blank">
+            <i class="iconoir-eye"></i> Apercu
+        </a>
+        {% endif %}
+        <a href="{{ url_for('admin.pages') }}" class="btn btn-secondary">
+            <i class="iconoir-xmark"></i> Annuler
+        </a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate slug from title
+document.getElementById('title').addEventListener('input', function() {
+    const slugInput = document.getElementById('slug');
+    if (!slugInput.dataset.modified) {
+        slugInput.value = this.value
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+});
+
+document.getElementById('slug').addEventListener('input', function() {
+    this.dataset.modified = 'true';
+});
+</script>
+{% endblock %}

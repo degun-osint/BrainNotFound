@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier {{ user.username }} - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Modifier l'utilisateur</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="grid-2 gap-md">
+            <div class="form-group">
+                <label class="form-label" for="first_name">Prenom</label>
+                <input type="text" id="first_name" name="first_name" class="form-input"
+                       value="{{ user.first_name or '' }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="last_name">Nom</label>
+                <input type="text" id="last_name" name="last_name" class="form-input"
+                       value="{{ user.last_name or '' }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="username">Nom d'utilisateur *</label>
+            <input type="text" id="username" name="username" class="form-input"
+                   value="{{ user.username }}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="email">Email *</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="email" id="email" name="email" class="form-input"
+                       value="{{ user.email }}" required style="flex: 1;">
+                {% if user.email_verified %}
+                <span class="badge badge-success" style="white-space: nowrap;">
+                    <i class="iconoir-check-circle"></i> Verifie
+                </span>
+                {% else %}
+                <span class="badge badge-warning" style="white-space: nowrap;">
+                    <i class="iconoir-warning-circle"></i> Non verifie
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if not user.email_verified %}
+        <div class="form-group" style="background: var(--bg-light); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <label class="form-label" style="margin-bottom: 0.5rem;">
+                <i class="iconoir-mail"></i> Email non verifie
+            </label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="submit" name="action" value="verify_email" class="btn btn-success btn-sm">
+                    <i class="iconoir-check"></i> Verifier manuellement
+                </button>
+                <button type="submit" name="action" value="resend_verification" class="btn btn-secondary btn-sm">
+                    <i class="iconoir-send"></i> Renvoyer email
+                </button>
+            </div>
+            <small class="text-light" style="display: block; margin-top: 0.5rem;">
+                Verifier manuellement permet a l'utilisateur de se connecter sans cliquer sur le lien email.
+            </small>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label class="form-label" for="password">Nouveau mot de passe</label>
+            <input type="password" id="password" name="password" class="form-input"
+                   placeholder="Laisser vide pour ne pas modifier">
+        </div>
+
+        {% if is_superadmin %}
+        <div class="form-group">
+            <label class="form-label">Role</label>
+            <div class="radio-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="is_superadmin" id="is_superadmin"
+                           {{ 'checked' if user.is_admin else '' }} onchange="toggleRoleOptions()">
+                    <span>Super-administrateur</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="is_tenant_admin" id="is_tenant_admin"
+                           {{ 'checked' if user.is_tenant_admin and not user.is_admin else '' }} onchange="toggleRoleOptions()">
+                    <span>Administrateur d'organisation</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="is_group_admin" id="is_group_admin"
+                           {{ 'checked' if user.is_group_admin and not user.is_admin and not user.is_tenant_admin else '' }} onchange="toggleRoleOptions()">
+                    <span>Administrateur de groupe</span>
+                </label>
+            </div>
+            <small class="text-light">
+                Super-admin: acces total. Admin organisation: gere ses organisations assignees. Admin groupe: gere ses groupes assignes.
+            </small>
+        </div>
+
+        {% if tenants %}
+        <div class="form-group {{ '' if user.is_tenant_admin and not user.is_admin else 'hidden' }}" id="tenant-select">
+            <label class="form-label">Organisations a administrer</label>
+            <div class="checkbox-list">
+                {% for tenant in tenants %}
+                <label class="checkbox-item">
+                    <input type="checkbox" name="tenant_ids" value="{{ tenant.id }}"
+                           {{ 'checked' if tenant.id in user_tenant_ids else '' }}>
+                    <span>{{ tenant.name }}</span>
+                    {% if tenant.description %}
+                    <small class="text-light">- {{ tenant.description|truncate(30) }}</small>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+            <small class="text-light">
+                Selectionnez les organisations que cet administrateur pourra gerer.
+            </small>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="form-group">
+            <label class="form-label">Role actuel</label>
+            <div>
+                {% if user.is_admin %}
+                <span class="badge badge-default">Super-Admin</span>
+                {% elif user.is_tenant_admin %}
+                <span class="badge badge-info">Admin organisation</span>
+                {% elif user.is_group_admin %}
+                <span class="badge badge-warning">Admin groupe</span>
+                {% else %}
+                <span class="badge badge-default">Utilisateur</span>
+                {% endif %}
+            </div>
+            <small class="text-light">Seuls les super-administrateurs peuvent modifier les roles.</small>
+        </div>
+        {% endif %}
+
+        <div class="form-group {{ 'disabled' if user.is_admin or user.is_tenant_admin else '' }}" id="group-select">
+            <label class="form-label">Groupes</label>
+            {% set groups_by_tenant = {} %}
+            {% set groups_no_tenant = [] %}
+            {% for group in groups %}
+                {% if group.tenant %}
+                    {% if group.tenant.id not in groups_by_tenant %}
+                        {% set _ = groups_by_tenant.update({group.tenant.id: {'tenant': group.tenant, 'groups': []}}) %}
+                    {% endif %}
+                    {% set _ = groups_by_tenant[group.tenant.id]['groups'].append(group) %}
+                {% else %}
+                    {% set _ = groups_no_tenant.append(group) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if groups_by_tenant|length > 0 %}
+            <div class="tenant-groups-container">
+                {% for tenant_id, data in groups_by_tenant.items() %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-building"></i>
+                        <strong>{{ data.tenant.name }}</strong>
+                        <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
+                            Tout selectionner
+                        </button>
+                    </div>
+                    <div class="checkbox-list mt-0">
+                        {% for group in data.groups %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}"
+                                   {{ 'checked' if group.id in user_group_roles else '' }}
+                                   {{ 'disabled' if user.is_admin or user.is_tenant_admin else '' }}>
+                            <span>{{ group.name }}</span>
+                            <small class="text-light font-mono">({{ group.join_code }})</small>
+                            {% if group.id in user_group_roles %}
+                            <span class="badge-mini {{ 'badge-warning' if user_group_roles[group.id] == 'admin' else '' }} ml-auto">
+                                {{ 'admin' if user_group_roles[group.id] == 'admin' else 'membre' }}
+                            </span>
+                            {% endif %}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if groups_no_tenant %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-globe"></i>
+                        <strong>Sans organisation</strong>
+                    </div>
+                    <div class="checkbox-list mt-0">
+                        {% for group in groups_no_tenant %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}"
+                                   {{ 'checked' if group.id in user_group_roles else '' }}
+                                   {{ 'disabled' if user.is_admin or user.is_tenant_admin else '' }}>
+                            <span>{{ group.name }}</span>
+                            <small class="text-light font-mono">({{ group.join_code }})</small>
+                            {% if group.id in user_group_roles %}
+                            <span class="badge-mini {{ 'badge-warning' if user_group_roles[group.id] == 'admin' else '' }} ml-auto">
+                                {{ 'admin' if user_group_roles[group.id] == 'admin' else 'membre' }}
+                            </span>
+                            {% endif %}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="checkbox-list">
+                {% for group in groups %}
+                <label class="checkbox-item">
+                    <input type="checkbox" name="group_ids" value="{{ group.id }}"
+                           {{ 'checked' if group.id in user_group_roles else '' }}
+                           {{ 'disabled' if user.is_admin or user.is_tenant_admin else '' }}>
+                    <span>{{ group.name }}</span>
+                    <small class="text-light font-mono">({{ group.join_code }})</small>
+                    {% if group.id in user_group_roles %}
+                    <span class="badge-mini {{ 'badge-warning' if user_group_roles[group.id] == 'admin' else '' }} ml-auto">
+                        {{ 'admin' if user_group_roles[group.id] == 'admin' else 'membre' }}
+                    </span>
+                    {% endif %}
+                </label>
+                {% endfor %}
+                {% if not groups %}
+                <span class="text-light">Aucun groupe disponible</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            <small class="text-light">
+                Selectionnez un ou plusieurs groupes pour l'utilisateur.
+                {% if is_superadmin %}Les super-administrateurs et admins d'organisation n'ont pas besoin de groupes.{% endif %}
+            </small>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-check"></i> Enregistrer
+            </button>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleRoleOptions() {
+    const isSuperadmin = document.getElementById('is_superadmin')?.checked || false;
+    const isTenantAdmin = document.getElementById('is_tenant_admin')?.checked || false;
+    const isGroupAdmin = document.getElementById('is_group_admin')?.checked || false;
+    const groupSelect = document.getElementById('group-select');
+    const tenantSelect = document.getElementById('tenant-select');
+    const groupCheckboxes = groupSelect.querySelectorAll('input[name="group_ids"]');
+
+    // Handle group selection visibility
+    if (isSuperadmin || isTenantAdmin) {
+        groupSelect.classList.add('disabled');
+        groupCheckboxes.forEach(cb => cb.disabled = true);
+    } else {
+        groupSelect.classList.remove('disabled');
+        groupCheckboxes.forEach(cb => cb.disabled = false);
+    }
+
+    // Handle tenant selection visibility
+    if (tenantSelect) {
+        if (isTenantAdmin && !isSuperadmin) {
+            tenantSelect.classList.remove('hidden');
+        } else {
+            tenantSelect.classList.add('hidden');
+        }
+    }
+
+    // Uncheck conflicting roles
+    if (isSuperadmin) {
+        const tenantAdminCb = document.getElementById('is_tenant_admin');
+        const groupAdminCb = document.getElementById('is_group_admin');
+        if (tenantAdminCb) tenantAdminCb.checked = false;
+        if (groupAdminCb) groupAdminCb.checked = false;
+    } else if (isTenantAdmin) {
+        const groupAdminCb = document.getElementById('is_group_admin');
+        if (groupAdminCb) groupAdminCb.checked = false;
+    }
+}
+
+function toggleTenantGroups(btn, tenantId) {
+    const checkboxes = document.querySelectorAll(`input[name="group_ids"][data-tenant="${tenantId}"]:not(:disabled)`);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
+
+    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+}
+</script>
+{% endblock %}

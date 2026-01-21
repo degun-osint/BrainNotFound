@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - BrainNotFound{% endblock %}
+
+{% block content %}
+{% if is_test %}
+<div class="preview-banner mb-2 flex justify-between items-center">
+    <div>
+        <h3><i class="iconoir-flask"></i> Mode Test</h3>
+        <p class="text-sm" style="opacity: 0.9;">Vous testez ce quiz en tant qu'admin. Les résultats seront marqués comme test.</p>
+    </div>
+    <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-small btn-ghost">
+        <i class="iconoir-arrow-left"></i> Retour preview
+    </a>
+</div>
+{% endif %}
+
+<h1 class="mb-2">{{ quiz.title }}</h1>
+
+{% if time_limit_minutes %}
+<div id="timer-banner" class="alert alert-info" style="position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center;">
+    <span><strong>Temps limite :</strong> {{ time_limit_minutes }} minutes</span>
+    <span><strong>Temps restant :</strong> <span id="timer-display">--:--</span></span>
+</div>
+{% endif %}
+
+{% if quiz.description %}
+<div class="card mb-2">
+    <p>{{ quiz.description }}</p>
+</div>
+{% endif %}
+
+<form method="POST" id="quizForm">
+    {% for question in questions %}
+    <div class="question">
+        <div class="question-header">
+            <span class="question-type">{{ question.question_type|upper }}</span>
+            <span class="question-points">{{ question.points }} point(s)</span>
+        </div>
+
+        <div class="question-text">{{ question.question_text|render_quiz_images(quiz.id) }}</div>
+
+        {% if question.question_type == 'mcq' %}
+            <ul class="options">
+                {% set q_options_order = options_order.get(question.id|string, range(question.options|length)|list) %}
+                {% for idx in q_options_order %}
+                <li class="option">
+                    <label>
+                        {% if question.allow_multiple %}
+                            <input type="checkbox" name="question_{{ question.id }}" value="{{ idx }}">
+                        {% else %}
+                            <input type="radio" name="question_{{ question.id }}" value="{{ idx }}" required>
+                        {% endif %}
+                        {{ question.options[idx]|render_quiz_images(quiz.id) }}
+                    </label>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if question.allow_multiple %}
+            <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem;">
+                <em>Plusieurs reponses possibles</em>
+            </p>
+            {% endif %}
+        {% else %}
+            <div class="form-group" style="margin-top: 1rem;">
+                <textarea name="question_{{ question.id }}" class="form-textarea"
+                          placeholder="Votre réponse..." required></textarea>
+            </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Hidden fields for timing data (minimal for classic mode) -->
+    <input type="hidden" name="timing_data" id="timing-data" value="{}">
+    <input type="hidden" name="focus_data" id="focus-data" value="{}">
+    <input type="hidden" name="focus_events" id="focus-events" value="[]">
+
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="button" class="btn btn-primary" id="submitQuizBtn">
+            Soumettre le quiz
+        </button>
+        <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary">Annuler</a>
+    </div>
+</form>
+
+<script>
+document.getElementById('submitQuizBtn').addEventListener('click', function() {
+    Modal.confirm('Etes-vous sur de vouloir soumettre votre quiz ?', 'Confirmation').then(function(confirmed) {
+        if (confirmed) {
+            document.getElementById('quizForm').submit();
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+{% if remaining_seconds is not none %}
+<script>
+(function() {
+    let remainingSeconds = {{ remaining_seconds }};
+    const timerDisplay = document.getElementById('timer-display');
+    const timerBanner = document.getElementById('timer-banner');
+    let timeExpired = false;
+
+    function updateTimer() {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        timerDisplay.textContent =
+            String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+        // Warning when < 5 minutes
+        if (remainingSeconds <= 300 && remainingSeconds > 60) {
+            timerBanner.className = 'alert alert-warning';
+            timerBanner.style.position = 'sticky';
+            timerBanner.style.top = '0';
+            timerBanner.style.zIndex = '100';
+        }
+        // Critical when < 1 minute
+        else if (remainingSeconds <= 60 && remainingSeconds > 0) {
+            timerBanner.className = 'alert alert-error';
+            timerBanner.style.position = 'sticky';
+            timerBanner.style.top = '0';
+            timerBanner.style.zIndex = '100';
+        }
+        // Time expired
+        else if (remainingSeconds <= 0 && !timeExpired) {
+            timeExpired = true;
+            timerBanner.innerHTML = '<strong>Temps ecoule !</strong> Vous pouvez encore soumettre votre quiz (la soumission sera marquee en retard).';
+            timerBanner.className = 'alert alert-error';
+            timerBanner.style.position = 'sticky';
+            timerBanner.style.top = '0';
+            timerBanner.style.zIndex = '100';
+            return;
+        }
+
+        if (remainingSeconds > 0) {
+            remainingSeconds--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+
+    updateTimer();
+})();
+</script>
+{% endif %}
+{% endblock %}

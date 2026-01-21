@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Dashboard Administrateur</h1>
+
+{% if fallback_warnings %}
+<div class="alert alert-warning mb-2">
+    <i class="iconoir-warning-triangle"></i>
+    <div>
+        <strong>Configuration par defaut detectee</strong>
+        <ul class="mt-1 mb-0" style="margin-left: 1.5em;">
+        {% for warning in fallback_warnings %}
+            <li>{{ warning.message }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_quizzes }}</div>
+        <div class="stat-label">Quiz créés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_groups }}</div>
+        <div class="stat-label">Groupes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_users }}</div>
+        <div class="stat-label">Utilisateurs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_responses }}</div>
+        <div class="stat-label">Réponses soumises</div>
+    </div>
+</div>
+
+{% if pending_grading > 0 %}
+<div class="alert alert-warning mb-2">
+    <i class="iconoir-hourglass"></i>
+    <span><strong>{{ pending_grading }}</strong> correction(s) en attente ou en cours</span>
+</div>
+{% endif %}
+
+{% if all_groups %}
+<div class="card mb-2">
+    <div class="card-header flex justify-between items-center">
+        <span><i class="iconoir-group"></i> Mes Groupes</span>
+        <a href="{{ url_for('admin.groups') }}" class="btn btn-secondary btn-small">Voir tout</a>
+    </div>
+    <div class="group-codes-grid">
+        {% for group in all_groups[:6] %}
+        <div class="group-code-card">
+            <div class="group-code-name">{{ group.name }}</div>
+            <div class="group-code-value">
+                <span class="font-mono">{{ group.join_code }}</span>
+                <button type="button" class="btn btn-icon btn-small" onclick="copyToClipboard('{{ group.join_code }}')" data-tooltip="Copier le code">
+                    <i class="iconoir-copy"></i>
+                </button>
+            </div>
+            <div class="group-code-meta text-sm text-light">
+                {{ group.get_member_count() }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} membre(s)
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if recent_responses %}
+<div class="card mb-2">
+    <div class="card-header">
+        <i class="iconoir-clock"></i> Activite recente
+    </div>
+    <div class="recent-activity">
+        {% for response in recent_responses %}
+        <div class="activity-item flex justify-between items-center gap-sm">
+            <div class="flex-1">
+                <a href="{{ url_for('admin.user_grades', user_id=response.user.id) }}" class="font-medium link-primary">
+                    {{ response.user.full_name }}
+                </a>
+                a soumis
+                <a href="{{ url_for('admin.quiz_results', quiz_id=response.quiz.id) }}" class="link-primary">
+                    {{ response.quiz.title|truncate(30) }}
+                </a>
+            </div>
+            <div class="flex gap-sm items-center">
+                {% set percentage = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
+                <span class="badge {% if percentage >= 80 %}badge-success{% elif percentage >= 50 %}badge-warning{% else %}badge-error{% endif %}">
+                    {{ "%.0f"|format(percentage) }}%
+                </span>
+                <span class="text-light text-sm">{{ response.submitted_at.strftime('%d/%m %H:%M') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>Mes Quiz</span>
+        <div class="flex gap-sm items-center flex-wrap">
+            <form method="GET" class="flex gap-sm items-center">
+                {% if all_tenants and all_tenants|length > 0 %}
+                <div class="searchable-select" data-autosubmit="true">
+                    <input type="hidden" name="tenant" value="{{ filter_tenant_id or 0 }}">
+                    <div class="searchable-select-trigger">
+                        <i class="iconoir-building"></i>
+                        <span>{% if filter_tenant_id %}{% for t in all_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}Toutes les organisations{% endif %}</span>
+                        <i class="iconoir-nav-arrow-down"></i>
+                    </div>
+                    <div class="searchable-select-dropdown">
+                        <div class="searchable-select-search">
+                            <input type="text" placeholder="Rechercher une organisation...">
+                        </div>
+                        <div class="searchable-select-options">
+                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">Toutes les organisations</div>
+                            {% for tenant in all_tenants %}
+                            <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="searchable-select" data-autosubmit="true">
+                    <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
+                    <div class="searchable-select-trigger">
+                        <i class="iconoir-group"></i>
+                        <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                        <i class="iconoir-nav-arrow-down"></i>
+                    </div>
+                    <div class="searchable-select-dropdown">
+                        <div class="searchable-select-search">
+                            <input type="text" placeholder="Rechercher un groupe...">
+                        </div>
+                        <div class="searchable-select-options">
+                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                            {% for group in all_groups %}
+                            <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
+                                {{ group.name }}
+                                {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <input type="text" name="search" value="{{ search }}" placeholder="Rechercher..."
+                       class="form-input input-search">
+                <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Rechercher">
+                    <i class="iconoir-search"></i>
+                </button>
+                {% if search or filter_group_id or filter_tenant_id %}
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                    <i class="iconoir-xmark"></i>
+                </a>
+                {% endif %}
+            </form>
+            <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary btn-small" data-tooltip="Generer un quiz par IA">
+                <i class="iconoir-sparks"></i> Generator
+            </a>
+            <a href="{{ url_for('admin.create_quiz') }}" class="btn btn-primary btn-small" data-tooltip="Creer un nouveau quiz">
+                <i class="iconoir-plus"></i> Nouveau
+            </a>
+        </div>
+    </div>
+
+    {% if search or filter_group_id or filter_tenant_id %}
+    <div class="search-results-info">
+        <span class="text-light">
+            {% if filter_tenant_id %}Organisation: {{ all_tenants|selectattr('id', 'eq', filter_tenant_id)|map(attribute='name')|first }}{% endif %}
+            {% if filter_tenant_id and filter_group_id %} - {% endif %}
+            {% if filter_group_id %}Groupe: {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
+            {% if (filter_tenant_id or filter_group_id) and search %} - {% endif %}
+            {% if search %}Recherche: "{{ search }}"{% endif %}
+            - {{ pagination.total }} resultat(s)
+        </span>
+    </div>
+    {% endif %}
+
+    {% if quizzes %}
+        <div class="quiz-grid">
+            {% for quiz in quizzes %}
+            <div class="quiz-card">
+                <div class="quiz-info">
+                    <h3>{{ quiz.title }}</h3>
+                    <div class="quiz-meta">
+                        {{ quiz.questions.count() }} questions -
+                        Créé le {{ quiz.created_at.strftime('%d/%m/%Y') }}
+                        {% if quiz.created_by %} par <strong>{{ quiz.created_by.username }}</strong>{% endif %}
+                        {% if quiz.time_limit_minutes %} - <span class="text-warning">{{ quiz.time_limit_minutes }} min</span>{% endif %}
+                        {% if quiz.available_from %}
+                        - <span class="text-info">Du {{ quiz.available_from.strftime('%d/%m %H:%M') }}</span>
+                        {% endif %}
+                        {% if quiz.available_until %}
+                        - <span class="text-info">au {{ quiz.available_until.strftime('%d/%m %H:%M') }}</span>
+                        {% endif %}
+                        -
+                        <span class="{{ 'text-success' if quiz.is_active else 'text-error' }}">
+                            {{ 'Actif' if quiz.is_active else 'Inactif' }}
+                        </span>
+                    </div>
+                    {% if quiz.groups.count() > 0 %}
+                    <div class="quiz-groups text-sm mt-0">
+                        <span class="text-light">Groupes:</span>
+                        {% for group in quiz.groups %}
+                        <span class="tag">{{ group.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="quiz-groups text-sm mt-0">
+                        <span class="text-light">Tous les groupes</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="quiz-actions">
+                    <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
+                        <i class="iconoir-eye"></i>
+                    </a>
+                    <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                        <i class="iconoir-stats-report"></i>
+                    </a>
+                    <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                        <i class="iconoir-edit-pencil"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin.duplicate_quiz', quiz_id=quiz.id) }}" class="inline">
+                        <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Dupliquer">
+                            <i class="iconoir-copy"></i>
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.toggle_quiz', quiz_id=quiz.id) }}" class="inline">
+                        <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if quiz.is_active else 'Activer' }}">
+                            <i class="iconoir-{{ 'eye-closed' if quiz.is_active else 'eye' }}"></i>
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}"
+                          onsubmit="return confirmDelete(this, 'ce quiz');" class="inline">
+                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                            <i class="iconoir-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-light p-2">
+            {% if search %}
+                Aucun quiz correspondant a "{{ search }}". <a href="{{ url_for('admin.dashboard') }}">Voir tous les quiz</a>
+            {% else %}
+                Aucun quiz créé. <a href="{{ url_for('admin.create_quiz') }}">Créez votre premier quiz</a>
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('admin.dashboard', page=pagination.prev_num, search=search, group=filter_group_id, tenant=filter_tenant_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page precedente">
+            <i class="iconoir-nav-arrow-left"></i>
+        </a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                <span class="btn btn-primary btn-small">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('admin.dashboard', page=page_num, search=search, group=filter_group_id, tenant=filter_tenant_id) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="{{ url_for('admin.dashboard', page=pagination.next_num, search=search, group=filter_group_id, tenant=filter_tenant_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page suivante">
+            <i class="iconoir-nav-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

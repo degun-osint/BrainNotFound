@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Notes de {{ user.full_name }} - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Notes de {{ user.full_name }}</h1>
+
+<div class="card mb-2">
+    <div class="flex justify-between items-center flex-wrap gap-md">
+        <div>
+            <strong>Identifiant :</strong> {{ user.username }}<br>
+            <strong>Email :</strong> {{ user.email }}<br>
+            <strong>Groupe :</strong> {{ user.group.name if user.group else 'Aucun' }}<br>
+            <strong>Inscrit le :</strong> {{ user.created_at.strftime('%d/%m/%Y') }}
+        </div>
+        <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-arrow-left"></i> Retour aux utilisateurs
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.quiz_count }}</div>
+        <div class="stat-label">Quiz completes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(stats.total_points) }}</div>
+        <div class="stat-label">Points totaux</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(stats.average_percentage) }}%</div>
+        <div class="stat-label">Moyenne generale</div>
+    </div>
+</div>
+
+<!-- Quiz History -->
+<h2 class="mb-1">Historique des quiz</h2>
+
+{% if responses %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Quiz</th>
+                <th>Score</th>
+                <th>Pourcentage</th>
+                <th>Date</th>
+                <th>Duree</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td>{{ response.quiz.title }}</td>
+                <td>{{ "%.1f"|format(response.total_score) }} / {{ "%.1f"|format(response.max_score) }}</td>
+                <td>
+                    {% set pct = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
+                    <span class="score-{{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}">
+                        {{ "%.1f"|format(pct) }}%
+                    </span>
+                </td>
+                <td>{{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if response.started_at %}
+                    {% set duration = ((response.submitted_at - response.started_at).total_seconds() / 60) %}
+                    {{ "%.1f"|format(duration) }} min
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if response.is_late %}
+                    <span class="badge badge-error">En retard</span>
+                    {% else %}
+                    <span class="badge badge-success">A temps</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="flex gap-sm flex-wrap">
+                        <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
+                            <i class="iconoir-eye"></i>
+                        </a>
+                        <a href="{{ url_for('admin.edit_response', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.delete_response', response_id=response.id) }}"
+                              onsubmit="return confirmDelete(this, 'cette reponse (l\'utilisateur pourra repasser le quiz)');" class="inline">
+                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                                <i class="iconoir-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <p class="text-center text-light p-2">
+        Cet utilisateur n'a pas encore complete de quiz.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

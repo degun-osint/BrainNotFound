@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier {{ tenant.name }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Modifier l'organisation</h1>
+
+<div class="card">
+    <div class="card-header">{{ tenant.name }}</div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label" for="name">Nom de l'organisation *</label>
+            <input type="text" id="name" name="name" class="form-input"
+                   value="{{ tenant.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Slug (URL)</label>
+            <input type="text" class="form-input font-mono" value="{{ tenant.slug }}" disabled>
+            <small class="text-light">Le slug ne peut pas etre modifie</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-textarea form-textarea-short">{{ tenant.description or '' }}</textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group flex-1">
+                <label class="form-label" for="contact_name">Nom du contact</label>
+                <input type="text" id="contact_name" name="contact_name" class="form-input"
+                       value="{{ tenant.contact_name or '' }}">
+            </div>
+            <div class="form-group flex-1">
+                <label class="form-label" for="contact_email">Email du contact</label>
+                <input type="email" id="contact_email" name="contact_email" class="form-input"
+                       value="{{ tenant.contact_email or '' }}">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Limites fixes</h3>
+        <div class="info-box bg-gray mb-2">
+            <strong>Note :</strong> 0 = illimite. Utilisation actuelle :
+            {{ tenant.get_users_count() }} utilisateurs,
+            {{ tenant.get_quizzes_count() }} quiz,
+            {{ tenant.get_groups_count() }} groupes
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="max_users">Max utilisateurs</label>
+                <input type="number" id="max_users" name="max_users" class="form-input"
+                       value="{{ tenant.max_users }}" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="max_quizzes">Max quiz</label>
+                <input type="number" id="max_quizzes" name="max_quizzes" class="form-input"
+                       value="{{ tenant.max_quizzes }}" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="max_groups">Max groupes</label>
+                <input type="number" id="max_groups" name="max_groups" class="form-input"
+                       value="{{ tenant.max_groups }}" min="0" style="width: 120px;">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Limites mensuelles IA</h3>
+        <div class="info-box bg-gray mb-2">
+            <strong>Usage ce mois :</strong>
+            {{ tenant.used_ai_corrections }} corrections,
+            {{ tenant.used_quiz_generations }} generations,
+            {{ tenant.used_class_analyses }} analyses
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="monthly_ai_corrections">Corrections IA / mois</label>
+                <input type="number" id="monthly_ai_corrections" name="monthly_ai_corrections" class="form-input"
+                       value="{{ tenant.monthly_ai_corrections }}" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_quiz_generations">Generations quiz / mois</label>
+                <input type="number" id="monthly_quiz_generations" name="monthly_quiz_generations" class="form-input"
+                       value="{{ tenant.monthly_quiz_generations }}" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_class_analyses">Analyses classe / mois</label>
+                <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
+                       value="{{ tenant.monthly_class_analyses }}" min="0" style="width: 120px;">
+            </div>
+        </div>
+
+        <h3 class="mt-2 mb-1">Abonnement</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="subscription_expires_at">Date d'expiration</label>
+                <input type="date" id="subscription_expires_at" name="subscription_expires_at" class="form-input"
+                       value="{{ tenant.subscription_expires_at.strftime('%Y-%m-%d') if tenant.subscription_expires_at else '' }}"
+                       style="width: 200px;">
+                <small class="text-light">Laisser vide pour un abonnement sans expiration</small>
+            </div>
+            <div class="form-group flex items-end">
+                {% if tenant.subscription_expires_at %}
+                    {% set days = tenant.days_until_expiration() %}
+                    {% if days < 0 %}
+                        <span class="badge badge-error">Expire depuis {{ -days }} jour(s)</span>
+                    {% elif days == 0 %}
+                        <span class="badge badge-warning">Expire aujourd'hui</span>
+                    {% elif days <= 30 %}
+                        <span class="badge badge-warning">Expire dans {{ days }} jour(s)</span>
+                    {% else %}
+                        <span class="badge badge-success">Expire dans {{ days }} jour(s)</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge badge-info">Sans expiration</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-checkbox">
+                <input type="checkbox" name="is_active" {% if tenant.is_active %}checked{% endif %}>
+                <span>Organisation active</span>
+            </label>
+            <small class="text-light">Desactiver une organisation empeche l'acces a ses groupes et quiz</small>
+        </div>
+
+        <h3 class="mt-2 mb-1">Notes internes</h3>
+        <div class="form-group">
+            <label class="form-label" for="internal_notes">Notes (visibles uniquement par les superadmins)</label>
+            <textarea id="internal_notes" name="internal_notes" class="form-textarea"
+                      placeholder="Notes de facturation, contacts, remarques...">{{ tenant.internal_notes or '' }}</textarea>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-check"></i> Enregistrer
+            </button>
+            <a href="{{ url_for('tenant.view_tenant', tenant_id=tenant.id) }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

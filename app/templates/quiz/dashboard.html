@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Tableau de Bord - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Mon Tableau de Bord</h1>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.quiz_count }}</div>
+        <div class="stat-label">Quiz completes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(stats.total_points) }}</div>
+        <div class="stat-label">Points totaux</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(stats.average_percentage) }}%</div>
+        <div class="stat-label">Moyenne generale</div>
+    </div>
+</div>
+
+<!-- Join Group Section -->
+<div class="card mb-2">
+    <div class="card-header" style="padding: 0.75rem 1rem;">
+        <h3 style="margin: 0; font-size: 1rem;"><i class="iconoir-group"></i> Rejoindre un groupe</h3>
+    </div>
+    <div class="card-body" style="padding: 1rem;">
+        <form method="POST" action="{{ url_for('auth.join_group') }}" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <input type="text" name="join_code" class="form-input"
+                       placeholder="Code de groupe (ex: ABC12DEF)" style="text-transform: uppercase;">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Rejoindre
+            </button>
+        </form>
+        {% if current_user.groups.count() > 0 %}
+        <div class="mt-1" style="font-size: 0.85rem;">
+            <span class="text-light">Mes groupes :</span>
+            {% for group in current_user.groups %}
+            <span class="badge badge-secondary">{{ group.name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quiz History -->
+<h2 class="mb-1">Historique des quiz</h2>
+
+{% if responses %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Quiz</th>
+                <th>Score</th>
+                <th>Pourcentage</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td>{{ response.quiz.title }}</td>
+                <td>{{ "%.1f"|format(response.total_score) }} / {{ "%.1f"|format(response.max_score) }}</td>
+                <td>
+                    {% set pct = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
+                    <span class="score-{{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}">
+                        {{ "%.1f"|format(pct) }}%
+                    </span>
+                </td>
+                <td>{{ response.submitted_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small">
+                        <i class="iconoir-eye"></i> Voir
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <p class="text-center text-light p-2">
+        Vous n'avez pas encore complete de quiz.<br>
+        <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-primary mt-1">
+            <i class="iconoir-list"></i> Voir les quiz disponibles
+        </a>
+    </p>
+</div>
+{% endif %}
+{% endblock %}

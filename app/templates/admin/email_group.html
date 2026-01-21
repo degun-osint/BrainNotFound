@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Email au groupe {{ group.name }} - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Envoyer un email</h1>
+
+<div class="card mb-2">
+    <div class="card-header">
+        <i class="iconoir-group"></i> Groupe: {{ group.name }}
+    </div>
+    <div class="p-1">
+        <p class="mb-1">
+            <strong>{{ users|length }}</strong> destinataire(s) avec email
+        </p>
+        {% if users %}
+        <div class="text-sm text-light">
+            {% for user in users[:10] %}
+            {{ user.email }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            {% if users|length > 10 %}
+            <span class="text-info">... et {{ users|length - 10 }} autre(s)</span>
+            {% endif %}
+        </div>
+        {% else %}
+        <p class="text-warning">Aucun utilisateur avec email dans ce groupe.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if users %}
+<form method="POST">
+    <div class="card">
+        <div class="card-header">
+            <i class="iconoir-mail"></i> Composer le message
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="subject">Sujet *</label>
+            <input type="text" id="subject" name="subject" class="form-input"
+                   placeholder="Sujet de l'email" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="message">Message *</label>
+            <textarea id="message" name="message" class="form-textarea" rows="10"
+                      placeholder="Votre message..." required></textarea>
+            <small class="text-light">
+                Variables disponibles: <code>{prenom}</code>, <code>{nom}</code>, <code>{username}</code>
+            </small>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary"
+                onclick="return confirm('Envoyer cet email a {{ users|length }} destinataire(s) ?');">
+            <i class="iconoir-send"></i> Envoyer ({{ users|length }})
+        </button>
+        <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary">
+            <i class="iconoir-xmark"></i> Annuler
+        </a>
+    </div>
+</form>
+{% else %}
+<div class="actions">
+    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour
+    </a>
+</div>
+{% endif %}
+{% endblock %}

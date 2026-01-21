@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz genere - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Quiz genere : {{ title }}</h1>
+
+<div class="alert alert-success mb-2">
+    <strong>Quiz genere avec succes !</strong> Verifiez et modifiez le contenu si necessaire avant de creer le quiz.
+</div>
+
+<div class="card">
+    <div class="card-header">Contenu genere (modifiable)</div>
+
+    <form method="POST" action="{{ url_for('admin.create_quiz') }}">
+        <div class="form-group">
+            <textarea id="markdown_content" name="markdown_content" class="form-textarea form-textarea-tall font-mono" required>{{ generated_markdown }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <input type="number" id="time_limit_minutes" name="time_limit_minutes"
+                       class="form-input input-sm" min="1" max="180" placeholder="--">
+                <span class="text-light">minutes (laisser vide pour illimite)</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <span class="text-light">/quiz/</span>
+                <input type="text" id="slug" name="slug" class="form-input input-lg"
+                       placeholder="mon-quiz" pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+            </div>
+            <small class="help-text">
+                Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <div class="flex items-center gap-md flex-wrap">
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">Du</span>
+                    <input type="datetime-local" id="available_from" name="available_from"
+                           class="form-input input-md">
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">au</span>
+                    <input type="datetime-local" id="available_until" name="available_until"
+                           class="form-input input-md">
+                </div>
+            </div>
+            <small class="help-text">
+                Laisser vide pour un quiz toujours disponible
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Groupes autorises (optionnel)</label>
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for group in groups %}
+                <label class="check-item">
+                    <input type="checkbox" name="group_ids" value="{{ group.id }}">
+                    <span>{{ group.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <small class="help-text">
+                Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Severite de la correction IA</label>
+            <div class="flex gap-lg mt-1">
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="gentil">
+                    <span class="text-success">Gentil</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="modere" checked>
+                    <span>Modere</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="severe">
+                    <span class="text-error">Severe</span>
+                </label>
+            </div>
+            <small class="help-text">
+                Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
+                <label class="check-item">
+                    <input type="checkbox" name="grading_mood" value="{{ mood }}">
+                    <span>{{ mood|capitalize }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <small class="help-text">
+                Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="randomize_questions">
+                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+            </label>
+            <small class="help-text">
+                Si active, les questions seront affichees dans un ordre different pour chaque etudiant
+            </small>
+        </div>
+
+        <div class="actions flex-wrap">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Creer le quiz
+            </button>
+            <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary">
+                <i class="iconoir-refresh"></i> Regenerer
+            </a>
+            <button type="button" class="btn btn-secondary" onclick="copyMarkdown()">
+                <i class="iconoir-copy"></i> Copier
+            </button>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Copy success notification -->
+<div id="copy-toast" class="toast">
+    Markdown copie dans le presse-papiers !
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyMarkdown() {
+    const textarea = document.getElementById('markdown_content');
+
+    // Modern clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textarea.value).then(function() {
+            showToast();
+        }).catch(function() {
+            fallbackCopy(textarea);
+        });
+    } else {
+        fallbackCopy(textarea);
+    }
+}
+
+function fallbackCopy(textarea) {
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // For mobile
+    document.execCommand('copy');
+    showToast();
+}
+
+function showToast() {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 3000);
+}
+</script>
+{% endblock %}

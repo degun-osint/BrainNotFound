@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un quiz - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Créer un nouveau quiz</h1>
+
+<div class="card">
+    <div class="card-header">Format Markdown</div>
+    <div class="bg-gray rounded p-1 mb-1">
+        <p class="text-light text-sm mb-0">Exemple de format :</p>
+        <pre class="text-sm overflow-x-auto"># Titre du Quiz
+
+## QCM - Quelle est la capitale de la France ? [2 points]
+- [ ] Lyon
+- [x] Paris
+- [ ] Marseille
+
+## QCM - Langages de programmation (plusieurs réponses) [3 points]
+- [x] Python
+- [ ] HTML
+- [x] Java
+
+## OUVERTE - Expliquez la récursivité [5 points]
+### Réponse attendue
+Une fonction récursive est une fonction qui s'appelle elle-même...</pre>
+    </div>
+
+    <!-- Image Upload Section -->
+    <div class="card-header mt-1">Images</div>
+    <div class="bg-gray rounded p-1 mb-1">
+        <p class="text-light text-sm mb-0">
+            Uploadez des images puis inserez le code Markdown genere dans votre quiz.
+            Syntaxe: <code>![description](nom_fichier.png)</code>
+        </p>
+        <div class="flex items-center gap-md flex-wrap mt-1">
+            <input type="file" id="image-upload" accept="image/*" class="hidden">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('image-upload').click()">
+                <i class="iconoir-media-image-plus"></i> Ajouter une image
+            </button>
+            <span id="upload-status" class="text-light"></span>
+        </div>
+        <div id="uploaded-images" class="flex flex-wrap gap-sm mt-1"></div>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label" for="markdown_content">Contenu Markdown</label>
+            <textarea id="markdown_content" name="markdown_content" class="form-textarea"
+                      style="min-height: 400px;" required>{% if markdown_content %}{{ markdown_content }}{% else %}# Mon Quiz
+
+## QCM - Question 1 [1 points]
+- [ ] Option A
+- [x] Option B
+- [ ] Option C
+
+## OUVERTE - Question 2 [2 points]
+### Réponse attendue
+Réponse modèle ici...{% endif %}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <input type="number" id="time_limit_minutes" name="time_limit_minutes"
+                       class="form-input input-sm" min="1" max="180"
+                       placeholder="--">
+                <span class="text-light">minutes (laisser vide pour illimite)</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <span class="text-light">/quiz/</span>
+                <input type="text" id="slug" name="slug" class="form-input input-lg"
+                       placeholder="mon-quiz" pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+            </div>
+            <small class="help-text">
+                Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <div class="flex items-center gap-md flex-wrap">
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">Du</span>
+                    <input type="datetime-local" id="available_from" name="available_from"
+                           class="form-input input-md">
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">au</span>
+                    <input type="datetime-local" id="available_until" name="available_until"
+                           class="form-input input-md">
+                </div>
+            </div>
+            <small class="help-text">
+                Laisser vide pour un quiz toujours disponible
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Groupes autorises (optionnel)</label>
+            {% set groups_by_tenant = {} %}
+            {% set groups_no_tenant = [] %}
+            {% for group in groups %}
+                {% if group.tenant %}
+                    {% if group.tenant.id not in groups_by_tenant %}
+                        {% set _ = groups_by_tenant.update({group.tenant.id: {'tenant': group.tenant, 'groups': []}}) %}
+                    {% endif %}
+                    {% set _ = groups_by_tenant[group.tenant.id]['groups'].append(group) %}
+                {% else %}
+                    {% set _ = groups_no_tenant.append(group) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if groups_by_tenant|length > 0 %}
+            <div class="tenant-groups-container mt-1">
+                {% for tenant_id, data in groups_by_tenant.items() %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-building"></i>
+                        <strong>{{ data.tenant.name }}</strong>
+                        <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
+                            Tout selectionner
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-md mt-0">
+                        {% for group in data.groups %}
+                        <label class="check-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}">
+                            <span>{{ group.name }}</span>
+                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if groups_no_tenant %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-globe"></i>
+                        <strong>Sans tenant</strong>
+                    </div>
+                    <div class="flex flex-wrap gap-md mt-0">
+                        {% for group in groups_no_tenant %}
+                        <label class="check-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}">
+                            <span>{{ group.name }}</span>
+                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for group in groups %}
+                <label class="check-item">
+                    <input type="checkbox" name="group_ids" value="{{ group.id }}">
+                    <span>{{ group.name }}</span>
+                    <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <small class="help-text">
+                Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Severite de la correction IA</label>
+            <div class="flex gap-lg mt-1">
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="gentil">
+                    <span class="text-success">Gentil</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="modere" checked>
+                    <span>Modere</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="severe">
+                    <span class="text-error">Severe</span>
+                </label>
+            </div>
+            <small class="help-text">
+                Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
+                <label class="check-item">
+                    <input type="checkbox" name="grading_mood" value="{{ mood }}">
+                    <span>{{ mood|capitalize }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <small class="help-text">
+                Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.
+            </small>
+        </div>
+
+        <div class="card-header mt-1">Options d'affichage</div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="randomize_questions">
+                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+            </label>
+            <small class="help-text">
+                Si active, les questions seront affichees dans un ordre different pour chaque etudiant
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="randomize_options">
+                <span class="form-label mb-0">Ordre aleatoire des reponses QCM</span>
+            </label>
+            <small class="help-text">
+                Si active, les options de chaque QCM seront melangees pour chaque etudiant
+            </small>
+        </div>
+
+        <div class="card-header mt-1">Mode Examen (Anti-triche)</div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="one_question_per_page">
+                <span class="form-label mb-0">Une question par page</span>
+            </label>
+            <small class="help-text">
+                Active le mode examen : navigation question par question, chronometrage individuel,
+                detection des changements de fenetre. Ideal pour les evaluations surveillees.
+            </small>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Creer le quiz
+            </button>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle all groups for a tenant
+function toggleTenantGroups(btn, tenantId) {
+    const checkboxes = document.querySelectorAll(`input[name="group_ids"][data-tenant="${tenantId}"]`);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
+
+    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+}
+
+document.getElementById('image-upload').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('quiz_id', 'temp');
+
+    document.getElementById('upload-status').textContent = 'Upload en cours...';
+
+    try {
+        const response = await fetch('{{ url_for("admin.upload_image") }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Insert markdown at cursor position in textarea
+            const textarea = document.getElementById('markdown_content');
+            const markdown = '\n' + data.markdown + '\n';
+            const pos = textarea.selectionStart;
+            textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
+
+            document.getElementById('upload-status').textContent = 'Image ajoutee ! Code: ' + data.markdown;
+
+            // Show thumbnail preview
+            const imgContainer = document.getElementById('uploaded-images');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative inline-block';
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'thumb-preview';
+            img.title = data.filename;
+
+            const label = document.createElement('div');
+            label.textContent = data.filename;
+            label.className = 'thumb-label';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(label);
+            imgContainer.appendChild(wrapper);
+        } else {
+            document.getElementById('upload-status').textContent = 'Erreur: ' + data.error;
+            document.getElementById('upload-status').className = 'text-error';
+        }
+    } catch (err) {
+        document.getElementById('upload-status').textContent = 'Erreur de connexion';
+        document.getElementById('upload-status').className = 'text-error';
+    }
+
+    e.target.value = '';  // Reset input for next upload
+});
+</script>
+{% endblock %}

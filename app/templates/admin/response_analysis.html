@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse - {{ stats.response.user_name }} - BrainNotFound{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: var(--gray-100);
+        border: 1px solid var(--border);
+        padding: 1rem;
+    }
+
+    .stat-card h3 {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+
+    .stat-value.success { color: var(--accent-success); }
+    .stat-value.warning { color: var(--accent-warning); }
+    .stat-value.danger { color: var(--accent-error); }
+
+    .time-chart {
+        height: 200px;
+        margin: 1rem 0;
+    }
+
+    .question-timeline {
+        margin-top: 1rem;
+    }
+
+    .timeline-item {
+        display: grid;
+        grid-template-columns: 40px 1fr 100px 80px 60px;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-light);
+        align-items: center;
+    }
+
+    .timeline-item:hover {
+        background: var(--gray-100);
+    }
+
+    .timeline-item .q-num {
+        font-weight: 600;
+        color: var(--black);
+        font-family: var(--font-mono);
+    }
+
+    .timeline-item .q-text {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .timeline-item .q-time {
+        text-align: right;
+        font-family: var(--font-mono);
+    }
+
+    .timeline-item .q-focus {
+        text-align: center;
+    }
+
+    .timeline-item .q-score {
+        text-align: right;
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+
+    .time-bar {
+        height: 8px;
+        background: var(--gray-200);
+        overflow: hidden;
+        margin-top: 0.25rem;
+    }
+
+    .time-bar-fill {
+        height: 100%;
+        background: var(--black);
+        transition: width 0.3s ease;
+    }
+
+    .time-bar-fill.slow { background: var(--accent-error); }
+    .time-bar-fill.fast { background: var(--accent-success); }
+
+    .analysis-result {
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid var(--border);
+    }
+
+    .analysis-result.low {
+        background: rgba(45, 90, 39, 0.1);
+        border-color: var(--accent-success);
+    }
+
+    .analysis-result.medium {
+        background: rgba(139, 105, 20, 0.1);
+        border-color: var(--accent-warning);
+    }
+
+    .analysis-result.high {
+        background: rgba(139, 32, 32, 0.1);
+        border-color: var(--accent-error);
+    }
+
+    .analysis-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .risk-badge {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-family: var(--font-mono);
+    }
+
+    .risk-badge.low { background: var(--accent-success); color: white; }
+    .risk-badge.medium { background: var(--accent-warning); color: white; }
+    .risk-badge.high { background: var(--accent-error); color: white; }
+
+    .anomaly-list {
+        margin-top: 1rem;
+    }
+
+    .anomaly-item {
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.5);
+        margin-bottom: 0.5rem;
+        border: 1px solid var(--border-light);
+    }
+
+    .anomaly-item .severity {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+
+    .anomaly-item .severity.minor { color: var(--gray-500); }
+    .anomaly-item .severity.moderate { color: var(--accent-warning); }
+    .anomaly-item .severity.severe { color: var(--accent-error); }
+
+    .focus-events-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .focus-event {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--border-light);
+        font-size: 0.85rem;
+        align-items: center;
+    }
+
+    .focus-event:hover {
+        background: var(--gray-100);
+    }
+
+    .event-type-badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+        white-space: nowrap;
+    }
+
+    .event-type-badge.focus { background: var(--accent-warning); color: white; }
+    .event-type-badge.security { background: var(--accent-error); color: white; }
+    .event-type-badge.blocked { background: var(--gray-500); color: white; }
+
+    .event-description {
+        color: var(--text);
+    }
+
+    .event-meta {
+        display: flex;
+        gap: 1rem;
+        color: var(--text-light);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+    }
+
+    .header-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 100px 80px 60px;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: var(--gray-100);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">
+    Analyse detaillee
+    <span class="text-light text-sm">{{ stats.response.user_name }} - {{ stats.response.quiz_title }}</span>
+</h1>
+
+<!-- Summary Stats -->
+<div class="analysis-grid mb-2">
+    <div class="stat-card">
+        <h3>Duree totale</h3>
+        <div class="stat-value">{{ stats.response.total_duration_minutes }} min</div>
+    </div>
+    <div class="stat-card">
+        <h3>Temps moyen / question</h3>
+        <div class="stat-value">{{ stats.averages.avg_time_per_question }}s</div>
+    </div>
+    <div class="stat-card">
+        <h3>Score</h3>
+        <div class="stat-value {% if stats.response.total_score / stats.response.max_score >= 0.7 %}success{% elif stats.response.total_score / stats.response.max_score >= 0.5 %}warning{% else %}danger{% endif %}">
+            {{ "%.1f"|format(stats.response.total_score) }} / {{ "%.1f"|format(stats.response.max_score) }}
+        </div>
+    </div>
+    <div class="stat-card">
+        <h3>Pertes de focus</h3>
+        <div class="stat-value {% if stats.response.total_focus_lost == 0 %}success{% elif stats.response.total_focus_lost < 3 %}warning{% else %}danger{% endif %}">
+            {{ stats.response.total_focus_lost }}
+        </div>
+    </div>
+</div>
+
+<!-- AI Analysis Section -->
+<div class="card mb-2">
+    <div class="card-header flex justify-between items-center">
+        <span>Analyse IA Anti-Triche</span>
+        {% if not stats.response.ai_analysis_status or stats.response.ai_analysis_status != 'completed' %}
+        <button type="button" class="btn btn-primary btn-small" id="analyze-btn" onclick="runAnalysis()">
+            <i class="iconoir-sparks"></i> Lancer l'analyse
+        </button>
+        {% endif %}
+    </div>
+
+    <div id="analysis-container">
+        {% if stats.response.ai_analysis_result %}
+            {% set result = stats.response.ai_analysis_result %}
+            <div class="analysis-result {{ result.risk_level }}">
+                <div class="analysis-header">
+                    <span class="risk-badge {{ result.risk_level }}">
+                        {% if result.risk_level == 'low' %}Risque faible{% elif result.risk_level == 'medium' %}Risque modere{% else %}Risque eleve{% endif %}
+                    </span>
+                    <span class="text-light">Confiance: {{ (result.confidence * 100)|round(0)|int }}%</span>
+                </div>
+                <p>{{ result.summary }}</p>
+
+                {% if result.anomalies %}
+                <div class="anomaly-list">
+                    <h4>Anomalies detectees:</h4>
+                    {% for anomaly in result.anomalies %}
+                    <div class="anomaly-item">
+                        <span class="severity {{ anomaly.severity }}">{{ anomaly.severity }}</span>
+                        {% if anomaly.question_number %}
+                        <strong>Question {{ anomaly.question_number }}:</strong>
+                        {% endif %}
+                        {{ anomaly.description }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="text-center text-light p-2">
+                Cliquez sur "Lancer l'analyse" pour detecter d'eventuelles anomalies.
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Time per Question -->
+<div class="card mb-2">
+    <div class="card-header">Temps par question</div>
+
+    <div class="header-row">
+        <span>#</span>
+        <span>Question</span>
+        <span style="text-align: right;">Temps</span>
+        <span style="text-align: center;">Focus</span>
+        <span style="text-align: right;">Score</span>
+    </div>
+
+    <div class="question-timeline">
+        {% set max_time = stats.averages.max_time if stats.averages.max_time > 0 else 60 %}
+        {% for q in stats.questions %}
+        <div class="timeline-item">
+            <span class="q-num">{{ q.question_number }}</span>
+            <div>
+                <span class="q-text">{{ q.question_text }}</span>
+                <div class="time-bar">
+                    {% set time_percent = (q.time_spent_seconds / max_time * 100) if q.time_spent_seconds else 0 %}
+                    {% set clamped_percent = time_percent if time_percent <= 100 else 100 %}
+                    {% set class_avg = class_averages.get(q.question_id, {}).get('avg_time') %}
+                    <div class="time-bar-fill {% if class_avg and q.time_spent_seconds < class_avg * 0.3 %}fast{% elif class_avg and q.time_spent_seconds > class_avg * 2 %}slow{% endif %}"
+                         style="width: {{ clamped_percent }}%"></div>
+                </div>
+            </div>
+            <span class="q-time">
+                {{ q.time_spent_seconds or 0 }}s
+                {% if class_averages.get(q.question_id, {}).get('avg_time') %}
+                <br><small class="text-light">(moy: {{ class_averages[q.question_id]['avg_time']|int }}s)</small>
+                {% endif %}
+            </span>
+            <span class="q-focus">
+                {% if q.focus_lost_count > 0 %}
+                <span class="badge badge-warning">{{ q.focus_lost_count }}</span>
+                {% else %}
+                <span class="text-success">0</span>
+                {% endif %}
+            </span>
+            <span class="q-score {% if q.score == q.max_score %}text-success{% elif q.score > 0 %}text-warning{% else %}text-error{% endif %}">
+                {{ "%.1f"|format(q.score) }}/{{ "%.1f"|format(q.max_score) }}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Focus & Security Events Log -->
+{% if stats.response.focus_events %}
+<div class="card mb-2">
+    <div class="card-header">
+        <i class="iconoir-shield-alert"></i> Journal des evenements de surveillance
+        <span class="badge badge-secondary" style="margin-left: 0.5rem;">{{ stats.response.focus_events|length }} evenement(s)</span>
+    </div>
+    <div class="focus-events-list">
+        {% for event in stats.response.focus_events %}
+        <div class="focus-event">
+            {% if event.event_type == 'focus_lost' %}
+                <span class="event-type-badge focus">
+                    {% if event.loss_type == 'tab_hidden' %}TAB{% elif event.loss_type == 'window_blur' %}BLUR{% else %}FOCUS{% endif %}
+                </span>
+            {% elif 'blocked' in event.event_type %}
+                <span class="event-type-badge blocked">BLOQUE</span>
+            {% elif 'detected' in event.event_type %}
+                <span class="event-type-badge security">DETECTE</span>
+            {% else %}
+                <span class="event-type-badge security">SECU</span>
+            {% endif %}
+            <span class="event-description">
+                {% if event.description %}
+                    {{ event.description }}
+                {% elif event.event_type == 'context_menu_blocked' %}
+                    Clic droit bloque
+                {% elif event.event_type == 'f12_blocked' %}
+                    Touche F12 bloquee (DevTools)
+                {% elif event.event_type == 'devtools_shortcut_blocked' %}
+                    Raccourci DevTools bloque (Ctrl+Shift+I)
+                {% elif event.event_type == 'console_shortcut_blocked' %}
+                    Raccourci Console bloque (Ctrl+Shift+J)
+                {% elif event.event_type == 'inspector_shortcut_blocked' %}
+                    Raccourci Inspecteur bloque (Ctrl+Shift+C)
+                {% elif event.event_type == 'view_source_blocked' %}
+                    Affichage source bloque (Ctrl+U)
+                {% elif event.event_type == 'save_page_blocked' %}
+                    Sauvegarde page bloquee (Ctrl+S)
+                {% elif event.event_type == 'print_blocked' %}
+                    Impression bloquee (Ctrl+P)
+                {% elif event.event_type == 'copy_question_blocked' %}
+                    Copie de question bloquee
+                {% elif event.event_type == 'paste_detected' %}
+                    Collage detecte{% if event.length %} ({{ event.length }} car.){% endif %}
+                {% elif event.event_type == 'devtools_detected' %}
+                    Ouverture DevTools detectee
+                {% elif event.event_type == 'print_screen_detected' %}
+                    Capture d'ecran detectee
+                {% else %}
+                    {{ event.event_type|replace('_', ' ')|capitalize }}
+                {% endif %}
+            </span>
+            <span class="event-meta">
+                <span>Q{{ event.question_index + 1 if event.question_index is defined else event.question_id }}</span>
+                <span>{{ event.timestamp[11:19] if event.timestamp|length > 19 else event.timestamp }}</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-2 flex gap-md">
+    <a href="{{ url_for('admin.quiz_results', quiz_id=stats.response.quiz_id) }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour aux resultats
+    </a>
+    <a href="{{ url_for('quiz.result', response_id=stats.response.id) }}" class="btn btn-secondary">
+        <i class="iconoir-eye"></i> Voir les reponses
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const responseId = {{ stats.response.id }};
+
+async function runAnalysis() {
+    const btn = document.getElementById('analyze-btn');
+    const container = document.getElementById('analysis-container');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> Analyse en cours...';
+
+    try {
+        const response = await fetch('/admin/response/' + responseId + '/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Reload page to show results
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse';
+        }
+    } catch (err) {
+        alert('Erreur de connexion');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse';
+    }
+}
+</script>
+{% endblock %}

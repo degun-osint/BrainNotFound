@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier {{ quiz.title }} - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Modifier le quiz</h1>
+
+<!-- Quiz Link Section -->
+<div class="card mb-1">
+    <div class="card-header">Lien de partage</div>
+    <div class="share-box">
+        <code id="quiz-link" class="share-link">{{ request.host_url }}quiz/{{ quiz.slug or quiz.id }}</code>
+        <button type="button" class="btn btn-secondary btn-small" onclick="copyQuizLink()" data-tooltip="Copier dans le presse-papier">
+            <i class="iconoir-copy"></i> Copier
+        </button>
+        <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small" data-tooltip="Voir le quiz">
+            <i class="iconoir-eye"></i> Preview
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <!-- Image Upload Section -->
+    <div class="card-header">Images</div>
+    <div class="bg-gray rounded p-1 mb-1">
+        <p class="text-light text-sm mb-0">
+            Uploadez des images puis inserez le code Markdown genere dans votre quiz.
+            Syntaxe: <code>![description](nom_fichier.png)</code>
+        </p>
+        <div class="flex items-center gap-md flex-wrap mt-1">
+            <input type="file" id="image-upload" accept="image/*" class="hidden">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('image-upload').click()">
+                <i class="iconoir-media-image-plus"></i> Ajouter une image
+            </button>
+            <span id="upload-status" class="text-light"></span>
+        </div>
+        <div id="uploaded-images" class="flex flex-wrap gap-sm mt-1"></div>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label" for="markdown_content">Contenu Markdown</label>
+            <textarea id="markdown_content" name="markdown_content" class="form-textarea" required>{{ quiz.markdown_content }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <input type="number" id="time_limit_minutes" name="time_limit_minutes"
+                       class="form-input input-sm" min="1" max="180"
+                       value="{{ quiz.time_limit_minutes or '' }}" placeholder="--">
+                <span class="text-light">minutes (laisser vide pour illimite)</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <div class="flex items-center gap-sm">
+                <span class="text-light">/quiz/</span>
+                <input type="text" id="slug" name="slug" class="form-input input-lg"
+                       value="{{ quiz.slug or '' }}" placeholder="mon-quiz"
+                       pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+            </div>
+            <small class="help-text">Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID ({{ quiz.id }}).</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <div class="flex items-center gap-md flex-wrap">
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">Du</span>
+                    <input type="datetime-local" id="available_from" name="available_from"
+                           class="form-input input-md"
+                           value="{{ quiz.available_from.strftime('%Y-%m-%dT%H:%M') if quiz.available_from else '' }}">
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">au</span>
+                    <input type="datetime-local" id="available_until" name="available_until"
+                           class="form-input input-md"
+                           value="{{ quiz.available_until.strftime('%Y-%m-%dT%H:%M') if quiz.available_until else '' }}">
+                </div>
+            </div>
+            <small class="help-text">Laisser vide pour un quiz toujours disponible</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Groupes autorises (optionnel)</label>
+            {% set quiz_group_ids = quiz.groups.all()|map(attribute='id')|list %}
+            {% set groups_by_tenant = {} %}
+            {% set groups_no_tenant = [] %}
+            {% for group in groups %}
+                {% if group.tenant %}
+                    {% if group.tenant.id not in groups_by_tenant %}
+                        {% set _ = groups_by_tenant.update({group.tenant.id: {'tenant': group.tenant, 'groups': []}}) %}
+                    {% endif %}
+                    {% set _ = groups_by_tenant[group.tenant.id]['groups'].append(group) %}
+                {% else %}
+                    {% set _ = groups_no_tenant.append(group) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if groups_by_tenant|length > 0 %}
+            <div class="tenant-groups-container mt-1">
+                {% for tenant_id, data in groups_by_tenant.items() %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-building"></i>
+                        <strong>{{ data.tenant.name }}</strong>
+                        <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
+                            Tout selectionner
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-md mt-0">
+                        {% for group in data.groups %}
+                        <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
+                            <span>{{ group.name }}</span>
+                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if groups_no_tenant %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-globe"></i>
+                        <strong>Sans tenant</strong>
+                    </div>
+                    <div class="flex flex-wrap gap-md mt-0">
+                        {% for group in groups_no_tenant %}
+                        <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
+                            <span>{{ group.name }}</span>
+                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for group in groups %}
+                <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
+                    <input type="checkbox" name="group_ids" value="{{ group.id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
+                    <span>{{ group.name }}</span>
+                    <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <small class="help-text">Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Severite de la correction IA</label>
+            <div class="flex gap-lg mt-1">
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="gentil" {{ 'checked' if quiz.grading_severity == 'gentil' else '' }}>
+                    <span class="text-success">Gentil</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="modere" {{ 'checked' if quiz.grading_severity == 'modere' or not quiz.grading_severity else '' }}>
+                    <span>Modere</span>
+                </label>
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="radio" name="grading_severity" value="severe" {{ 'checked' if quiz.grading_severity == 'severe' else '' }}>
+                    <span class="text-error">Severe</span>
+                </label>
+            </div>
+            <small class="help-text">Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            {% set quiz_moods = quiz.grading_mood or [] %}
+            <div class="flex flex-wrap gap-md mt-1">
+                {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
+                <label class="check-item {{ 'selected' if mood in quiz_moods else '' }}">
+                    <input type="checkbox" name="grading_mood" value="{{ mood }}" {{ 'checked' if mood in quiz_moods else '' }}>
+                    <span>{{ mood|capitalize }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <small class="help-text">Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.</small>
+        </div>
+
+        <div class="card-header mt-1">Options d'affichage</div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="randomize_questions" {{ 'checked' if quiz.randomize_questions else '' }}>
+                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+            </label>
+            <small class="help-text">Si active, les questions seront affichees dans un ordre different pour chaque etudiant</small>
+        </div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="randomize_options" {{ 'checked' if quiz.randomize_options else '' }}>
+                <span class="form-label mb-0">Ordre aleatoire des reponses QCM</span>
+            </label>
+            <small class="help-text">Si active, les options de chaque QCM seront melangees pour chaque etudiant</small>
+        </div>
+
+        <div class="card-header mt-1">Mode Examen (Anti-triche)</div>
+
+        <div class="form-group">
+            <label class="flex items-center gap-sm cursor-pointer">
+                <input type="checkbox" name="one_question_per_page" {{ 'checked' if quiz.one_question_per_page else '' }}>
+                <span class="form-label mb-0">Une question par page</span>
+            </label>
+            <small class="help-text">
+                Active le mode examen : navigation question par question, chronometrage individuel,
+                detection des changements de fenetre. Ideal pour les evaluations surveillees.
+            </small>
+        </div>
+
+        {% if admin_users %}
+        <div class="card-header mt-1">Administration</div>
+
+        <div class="form-group">
+            <label class="form-label">Auteur du quiz</label>
+            <div class="searchable-select" style="max-width: 350px;">
+                <input type="hidden" name="created_by_id" value="{{ quiz.created_by_id or '' }}">
+                <div class="searchable-select-trigger">
+                    <span>{% if quiz.created_by %}{{ quiz.created_by.full_name }} ({{ quiz.created_by.username }}){% else %}Selectionner un auteur{% endif %}</span>
+                    <i class="iconoir-nav-arrow-down"></i>
+                </div>
+                <div class="searchable-select-dropdown">
+                    <div class="searchable-select-search">
+                        <input type="text" placeholder="Rechercher un utilisateur...">
+                    </div>
+                    <div class="searchable-select-options">
+                        {% for user in admin_users %}
+                        <div class="searchable-select-option {% if quiz.created_by_id == user.id %}selected{% endif %}" data-value="{{ user.id }}">
+                            {{ user.full_name }} ({{ user.username }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <small class="help-text">L'auteur affiche sur le dashboard et dans les stats</small>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-check"></i> Enregistrer
+            </button>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyQuizLink() {
+    const link = document.getElementById('quiz-link').textContent.trim();
+    navigator.clipboard.writeText(link).then(function() {
+        alert('Lien copie !');
+    });
+}
+
+// Toggle all groups for a tenant
+function toggleTenantGroups(btn, tenantId) {
+    const checkboxes = document.querySelectorAll(`input[name="group_ids"][data-tenant="${tenantId}"]`);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
+
+    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+}
+
+document.getElementById('image-upload').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('quiz_id', '{{ quiz.id }}');
+
+    document.getElementById('upload-status').textContent = 'Upload en cours...';
+
+    try {
+        const response = await fetch('{{ url_for("admin.upload_image") }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            const textarea = document.getElementById('markdown_content');
+            const markdown = '\n' + data.markdown + '\n';
+            const pos = textarea.selectionStart;
+            textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
+
+            document.getElementById('upload-status').textContent = 'Image ajoutee ! Code: ' + data.markdown;
+
+            const imgContainer = document.getElementById('uploaded-images');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative inline-block';
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'thumb-preview';
+            img.title = data.filename;
+
+            const label = document.createElement('div');
+            label.textContent = data.filename;
+            label.className = 'thumb-label';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(label);
+            imgContainer.appendChild(wrapper);
+        } else {
+            document.getElementById('upload-status').textContent = 'Erreur: ' + data.error;
+            document.getElementById('upload-status').className = 'text-error';
+        }
+    } catch (err) {
+        document.getElementById('upload-status').textContent = 'Erreur de connexion';
+        document.getElementById('upload-status').className = 'text-error';
+    }
+
+    e.target.value = '';
+});
+</script>
+{% endblock %}

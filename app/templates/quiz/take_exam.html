@@ -1,0 +1,1217 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - Mode Examen{% endblock %}
+
+{% block extra_css %}
+<style>
+    .exam-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .exam-header {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding: 1rem 0;
+        z-index: 100;
+        border-bottom: 1px solid var(--border-light);
+        margin-bottom: 2rem;
+    }
+
+    .exam-progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .progress-text {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .progress-bar-container {
+        flex: 1;
+        margin: 0 2rem;
+        height: 8px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--black);
+        transition: width 0.3s ease;
+    }
+
+    .exam-timers {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.9rem;
+    }
+
+    .timer-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .timer-item.warning {
+        color: var(--accent-warning);
+    }
+
+    .timer-item.danger {
+        color: var(--accent-error);
+    }
+
+    .question-container {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .question-container.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .question-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .question-type-badge {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+    }
+
+    .question-type-badge.mcq {
+        background: var(--black);
+        color: var(--white);
+    }
+
+    .question-type-badge.open {
+        background: var(--gray-100);
+        color: var(--black);
+        border: 1px solid var(--black);
+    }
+
+    .question-text {
+        font-size: 1.25rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .options-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .option-item {
+        margin-bottom: 0.75rem;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: flex-start;
+        padding: 1.1rem 1.25rem;
+        background: var(--white);
+        border: 1px solid var(--border-light);
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .option-label:hover {
+        border-color: var(--black);
+        background: var(--gray-100);
+    }
+
+    .option-label input {
+        margin-right: 1rem;
+        margin-top: 0.2rem;
+        accent-color: var(--black);
+    }
+
+    .option-label input:checked + .option-text {
+        font-weight: 600;
+    }
+
+    .option-label:has(input:checked) {
+        border-color: var(--black);
+        background: var(--gray-100);
+    }
+
+    .exam-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .question-dots {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .question-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: transparent;
+        border: 2px solid var(--gray-400);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .question-dot.current {
+        border: 3px double var(--black);
+    }
+
+    .question-dot.answered {
+        background: var(--gray-600);
+        border-color: var(--gray-600);
+    }
+
+    .question-dot.answered.current {
+        background: var(--gray-600);
+        border: 3px double var(--black);
+    }
+
+    .char-counter {
+        text-align: right;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        font-family: var(--font-mono);
+        margin-top: 0.25rem;
+    }
+
+    .char-counter.warning {
+        color: var(--accent-warning);
+    }
+
+    .char-counter.danger {
+        color: var(--accent-error);
+    }
+
+    /* Focus warning modal */
+    .focus-warning {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .focus-warning.show {
+        display: flex;
+    }
+
+    .focus-warning-content {
+        background: var(--white);
+        padding: 2rem;
+        text-align: center;
+        max-width: 400px;
+        border: 2px solid var(--black);
+    }
+
+    .focus-warning-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .focus-counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        background: rgba(139, 105, 20, 0.1);
+        color: var(--accent-warning);
+        font-size: 0.85rem;
+        font-family: var(--font-mono);
+    }
+
+    .hidden-fields {
+        display: none;
+    }
+
+    /* Intro screen before exam */
+    .exam-intro {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .exam-intro-card {
+        background: var(--white);
+        border: 2px solid var(--black);
+        padding: 2.5rem;
+    }
+
+    .exam-intro-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .exam-intro-header h1 {
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .exam-intro-header .subtitle {
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .exam-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .exam-info-item {
+        background: var(--gray-100);
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .exam-info-item .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .exam-info-item .value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+
+    .exam-warnings {
+        background: rgba(139, 105, 20, 0.1);
+        border: 1px solid var(--accent-warning);
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .exam-warnings h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--accent-warning);
+        margin-bottom: 1rem;
+    }
+
+    .exam-warnings ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .exam-warnings li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .exam-warnings li:last-child {
+        margin-bottom: 0;
+    }
+
+    .exam-rules {
+        margin-bottom: 2rem;
+    }
+
+    .exam-rules h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .exam-rules ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .exam-rules li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--text-light);
+    }
+
+    .exam-start-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .exam-content-hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not exam_already_started %}
+<!-- Intro screen avant l'examen -->
+<div class="exam-intro" id="exam-intro">
+    <div class="exam-intro-card">
+        <div class="exam-intro-header">
+            <h1>{{ quiz.title }}</h1>
+            <p class="subtitle">Mode examen</p>
+        </div>
+
+        <div class="exam-info-grid">
+            <div class="exam-info-item">
+                <div class="label">Questions</div>
+                <div class="value">{{ questions|length }}</div>
+            </div>
+            {% if time_limit_minutes %}
+            <div class="exam-info-item">
+                <div class="label">Temps limite</div>
+                <div class="value">{{ time_limit_minutes }} min</div>
+            </div>
+            {% endif %}
+            <div class="exam-info-item">
+                <div class="label">Points total</div>
+                <div class="value">{{ questions|sum(attribute='points') }}</div>
+            </div>
+        </div>
+
+        <div class="exam-warnings">
+            <h3><i class="iconoir-warning-triangle"></i> Avertissements importants</h3>
+            <ul>
+                <li><strong>Ne quittez pas cette fenêtre</strong> pendant l'examen. Tout changement d'onglet ou de fenêtre sera détecté et enregistré.</li>
+                <li>Le temps passé sur chaque question est mesuré et enregistré.</li>
+                <li>Le copier-coller, le clic droit et les outils de développement sont <strong>désactivés</strong>.</li>
+                <li>Toute tentative de contournement sera enregistrée et signalée.</li>
+                {% if time_limit_minutes %}
+                <li>Vous disposez de <strong>{{ time_limit_minutes }} minutes</strong> pour compléter l'examen. Le temps commence dès que vous cliquez sur "Commencer".</li>
+                {% endif %}
+                <li>Une fois l'examen commencé, il ne peut pas être mis en pause.</li>
+            </ul>
+        </div>
+
+        <div class="exam-rules">
+            <h3>Déroulement de l'examen</h3>
+            <ul>
+                <li>Les questions sont présentées une par une</li>
+                <li>Vous pouvez naviguer entre les questions avec les boutons ou les points de navigation</li>
+                <li>Vos réponses sont sauvegardées automatiquement</li>
+                <li>Cliquez sur "Terminer l'examen" à la dernière question pour soumettre</li>
+            </ul>
+        </div>
+
+        <form method="POST" action="{{ url_for('quiz.start_exam', quiz_id=quiz.id) }}">
+            <button type="submit" class="btn btn-primary exam-start-btn">
+                Commencer l'examen
+            </button>
+        </form>
+    </div>
+</div>
+{% else %}
+{% if is_test %}
+<div class="preview-banner mb-2 flex justify-between items-center">
+    <div>
+        <h3><i class="iconoir-flask"></i> Mode Test</h3>
+        <p class="text-sm" style="opacity: 0.9;">Vous testez ce quiz en tant qu'admin. Les résultats seront marqués comme test.</p>
+    </div>
+    <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-small btn-ghost">
+        <i class="iconoir-arrow-left"></i> Retour preview
+    </a>
+</div>
+{% endif %}
+<div class="exam-container" id="exam-content">
+    <!-- Header sticky avec progression et timers -->
+    <div class="exam-header">
+        <div class="exam-progress">
+            <span class="progress-text">Question <span id="current-question-num">1</span> / {{ questions|length }}</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar" style="width: {{ (1 / questions|length * 100)|round(1) }}%"></div>
+            </div>
+            <div class="focus-counter" id="focus-counter" style="display: none;">
+                Sorties: <span id="focus-count">0</span>
+            </div>
+        </div>
+        <div class="exam-timers">
+            {% if time_limit_minutes %}
+            <div class="timer-item" id="global-timer">
+                <span>Temps total:</span>
+                <strong id="global-timer-display">--:--</strong>
+            </div>
+            {% endif %}
+            <div class="timer-item">
+                <span>Cette question:</span>
+                <strong id="question-timer-display">0:00</strong>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="quizForm">
+        <!-- Questions (une seule visible à la fois) -->
+        {% for question in questions %}
+        <div class="question-container{% if loop.first %} active{% endif %}"
+             data-question-id="{{ question.id }}"
+             data-question-index="{{ loop.index0 }}">
+            <div class="question-card">
+                <div class="question-meta">
+                    <span class="question-type-badge {{ question.question_type }}">
+                        {{ 'QCM' if question.question_type == 'mcq' else 'Question ouverte' }}
+                    </span>
+                    <span class="question-points">{{ question.points }} point(s)</span>
+                </div>
+
+                <div class="question-text">{{ question.question_text|render_quiz_images(quiz.id) }}</div>
+
+                {% if question.question_type == 'mcq' %}
+                <ul class="options-list">
+                    {% set q_options_order = options_order.get(question.id|string, range(question.options|length)|list) %}
+                    {% for idx in q_options_order %}
+                    <li class="option-item">
+                        <label class="option-label">
+                            {% if question.allow_multiple %}
+                            <input type="checkbox" name="question_{{ question.id }}" value="{{ idx }}">
+                            {% else %}
+                            <input type="radio" name="question_{{ question.id }}" value="{{ idx }}">
+                            {% endif %}
+                            <span class="option-text">{{ question.options[idx]|render_quiz_images(quiz.id) }}</span>
+                        </label>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if question.allow_multiple %}
+                <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem;">
+                    <em>Plusieurs reponses possibles</em>
+                </p>
+                {% endif %}
+                {% else %}
+                <div class="form-group">
+                    <textarea name="question_{{ question.id }}" class="form-textarea open-answer"
+                              placeholder="Votre reponse..." rows="6" maxlength="5000"></textarea>
+                    <div class="char-counter">
+                        <span class="char-count">0</span> / 5000 caracteres
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+        <!-- Navigation dots -->
+        <div class="question-dots" id="question-dots">
+            {% for question in questions %}
+            <div class="question-dot{% if loop.first %} current{% endif %}"
+                 data-index="{{ loop.index0 }}"
+                 title="Question {{ loop.index }}"></div>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="exam-navigation">
+            <button type="button" class="btn btn-secondary nav-btn" id="prev-btn" disabled>
+                <span>&#8592;</span> Precedent
+            </button>
+
+            <button type="button" class="btn btn-primary nav-btn" id="next-btn">
+                Suivant <span>&#8594;</span>
+            </button>
+
+            <button type="button" class="btn btn-success nav-btn" id="submit-btn" style="display: none;">
+                Terminer l'examen
+            </button>
+        </div>
+
+        <!-- Hidden fields for timing and focus data -->
+        <div class="hidden-fields">
+            <input type="hidden" name="timing_data" id="timing-data">
+            <input type="hidden" name="focus_data" id="focus-data">
+            <input type="hidden" name="focus_events" id="focus-events">
+        </div>
+    </form>
+</div>
+<!-- Focus warning modal -->
+<div class="focus-warning" id="focus-warning">
+    <div class="focus-warning-content">
+        <div class="focus-warning-icon">&#9888;</div>
+        <h3>Attention !</h3>
+        <p>Vous avez quitté la fenêtre de l'examen.</p>
+        <p>Cet événement a été enregistré.</p>
+        <button type="button" class="btn btn-primary" id="focus-warning-close">J'ai compris</button>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if exam_already_started %}
+<script>
+(function() {
+    // Configuration
+    const quizId = {{ quiz.id }};
+    const totalQuestions = {{ questions|length }};
+    const remainingSeconds = {{ remaining_seconds if remaining_seconds is not none else 'null' }};
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const storageKey = 'exam_state_' + quizId;
+
+    // State
+    let examStarted = false;  // Will be set to true after startup delay
+    let currentQuestionIndex = 0;
+    let questionTimes = {};  // {questionId: seconds}
+    let focusLostCounts = {};  // {questionId: count}
+    let focusEvents = [];
+    let questionStartTime = Date.now();
+    let globalRemainingSeconds = remainingSeconds;
+    let questionTimerInterval = null;
+    let globalTimerInterval = null;
+
+    // Session persistence functions
+    function saveState() {
+        try {
+            const state = {
+                currentQuestionIndex,
+                questionTimes,
+                focusLostCounts,
+                focusEvents,
+                globalRemainingSeconds,
+                savedAt: Date.now()
+            };
+            sessionStorage.setItem(storageKey, JSON.stringify(state));
+        } catch (e) {
+            console.warn('Failed to save exam state:', e);
+        }
+    }
+
+    function restoreState() {
+        try {
+            const saved = sessionStorage.getItem(storageKey);
+            if (!saved) return false;
+
+            const state = JSON.parse(saved);
+            // Only restore if saved within last 30 minutes
+            if (Date.now() - state.savedAt > 30 * 60 * 1000) {
+                sessionStorage.removeItem(storageKey);
+                return false;
+            }
+
+            // Restore state
+            currentQuestionIndex = state.currentQuestionIndex || 0;
+            questionTimes = state.questionTimes || {};
+            focusLostCounts = state.focusLostCounts || {};
+            focusEvents = state.focusEvents || [];
+            if (state.globalRemainingSeconds !== undefined) {
+                globalRemainingSeconds = state.globalRemainingSeconds;
+            }
+
+            return true;
+        } catch (e) {
+            console.warn('Failed to restore exam state:', e);
+            return false;
+        }
+    }
+
+    function restoreAnswers() {
+        // Restore answers from form inputs to their saved values
+        // This is tricky because the form might have browser-cached values
+        // We primarily rely on browser's form restoration
+    }
+
+    function clearState() {
+        try {
+            sessionStorage.removeItem(storageKey);
+        } catch (e) {
+            // Ignore
+        }
+    }
+
+    // DOM Elements - Exam
+    const questions = document.querySelectorAll('.question-container');
+    const dots = document.querySelectorAll('.question-dot');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const currentQuestionNum = document.getElementById('current-question-num');
+    const globalTimerDisplay = document.getElementById('global-timer-display');
+    const questionTimerDisplay = document.getElementById('question-timer-display');
+    const focusWarning = document.getElementById('focus-warning');
+    const focusWarningClose = document.getElementById('focus-warning-close');
+    const focusCounter = document.getElementById('focus-counter');
+    const focusCountDisplay = document.getElementById('focus-count');
+    const quizForm = document.getElementById('quizForm');
+
+    // Initialize
+    function init() {
+        // Try to restore state from previous session (e.g., after accidental refresh)
+        const restored = restoreState();
+        if (restored) {
+            // Update UI to reflect restored state
+            showQuestion(currentQuestionIndex);
+            updateFocusCounterDisplay();
+            updateDotStatus();
+        }
+
+        setupNavigation();
+        setupSubmission();
+        updateNavButtons();
+        startQuestionTimer();
+        if (globalRemainingSeconds !== null) {
+            startGlobalTimer();
+        }
+        setupFocusDetection();
+        setupAntiCheat();
+        setupCharCounters();
+        setupStatePersistence();
+
+        // Delay proctoring activation to avoid false positives during page load
+        setTimeout(() => {
+            examStarted = true;
+        }, 1500);
+    }
+
+    function updateFocusCounterDisplay() {
+        const totalFocusLost = Object.values(focusLostCounts).reduce((a, b) => a + b, 0);
+        if (totalFocusLost > 0) {
+            focusCountDisplay.textContent = totalFocusLost;
+            focusCounter.style.display = 'inline-flex';
+        }
+    }
+
+    function setupStatePersistence() {
+        // Save state every 10 seconds
+        setInterval(saveState, 10000);
+
+        // Save on page visibility change
+        document.addEventListener('visibilitychange', saveState);
+
+        // Save before unload
+        window.addEventListener('beforeunload', saveState);
+    }
+
+    // Character counters for open questions
+    function setupCharCounters() {
+        const textareas = document.querySelectorAll('.open-answer');
+        textareas.forEach(textarea => {
+            const counter = textarea.parentElement.querySelector('.char-counter');
+            if (!counter) return;
+
+            const countSpan = counter.querySelector('.char-count');
+            const maxLength = parseInt(textarea.getAttribute('maxlength')) || 5000;
+
+            function updateCounter() {
+                const length = textarea.value.length;
+                countSpan.textContent = length;
+
+                // Update color based on length
+                counter.classList.remove('warning', 'danger');
+                if (length >= maxLength * 0.95) {
+                    counter.classList.add('danger');
+                } else if (length >= maxLength * 0.8) {
+                    counter.classList.add('warning');
+                }
+            }
+
+            textarea.addEventListener('input', updateCounter);
+            updateCounter(); // Initial count
+        });
+    }
+
+    // Anti-cheat measures
+    function setupAntiCheat() {
+        // 1. Block right-click context menu
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            logSecurityEvent('context_menu_blocked');
+            return false;
+        });
+
+        // 2. Block keyboard shortcuts (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C)
+        document.addEventListener('keydown', (e) => {
+            // F12 - DevTools
+            if (e.key === 'F12') {
+                e.preventDefault();
+                logSecurityEvent('f12_blocked');
+                return false;
+            }
+            // Ctrl+Shift+I - DevTools
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                logSecurityEvent('devtools_shortcut_blocked');
+                return false;
+            }
+            // Ctrl+Shift+J - Console
+            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                logSecurityEvent('console_shortcut_blocked');
+                return false;
+            }
+            // Ctrl+Shift+C - Inspector
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                logSecurityEvent('inspector_shortcut_blocked');
+                return false;
+            }
+            // Ctrl+U - View source
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                logSecurityEvent('view_source_blocked');
+                return false;
+            }
+            // Ctrl+S - Save page
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                logSecurityEvent('save_page_blocked');
+                return false;
+            }
+            // Ctrl+P - Print
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                logSecurityEvent('print_blocked');
+                return false;
+            }
+        });
+
+        // 3. Block copy on question text (allow paste in textareas)
+        document.querySelectorAll('.question-text').forEach(el => {
+            el.addEventListener('copy', (e) => {
+                e.preventDefault();
+                logSecurityEvent('copy_question_blocked');
+                return false;
+            });
+            // Block text selection on question text
+            el.style.userSelect = 'none';
+            el.style.webkitUserSelect = 'none';
+        });
+
+        // 4. Detect paste in textareas (log but allow)
+        document.querySelectorAll('textarea').forEach(el => {
+            el.addEventListener('paste', (e) => {
+                logSecurityEvent('paste_detected', {
+                    question_id: el.name.replace('question_', ''),
+                    text_length: (e.clipboardData?.getData('text') || '').length
+                });
+                // Allow paste but log it
+            });
+        });
+
+        // 5. Detect DevTools opening (size change detection)
+        let devToolsOpen = false;
+        const threshold = 160;
+        const checkDevTools = () => {
+            // Skip detection during zoom to avoid false positives
+            if (isZooming) return;
+
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            if ((widthThreshold || heightThreshold) && !devToolsOpen) {
+                devToolsOpen = true;
+                logSecurityEvent('devtools_detected');
+                handleFocusLoss(); // Treat as focus loss
+            } else if (!widthThreshold && !heightThreshold) {
+                devToolsOpen = false;
+            }
+        };
+        setInterval(checkDevTools, 1000);
+
+        // 6. Detect print screen attempts (partial - logs the key)
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'PrintScreen') {
+                logSecurityEvent('print_screen_detected');
+            }
+        });
+    }
+
+    // Log security events
+    function logSecurityEvent(eventType, details = {}) {
+        const event = {
+            question_id: parseInt(questions[currentQuestionIndex].dataset.questionId),
+            timestamp: new Date().toISOString(),
+            event_type: eventType,
+            question_index: currentQuestionIndex,
+            ...details
+        };
+        focusEvents.push(event);
+
+        // Show subtle warning for blocked actions
+        if (eventType.includes('blocked')) {
+            showSecurityWarning();
+        }
+    }
+
+    function showSecurityWarning() {
+        const existingWarning = document.getElementById('security-toast');
+        if (existingWarning) return; // Don't spam
+
+        const toast = document.createElement('div');
+        toast.id = 'security-toast';
+        toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent-warning);color:white;padding:0.75rem 1rem;border-radius:4px;font-size:0.9rem;z-index:9999;animation:fadeIn 0.3s ease;';
+        toast.textContent = 'Action non autorisée pendant l\'examen';
+        document.body.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Question navigation
+    function showQuestion(index) {
+        if (index < 0 || index >= totalQuestions) return;
+
+        // Record time for current question before switching
+        recordQuestionTime();
+
+        // Update current index
+        currentQuestionIndex = index;
+
+        // Hide all, show current
+        questions.forEach((q, i) => {
+            q.classList.toggle('active', i === index);
+        });
+
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('current', i === index);
+        });
+
+        // Update progress
+        currentQuestionNum.textContent = index + 1;
+        progressBar.style.width = ((index + 1) / totalQuestions * 100) + '%';
+
+        // Update nav buttons
+        updateNavButtons();
+
+        // Reset question timer
+        startQuestionTimer();
+
+        // Check if question is answered
+        updateDotStatus();
+    }
+
+    function updateNavButtons() {
+        prevBtn.disabled = currentQuestionIndex === 0;
+
+        if (currentQuestionIndex === totalQuestions - 1) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'flex';
+        } else {
+            nextBtn.style.display = 'flex';
+            submitBtn.style.display = 'none';
+        }
+    }
+
+    function setupNavigation() {
+        prevBtn.addEventListener('click', () => showQuestion(currentQuestionIndex - 1));
+        nextBtn.addEventListener('click', () => showQuestion(currentQuestionIndex + 1));
+
+        // Click on dots
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => showQuestion(i));
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key === 'ArrowLeft' && currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentQuestionIndex < totalQuestions - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        });
+    }
+
+    // Time tracking
+    function startQuestionTimer() {
+        questionStartTime = Date.now();
+
+        if (questionTimerInterval) {
+            clearInterval(questionTimerInterval);
+        }
+
+        questionTimerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+            const questionId = questions[currentQuestionIndex].dataset.questionId;
+            const totalTime = (questionTimes[questionId] || 0) + elapsed;
+
+            questionTimerDisplay.textContent = formatTime(totalTime);
+
+            // Update question-specific display
+            const qTimeDisplay = questions[currentQuestionIndex].querySelector('.q-time-display');
+            if (qTimeDisplay) {
+                qTimeDisplay.textContent = formatTime(totalTime);
+            }
+        }, 1000);
+    }
+
+    function recordQuestionTime() {
+        const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+        const questionId = questions[currentQuestionIndex].dataset.questionId;
+        questionTimes[questionId] = (questionTimes[questionId] || 0) + elapsed;
+
+        // Auto-save progress
+        saveProgress(questionId);
+    }
+
+    function startGlobalTimer() {
+        if (globalTimerInterval) {
+            clearInterval(globalTimerInterval);
+        }
+
+        const globalTimer = document.getElementById('global-timer');
+
+        globalTimerInterval = setInterval(() => {
+            if (globalRemainingSeconds <= 0) {
+                globalTimerDisplay.textContent = 'Temps ecoule !';
+                globalTimer.classList.add('danger');
+                clearInterval(globalTimerInterval);
+                return;
+            }
+
+            globalRemainingSeconds--;
+            globalTimerDisplay.textContent = formatTime(globalRemainingSeconds);
+
+            // Warning states
+            if (globalRemainingSeconds <= 60) {
+                globalTimer.classList.remove('warning');
+                globalTimer.classList.add('danger');
+            } else if (globalRemainingSeconds <= 300) {
+                globalTimer.classList.add('warning');
+            }
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    }
+
+    // Focus detection
+    let focusLossBlocked = false;
+    let isZooming = false;  // Track zoom actions to avoid false positives
+    let lastDevicePixelRatio = window.devicePixelRatio;
+
+    function setupFocusDetection() {
+        // Track Ctrl key for zoom detection (Ctrl+/- zoom)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+                isZooming = true;
+                setTimeout(() => { isZooming = false; }, 500);
+            }
+        });
+
+        // Track pinch zoom via devicePixelRatio changes
+        window.addEventListener('resize', () => {
+            if (window.devicePixelRatio !== lastDevicePixelRatio) {
+                isZooming = true;
+                lastDevicePixelRatio = window.devicePixelRatio;
+                setTimeout(() => { isZooming = false; }, 500);
+            }
+        });
+        // Tab visibility change (switch tab, minimize window)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                handleFocusLoss('tab_hidden', 'Onglet masqué (changement d\'onglet ou fenêtre minimisée)');
+            }
+        });
+
+        // Window blur (click outside, alt+tab)
+        // Use setTimeout to let visibilitychange fire first if both events occur
+        window.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!document.hidden) {
+                    handleFocusLoss('window_blur', 'Fenêtre a perdu le focus (clic extérieur ou Alt+Tab)');
+                }
+            }, 100);
+        });
+
+        focusWarningClose.addEventListener('click', () => {
+            focusWarning.classList.remove('show');
+        });
+    }
+
+    function handleFocusLoss(lossType, description) {
+        // Only track focus loss after exam has started
+        if (!examStarted) return;
+
+        // Ignore focus loss during zoom actions
+        if (isZooming) return;
+
+        // Block duplicate events for 2 seconds
+        if (focusLossBlocked) return;
+        focusLossBlocked = true;
+        setTimeout(() => { focusLossBlocked = false; }, 2000);
+
+        const questionId = questions[currentQuestionIndex].dataset.questionId;
+
+        // Increment counter
+        focusLostCounts[questionId] = (focusLostCounts[questionId] || 0) + 1;
+
+        // Log detailed event
+        focusEvents.push({
+            question_id: parseInt(questionId),
+            timestamp: new Date().toISOString(),
+            event_type: 'focus_lost',
+            loss_type: lossType,
+            description: description,
+            question_index: currentQuestionIndex,
+            document_hidden: document.hidden,
+            has_focus: document.hasFocus()
+        });
+
+        // Update display
+        const totalFocusLost = Object.values(focusLostCounts).reduce((a, b) => a + b, 0);
+        focusCountDisplay.textContent = totalFocusLost;
+        focusCounter.style.display = 'inline-flex';
+
+        // Show warning
+        focusWarning.classList.add('show');
+    }
+
+    // Answer tracking
+    function updateDotStatus() {
+        questions.forEach((q, i) => {
+            const questionId = q.dataset.questionId;
+            const inputs = q.querySelectorAll('input[name="question_' + questionId + '"]');
+            const textarea = q.querySelector('textarea[name="question_' + questionId + '"]');
+
+            let isAnswered = false;
+
+            if (textarea) {
+                isAnswered = textarea.value.trim().length > 0;
+            } else {
+                isAnswered = Array.from(inputs).some(input => input.checked);
+            }
+
+            dots[i].classList.toggle('answered', isAnswered);
+        });
+    }
+
+    // Auto-save
+    function saveProgress(questionId) {
+        const q = document.querySelector('[data-question-id="' + questionId + '"]');
+        const inputs = q.querySelectorAll('input[name="question_' + questionId + '"]');
+        const textarea = q.querySelector('textarea[name="question_' + questionId + '"]');
+
+        let answer;
+        if (textarea) {
+            answer = textarea.value;
+        } else {
+            answer = Array.from(inputs)
+                .filter(input => input.checked)
+                .map(input => parseInt(input.value));
+        }
+
+        fetch('/quiz/' + quizId + '/save-progress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                answer: answer,
+                time_spent: questionTimes[questionId] || 0,
+                focus_lost: focusLostCounts[questionId] || 0
+            })
+        }).catch(err => console.log('Auto-save failed:', err));
+    }
+
+    // Submission
+    function setupSubmission() {
+        // Track answer changes
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('change', () => {
+                updateDotStatus();
+                const questionId = questions[currentQuestionIndex].dataset.questionId;
+                saveProgress(questionId);
+            });
+        });
+
+        submitBtn.addEventListener('click', () => {
+            // Record final question time
+            recordQuestionTime();
+
+            // Check all questions answered
+            let unanswered = [];
+            questions.forEach((q, i) => {
+                const questionId = q.dataset.questionId;
+                const inputs = q.querySelectorAll('input[name="question_' + questionId + '"]');
+                const textarea = q.querySelector('textarea[name="question_' + questionId + '"]');
+
+                let isAnswered = false;
+                if (textarea) {
+                    isAnswered = textarea.value.trim().length > 0;
+                } else {
+                    isAnswered = Array.from(inputs).some(input => input.checked);
+                }
+
+                if (!isAnswered) {
+                    unanswered.push(i + 1);
+                }
+            });
+
+            let message = 'Etes-vous sur de vouloir soumettre votre examen ?';
+            if (unanswered.length > 0) {
+                message = 'Attention ! Les questions suivantes ne sont pas repondues : ' +
+                    unanswered.join(', ') + '.\n\nVoulez-vous quand meme soumettre ?';
+            }
+
+            Modal.confirm(message, 'Confirmation de soumission').then(function(confirmed) {
+                if (confirmed) {
+                    // Fill hidden fields
+                    document.getElementById('timing-data').value = JSON.stringify(questionTimes);
+                    document.getElementById('focus-data').value = JSON.stringify(focusLostCounts);
+                    document.getElementById('focus-events').value = JSON.stringify(focusEvents);
+
+                    // Clear session state before submitting
+                    clearState();
+                    quizForm.submit();
+                }
+            });
+        });
+    }
+
+    // Start
+    init();
+})();
+</script>
+{% endif %}
+{% endblock %}

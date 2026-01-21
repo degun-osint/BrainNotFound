@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un groupe - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Créer un nouveau groupe</h1>
+
+<div class="card">
+    <div class="card-header">Informations du groupe</div>
+
+    <div class="info-box bg-gray mb-2">
+        <strong>Information :</strong> Un code unique sera généré automatiquement pour ce groupe.
+        Les étudiants devront entrer ce code lors de l'inscription pour rejoindre le groupe.
+    </div>
+
+    <form method="POST">
+        {% if tenants and tenants|length > 1 %}
+        <div class="form-group">
+            <label class="form-label">Organisation *</label>
+            <div class="searchable-select">
+                <input type="hidden" name="tenant_id" value="{{ tenants[0].id }}">
+                <div class="searchable-select-trigger">
+                    <i class="iconoir-building"></i>
+                    <span>{{ tenants[0].name }}</span>
+                    <i class="iconoir-nav-arrow-down"></i>
+                </div>
+                <div class="searchable-select-dropdown">
+                    <div class="searchable-select-search">
+                        <input type="text" placeholder="Rechercher une organisation...">
+                    </div>
+                    <div class="searchable-select-options">
+                        {% for tenant in tenants %}
+                        <div class="searchable-select-option {% if loop.first %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif tenants and tenants|length == 1 %}
+        <input type="hidden" name="tenant_id" value="{{ tenants[0].id }}">
+        {% endif %}
+
+        <div class="form-group">
+            <label class="form-label" for="name">Nom du groupe *</label>
+            <input type="text" id="name" name="name" class="form-input"
+                   placeholder="Ex: Master 2024-2025, Licence Info L3, Promo 2024..." required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-textarea form-textarea-short"
+                      placeholder="Description optionnelle du groupe..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="max_members">Nombre maximum de membres</label>
+            <input type="number" id="max_members" name="max_members" class="form-input"
+                   value="0" min="0" style="max-width: 150px;">
+            <small class="text-light">0 = illimite</small>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Creer le groupe
+            </button>
+            <a href="{{ url_for('admin.groups') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

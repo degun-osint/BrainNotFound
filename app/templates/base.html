@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}{{ site_title }}{% endblock %}</title>
+    <script>
+        // Apply theme before page renders to prevent flash
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="{{ url_for('auth.index') }}">{{ site_title }}</a>
+            </div>
+            <div class="nav-menu">
+                {% if current_user.is_any_admin %}
+                    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                    {% if current_user.is_superadmin %}
+                    <a href="{{ url_for('tenant.list_tenants') }}">Organisations</a>
+                    {% endif %}
+                    <a href="{{ url_for('admin.groups') }}">Groupes</a>
+                    <a href="{{ url_for('admin.users') }}">Utilisateurs</a>
+                    {% if show_tenant_selector and accessible_tenants %}
+                    <div class="nav-tenant-selector">
+                        <div class="tenant-dropdown">
+                            <button type="button" class="tenant-dropdown-btn" data-tooltip="Filtrer par organisation">
+                                <i class="iconoir-building"></i>
+                                <span>{% if tenant_context %}{{ tenant_context.name|truncate(15) }}{% else %}Tous{% endif %}</span>
+                                <i class="iconoir-nav-arrow-down"></i>
+                            </button>
+                            <div class="tenant-dropdown-menu">
+                                <a href="{{ url_for('admin.clear_tenant_context') }}" class="tenant-option {% if not tenant_context %}active{% endif %}">
+                                    <i class="iconoir-globe"></i> Toutes les organisations
+                                </a>
+                                <div class="tenant-divider"></div>
+                                {% for t in accessible_tenants %}
+                                <a href="{{ url_for('admin.set_tenant_context', tenant_id=t.id) }}" class="tenant-option {% if tenant_context and tenant_context.id == t.id %}active{% endif %}">
+                                    <i class="iconoir-building"></i> {{ t.name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('quiz.dashboard') }}">Tableau de bord</a>
+                    <a href="{{ url_for('quiz.quiz_list') }}">Mes Quiz</a>
+                {% endif %}
+                {% for page in menu_pages %}
+                <a href="{{ url_for('auth.view_page', slug=page.slug) }}" {% if page.open_new_tab %}target="_blank"{% endif %}>{{ page.title }}</a>
+                {% endfor %}
+                <a href="{{ url_for('auth.profile') }}" class="nav-user" data-tooltip="Mon profil">
+                    <i class="iconoir-user"></i> {{ current_user.username }}
+                </a>
+                {% if current_user.is_superadmin %}
+                <a href="{{ url_for('admin.site_settings') }}" data-tooltip="Parametres"><i class="iconoir-settings"></i></a>
+                {% endif %}
+                <button type="button" class="theme-toggle" id="theme-toggle" data-tooltip="Theme">
+                    <i class="iconoir-sun-light" id="theme-icon-light"></i>
+                    <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
+                </button>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout" data-tooltip="Deconnexion">
+                    <i class="iconoir-log-out"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="toast toast-{{ category }}" data-auto-dismiss="5000">
+                    <i class="toast-icon iconoir-{% if category == 'success' %}check-circle{% elif category == 'error' %}warning-circle{% elif category == 'warning' %}warning-triangle{% else %}info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 300);">
+                        <i class="iconoir-xmark"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            {% if footer_pages %}
+            <div class="footer-links">
+                {% for page in footer_pages %}
+                <a href="{{ url_for('auth.view_page', slug=page.slug) }}" {% if page.open_new_tab %}target="_blank"{% endif %}>{{ page.title }}</a>
+                {% if not loop.last %}<span class="footer-separator">|</span>{% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <p>made with &lt;3 by <a href="https://manufacture-osint.fr" target="_blank" style="color: inherit;">Degun - Manufacture Francaise d'Osint</a></p>
+        </div>
+    </footer>
+
+    {% if not current_user.is_authenticated %}
+    <!-- Theme toggle for non-authenticated pages -->
+    <button type="button" class="theme-toggle theme-toggle-floating" id="theme-toggle" data-tooltip="Theme">
+        <i class="iconoir-sun-light" id="theme-icon-light"></i>
+        <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
+    </button>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

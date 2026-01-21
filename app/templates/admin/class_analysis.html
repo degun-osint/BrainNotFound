@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse de classe - {{ quiz.title }} - BrainNotFound{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analysis-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: var(--gray-100);
+        border: 1px solid var(--border);
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-box h3 {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box .value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+    }
+
+    .stat-box .value.success { color: var(--accent-success); }
+    .stat-box .value.warning { color: var(--accent-warning); }
+    .stat-box .value.danger { color: var(--accent-error); }
+
+    .question-stats-table {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .question-stats-table th,
+    .question-stats-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .question-stats-table th {
+        background: var(--gray-100);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .question-stats-table td.mono {
+        font-family: var(--font-mono);
+    }
+
+    .student-row {
+        display: grid;
+        grid-template-columns: 200px 80px 80px 80px 1fr;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-light);
+        align-items: center;
+    }
+
+    .student-row:hover {
+        background: var(--gray-100);
+    }
+
+    .student-row.header {
+        background: var(--gray-100);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .time-cells {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .time-cell {
+        width: 32px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-family: var(--font-mono);
+        border-radius: 2px;
+    }
+
+    .time-cell.fast {
+        background: var(--accent-success);
+        color: white;
+    }
+
+    .time-cell.normal {
+        background: var(--gray-200);
+    }
+
+    .time-cell.slow {
+        background: var(--accent-error);
+        color: white;
+    }
+
+    .ai-result {
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        margin-top: 1rem;
+    }
+
+    .ai-result.low {
+        background: rgba(45, 90, 39, 0.1);
+        border-color: var(--accent-success);
+    }
+
+    .ai-result.medium {
+        background: rgba(139, 105, 20, 0.1);
+        border-color: var(--accent-warning);
+    }
+
+    .ai-result.high {
+        background: rgba(139, 32, 32, 0.1);
+        border-color: var(--accent-error);
+    }
+
+    .risk-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-family: var(--font-mono);
+    }
+
+    .risk-badge.low { background: var(--accent-success); color: white; }
+    .risk-badge.medium { background: var(--accent-warning); color: white; }
+    .risk-badge.high { background: var(--accent-error); color: white; }
+
+    .suspicious-student {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-light);
+        background: var(--white);
+    }
+
+    .suspicious-student.high {
+        border-left: 4px solid var(--accent-error);
+    }
+
+    .suspicious-student.medium {
+        border-left: 4px solid var(--accent-warning);
+    }
+
+    .suspicious-student .name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .suspicious-student .reasons {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .suspicious-student .reasons li {
+        margin-bottom: 0.25rem;
+    }
+
+    .question-concern {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: rgba(139, 105, 20, 0.1);
+        border-left: 3px solid var(--accent-warning);
+    }
+
+    .recommendations {
+        list-style: disc;
+        margin-left: 1.5rem;
+    }
+
+    .recommendations li {
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .student-row {
+            grid-template-columns: 1fr;
+        }
+        .time-cells {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-header">
+    <div>
+        <h1 class="mb-0">Analyse de classe</h1>
+        <span class="text-light">{{ quiz.title }}</span>
+    </div>
+    <div class="flex gap-sm">
+        {% if not quiz.class_analysis_result %}
+        <button type="button" class="btn btn-primary" id="analyze-btn" onclick="runClassAnalysis()">
+            <i class="iconoir-sparks"></i> Lancer l'analyse IA
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-secondary" id="analyze-btn" onclick="runClassAnalysis()">
+            <i class="iconoir-refresh-double"></i> Relancer l'analyse
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Global Stats -->
+<div class="stats-overview">
+    <div class="stat-box">
+        <h3>Etudiants</h3>
+        <div class="value">{{ stats.global_stats.student_count }}</div>
+    </div>
+    <div class="stat-box">
+        <h3>Duree moyenne</h3>
+        <div class="value">{{ stats.global_stats.avg_duration }} min</div>
+    </div>
+    <div class="stat-box">
+        <h3>Score moyen</h3>
+        <div class="value {% if stats.global_stats.avg_score >= 70 %}success{% elif stats.global_stats.avg_score >= 50 %}warning{% else %}danger{% endif %}">
+            {{ stats.global_stats.avg_score }}%
+        </div>
+    </div>
+    <div class="stat-box">
+        <h3>Pertes de focus</h3>
+        <div class="value {% if stats.global_stats.total_focus_events == 0 %}success{% elif stats.global_stats.total_focus_events < 10 %}warning{% else %}danger{% endif %}">
+            {{ stats.global_stats.total_focus_events }}
+        </div>
+    </div>
+    <div class="stat-box">
+        <h3>Avec focus issues</h3>
+        <div class="value {% if stats.global_stats.students_with_focus_issues == 0 %}success{% else %}warning{% endif %}">
+            {{ stats.global_stats.students_with_focus_issues }}
+        </div>
+    </div>
+</div>
+
+<!-- AI Analysis Result -->
+<div class="card mb-2">
+    <div class="card-header">Analyse IA Anti-Triche</div>
+
+    <div id="analysis-container">
+        {% if quiz.class_analysis_result %}
+            {% set result = quiz.class_analysis_result %}
+            <div class="ai-result {{ result.class_risk_level }}">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="risk-badge {{ result.class_risk_level }}">
+                        {% if result.class_risk_level == 'low' %}Risque faible{% elif result.class_risk_level == 'medium' %}Risque modere{% else %}Risque eleve{% endif %}
+                    </span>
+                </div>
+
+                <p class="mb-2">{{ result.summary }}</p>
+
+                {% if result.suspicious_students %}
+                <h4 class="mb-1">Etudiants suspects ({{ result.suspicious_students|length }})</h4>
+                {% for student in result.suspicious_students %}
+                <div class="suspicious-student {{ student.risk_level }}">
+                    <div class="name">
+                        {{ student.name }}
+                        <span class="badge badge-{{ 'error' if student.risk_level == 'high' else 'warning' if student.risk_level == 'medium' else 'default' }} ml-1">
+                            {{ student.risk_level }}
+                        </span>
+                    </div>
+                    <ul class="reasons">
+                        {% for reason in student.reasons %}
+                        <li>{{ reason }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if student.suspicious_questions %}
+                    <small class="text-light">Questions suspectes: {{ student.suspicious_questions|join(', ') }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if result.question_concerns %}
+                <h4 class="mb-1 mt-2">Alertes par question</h4>
+                {% for concern in result.question_concerns %}
+                <div class="question-concern">
+                    <strong>Question {{ concern.question_number }}:</strong> {{ concern.concern }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if result.recommendations %}
+                <h4 class="mb-1 mt-2">Recommandations</h4>
+                <ul class="recommendations">
+                    {% for rec in result.recommendations %}
+                    <li>{{ rec }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="text-center text-light p-2">
+                Cliquez sur "Lancer l'analyse IA" pour analyser les patterns de la classe.
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Question Stats -->
+<div class="card mb-2">
+    <div class="card-header">Statistiques par question</div>
+
+    <div class="overflow-x-auto">
+        <table class="question-stats-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>Question</th>
+                    <th>Points</th>
+                    <th>Temps moy</th>
+                    <th>Ecart-type</th>
+                    <th>Score moy</th>
+                    <th>Focus</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in stats.questions %}
+                {% set q_stat = stats.question_stats.get(q.id, {}) %}
+                <tr>
+                    <td class="mono">{{ q.number }}</td>
+                    <td>
+                        <span class="badge {% if q.type == 'mcq' %}badge-default{% else %}badge-warning{% endif %}">
+                            {{ q.type|upper }}
+                        </span>
+                    </td>
+                    <td>{{ q.text[:60] }}{% if q.text|length > 60 %}...{% endif %}</td>
+                    <td class="mono">{{ q.points }}</td>
+                    <td class="mono">{{ q_stat.avg_time }}s</td>
+                    <td class="mono">{{ q_stat.std_time }}s</td>
+                    <td class="mono">{{ q_stat.avg_score }}</td>
+                    <td>
+                        {% if q_stat.total_focus_lost > 0 %}
+                        <span class="badge badge-warning">{{ q_stat.total_focus_lost }}</span>
+                        {% else %}
+                        <span class="text-success">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Student Comparison -->
+<div class="card mb-2">
+    <div class="card-header">Comparaison des etudiants</div>
+
+    <div class="student-row header">
+        <span>Etudiant</span>
+        <span>Score</span>
+        <span>Duree</span>
+        <span>Focus</span>
+        <span>Temps par question (vert=rapide, rouge=lent)</span>
+    </div>
+
+    {% for student in stats.students %}
+    <div class="student-row">
+        <span>
+            <a href="{{ url_for('admin.response_analysis', response_id=student.id) }}" class="link-primary">
+                {{ student.name }}
+            </a>
+        </span>
+        <span class="mono {% if student.percentage >= 70 %}text-success{% elif student.percentage >= 50 %}text-warning{% else %}text-error{% endif %}">
+            {{ student.percentage }}%
+        </span>
+        <span class="mono">{{ (student.total_duration / 60)|round(1) }}m</span>
+        <span>
+            {% if student.total_focus_lost > 0 %}
+            <span class="badge badge-warning">{{ student.total_focus_lost }}</span>
+            {% else %}
+            <span class="text-success">0</span>
+            {% endif %}
+        </span>
+        <span class="time-cells">
+            {% for ans in student.answers %}
+                {% set q_stat = stats.question_stats.get(ans.question_id, {}) %}
+                {% set avg_time = q_stat.avg_time or 1 %}
+                {% set std_time = q_stat.std_time or 10 %}
+                {% set deviation = (ans.time_spent - avg_time) %}
+                <span class="time-cell {% if deviation < -std_time %}fast{% elif deviation > std_time %}slow{% else %}normal{% endif %}"
+                      title="Q{{ ans.question_number }}: {{ ans.time_spent }}s (moy: {{ avg_time }}s)">
+                    {{ ans.time_spent }}
+                </span>
+            {% endfor %}
+        </span>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-2 flex gap-md">
+    <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour aux resultats
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const quizId = {{ quiz.id }};
+
+async function runClassAnalysis() {
+    const btn = document.getElementById('analyze-btn');
+    const container = document.getElementById('analysis-container');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> Analyse en cours...';
+
+    try {
+        const response = await fetch('/admin/quiz/' + quizId + '/analyze-class', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse IA';
+        }
+    } catch (err) {
+        alert('Erreur de connexion');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse IA';
+    }
+}
+</script>
+
+<style>
+.rotating {
+    animation: rotate 1s linear infinite;
+}
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Verifiez votre email - BrainNotFound{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">BrainNotFound</h1>
+        <h2 class="text-center mb-2">Verifiez votre email</h2>
+
+        <div class="text-center mb-2">
+            <i class="iconoir-mail" style="font-size: 3rem; color: var(--primary);"></i>
+        </div>
+
+        <p class="text-center mb-2">
+            Un email de verification a ete envoye a
+            {% if email %}<strong>{{ email }}</strong>{% else %}votre adresse email{% endif %}.
+        </p>
+
+        <p class="text-center text-light mb-2">
+            Cliquez sur le lien dans l'email pour activer votre compte.
+            Le lien est valide pendant 24 heures.
+        </p>
+
+        <div class="auth-link">
+            Vous n'avez pas recu l'email ?
+            <a href="{{ url_for('auth.resend_verification') }}{% if email %}?email={{ email }}{% endif %}">
+                Renvoyer l'email
+            </a>
+        </div>
+
+        <div class="auth-link">
+            <a href="{{ url_for('auth.login') }}">Retour a la connexion</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant.name }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">{{ tenant.name }}</h1>
+
+<div class="stats-grid mb-2">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.groups.current }}{% if stats.groups.max %}/{{ stats.groups.max }}{% endif %}</div>
+        <div class="stat-label">Groupes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.quizzes.current }}{% if stats.quizzes.max %}/{{ stats.quizzes.max }}{% endif %}</div>
+        <div class="stat-label">Quiz</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.users.current }}{% if stats.users.max %}/{{ stats.users.max }}{% endif %}</div>
+        <div class="stat-label">Utilisateurs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ admins|length }}</div>
+        <div class="stat-label">Administrateurs</div>
+    </div>
+</div>
+
+<div class="stats-grid mb-2">
+    <div class="stat-card">
+        <div class="stat-value">{{ ai_stats.corrections.used }}{% if ai_stats.corrections.limit %}/{{ ai_stats.corrections.limit }}{% endif %}</div>
+        <div class="stat-label">Corrections IA (mois)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ ai_stats.generations.used }}{% if ai_stats.generations.limit %}/{{ ai_stats.generations.limit }}{% endif %}</div>
+        <div class="stat-label">Generations quiz (mois)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ ai_stats.analyses.used }}{% if ai_stats.analyses.limit %}/{{ ai_stats.analyses.limit }}{% endif %}</div>
+        <div class="stat-label">Analyses classe (mois)</div>
+    </div>
+    <div class="stat-card">
+        {% if tenant.subscription_expires_at %}
+            {% set days = tenant.days_until_expiration() %}
+            {% if days < 0 %}
+                <div class="stat-value text-error">Expire</div>
+                <div class="stat-label">depuis {{ -days }} jour(s)</div>
+            {% elif days == 0 %}
+                <div class="stat-value text-warning">Expire</div>
+                <div class="stat-label">aujourd'hui</div>
+            {% elif days <= 30 %}
+                <div class="stat-value text-warning">{{ days }}j</div>
+                <div class="stat-label">avant expiration</div>
+            {% else %}
+                <div class="stat-value text-success">{{ days }}j</div>
+                <div class="stat-label">avant expiration</div>
+            {% endif %}
+        {% else %}
+            <div class="stat-value text-success">∞</div>
+            <div class="stat-label">Sans expiration</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header flex justify-between items-center">
+        <span>Informations</span>
+        <div class="flex gap-sm">
+            {% if current_user.is_superadmin %}
+            <a href="{{ url_for('tenant.manage_admins', tenant_id=tenant.id) }}" class="btn btn-secondary btn-small">
+                <i class="iconoir-user-crown"></i> Gerer admins
+            </a>
+            <a href="{{ url_for('tenant.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-primary btn-small">
+                <i class="iconoir-edit-pencil"></i> Modifier
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="p-2">
+        <div class="info-grid">
+            <div><strong>Slug:</strong> <span class="font-mono text-info">{{ tenant.slug }}</span></div>
+            <div><strong>Statut:</strong> <span class="{{ 'text-success' if tenant.is_active else 'text-error' }}">{{ 'Actif' if tenant.is_active else 'Inactif' }}</span></div>
+            {% if tenant.contact_name %}
+            <div><strong>Contact:</strong> {{ tenant.contact_name }}</div>
+            {% endif %}
+            {% if tenant.contact_email %}
+            <div><strong>Email:</strong> <a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a></div>
+            {% endif %}
+            <div><strong>Cree le:</strong> {{ tenant.created_at.strftime('%d/%m/%Y a %H:%M') }}</div>
+        </div>
+        {% if tenant.description %}
+        <div class="mt-2">
+            <strong>Description:</strong>
+            <p class="text-light mt-1">{{ tenant.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if admins %}
+<div class="card mb-2">
+    <div class="card-header flex justify-between items-center">
+        <span>Administrateurs de l'organisation</span>
+        {% if current_user.is_superadmin %}
+        <a href="{{ url_for('tenant.manage_admins', tenant_id=tenant.id) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-plus"></i> Ajouter
+        </a>
+        {% endif %}
+    </div>
+    <div class="p-2">
+        <div class="flex gap-sm flex-wrap">
+            {% for admin in admins %}
+            <span class="badge">
+                <i class="iconoir-user"></i> {{ admin.full_name or admin.username }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card mb-2">
+    <div class="card-header flex justify-between items-center">
+        <span>Groupes ({{ groups|length }})</span>
+        <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}" class="btn btn-primary btn-small">
+            <i class="iconoir-plus"></i> Nouveau groupe
+        </a>
+    </div>
+    {% if groups %}
+    <div class="p-2">
+        <div class="quiz-grid">
+            {% for group in groups %}
+            <div class="quiz-card">
+                <div class="quiz-info">
+                    <h3>{{ group.name }}</h3>
+                    <div class="quiz-meta">
+                        Code: <strong class="font-mono text-info">{{ group.join_code }}</strong> -
+                        {{ group.get_member_count() }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} membre(s) -
+                        <span class="{{ 'text-success' if group.is_active else 'text-error' }}">{{ 'Actif' if group.is_active else 'Inactif' }}</span>
+                    </div>
+                </div>
+                <div class="quiz-actions">
+                    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Membres">
+                        <i class="iconoir-group"></i>
+                    </a>
+                    <a href="{{ url_for('admin.edit_group', group_id=group.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                        <i class="iconoir-edit-pencil"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center text-light p-2">
+        Aucun groupe dans cette organisation. <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}">Creer un groupe</a>
+    </p>
+    {% endif %}
+</div>
+
+<div class="actions">
+    {% if current_user.is_superadmin %}
+    <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour aux organisations
+    </a>
+    {% else %}
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour au dashboard
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+</style>
+{% endblock %}

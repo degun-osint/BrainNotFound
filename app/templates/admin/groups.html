@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des groupes - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Gestion des groupes</h1>
+
+<div class="card">
+    <div class="card-header flex justify-between items-center">
+        <span>Liste des groupes</span>
+        {% if current_user.is_superadmin %}
+        <a href="{{ url_for('admin.create_group') }}" class="btn btn-primary btn-small" data-tooltip="Creer un nouveau groupe">
+            <i class="iconoir-plus"></i> Nouveau
+        </a>
+        {% elif current_user.is_tenant_admin %}
+            {% set user_tenants = current_user.admin_tenants.all() %}
+            {% if user_tenants|length == 1 %}
+            <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=user_tenants[0].id) }}" class="btn btn-primary btn-small" data-tooltip="Creer un groupe dans {{ user_tenants[0].name }}">
+                <i class="iconoir-plus"></i> Nouveau
+            </a>
+            {% else %}
+            <div class="dropdown">
+                <button class="btn btn-primary btn-small dropdown-toggle" data-tooltip="Creer un nouveau groupe">
+                    <i class="iconoir-plus"></i> Nouveau <i class="iconoir-nav-arrow-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    {% for tenant in user_tenants %}
+                    <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}" class="dropdown-item">
+                        {{ tenant.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {% if groups %}
+        <div class="quiz-grid">
+            {% for group in groups %}
+            <div class="quiz-card">
+                <div class="quiz-info">
+                    <h3>{{ group.name }}</h3>
+                    <div class="quiz-meta">
+                        Code: <strong class="font-mono text-info">{{ group.join_code }}</strong> -
+                        {{ group.get_member_count() }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} membre(s)
+                        {% if group.is_full() %}<span class="badge badge-warning">Complet</span>{% endif %} -
+                        Cree le {{ group.created_at.strftime('%d/%m/%Y') }} -
+                        <span class="{{ 'text-success' if group.is_active else 'text-error' }}">
+                            {{ 'Actif' if group.is_active else 'Inactif' }}
+                        </span>
+                        {% if group.tenant %}
+                        - <span class="badge badge-info">{{ group.tenant.name }}</span>
+                        {% endif %}
+                    </div>
+                    {% if group.description %}
+                    <p class="text-light text-sm mt-1">{{ group.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="quiz-actions">
+                    <a href="{{ url_for('admin.email_group', group_id=group.id) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Envoyer un email">
+                        <i class="iconoir-mail"></i>
+                    </a>
+                    <a href="{{ url_for('admin.export_group_results', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter résultats CSV">
+                        <i class="iconoir-download"></i>
+                    </a>
+                    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Utilisateurs ({{ group.users.count() }})">
+                        <i class="iconoir-group"></i>
+                    </a>
+                    <a href="{{ url_for('admin.edit_group', group_id=group.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                        <i class="iconoir-edit-pencil"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin.toggle_group', group_id=group.id) }}" class="inline">
+                        <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if group.is_active else 'Activer' }}">
+                            <i class="iconoir-{{ 'eye-closed' if group.is_active else 'eye' }}"></i>
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.delete_group', group_id=group.id) }}"
+                          onsubmit="return confirmDelete(this, 'ce groupe');" class="inline">
+                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                            <i class="iconoir-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-light p-2">
+            Aucun groupe disponible.
+            {% if current_user.is_superadmin %}
+            <a href="{{ url_for('admin.create_group') }}">Creez votre premier groupe</a>
+            {% elif current_user.is_tenant_admin %}
+                {% set user_tenants = current_user.admin_tenants.all() %}
+                {% if user_tenants|length == 1 %}
+                <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=user_tenants[0].id) }}">Creez votre premier groupe</a>
+                {% endif %}
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+
+<div class="mt-2">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour au dashboard
+    </a>
+</div>
+{% endblock %}

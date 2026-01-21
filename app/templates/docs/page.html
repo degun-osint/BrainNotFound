@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Documentation - BrainNotFound{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<style>
+    .docs-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 2rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    .docs-sidebar {
+        position: sticky;
+        top: 1rem;
+        height: fit-content;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+        padding-right: 1rem;
+    }
+
+    .docs-nav-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .docs-nav-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .docs-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .docs-nav-item {
+        margin: 0;
+    }
+
+    .docs-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.15s ease;
+    }
+
+    .docs-nav-link:hover {
+        background: var(--bg-light);
+        color: var(--primary);
+    }
+
+    .docs-nav-link.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .docs-nav-link i {
+        font-size: 1rem;
+        opacity: 0.7;
+    }
+
+    .docs-content {
+        max-width: 800px;
+    }
+
+    .docs-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .docs-header h1 {
+        margin: 0;
+        font-size: 2rem;
+    }
+
+    .docs-body {
+        line-height: 1.7;
+    }
+
+    .docs-body h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .docs-body h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .docs-body p {
+        margin-bottom: 1rem;
+    }
+
+    .docs-body ul, .docs-body ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .docs-body li {
+        margin-bottom: 0.5rem;
+    }
+
+    .docs-body pre {
+        background: var(--bg-dark);
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+
+    .docs-body code {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9em;
+    }
+
+    .docs-body p code,
+    .docs-body li code {
+        background: var(--bg-light);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+
+    .docs-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+
+    .docs-body th,
+    .docs-body td {
+        padding: 0.75rem;
+        text-align: left;
+        border: 1px solid var(--border);
+    }
+
+    .docs-body th {
+        background: var(--bg-light);
+        font-weight: 600;
+    }
+
+    .docs-body blockquote {
+        border-left: 4px solid var(--primary);
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: var(--bg-light);
+        border-radius: 0 8px 8px 0;
+    }
+
+    .docs-body blockquote p:last-child {
+        margin-bottom: 0;
+    }
+
+    .docs-nav-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .docs-nav-prev,
+    .docs-nav-next {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-decoration: none;
+        color: var(--text);
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+        max-width: 45%;
+    }
+
+    .docs-nav-prev:hover,
+    .docs-nav-next:hover {
+        background: var(--bg-light);
+    }
+
+    .docs-nav-next {
+        text-align: right;
+        margin-left: auto;
+    }
+
+    .docs-nav-label {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .docs-nav-title-link {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .docs-toc {
+        position: fixed;
+        right: 2rem;
+        top: 6rem;
+        width: 200px;
+        font-size: 0.85rem;
+    }
+
+    .docs-toc-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .docs-toc ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .docs-toc li {
+        margin: 0.25rem 0;
+    }
+
+    .docs-toc a {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    .docs-toc a:hover {
+        color: var(--primary);
+    }
+
+    @media (max-width: 1200px) {
+        .docs-toc {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .docs-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .docs-sidebar {
+            position: static;
+            max-height: none;
+            padding-right: 0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .docs-nav-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .docs-nav-prev,
+        .docs-nav-next {
+            max-width: 100%;
+        }
+
+        .docs-nav-next {
+            text-align: left;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+        {% for section in docs_structure %}
+        <nav class="docs-nav-section">
+            <div class="docs-nav-title">{{ section.section }}</div>
+            <ul class="docs-nav-list">
+                {% for page in section.pages %}
+                <li class="docs-nav-item">
+                    <a href="{{ url_for('docs.page', slug=page.slug) }}"
+                       class="docs-nav-link {{ 'active' if current_slug == page.slug else '' }}">
+                        <i class="iconoir-{{ page.icon }}"></i>
+                        <span>{{ page.title }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endfor %}
+    </aside>
+
+    <article class="docs-content">
+        <header class="docs-header">
+            <h1>{{ title }}</h1>
+        </header>
+
+        <div class="docs-body">
+            {{ content }}
+        </div>
+
+        <nav class="docs-nav-footer">
+            {% if prev_page %}
+            <a href="{{ url_for('docs.page', slug=prev_page.slug) }}" class="docs-nav-prev">
+                <span class="docs-nav-label"><i class="iconoir-nav-arrow-left"></i> Precedent</span>
+                <span class="docs-nav-title-link">{{ prev_page.title }}</span>
+            </a>
+            {% endif %}
+
+            {% if next_page %}
+            <a href="{{ url_for('docs.page', slug=next_page.slug) }}" class="docs-nav-next">
+                <span class="docs-nav-label">Suivant <i class="iconoir-nav-arrow-right"></i></span>
+                <span class="docs-nav-title-link">{{ next_page.title }}</span>
+            </a>
+            {% endif %}
+        </nav>
+    </article>
+</div>
+
+{% if toc %}
+<aside class="docs-toc">
+    <div class="docs-toc-title">Sur cette page</div>
+    {{ toc }}
+</aside>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+    document.querySelectorAll('.docs-body pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+</script>
+{% endblock %}

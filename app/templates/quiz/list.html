@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Quiz - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Quiz disponibles</h1>
+
+<div class="card">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>Mes quiz</span>
+        <div class="flex gap-sm items-center flex-wrap">
+            <form method="GET" class="flex gap-sm items-center">
+                <!-- Filtre par statut (client-side) -->
+                <div class="searchable-select" id="status-filter-container">
+                    <div class="searchable-select-trigger" id="status-filter-trigger">
+                        <i class="iconoir-filter"></i>
+                        <span id="status-filter-label">Tous les quiz</span>
+                        <i class="iconoir-nav-arrow-down"></i>
+                    </div>
+                    <div class="searchable-select-dropdown">
+                        <div class="searchable-select-options">
+                            <div class="searchable-select-option selected" data-value="all">Tous les quiz</div>
+                            <div class="searchable-select-option" data-value="pending">Non repondus</div>
+                            <div class="searchable-select-option" data-value="completed">Repondus</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user_tenants|length > 1 %}
+                <div class="searchable-select" data-autosubmit="true">
+                    <input type="hidden" name="tenant" id="tenant-input" value="{{ filter_tenant_id or 0 }}">
+                    <div class="searchable-select-trigger">
+                        <i class="iconoir-building"></i>
+                        <span>{% if filter_tenant_id %}{% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}Toutes les organisations{% endif %}</span>
+                        <i class="iconoir-nav-arrow-down"></i>
+                    </div>
+                    <div class="searchable-select-dropdown">
+                        <div class="searchable-select-search">
+                            <input type="text" placeholder="Rechercher une organisation...">
+                        </div>
+                        <div class="searchable-select-options">
+                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">Toutes les organisations</div>
+                            {% for tenant in user_tenants %}
+                            <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user_groups|length > 1 %}
+                <div class="searchable-select" data-autosubmit="true">
+                    <input type="hidden" name="group" id="group-input" value="{{ filter_group_id or 0 }}">
+                    <div class="searchable-select-trigger">
+                        <i class="iconoir-group"></i>
+                        <span>{% if filter_group_id %}{% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                        <i class="iconoir-nav-arrow-down"></i>
+                    </div>
+                    <div class="searchable-select-dropdown">
+                        <div class="searchable-select-search">
+                            <input type="text" placeholder="Rechercher un groupe...">
+                        </div>
+                        <div class="searchable-select-options">
+                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                            {% for group in user_groups %}
+                            <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">{{ group.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if filter_group_id or filter_tenant_id %}
+                <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                    <i class="iconoir-xmark"></i>
+                </a>
+                {% endif %}
+            </form>
+            <span id="quiz-count" class="font-mono text-sm text-light">
+                {{ quizzes|length }} quiz
+            </span>
+        </div>
+    </div>
+
+    {% if filter_group_id or filter_tenant_id %}
+    <div class="search-results-info">
+        <span class="text-light">
+            {% if filter_tenant_id %}Organisation: {% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% endif %}
+            {% if filter_tenant_id and filter_group_id %} - {% endif %}
+            {% if filter_group_id %}Groupe: {% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% endif %}
+            - {{ quizzes|length }} quiz
+        </span>
+    </div>
+    {% endif %}
+
+    {% if quizzes %}
+    <div class="quiz-grid" id="quiz-list">
+        {% for quiz in quizzes %}
+        <div class="quiz-card" data-status="{% if quiz.id in user_responses %}completed{% else %}pending{% endif %}">
+            <div class="quiz-info">
+                <h3>
+                    {% if quiz.id in user_responses %}
+                    <span class="quiz-status completed">Repondu</span>
+                    {% else %}
+                    <span class="quiz-status pending">A faire</span>
+                    {% endif %}
+                    {{ quiz.title }}
+                </h3>
+                <div class="quiz-meta">
+                    {{ quiz.questions.count() }} questions -
+                    {% set total_points = namespace(value=0) %}
+                    {% for q in quiz.questions %}
+                        {% set total_points.value = total_points.value + q.points %}
+                    {% endfor %}
+                    {{ total_points.value }} points
+                    {% if quiz.time_limit_minutes %}
+                    - {{ quiz.time_limit_minutes }} min
+                    {% endif %}
+                </div>
+                {% if quiz.description %}
+                <p class="mt-0 text-light">{{ quiz.description }}</p>
+                {% endif %}
+            </div>
+            <div class="quiz-actions">
+                {% if quiz.id in user_responses %}
+                    {% set response = user_responses[quiz.id] %}
+                    <span class="font-mono font-bold">
+                        {{ "%.1f"|format(response.total_score) }}/{{ "%.1f"|format(response.max_score) }}
+                    </span>
+                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small">
+                        <i class="iconoir-eye"></i> Voir
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('quiz.take', quiz_id=quiz.id) }}" class="btn btn-primary btn-small">
+                        <i class="iconoir-play"></i> Commencer
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-light p-2">
+        {% if filter_group_id or filter_tenant_id %}
+        Aucun quiz disponible avec les filtres selectionnes.
+        <a href="{{ url_for('quiz.quiz_list') }}">Reinitialiser les filtres</a>
+        {% else %}
+        Aucun quiz disponible pour le moment.
+        {% endif %}
+    </p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Status filter (client-side filtering)
+const statusContainer = document.getElementById('status-filter-container');
+const statusTrigger = document.getElementById('status-filter-trigger');
+const statusLabel = document.getElementById('status-filter-label');
+const statusOptions = statusContainer.querySelectorAll('.searchable-select-option');
+
+statusTrigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    // Close all other dropdowns
+    document.querySelectorAll('.searchable-select.open').forEach(el => {
+        if (el !== statusContainer) el.classList.remove('open');
+    });
+    statusContainer.classList.toggle('open');
+});
+
+statusOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        const value = this.dataset.value;
+        statusLabel.textContent = this.textContent;
+
+        // Update selected state
+        statusOptions.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+
+        statusContainer.classList.remove('open');
+        filterQuizzes(value);
+    });
+});
+
+function filterQuizzes(filter) {
+    const cards = document.querySelectorAll('.quiz-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const status = card.dataset.status;
+        if (filter === 'all' || status === filter) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    document.getElementById('quiz-count').textContent = visibleCount + ' quiz';
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function(e) {
+    if (!statusContainer.contains(e.target)) {
+        statusContainer.classList.remove('open');
+    }
+});
+</script>
+{% endblock %}

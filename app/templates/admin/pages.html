@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Pages personnalisees - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-2">
+    <h1>Pages personnalisees</h1>
+    <a href="{{ url_for('admin.create_page') }}" class="btn btn-primary">
+        <i class="iconoir-plus"></i> Nouvelle page
+    </a>
+</div>
+
+{% if pages %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Slug</th>
+                <th>Emplacement</th>
+                <th>Ordre</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for page in pages %}
+            <tr>
+                <td>
+                    <strong>{{ page.title }}</strong>
+                </td>
+                <td>
+                    <code>/page/{{ page.slug }}</code>
+                </td>
+                <td>
+                    {% if page.location == 'menu' %}
+                        <span class="badge badge-info">Menu</span>
+                    {% elif page.location == 'footer' %}
+                        <span class="badge badge-secondary">Footer</span>
+                    {% elif page.location == 'both' %}
+                        <span class="badge badge-info">Menu</span>
+                        <span class="badge badge-secondary">Footer</span>
+                    {% else %}
+                        <span class="badge">Aucun</span>
+                    {% endif %}
+                    {% if page.open_new_tab %}
+                        <i class="iconoir-open-new-window" title="Ouvre dans un nouvel onglet"></i>
+                    {% endif %}
+                </td>
+                <td>{{ page.display_order }}</td>
+                <td>
+                    {% if page.is_published %}
+                        <span class="badge badge-success">Publiee</span>
+                    {% else %}
+                        <span class="badge badge-warning">Brouillon</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="flex gap-sm">
+                        <a href="{{ url_for('admin.preview_page', page_id=page.id) }}"
+                           class="btn btn-secondary btn-small" title="Apercu" target="_blank">
+                            <i class="iconoir-eye"></i>
+                        </a>
+                        <a href="{{ url_for('admin.edit_page', page_id=page.id) }}"
+                           class="btn btn-primary btn-small" title="Modifier">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                        <form action="{{ url_for('admin.delete_page', page_id=page.id) }}"
+                              method="POST" style="display: inline;"
+                              onsubmit="return confirm('Supprimer cette page ?')">
+                            <button type="submit" class="btn btn-error btn-small" title="Supprimer">
+                                <i class="iconoir-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card p-2">
+    <p class="text-light text-center">Aucune page personnalisee pour le moment.</p>
+    <p class="text-center mt-1">
+        <a href="{{ url_for('admin.create_page') }}" class="btn btn-primary">
+            <i class="iconoir-plus"></i> Creer votre premiere page
+        </a>
+    </p>
+</div>
+{% endif %}
+
+<div class="mt-2">
+    <a href="{{ url_for('admin.site_settings') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour aux parametres
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+{% if is_preview %}
+<div class="alert alert-warning mb-2">
+    <i class="iconoir-eye"></i>
+    <strong>Mode apercu</strong> - Cette page {% if not page.is_published %}n'est pas encore publiee{% else %}est publiee{% endif %}.
+    <a href="{{ url_for('admin.edit_page', page_id=page.id) }}">Modifier</a>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h1 style="margin: 0; font-size: 1.5rem;">{{ page.title }}</h1>
+    </div>
+    <div class="p-2 page-content">
+        {{ page.get_html_content()|safe }}
+    </div>
+</div>
+
+<div class="mt-2">
+    <a href="{{ url_for('auth.index') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour a l'accueil
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-content {
+    line-height: 1.7;
+}
+.page-content h1, .page-content h2, .page-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.page-content h1:first-child, .page-content h2:first-child, .page-content h3:first-child {
+    margin-top: 0;
+}
+.page-content p {
+    margin-bottom: 1rem;
+}
+.page-content ul, .page-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+.page-content li {
+    margin-bottom: 0.25rem;
+}
+.page-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+.page-content th, .page-content td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    text-align: left;
+}
+.page-content th {
+    background: var(--bg-secondary);
+}
+.page-content code {
+    background: var(--bg-secondary);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+.page-content pre {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+.page-content pre code {
+    background: none;
+    padding: 0;
+}
+.page-content blockquote {
+    border-left: 4px solid var(--primary);
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+}
+.page-content a {
+    color: var(--primary);
+}
+.page-content a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

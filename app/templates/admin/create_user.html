@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Creer un utilisateur - BrainNotFound{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Creer un utilisateur</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="grid-2 gap-md">
+            <div class="form-group">
+                <label class="form-label" for="first_name">Prenom</label>
+                <input type="text" id="first_name" name="first_name" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="last_name">Nom</label>
+                <input type="text" id="last_name" name="last_name" class="form-input">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="username">Nom d'utilisateur *</label>
+            <input type="text" id="username" name="username" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="email">Email *</label>
+            <input type="email" id="email" name="email" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Mot de passe *</label>
+            <input type="password" id="password" name="password" class="form-input" required>
+        </div>
+
+        {% if is_superadmin %}
+        <div class="form-group">
+            <label class="form-label">Role</label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="user_role" value="user" checked onchange="toggleRoleOptions()">
+                    <span>Utilisateur</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="user_role" value="group_admin" onchange="toggleRoleOptions()">
+                    <span>Administrateur de groupe</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="user_role" value="tenant_admin" onchange="toggleRoleOptions()">
+                    <span>Administrateur d'organisation</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="user_role" value="superadmin" onchange="toggleRoleOptions()">
+                    <span>Super-administrateur</span>
+                </label>
+            </div>
+            <small class="text-light">
+                Super-admin: acces total. Admin organisation: gere une ou plusieurs organisations. Admin groupe: gere ses groupes assignes.
+            </small>
+        </div>
+
+        {% if tenants %}
+        <div class="form-group" id="tenant-select" style="display: none;">
+            <label class="form-label">Organisations a administrer</label>
+            <div class="checkbox-list">
+                {% for tenant in tenants %}
+                <label class="checkbox-item">
+                    <input type="checkbox" name="tenant_ids" value="{{ tenant.id }}">
+                    <span>{{ tenant.name }}</span>
+                    {% if tenant.description %}
+                    <small class="text-light">- {{ tenant.description|truncate(30) }}</small>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+            <small class="text-light">
+                Selectionnez les organisations que cet administrateur pourra gerer.
+            </small>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <div class="form-group" id="group-select">
+            <label class="form-label">Groupes</label>
+            {% set groups_by_tenant = {} %}
+            {% set groups_no_tenant = [] %}
+            {% for group in groups %}
+                {% if group.tenant %}
+                    {% if group.tenant.id not in groups_by_tenant %}
+                        {% set _ = groups_by_tenant.update({group.tenant.id: {'tenant': group.tenant, 'groups': []}}) %}
+                    {% endif %}
+                    {% set _ = groups_by_tenant[group.tenant.id]['groups'].append(group) %}
+                {% else %}
+                    {% set _ = groups_no_tenant.append(group) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if groups_by_tenant|length > 0 %}
+            <div class="tenant-groups-container">
+                {% for tenant_id, data in groups_by_tenant.items() %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-building"></i>
+                        <strong>{{ data.tenant.name }}</strong>
+                        <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
+                            Tout selectionner
+                        </button>
+                    </div>
+                    <div class="checkbox-list mt-0">
+                        {% for group in data.groups %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}">
+                            <span>{{ group.name }}</span>
+                            <small class="text-light font-mono">({{ group.join_code }})</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if groups_no_tenant %}
+                <div class="tenant-group-section mb-1">
+                    <div class="tenant-group-header">
+                        <i class="iconoir-globe"></i>
+                        <strong>Sans organisation</strong>
+                    </div>
+                    <div class="checkbox-list mt-0">
+                        {% for group in groups_no_tenant %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="group_ids" value="{{ group.id }}">
+                            <span>{{ group.name }}</span>
+                            <small class="text-light font-mono">({{ group.join_code }})</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="checkbox-list">
+                {% for group in groups %}
+                <label class="checkbox-item">
+                    <input type="checkbox" name="group_ids" value="{{ group.id }}">
+                    <span>{{ group.name }}</span>
+                    <small class="text-light font-mono">({{ group.join_code }})</small>
+                </label>
+                {% endfor %}
+                {% if not groups %}
+                <span class="text-light">Aucun groupe disponible</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            <small class="text-light">
+                Selectionnez un ou plusieurs groupes pour l'utilisateur.
+                {% if is_superadmin %}Les super-administrateurs et admins d'organisation n'ont pas besoin de groupes.{% endif %}
+            </small>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-plus"></i> Creer l'utilisateur
+            </button>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleRoleOptions() {
+    const role = document.querySelector('input[name="user_role"]:checked')?.value || 'user';
+    const groupSelect = document.getElementById('group-select');
+    const tenantSelect = document.getElementById('tenant-select');
+    const groupCheckboxes = groupSelect.querySelectorAll('input[type="checkbox"]');
+
+    // Handle group selection visibility
+    if (role === 'superadmin' || role === 'tenant_admin') {
+        groupSelect.classList.add('disabled');
+        groupCheckboxes.forEach(cb => cb.disabled = true);
+    } else {
+        groupSelect.classList.remove('disabled');
+        groupCheckboxes.forEach(cb => cb.disabled = false);
+    }
+
+    // Handle tenant selection visibility (only for tenant_admin)
+    if (tenantSelect) {
+        if (role === 'tenant_admin') {
+            tenantSelect.style.display = '';
+        } else {
+            tenantSelect.style.display = 'none';
+        }
+    }
+}
+
+function toggleTenantGroups(btn, tenantId) {
+    const checkboxes = document.querySelectorAll(`input[name="group_ids"][data-tenant="${tenantId}"]`);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
+
+    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+}
+</script>
+{% endblock %}

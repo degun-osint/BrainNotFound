@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Renvoyer l'email de verification - BrainNotFound{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">BrainNotFound</h1>
+        <h2 class="text-center mb-2">Renvoyer l'email</h2>
+
+        <p class="text-center text-light mb-2">
+            Entrez votre adresse email pour recevoir un nouveau lien de verification.
+        </p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="email">Adresse email</label>
+                <input type="email" id="email" name="email" class="form-input"
+                       value="{{ request.args.get('email', '') }}" required autofocus>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="iconoir-send"></i> Renvoyer l'email
+            </button>
+        </form>
+
+        <div class="auth-link">
+            <a href="{{ url_for('auth.login') }}">Retour a la connexion</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

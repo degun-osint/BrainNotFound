@@ -1,0 +1,28 @@
+Flask==3.1.2
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.1.0
+Flask-Login==0.6.3
+Flask-WTF==1.2.2
+Flask-SocketIO==5.5.1
+WTForms==3.2.1
+pymysql==1.1.2
+cryptography==46.0.3
+python-dotenv==1.2.1
+markdown==3.10
+anthropic>=0.75.0
+gunicorn==23.0.0
+gevent==24.11.1
+gevent-websocket==0.10.1
+
+# Document parsing for Quiz Generator
+pypdf>=4.0.0
+python-docx==1.1.0
+
+# Email
+Flask-Mail==0.10.0
+
+# Rate limiting
+Flask-Limiter==4.1.1
+
+# Scheduled tasks (backups)
+APScheduler==3.10.4

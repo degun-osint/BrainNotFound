@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Resultats - {{ quiz.title }} - BrainNotFound{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-2 flex-wrap gap-md">
+    <h1 class="mb-0">Resultats : {{ quiz.title }}</h1>
+    {% if responses %}
+    <a href="{{ url_for('admin.class_analysis', quiz_id=quiz.id) }}" class="btn btn-primary">
+        <i class="iconoir-stats-report"></i> Analyse de classe
+    </a>
+    {% endif %}
+</div>
+
+<div class="card mb-2">
+    <div class="card-header">Filtrer par groupe</div>
+    <form method="GET" class="flex gap-md items-center">
+        <div class="form-group flex-1 mb-0">
+            <select name="group" class="form-select" onchange="this.form.submit()">
+                <option value="">Tous les groupes</option>
+                {% for group in groups %}
+                    <option value="{{ group.id }}" {% if selected_group == group.id %}selected{% endif %}>
+                        {{ group.name }} ({{ group.join_code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if selected_group %}
+        <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Reinitialiser le filtre">
+            <i class="iconoir-xmark"></i>
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>
+            Soumissions des étudiants
+            {% if selected_group %}
+                {% for group in groups %}
+                    {% if group.id == selected_group %}
+                        <span class="text-info"> - {{ group.name }}</span>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            ({{ responses|length }} soumission(s))
+        </span>
+        {% if responses %}
+        <div class="flex gap-sm">
+            <form method="POST" action="{{ url_for('admin.regrade_quiz', quiz_id=quiz.id) }}" class="inline"
+                  onsubmit="return confirm('Re-corriger toutes les questions ouvertes ? Les notes actuelles seront recalculées.');">
+                <button type="submit" class="btn btn-warning btn-small" data-tooltip="Re-corriger les questions ouvertes">
+                    <i class="iconoir-refresh-double"></i> Re-corriger
+                </button>
+            </form>
+            <a href="{{ url_for('admin.export_quiz_csv', quiz_id=quiz.id, group=selected_group or '') }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
+                <i class="iconoir-download"></i> CSV
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if responses %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Groupe</th>
+                    <th>Score</th>
+                    <th>Pourcentage</th>
+                    <th>Durée</th>
+                    <th>Moy/Q</th>
+                    <th>Focus</th>
+                    <th>Date de soumission</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('admin.user_grades', user_id=response.user.id) }}" class="link-primary font-medium">
+                            {{ response.user.full_name }}
+                        </a>
+                        <br>
+                        <small class="text-light">{{ response.user.username }}</small>
+                    </td>
+                    <td>
+                        {% if response.user.group %}
+                            {{ response.user.group.name }}
+                        {% else %}
+                            <span class="text-light">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}</td>
+                    <td>
+                        {% set percentage = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
+                        {{ "%.1f"|format(percentage) }}%
+                    </td>
+                    <td>
+                        {% if response.started_at and response.submitted_at %}
+                            {% set duration = (response.submitted_at - response.started_at).total_seconds() %}
+                            {{ (duration / 60)|round(1) }} min
+                        {% else %}
+                            <span class="text-light">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if response.started_at and response.submitted_at %}
+                            {% set duration = (response.submitted_at - response.started_at).total_seconds() %}
+                            {% set question_count = response.answers|length %}
+                            {% if question_count > 0 %}
+                                {{ (duration / question_count)|round(0)|int }}s
+                            {% else %}
+                                <span class="text-light">-</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-light">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set ns = namespace(security_events=0) %}
+                        {% if response.focus_events %}
+                            {% for evt in response.focus_events %}
+                                {% if evt.event_type != 'focus_lost' %}
+                                    {% set ns.security_events = ns.security_events + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if response.total_focus_lost and response.total_focus_lost > 0 %}
+                            <span class="badge badge-warning" data-tooltip="{{ response.total_focus_lost }} perte(s) de focus">
+                                <i class="iconoir-running" style="font-size: 0.7rem;"></i> {{ response.total_focus_lost }}
+                            </span>
+                        {% endif %}
+                        {% if ns.security_events > 0 %}
+                            <span class="badge badge-error" data-tooltip="{{ ns.security_events }} action(s) bloquee(s)/detectee(s)">
+                                <i class="iconoir-shield-alert" style="font-size: 0.7rem;"></i> {{ ns.security_events }}
+                            </span>
+                        {% endif %}
+                        {% if (not response.total_focus_lost or response.total_focus_lost == 0) and ns.security_events == 0 %}
+                            <span class="text-success">OK</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% if response.is_late %}
+                        <span class="badge badge-error ml-1">En retard</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="flex gap-sm flex-wrap">
+                            <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
+                                <i class="iconoir-eye"></i>
+                            </a>
+                            <a href="{{ url_for('admin.response_analysis', response_id=response.id) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Analyse detaillee">
+                                <i class="iconoir-stats-report"></i>
+                            </a>
+                            <a href="{{ url_for('admin.edit_response', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
+                                <i class="iconoir-edit-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_response', response_id=response.id) }}"
+                                  onsubmit="return confirmDelete(this, 'cette reponse (l\'utilisateur pourra repasser le quiz)');" class="inline">
+                                <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                                    <i class="iconoir-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center text-light p-2">
+            Aucune soumission pour ce quiz.
+        </p>
+    {% endif %}
+</div>
+
+<div class="mt-2">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> Retour au dashboard
+    </a>
+</div>
+{% endblock %}

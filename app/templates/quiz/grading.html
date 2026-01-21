@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Correction en cours - {{ quiz_response.quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="grading-container">
+    <div class="card" style="max-width: 600px; margin: 2rem auto; text-align: center;">
+        <h1 style="margin-bottom: 1rem;">Correction en cours</h1>
+        <p style="color: var(--text-light); margin-bottom: 2rem;">
+            L'IA analyse vos reponses. Veuillez patienter...
+        </p>
+
+        <!-- Progress Circle -->
+        <div class="progress-circle-container" style="margin: 2rem auto;">
+            <svg class="progress-circle" viewBox="0 0 100 100" style="width: 150px; height: 150px;">
+                <circle class="progress-bg" cx="50" cy="50" r="45" fill="none" stroke="var(--border)" stroke-width="8"/>
+                <circle class="progress-bar" cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round"
+                        transform="rotate(-90 50 50)"/>
+            </svg>
+            <div class="progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: bold;">
+                <span id="progress-count">0</span>/<span id="progress-total">{{ quiz_response.grading_total }}</span>
+            </div>
+        </div>
+
+        <!-- Current Question -->
+        <div id="current-question" style="margin: 1.5rem 0; min-height: 2rem;">
+            <span style="color: var(--text-light);">Preparation...</span>
+        </div>
+
+        <!-- Graded Questions List -->
+        <div id="graded-list" style="margin-top: 2rem; text-align: left; max-height: 200px; overflow-y: auto;">
+        </div>
+
+        <!-- Status Message -->
+        <div id="status-message" style="margin-top: 1rem; padding: 0.5rem; border-radius: 0.5rem;">
+        </div>
+    </div>
+</div>
+
+<style>
+.grading-container {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-circle-container {
+    position: relative;
+    display: inline-block;
+}
+
+.progress-circle {
+    transform: rotate(-90deg);
+}
+
+.progress-bar {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+.graded-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: slideIn 0.3s ease-out;
+}
+
+.graded-item:last-child {
+    border-bottom: none;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.score-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.score-badge.good {
+    background: var(--success);
+    color: white;
+}
+
+.score-badge.medium {
+    background: var(--warning);
+    color: white;
+}
+
+.score-badge.low {
+    background: var(--error);
+    color: white;
+}
+
+#status-message.success {
+    background: var(--success);
+    color: white;
+}
+
+#status-message.error {
+    background: var(--error);
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+const responseId = {{ quiz_response.id }};
+const totalQuestions = {{ quiz_response.grading_total }};
+const resultUrl = "{{ url_for('quiz.result', response_id=quiz_response.id) }}";
+
+// Connect to WebSocket
+const socket = io();
+
+socket.on('connect', function() {
+    console.log('Connected to WebSocket');
+});
+
+socket.on('connected', function(data) {
+    console.log('Joined room:', data.room);
+});
+
+socket.on('grading_started', function(data) {
+    if (data.response_id === responseId) {
+        document.getElementById('current-question').innerHTML =
+            '<span style="color: var(--primary);">Correction demarree...</span>';
+    }
+});
+
+socket.on('grading_progress', function(data) {
+    if (data.response_id === responseId) {
+        // Update progress count
+        document.getElementById('progress-count').textContent = data.progress;
+
+        // Update progress circle
+        const progressPercent = (data.progress / totalQuestions) * 100;
+        const dashOffset = 283 - (283 * progressPercent / 100);
+        document.querySelector('.progress-bar').style.strokeDashoffset = dashOffset;
+
+        // Update current question
+        document.getElementById('current-question').innerHTML =
+            '<span style="color: var(--primary);">Correction de : ' + data.question_text + '</span>';
+
+        // Add to graded list
+        const percentage = (data.score / data.max_score) * 100;
+        let badgeClass = 'low';
+        if (percentage >= 70) badgeClass = 'good';
+        else if (percentage >= 40) badgeClass = 'medium';
+
+        const gradedList = document.getElementById('graded-list');
+        const item = document.createElement('div');
+        item.className = 'graded-item';
+        item.innerHTML = `
+            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${data.question_text}
+            </span>
+            <span class="score-badge ${badgeClass}">${data.score}/${data.max_score}</span>
+        `;
+        gradedList.insertBefore(item, gradedList.firstChild);
+    }
+});
+
+socket.on('grading_completed', function(data) {
+    if (data.response_id === responseId) {
+        // Update progress to 100%
+        document.getElementById('progress-count').textContent = totalQuestions;
+        document.querySelector('.progress-bar').style.strokeDashoffset = 0;
+
+        // Show completion message
+        const statusMsg = document.getElementById('status-message');
+        statusMsg.className = 'success';
+        statusMsg.innerHTML = `
+            <strong>Correction terminee !</strong><br>
+            Score: ${data.total_score.toFixed(1)}/${data.max_score} (${data.percentage.toFixed(0)}%)
+        `;
+
+        document.getElementById('current-question').innerHTML =
+            '<span style="color: var(--success);">Redirection vers les resultats...</span>';
+
+        // Redirect to results after a short delay
+        setTimeout(function() {
+            window.location.href = resultUrl;
+        }, 2000);
+    }
+});
+
+socket.on('grading_error', function(data) {
+    if (data.response_id === responseId) {
+        const statusMsg = document.getElementById('status-message');
+        statusMsg.className = 'error';
+        statusMsg.innerHTML = `
+            <strong>Erreur lors de la correction</strong><br>
+            ${data.error}
+        `;
+
+        document.getElementById('current-question').innerHTML =
+            '<span style="color: var(--error);">Une erreur est survenue</span>';
+    }
+});
+
+// Fallback: poll for status if WebSocket fails
+let pollInterval = setInterval(function() {
+    fetch('/quiz/grading-status/' + responseId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                clearInterval(pollInterval);
+                window.location.href = resultUrl;
+            }
+        })
+        .catch(err => console.log('Poll error:', err));
+}, 5000);
+</script>
+{% endblock %}
