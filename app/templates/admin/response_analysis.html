@@ -260,7 +260,7 @@
 <!-- AI Analysis Section -->
 <div class="card mb-2">
     <div class="card-header flex justify-between items-center">
-        <span>Analyse IA Anti-Triche</span>
+        <span><i class="iconoir-sparks"></i> Analyse pedagogique IA</span>
         {% if not stats.response.ai_analysis_status or stats.response.ai_analysis_status != 'completed' %}
         <button type="button" class="btn btn-primary btn-small" id="analyze-btn" onclick="runAnalysis()">
             <i class="iconoir-sparks"></i> Lancer l'analyse
@@ -271,25 +271,59 @@
     <div id="analysis-container">
         {% if stats.response.ai_analysis_result %}
             {% set result = stats.response.ai_analysis_result %}
-            <div class="analysis-result {{ result.risk_level }}">
-                <div class="analysis-header">
-                    <span class="risk-badge {{ result.risk_level }}">
-                        {% if result.risk_level == 'low' %}Risque faible{% elif result.risk_level == 'medium' %}Risque modere{% else %}Risque eleve{% endif %}
+            {% set level = result.attention_level or result.risk_level or 'none' %}
+            <div class="analysis-result {{ level }}" style="background: var(--gray-50);">
+                <div class="analysis-header mb-1">
+                    <span class="risk-badge {{ level }}" style="{% if level == 'none' %}background: var(--gray-400);{% endif %}">
+                        {% if level == 'none' %}RAS{% elif level == 'low' %}Attention faible{% elif level == 'moderate' or level == 'medium' %}Attention moderee{% else %}Attention requise{% endif %}
                     </span>
                     <span class="text-light">Confiance: {{ (result.confidence * 100)|round(0)|int }}%</span>
                 </div>
-                <p>{{ result.summary }}</p>
 
-                {% if result.anomalies %}
-                <div class="anomaly-list">
-                    <h4>Anomalies detectees:</h4>
-                    {% for anomaly in result.anomalies %}
-                    <div class="anomaly-item">
-                        <span class="severity {{ anomaly.severity }}">{{ anomaly.severity }}</span>
-                        {% if anomaly.question_number %}
-                        <strong>Question {{ anomaly.question_number }}:</strong>
+                <p class="mb-2">{{ result.summary }}</p>
+
+                <!-- Strengths -->
+                {% if result.strengths %}
+                <div class="mb-2">
+                    <h4 style="font-size: 0.9rem; color: var(--accent-success);"><i class="iconoir-check-circle"></i> Points forts</h4>
+                    <div class="flex flex-wrap gap-sm">
+                        {% for strength in result.strengths %}
+                        <span class="badge badge-success">{{ strength }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Learning Gaps -->
+                {% if result.learning_gaps %}
+                <div class="mb-2">
+                    <h4 style="font-size: 0.9rem; color: var(--accent-warning);"><i class="iconoir-book"></i> Axes d'amelioration</h4>
+                    {% for gap in result.learning_gaps %}
+                    <div class="anomaly-item" style="border-left-color: var(--accent-warning); background: rgba(139, 105, 20, 0.05);">
+                        <strong>{{ gap.topic }}</strong>
+                        {% if gap.questions_concerned %}
+                        <small class="text-light">(Q{{ gap.questions_concerned|join(', Q') }})</small>
                         {% endif %}
-                        {{ anomaly.description }}
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">{{ gap.difficulty_observed }}</p>
+                        {% if gap.suggestion %}
+                        <small style="color: var(--primary);"><i class="iconoir-light-bulb"></i> {{ gap.suggestion }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Behavioral Indicators -->
+                {% if result.behavioral_indicators or result.anomalies %}
+                <div class="anomaly-list">
+                    <h4 style="font-size: 0.9rem; color: var(--text-light);"><i class="iconoir-eye-solid"></i> Indicateurs comportementaux</h4>
+                    {% for indicator in (result.behavioral_indicators or result.anomalies) %}
+                    <div class="anomaly-item" style="border-left-color: {% if indicator.level == 'review' or indicator.severity == 'severe' %}var(--accent-error){% elif indicator.level == 'attention' or indicator.severity == 'moderate' %}var(--accent-warning){% else %}var(--gray-300){% endif %};">
+                        <span class="severity {{ indicator.level or indicator.severity }}" style="font-size: 0.7rem;">{{ indicator.level or indicator.severity }}</span>
+                        {% if indicator.question_number %}
+                        <strong>Question {{ indicator.question_number }}:</strong>
+                        {% endif %}
+                        {{ indicator.description }}
                     </div>
                     {% endfor %}
                 </div>
@@ -297,7 +331,7 @@
             </div>
         {% else %}
             <p class="text-center text-light p-2">
-                Cliquez sur "Lancer l'analyse" pour detecter d'eventuelles anomalies.
+                Cliquez sur "Lancer l'analyse" pour obtenir un bilan pedagogique.
             </p>
         {% endif %}
     </div>

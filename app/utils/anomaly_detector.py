@@ -5,10 +5,83 @@ Analyzes timing data and focus events to detect potential cheating.
 
 import json
 import os
+import re
 from anthropic import Anthropic
 from app.models.quiz import QuizResponse, Answer
 from app import db
 from .prompt_loader import get_anomaly_prompts
+
+
+def repair_json(text):
+    """
+    Attempt to repair common JSON issues from LLM output.
+    """
+    # Remove any text before the first { and after the last }
+    start = text.find('{')
+    end = text.rfind('}')
+    if start == -1 or end == -1:
+        return text
+    text = text[start:end + 1]
+
+    # Fix common issues
+    # 1. Replace single quotes with double quotes (but not inside strings)
+    # 2. Remove trailing commas before ] or }
+    text = re.sub(r',(\s*[}\]])', r'\1', text)
+
+    # 3. Try to fix unescaped newlines in strings
+    # This is a simplified fix - replace actual newlines in string values
+    lines = text.split('\n')
+    fixed_lines = []
+    in_string = False
+    for line in lines:
+        # Count unescaped quotes to track if we're in a string
+        quote_count = len(re.findall(r'(?<!\\)"', line))
+        if in_string:
+            # We're continuing a string from previous line
+            fixed_lines[-1] += '\\n' + line.strip()
+        else:
+            fixed_lines.append(line)
+        # Update in_string state
+        if quote_count % 2 == 1:
+            in_string = not in_string
+
+    text = '\n'.join(fixed_lines)
+
+    return text
+
+
+def safe_json_parse(text):
+    """
+    Try to parse JSON with fallback repair attempts.
+    """
+    # First try direct parse
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # Try with repair
+    try:
+        repaired = repair_json(text)
+        return json.loads(repaired)
+    except json.JSONDecodeError:
+        pass
+
+    # Last resort: try to extract just the JSON object
+    try:
+        # Find the outermost braces
+        start = text.find('{')
+        end = text.rfind('}')
+        if start != -1 and end != -1:
+            json_str = text[start:end + 1]
+            # Remove trailing commas
+            json_str = re.sub(r',(\s*[}\]])', r'\1', json_str)
+            return json.loads(json_str)
+    except json.JSONDecodeError:
+        pass
+
+    # If all else fails, raise the original error
+    return json.loads(text)
 
 
 def analyze_quiz_response(response_id):
@@ -87,7 +160,7 @@ def analyze_quiz_response(response_id):
 
         message = client.messages.create(
             model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=1000,
+            max_tokens=2500,  # Increased for detailed pedagogical analysis
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -100,34 +173,50 @@ def analyze_quiz_response(response_id):
         elif '```' in response_text:
             response_text = response_text.split('```')[1].split('```')[0].strip()
 
-        result = json.loads(response_text)
+        result = safe_json_parse(response_text)
 
-        # Validate result structure
-        if 'risk_level' not in result:
-            result['risk_level'] = 'low'
+        # Validate result structure (new pedagogical format)
+        if 'attention_level' not in result:
+            result['attention_level'] = 'none'
         if 'confidence' not in result:
             result['confidence'] = 0.5
-        if 'anomalies' not in result:
-            result['anomalies'] = []
+        if 'behavioral_indicators' not in result:
+            result['behavioral_indicators'] = []
+        if 'learning_gaps' not in result:
+            result['learning_gaps'] = []
+        if 'strengths' not in result:
+            result['strengths'] = []
         if 'summary' not in result:
-            result['summary'] = 'Analyse completee sans anomalies detectees.'
+            result['summary'] = 'Analyse completee.'
+
+        # Backward compatibility mapping
+        result['risk_level'] = result['attention_level']
+        result['anomalies'] = result['behavioral_indicators']
 
         return result
 
     except json.JSONDecodeError as e:
         return {
             'error': f'Failed to parse AI response: {str(e)}',
+            'attention_level': 'none',
             'risk_level': 'unknown',
             'confidence': 0,
+            'behavioral_indicators': [],
             'anomalies': [],
+            'learning_gaps': [],
+            'strengths': [],
             'summary': 'Erreur lors de l\'analyse IA'
         }
     except Exception as e:
         return {
             'error': str(e),
+            'attention_level': 'none',
             'risk_level': 'unknown',
             'confidence': 0,
+            'behavioral_indicators': [],
             'anomalies': [],
+            'learning_gaps': [],
+            'strengths': [],
             'summary': f'Erreur: {str(e)}'
         }
 
@@ -460,7 +549,7 @@ def analyze_class(quiz_id):
 
         message = client.messages.create(
             model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=2000,
+            max_tokens=4000,  # Increased for detailed class analysis
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -472,25 +561,48 @@ def analyze_class(quiz_id):
         elif '```' in response_text:
             response_text = response_text.split('```')[1].split('```')[0].strip()
 
-        result = json.loads(response_text)
+        result = safe_json_parse(response_text)
 
-        # Validate structure
-        if 'class_risk_level' not in result:
-            result['class_risk_level'] = 'low'
-        if 'suspicious_students' not in result:
-            result['suspicious_students'] = []
-        if 'question_concerns' not in result:
-            result['question_concerns'] = []
+        # Validate structure (new pedagogical format)
+        if 'pedagogical_summary' not in result:
+            result['pedagogical_summary'] = 'Analyse completee.'
+        if 'concepts_to_review' not in result:
+            result['concepts_to_review'] = []
+        if 'class_strengths' not in result:
+            result['class_strengths'] = []
+        if 'students_needing_support' not in result:
+            result['students_needing_support'] = []
+        if 'behavioral_observations' not in result:
+            result['behavioral_observations'] = []
         if 'recommendations' not in result:
             result['recommendations'] = []
+
+        # Backward compatibility mapping
+        result['summary'] = result['pedagogical_summary']
+        result['class_risk_level'] = 'low'  # Deprecated, kept for compatibility
+        # Map concepts_to_review to question_concerns for backward compatibility
+        result['question_concerns'] = [
+            {'question_number': c.get('questions_concerned', [None])[0], 'concern': c.get('teaching_suggestion', '')}
+            for c in result['concepts_to_review']
+        ]
+        # Map students_needing_support to suspicious_students for backward compatibility
+        result['suspicious_students'] = [
+            {'name': s.get('name', ''), 'risk_level': 'low', 'reasons': s.get('gaps', [])}
+            for s in result['students_needing_support']
+        ]
 
         return result
 
     except json.JSONDecodeError as e:
         return {
             'error': f'Failed to parse AI response: {str(e)}',
-            'class_risk_level': 'unknown',
+            'pedagogical_summary': 'Erreur lors de l\'analyse',
             'summary': 'Erreur lors de l\'analyse',
+            'class_risk_level': 'unknown',
+            'concepts_to_review': [],
+            'class_strengths': [],
+            'students_needing_support': [],
+            'behavioral_observations': [],
             'suspicious_students': [],
             'question_concerns': [],
             'recommendations': []
@@ -498,8 +610,13 @@ def analyze_class(quiz_id):
     except Exception as e:
         return {
             'error': str(e),
-            'class_risk_level': 'unknown',
+            'pedagogical_summary': f'Erreur: {str(e)}',
             'summary': f'Erreur: {str(e)}',
+            'class_risk_level': 'unknown',
+            'concepts_to_review': [],
+            'class_strengths': [],
+            'students_needing_support': [],
+            'behavioral_observations': [],
             'suspicious_students': [],
             'question_concerns': [],
             'recommendations': []

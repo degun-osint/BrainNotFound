@@ -148,9 +148,15 @@ class User(UserMixin, db.Model):
         """Check if this admin can access/manage a quiz."""
         if self.is_superadmin:
             return True
-        # Tenant admin can access quizzes in their tenants
-        if self.is_tenant_admin and quiz.tenant_id:
-            if self.is_admin_of_tenant(quiz.tenant_id):
+        # Tenant admin can access quizzes in their tenants OR assigned to their tenant's groups
+        if self.is_tenant_admin:
+            admin_tenant_ids = set(t.id for t in self.admin_tenants)
+            # Direct tenant assignment
+            if quiz.tenant_id and quiz.tenant_id in admin_tenant_ids:
+                return True
+            # Quiz assigned to a group in one of admin's tenants
+            quiz_group_tenant_ids = set(g.tenant_id for g in quiz.groups if g.tenant_id)
+            if admin_tenant_ids & quiz_group_tenant_ids:
                 return True
         # Group admin can ONLY access quizzes explicitly assigned to their groups
         admin_group_ids = set(g.id for g in self.get_admin_groups())

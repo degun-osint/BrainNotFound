@@ -1059,11 +1059,17 @@ def quiz_results(quiz_id):
 
     group_filter = request.args.get('group', None, type=int)
 
-    # Get groups for filter dropdown (filtered for group admins)
+    # Get groups for filter dropdown based on admin type
     if current_user.is_superadmin:
         groups = Group.query.order_by(Group.name).all()
         admin_group_ids = None  # Superadmin sees all
+    elif current_user.is_tenant_admin:
+        # Tenant admin: show groups from their tenants
+        tenant_ids = [t.id for t in current_user.admin_tenants]
+        groups = Group.query.filter(Group.tenant_id.in_(tenant_ids)).order_by(Group.name).all()
+        admin_group_ids = [g.id for g in groups] if groups else None  # None = see all responses for this quiz
     else:
+        # Group admin: only their admin groups
         groups = list(current_user.get_admin_groups().order_by(Group.name))
         admin_group_ids = [g.id for g in groups]
 
@@ -1076,8 +1082,8 @@ def quiz_results(quiz_id):
         query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
             user_groups.c.group_id == group_filter
         )
-    elif admin_group_ids is not None:
-        # Group admin without filter - only show users in their groups
+    elif admin_group_ids is not None and admin_group_ids:
+        # Non-superadmin without filter - only show users in their accessible groups
         query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
             user_groups.c.group_id.in_(admin_group_ids)
         )
@@ -1167,9 +1173,13 @@ def export_quiz_csv(quiz_id):
 
     group_filter = request.args.get('group', None, type=int)
 
-    # Get admin's groups for filtering
+    # Get admin's groups for filtering based on admin type
     if current_user.is_superadmin:
         admin_group_ids = None
+    elif current_user.is_tenant_admin:
+        tenant_ids = [t.id for t in current_user.admin_tenants]
+        tenant_groups = Group.query.filter(Group.tenant_id.in_(tenant_ids)).all()
+        admin_group_ids = [g.id for g in tenant_groups] if tenant_groups else None
     else:
         admin_group_ids = [g.id for g in current_user.get_admin_groups()]
 
@@ -1181,8 +1191,8 @@ def export_quiz_csv(quiz_id):
         query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
             user_groups.c.group_id == group_filter
         )
-    elif admin_group_ids is not None:
-        # Group admin without filter - only show users in their groups
+    elif admin_group_ids is not None and admin_group_ids:
+        # Non-superadmin without filter - only show users in their accessible groups
         query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
             user_groups.c.group_id.in_(admin_group_ids)
         )

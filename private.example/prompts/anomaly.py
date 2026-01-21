@@ -1,62 +1,92 @@
 """
-Anomaly detection prompts - Standard prompts for cheating detection.
+Anomaly detection and pedagogical analysis prompts.
 Copy to /private/prompts/anomaly.py and customize as needed.
 """
 
-INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE = """Analyse ces donnees de quiz pour detecter des anomalies.
-
-Donnees:
-{context}
-
-Indicateurs a verifier:
-1. Temps anormalement court pour des questions complexes
-2. Correlation entre pertes de focus et bonnes reponses
-3. Reponses longues avec temps tres court
-4. Patterns suspects
-
-Reponds avec un JSON:
-{{
-  "risk_level": "low" ou "medium" ou "high",
-  "confidence": nombre entre 0.0 et 1.0,
-  "anomalies": [
-    {{
-      "type": "type d'anomalie",
-      "question_number": numero ou null,
-      "description": "description",
-      "severity": "minor" ou "moderate" ou "severe"
-    }}
-  ],
-  "summary": "Resume de l'analyse"
-}}"""
-
-CLASS_ANALYSIS_PROMPT_TEMPLATE = """Analyse ces donnees de classe pour detecter des patterns suspects.
+INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE = """Analyse ce quiz pour un bilan pedagogique.
 
 DONNEES:
 {context}
 
-INDICATEURS:
-1. Temps anormalement courts par rapport a la moyenne
-2. Correlation entre pertes de focus et bonnes notes
-3. Patterns identiques entre etudiants
-4. Comportements similaires (collusion)
+Analyse:
+1. POINTS FORTS: ce que l'etudiant maitrise bien
+2. LACUNES: concepts a travailler (avec suggestions)
+3. OBSERVATIONS: temps/comportement inhabituels (sans accuser, juste factuel)
 
-Reponds avec un JSON:
+Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
 {{
-  "class_risk_level": "low" ou "medium" ou "high",
-  "summary": "Resume de l'analyse",
-  "suspicious_students": [
+  "attention_level": "none|low|moderate|high",
+  "confidence": 0.0-1.0,
+  "strengths": ["point fort 1", "point fort 2"],
+  "learning_gaps": [
     {{
-      "name": "nom",
-      "risk_level": "low" ou "medium" ou "high",
-      "reasons": ["raison"],
-      "suspicious_questions": [numeros]
+      "topic": "concept",
+      "questions_concerned": [1, 2],
+      "difficulty_observed": "description",
+      "suggestion": "conseil"
     }}
   ],
-  "question_concerns": [
+  "behavioral_indicators": [
     {{
-      "question_number": N,
-      "concern": "description"
+      "type": "type",
+      "question_number": 1,
+      "description": "observation factuelle",
+      "level": "info|attention|review"
     }}
   ],
-  "recommendations": ["recommandation"]
+  "summary": "Resume en 2-3 phrases"
+}}"""
+
+CLASS_ANALYSIS_PROMPT_TEMPLATE = """Analyse ces resultats de classe pour aider l'enseignant.
+
+DONNEES:
+{context}
+
+Analyse:
+1. NOTIONS A REVOIR: concepts avec faible taux de reussite
+2. POINTS FORTS: ce que la classe maitrise
+3. ETUDIANTS A ACCOMPAGNER: ceux en difficulte
+4. OBSERVATIONS: patterns inhabituels (factuels, sans accuser)
+
+Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
+{{
+  "pedagogical_summary": "Resume en 3-4 phrases",
+  "concepts_to_review": [
+    {{
+      "topic": "concept",
+      "questions_concerned": [1],
+      "success_rate": 45,
+      "common_errors": ["erreur 1"],
+      "teaching_suggestion": "conseil"
+    }}
+  ],
+  "class_strengths": [
+    {{
+      "topic": "concept maitrise",
+      "success_rate": 85
+    }}
+  ],
+  "students_needing_support": [
+    {{
+      "name": "Nom",
+      "gaps": ["lacune 1"],
+      "suggested_focus": "axe de travail"
+    }}
+  ],
+  "behavioral_observations": [
+    {{
+      "type": "observation",
+      "students_concerned": ["Nom1"],
+      "description": "description factuelle",
+      "possible_explanations": ["explication 1"],
+      "level": "info|attention"
+    }}
+  ],
+  "recommendations": [
+    {{
+      "priority": "high|medium|low",
+      "action": "action",
+      "rationale": "pourquoi"
+    }}
+  ]
 }}"""
