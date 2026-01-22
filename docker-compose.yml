@@ -27,6 +27,7 @@ services:
       - "5006:5000"
     environment:
       - FLASK_ENV=production
+      - TZ=Europe/Paris
     env_file:
       - .env
     depends_on:

@@ -1027,6 +1027,41 @@ a.tenant-option {
     margin: 0.25rem 0.5rem 0.25rem 0;
 }
 
+/* Inline code in questions/options */
+.question-text code,
+.option code,
+.expected-answer code,
+.answer-box code {
+    background: var(--gray-100);
+    border: 1px solid var(--border-light);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--accent-error);
+}
+
+/* Code blocks in questions */
+.question-text pre,
+.expected-answer pre {
+    background: var(--gray-800);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+}
+
+.question-text pre code,
+.expected-answer pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
 .options {
     list-style: none;
 }

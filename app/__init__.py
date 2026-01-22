@@ -117,9 +117,9 @@ def create_app(config_class=Config):
     # Register WebSocket handlers
     from app import sockets  # noqa: F401
 
-    # Register Jinja2 filter for rendering quiz images
+    # Register Jinja2 filter for rendering quiz content (images + code)
     def render_quiz_images(text, quiz_id):
-        """Convert markdown image syntax to HTML img tags."""
+        """Convert markdown syntax to HTML (images, inline code, code blocks)."""
         import html
         if not text:
             return text
@@ -136,8 +136,26 @@ def create_app(config_class=Config):
             image_url = url_for('admin.serve_quiz_image', quiz_id=quiz_id, filename=filename)
             return f'<img src="{image_url}" alt="{alt}" class="quiz-image">'
 
+        # Process images first (before escaping, as URLs need special chars)
         pattern = r'!\[([^\]]*)\]\(([^)]+)\)'
         result = re.sub(pattern, replace_image, text)
+
+        # Handle code blocks first: ```code``` -> <pre><code>code</code></pre>
+        def replace_code_block(match):
+            lang = match.group(1) or ''
+            code_content = html.escape(match.group(2))
+            lang_class = f' class="language-{lang}"' if lang else ''
+            return f'<pre><code{lang_class}>{code_content}</code></pre>'
+
+        result = re.sub(r'```(\w*)\n?([\s\S]*?)```', replace_code_block, result)
+
+        # Then handle inline code: `code` -> <code>code</code>
+        def replace_code(match):
+            code_content = html.escape(match.group(1))
+            return f'<code>{code_content}</code>'
+
+        result = re.sub(r'`([^`]+)`', replace_code, result)
+
         return Markup(result)
 
     app.jinja_env.filters['render_quiz_images'] = render_quiz_images

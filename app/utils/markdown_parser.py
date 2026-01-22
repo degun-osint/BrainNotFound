@@ -91,7 +91,8 @@ class QuizParser:
         question_lines = []
         while i < len(lines):
             line = lines[i].strip()
-            if line.startswith('- ['):
+            # Only break on actual checkbox options: - [ ] or - [x] (single char in brackets)
+            if re.match(r'^-\s*\[(x| )\]\s', line, re.IGNORECASE):
                 break
             if line.startswith('##'):
                 break
