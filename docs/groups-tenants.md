@@ -140,3 +140,45 @@ Pour déplacer des utilisateurs entre groupes :
 1. Modifiez chaque utilisateur
 2. Changez les groupes assignés
 3. Ou utilisez l'import CSV avec les nouveaux groupes
+
+## Quotas et limites
+
+> Réservé aux **super-administrateurs**
+
+### Limites configurables
+
+Chaque organisation peut avoir des limites :
+
+| Limite | Description |
+|--------|-------------|
+| **Max utilisateurs** | Nombre maximum d'utilisateurs dans l'organisation |
+| **Max quiz** | Nombre maximum de quiz actifs |
+| **Max groupes** | Nombre maximum de groupes |
+| **Corrections IA / mois** | Nombre de corrections de questions ouvertes |
+| **Générations quiz / mois** | Nombre de quiz générés par IA |
+| **Analyses classe / mois** | Nombre d'analyses de classe IA |
+| **Entretiens IA / mois** | Nombre d'entretiens conversationnels |
+
+Une valeur de **0** signifie **illimité**.
+
+### Alertes quota
+
+Activez les alertes pour être prévenu quand un quota est presque atteint :
+
+1. **Organisations** > Modifier l'organisation
+2. Section **Alertes quota**
+3. Cochez **Activer les alertes quota**
+4. Définissez le **seuil** (défaut : 10%)
+5. Assurez-vous qu'une **adresse de contact** est configurée
+
+Quand un quota atteint le seuil configuré :
+- Un email est envoyé à l'adresse de contact
+- L'email liste tous les quotas critiques
+- Une seule alerte est envoyée par mois
+
+### Abonnement
+
+Vous pouvez définir une **date d'expiration** pour l'organisation :
+- Après expiration, les utilisateurs ne peuvent plus accéder aux quiz
+- Les admins reçoivent un avertissement dans l'interface
+- Laisser vide pour un abonnement sans expiration

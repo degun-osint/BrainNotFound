@@ -21,6 +21,13 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
   - Copier-coller surveillé
 - **Randomisation** : Options QCM mélangées par étudiant
 
+### Entretiens conversationnels
+- **Personnages IA** : Créez des scénarios avec des personnages simulés par Claude
+- **Évaluation multi-critères** : Définissez des grilles d'évaluation personnalisées
+- **Cas pratiques** : Entretiens d'embauche, gestion de conflits, détection de biais cognitifs
+- **Feedback détaillé** : Analyse automatique de la conversation avec conseils d'amélioration
+- **Templates prédéfinis** : RPS, entretien d'embauche, biais cognitifs et plus
+
 ### Analyse IA
 - **Analyse individuelle** : Détection d'anomalies par réponse
 - **Analyse de classe** : Patterns suspects, collusion potentielle
@@ -36,7 +43,8 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 - **Quotas configurables** :
   - Nombre max d'utilisateurs, quiz, groupes
   - Espace de stockage
-  - Limites mensuelles IA (corrections, générations, analyses)
+  - Limites mensuelles IA (corrections, générations, analyses, entretiens)
+- **Alertes quota** : Notification email quand un quota approche sa limite
 - **Abonnements** : Date d'expiration optionnelle par organisation
 
 ### Administration
@@ -165,7 +173,8 @@ private.example/          # Version par défaut (commitée)
 ├── prompts/
 │   ├── grading.py       # Prompts de correction (sévérité, ton)
 │   ├── generator.py     # Prompts de génération de quiz
-│   └── anomaly.py       # Prompts de détection de triche
+│   ├── anomaly.py       # Prompts de détection de triche
+│   └── interview.py     # Prompts pour entretiens IA
 ├── seed_data/
 │   ├── a-propos.md      # Page "À propos"
 │   └── mentions-legales.md

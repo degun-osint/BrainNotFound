@@ -70,7 +70,8 @@
             <strong>Usage ce mois :</strong>
             {{ tenant.used_ai_corrections }} corrections,
             {{ tenant.used_quiz_generations }} generations,
-            {{ tenant.used_class_analyses }} analyses
+            {{ tenant.used_class_analyses }} analyses,
+            {{ tenant.used_interviews }} entretiens
         </div>
 
         <div class="form-row">
@@ -88,6 +89,11 @@
                 <label class="form-label" for="monthly_class_analyses">Analyses classe / mois</label>
                 <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
                        value="{{ tenant.monthly_class_analyses }}" min="0" style="width: 120px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_interviews">Entretiens IA / mois</label>
+                <input type="number" id="monthly_interviews" name="monthly_interviews" class="form-input"
+                       value="{{ tenant.monthly_interviews }}" min="0" style="width: 120px;">
             </div>
         </div>
 
@@ -124,6 +130,29 @@
                 <span>Organisation active</span>
             </label>
             <small class="text-light">Desactiver une organisation empeche l'acces a ses groupes et quiz</small>
+        </div>
+
+        <h3 class="mt-2 mb-1">Alertes quota</h3>
+        <div class="info-box bg-gray mb-2">
+            <strong>Note :</strong> L'email d'alerte est envoye a l'adresse de contact ci-dessus.
+            {% if tenant.quota_alert_sent_at %}
+            Derniere alerte : {{ tenant.quota_alert_sent_at.strftime('%d/%m/%Y %H:%M') }}
+            {% endif %}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-checkbox">
+                    <input type="checkbox" name="quota_alert_enabled" {% if tenant.quota_alert_enabled %}checked{% endif %}>
+                    <span>Activer les alertes quota</span>
+                </label>
+                <small class="text-light">Envoie un email quand un quota est presque atteint</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="quota_alert_threshold">Seuil d'alerte (%)</label>
+                <input type="number" id="quota_alert_threshold" name="quota_alert_threshold" class="form-input"
+                       value="{{ tenant.quota_alert_threshold }}" min="1" max="50" style="width: 100px;">
+                <small class="text-light">Alerte quand il reste X% du quota</small>
+            </div>
         </div>
 
         <h3 class="mt-2 mb-1">Notes internes</h3>

@@ -107,12 +107,14 @@ def create_app(config_class=Config):
     from app.routes.quiz import quiz_bp
     from app.routes.tenant import tenant_bp
     from app.routes.docs import docs_bp
+    from app.routes.interview import interview_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(quiz_bp, url_prefix='/quiz')
     app.register_blueprint(tenant_bp, url_prefix='/admin/tenants')
     app.register_blueprint(docs_bp, url_prefix='/docs')
+    app.register_blueprint(interview_bp, url_prefix='/interview')
 
     # Register WebSocket handlers
     from app import sockets  # noqa: F401

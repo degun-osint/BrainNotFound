@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Resultats - {{ interview.title }} - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-header {
+    text-align: center;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+.score-display {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+.score-percentage {
+    font-size: 1.5rem;
+    color: var(--text-light);
+}
+.criteria-grid {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.criterion-card {
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+}
+.criterion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+.criterion-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+.criterion-score {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.criterion-bar {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+.criterion-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+.criterion-fill.high { background: var(--success); }
+.criterion-fill.medium { background: var(--warning); }
+.criterion-fill.low { background: var(--danger); }
+.criterion-feedback {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+.summary-card {
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+.summary-card h3 {
+    margin-bottom: 1rem;
+}
+.transcript-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+.transcript-toggle:hover {
+    background: var(--bg-tertiary);
+}
+.transcript-content {
+    display: none;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+.transcript-content.show {
+    display: block;
+}
+.transcript-message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+.transcript-message.user {
+    background: var(--primary);
+    color: white;
+    margin-left: 20%;
+}
+.transcript-message.assistant {
+    background: var(--bg-tertiary);
+    margin-right: 20%;
+}
+.transcript-role {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1>Resultats de l'entretien</h1>
+        <p class="text-light">{{ interview.title }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('interview.result_pdf', session_id=session.id) }}" class="btn btn-primary">
+            <i class="iconoir-download"></i> Telecharger PDF
+        </a>
+        <a href="{{ url_for('interview.interview_list') }}" class="btn">
+            <i class="iconoir-arrow-left"></i> Retour aux entretiens
+        </a>
+    </div>
+</div>
+
+<!-- Score header -->
+<div class="result-header">
+    <h2>{{ interview.persona_name or 'Entretien' }}</h2>
+    <div class="score-display">
+        {{ "%.1f"|format(session.total_score) }} / {{ "%.1f"|format(session.max_score) }}
+    </div>
+    <div class="score-percentage">
+        {{ "%.0f"|format(session.get_score_percentage()) }}%
+    </div>
+    <div class="mt-md text-light">
+        <i class="iconoir-clock"></i> {{ session.get_duration_minutes() }} minutes
+        &bull;
+        <i class="iconoir-chat-bubble"></i> {{ session.interaction_count }} echanges
+    </div>
+</div>
+
+<!-- Criteria scores -->
+<h3>Evaluation par critere</h3>
+<div class="criteria-grid">
+    {% for score in session.scores %}
+    {% set percentage = score.get_percentage() %}
+    <div class="criterion-card">
+        <div class="criterion-header">
+            <span class="criterion-name">{{ score.criterion.name }}</span>
+            <span class="criterion-score">{{ "%.1f"|format(score.score) }} / {{ "%.1f"|format(score.max_score) }}</span>
+        </div>
+        <div class="criterion-bar">
+            <div class="criterion-fill {% if percentage >= 70 %}high{% elif percentage >= 40 %}medium{% else %}low{% endif %}"
+                 style="width: {{ percentage }}%"></div>
+        </div>
+        {% if score.feedback %}
+        <p class="criterion-feedback">{{ score.feedback }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- AI Summary -->
+{% if session.ai_summary %}
+<div class="summary-card">
+    <h3><i class="iconoir-sparks"></i> Synthese</h3>
+    <p>{{ session.ai_summary }}</p>
+</div>
+{% endif %}
+
+<!-- Admin comment -->
+{% if session.admin_comment %}
+<div class="summary-card">
+    <h3><i class="iconoir-message"></i> Commentaire du formateur</h3>
+    <p>{{ session.admin_comment }}</p>
+</div>
+{% endif %}
+
+<!-- Transcript -->
+<div class="transcript-toggle" onclick="toggleTranscript()">
+    <i class="iconoir-chat-lines" id="transcript-icon"></i>
+    <span>Voir la transcription complete</span>
+    <i class="iconoir-nav-arrow-down" style="margin-left: auto;"></i>
+</div>
+
+<div class="transcript-content" id="transcript-content">
+    {% for message in session.messages %}
+    <div class="transcript-message {{ message.role }}">
+        <div class="transcript-role">
+            {% if message.role == 'user' %}Vous{% else %}{{ interview.persona_name or 'Personnage' }}{% endif %}
+            - {{ message.created_at.strftime('%H:%M') }}
+        </div>
+        {{ message.content }}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleTranscript() {
+    const content = document.getElementById('transcript-content');
+    content.classList.toggle('show');
+}
+</script>
+{% endblock %}

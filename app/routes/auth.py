@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from urllib.parse import urlparse
+from datetime import datetime
+import json
 from app import db, limiter
 from app.models.user import User
 from app.models.group import Group
@@ -328,6 +330,176 @@ def join_group():
         flash(f'Vous avez rejoint le groupe "{group.name}"', 'success')
 
     return redirect(url_for('auth.profile'))
+
+
+# ============================================================
+# RGPD Routes (Data Export & Account Deletion)
+# ============================================================
+
+@auth_bp.route('/profile/export-data')
+@login_required
+def export_data():
+    """Export all user data as JSON (RGPD compliance)."""
+    from app.models.quiz import QuizResponse, Answer
+    from app.models.interview import InterviewSession, InterviewMessage
+
+    # Collect user data
+    user_data = {
+        'export_date': datetime.now().isoformat(),
+        'user': {
+            'id': current_user.id,
+            'username': current_user.username,
+            'email': current_user.email,
+            'first_name': current_user.first_name,
+            'last_name': current_user.last_name,
+            'email_verified': current_user.email_verified,
+            'created_at': current_user.created_at.isoformat() if current_user.created_at else None,
+            'last_login': current_user.last_login.isoformat() if current_user.last_login else None,
+            'last_login_ip': current_user.last_login_ip
+        },
+        'groups': [],
+        'quiz_responses': [],
+        'interview_sessions': []
+    }
+
+    # Groups
+    for group in current_user.groups:
+        user_data['groups'].append({
+            'name': group.name,
+            'role': current_user.get_role_in_group(group.id),
+            'joined_at': None  # Would need to track this in the model
+        })
+
+    # Quiz responses with answers
+    responses = QuizResponse.query.filter_by(user_id=current_user.id).all()
+    for response in responses:
+        response_data = {
+            'quiz_title': response.quiz.title,
+            'submitted_at': response.submitted_at.isoformat() if response.submitted_at else None,
+            'started_at': response.started_at.isoformat() if response.started_at else None,
+            'total_score': response.total_score,
+            'max_score': response.max_score,
+            'is_late': response.is_late,
+            'answers': []
+        }
+
+        for answer in response.answers:
+            answer_data = {
+                'question_text': answer.question.question_text,
+                'question_type': answer.question.question_type,
+                'answer_text': answer.answer_text,
+                'selected_options': answer.selected_options,
+                'score': answer.score,
+                'max_score': answer.max_score,
+                'ai_feedback': answer.ai_feedback
+            }
+            response_data['answers'].append(answer_data)
+
+        user_data['quiz_responses'].append(response_data)
+
+    # Interview sessions with messages
+    sessions = InterviewSession.query.filter_by(user_id=current_user.id, is_test=False).all()
+    for session in sessions:
+        session_data = {
+            'interview_title': session.interview.title,
+            'status': session.status,
+            'started_at': session.started_at.isoformat() if session.started_at else None,
+            'ended_at': session.ended_at.isoformat() if session.ended_at else None,
+            'total_score': session.total_score,
+            'max_score': session.max_score,
+            'ai_summary': session.ai_summary,
+            'messages': []
+        }
+
+        for message in session.messages:
+            if message.role != 'system':  # Skip system messages
+                session_data['messages'].append({
+                    'role': message.role,
+                    'content': message.content,
+                    'created_at': message.created_at.isoformat() if message.created_at else None
+                })
+
+        user_data['interview_sessions'].append(session_data)
+
+    # Return as downloadable JSON file
+    json_data = json.dumps(user_data, ensure_ascii=False, indent=2)
+    filename = f"mes-donnees-{current_user.username}-{datetime.now().strftime('%Y%m%d')}.json"
+
+    return Response(
+        json_data,
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+    )
+
+
+@auth_bp.route('/profile/delete-account', methods=['POST'])
+@login_required
+def delete_account():
+    """Delete user account and all associated data (RGPD compliance)."""
+    from app.models.quiz import QuizResponse, Answer
+    from app.models.interview import InterviewSession, InterviewMessage, CriterionScore
+    from app.models.user import user_groups
+
+    password = request.form.get('password')
+    confirm_text = request.form.get('confirm_text', '').strip()
+
+    # Verify password
+    if not current_user.check_password(password):
+        flash('Mot de passe incorrect.', 'error')
+        return redirect(url_for('auth.profile'))
+
+    # Verify confirmation text
+    if confirm_text != 'SUPPRIMER':
+        flash('Veuillez taper SUPPRIMER pour confirmer.', 'error')
+        return redirect(url_for('auth.profile'))
+
+    # Prevent admin accounts from self-deleting
+    if current_user.is_admin:
+        flash('Les comptes super-administrateurs ne peuvent pas etre supprimes via cette interface.', 'error')
+        return redirect(url_for('auth.profile'))
+
+    user_id = current_user.id
+    username = current_user.username
+
+    try:
+        # Delete interview data
+        sessions = InterviewSession.query.filter_by(user_id=user_id).all()
+        for session in sessions:
+            # Delete criterion scores for this session
+            CriterionScore.query.filter_by(session_id=session.id).delete()
+            # Delete messages
+            InterviewMessage.query.filter_by(session_id=session.id).delete()
+        # Delete sessions
+        InterviewSession.query.filter_by(user_id=user_id).delete()
+
+        # Delete quiz data
+        responses = QuizResponse.query.filter_by(user_id=user_id).all()
+        for response in responses:
+            Answer.query.filter_by(quiz_response_id=response.id).delete()
+        QuizResponse.query.filter_by(user_id=user_id).delete()
+
+        # Remove from groups (explicit delete from association table)
+        db.session.execute(user_groups.delete().where(user_groups.c.user_id == user_id))
+
+        # Logout before deleting
+        logout_user()
+
+        # Delete user
+        User.query.filter_by(id=user_id).delete()
+
+        db.session.commit()
+
+        flash(f'Le compte "{username}" a ete supprime avec succes.', 'success')
+        return redirect(url_for('auth.login'))
+
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        from flask import current_app
+        current_app.logger.error(f'Error deleting account {username}: {str(e)}')
+        current_app.logger.error(traceback.format_exc())
+        flash('Une erreur est survenue lors de la suppression du compte.', 'error')
+        return redirect(url_for('auth.profile'))
 
 
 # ============================================================

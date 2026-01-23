@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}{{ interview.title }} - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
+    max-width: 800px;
+    margin: 0 auto;
+}
+.chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-header-info h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+.chat-header-info p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.message {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.message-user {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+.message-assistant {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+.typing-indicator {
+    display: none;
+    align-self: flex-start;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+}
+.typing-indicator.show {
+    display: block;
+}
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    background: var(--text-light);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+}
+.chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+.chat-input-form {
+    display: flex;
+    gap: 0.5rem;
+}
+.chat-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    min-height: 44px;
+    max-height: 150px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+.chat-input:focus {
+    border-color: var(--primary);
+}
+.chat-send-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.chat-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.chat-footer {
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+.end-btn {
+    color: var(--danger);
+}
+.progress-counter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.empty-chat-hint {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+}
+.empty-chat-hint i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+.empty-chat-hint p {
+    margin: 0.5rem 0;
+}
+.interview-ended-message {
+    background: var(--bg-secondary);
+    border: 2px solid var(--success);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 400px;
+    animation: fadeIn 0.3s ease;
+}
+.interview-ended-message .end-icon {
+    color: var(--success);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+.interview-ended-message h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+.interview-ended-message p {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-light);
+}
+.interview-ended-message .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <h2>{{ interview.persona_name or 'Entretien' }}</h2>
+            <p>{{ interview.title }}</p>
+        </div>
+        <div class="progress-counter">
+            <span id="interaction-count">{{ session.interaction_count }}</span> / {{ interview.max_interactions }} echanges
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+        {% if not messages and interview.student_starts %}
+        <div class="empty-chat-hint" id="empty-chat-hint">
+            <i class="iconoir-chat-bubble-question"></i>
+            <p>C'est a vous de commencer la conversation.</p>
+            {% if interview.student_context %}
+            <p class="text-light">{{ interview.student_context }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% for message in messages %}
+        <div class="message message-{{ message.role }}">
+            <div class="message-content">{{ message.content }}</div>
+            <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <form class="chat-input-form" id="chat-form" onsubmit="sendMessage(event)">
+            <textarea class="chat-input" id="message-input" rows="1"
+                   placeholder="Ecrivez votre message... (Shift+Entree pour retour a la ligne)"
+                   onkeydown="handleKeyDown(event)"></textarea>
+            <button type="submit" class="chat-send-btn" id="send-btn">
+                <i class="iconoir-send"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="chat-footer">
+        <button type="button" class="btn btn-sm end-btn" onclick="endInterview()">
+            <i class="iconoir-xmark"></i> Terminer l'entretien
+        </button>
+        <span class="text-light">
+            <i class="iconoir-clock"></i> Max {{ interview.max_duration_minutes }} min
+        </span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+const sessionId = {{ session.id }};
+const maxInteractions = {{ interview.max_interactions }};
+let socket;
+let isProcessing = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initWebSocket();
+    scrollToBottom();
+
+    // Auto-resize textarea
+    const input = document.getElementById('message-input');
+    input.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+    });
+});
+
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(event);
+    }
+}
+
+function initWebSocket() {
+    socket = io();
+
+    socket.on('connect', function() {
+        console.log('Connected to WebSocket');
+        socket.emit('join_interview', { session_id: sessionId });
+    });
+
+    socket.on('joined_interview', function(data) {
+        console.log('Joined interview room:', data.session_id);
+    });
+
+    socket.on('typing_indicator', function(data) {
+        if (data.typing) {
+            document.getElementById('typing-indicator').classList.add('show');
+            scrollToBottom();
+        } else {
+            document.getElementById('typing-indicator').classList.remove('show');
+        }
+    });
+
+    socket.on('message_received', function(data) {
+        document.getElementById('typing-indicator').classList.remove('show');
+        addMessage('assistant', data.content);
+        document.getElementById('interaction-count').textContent = data.interaction_count;
+        isProcessing = false;
+        document.getElementById('send-btn').disabled = false;
+        document.getElementById('message-input').focus();
+
+        if (data.interaction_count >= maxInteractions) {
+            disableInput('Limite d\'echanges atteinte');
+        }
+    });
+
+    socket.on('interview_ended', function(data) {
+        console.log('Interview ended:', data.reason);
+        // Disable input
+        disableInput('Entretien termine');
+        // Show end message with button instead of immediate redirect
+        showEndMessage(data.reason, data.message);
+    });
+
+    socket.on('error', function(data) {
+        console.error('Error:', data.message);
+        document.getElementById('typing-indicator').classList.remove('show');
+        isProcessing = false;
+        document.getElementById('send-btn').disabled = false;
+        alert('Erreur: ' + data.message);
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from WebSocket');
+    });
+}
+
+function sendMessage(event) {
+    event.preventDefault();
+
+    if (isProcessing) return;
+
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    isProcessing = true;
+    document.getElementById('send-btn').disabled = true;
+
+    // Add user message to UI immediately
+    addMessage('user', content);
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Send to server
+    socket.emit('send_message', {
+        session_id: sessionId,
+        content: content
+    });
+}
+
+function addMessage(role, content) {
+    const container = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    // Hide empty chat hint if present
+    const emptyHint = document.getElementById('empty-chat-hint');
+    if (emptyHint) {
+        emptyHint.style.display = 'none';
+    }
+
+    const msg = document.createElement('div');
+    msg.className = 'message message-' + role;
+
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2, '0') + ':' +
+                 now.getMinutes().toString().padStart(2, '0');
+
+    msg.innerHTML = `
+        <div class="message-content">${escapeHtml(content)}</div>
+        <div class="message-time">${time}</div>
+    `;
+
+    container.insertBefore(msg, typingIndicator);
+    scrollToBottom();
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('chat-messages');
+    container.scrollTop = container.scrollHeight;
+}
+
+function disableInput(message) {
+    document.getElementById('message-input').disabled = true;
+    document.getElementById('message-input').placeholder = message;
+    document.getElementById('send-btn').disabled = true;
+}
+
+async function endInterview() {
+    if (!confirm('Terminer l\'entretien ? Vous ne pourrez plus envoyer de messages.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('{{ url_for("interview.end_interview", session_id=session.id) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        alert('Erreur de connexion');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showEndMessage(reason, message) {
+    const container = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typing-indicator');
+    typingIndicator.classList.remove('show');
+
+    // Create end message element
+    const endMsg = document.createElement('div');
+    endMsg.className = 'interview-ended-message';
+    endMsg.innerHTML = `
+        <div class="end-icon"><i class="iconoir-check-circle"></i></div>
+        <h3>Entretien termine</h3>
+        <p>${escapeHtml(message || 'L\'entretien est maintenant termine.')}</p>
+        <a href="{{ url_for('interview.evaluating', session_id=session.id) }}" class="btn btn-primary">
+            <i class="iconoir-arrow-right"></i> Passer a l'analyse et la correction
+        </a>
+    `;
+
+    container.insertBefore(endMsg, typingIndicator);
+    scrollToBottom();
+
+    // Hide footer buttons
+    document.querySelector('.chat-footer').style.display = 'none';
+}
+</script>
+{% endblock %}

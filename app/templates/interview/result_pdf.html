@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Resultat Entretien - {{ session.user.full_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        h1 {
+            font-size: 18pt;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 14pt;
+            color: #1a1a2e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 12pt;
+            color: #444;
+            margin: 15px 0 8px 0;
+        }
+        .header-info {
+            margin-bottom: 20px;
+        }
+        .header-info p {
+            margin: 3px 0;
+            color: #666;
+        }
+        .stats-grid {
+            display: table;
+            width: 100%;
+            margin: 15px 0;
+        }
+        .stat-item {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+        .stat-value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #6366f1;
+        }
+        .stat-label {
+            font-size: 9pt;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .score-section {
+            margin: 20px 0;
+        }
+        .criterion {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fafafa;
+            border-left: 3px solid #6366f1;
+        }
+        .criterion-header {
+            display: table;
+            width: 100%;
+        }
+        .criterion-name {
+            font-weight: bold;
+        }
+        .criterion-score {
+            float: right;
+            color: #6366f1;
+        }
+        .criterion-feedback {
+            margin-top: 5px;
+            font-size: 10pt;
+            color: #666;
+            font-style: italic;
+        }
+        .score-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .score-fill.good { background: #22c55e; }
+        .score-fill.medium { background: #f59e0b; }
+        .score-fill.bad { background: #ef4444; }
+        .summary-box {
+            background: #f0f0ff;
+            border: 1px solid #6366f1;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .transcript {
+            margin-top: 20px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .message-user {
+            background: #6366f1;
+            color: white;
+            margin-left: 20%;
+        }
+        .message-assistant {
+            background: #f0f0f0;
+            margin-right: 20%;
+        }
+        .message-header {
+            font-size: 9pt;
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+        .message-content {
+            white-space: pre-wrap;
+        }
+        .file-content {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 9pt;
+            max-height: 200px;
+            overflow: hidden;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 9pt;
+            color: #999;
+            text-align: center;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ interview.title }}</h1>
+
+    <div class="header-info">
+        <p><strong>Candidat:</strong> {{ session.user.full_name }} ({{ session.user.email }})</p>
+        <p><strong>Date:</strong> {{ session.started_at.strftime('%d/%m/%Y a %H:%M') }}</p>
+        <p><strong>Duree:</strong> {{ session.get_duration_minutes() }} minutes</p>
+        {% if interview.persona_name %}
+        <p><strong>Personnage:</strong> {{ interview.persona_name }}{% if interview.persona_role %} - {{ interview.persona_role }}{% endif %}</p>
+        {% endif %}
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-value">{{ "%.0f"|format(percentage) }}%</div>
+            <div class="stat-label">Score</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ "%.1f"|format(session.total_score) }}/{{ "%.1f"|format(session.max_score) }}</div>
+            <div class="stat-label">Points</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ session.interaction_count }}</div>
+            <div class="stat-label">Echanges</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ session.get_duration_minutes() }}</div>
+            <div class="stat-label">Minutes</div>
+        </div>
+    </div>
+
+    {% if session.ai_summary %}
+    <div class="summary-box">
+        <h3>Synthese</h3>
+        <p>{{ session.ai_summary }}</p>
+    </div>
+    {% endif %}
+
+    <h2>Detail des scores</h2>
+    <div class="score-section">
+        {% for score in session.scores %}
+        <div class="criterion">
+            <div class="criterion-header">
+                <span class="criterion-name">{{ score.criterion.name }}</span>
+                <span class="criterion-score">{{ "%.1f"|format(score.score) }} / {{ "%.1f"|format(score.max_score) }}</span>
+            </div>
+            {% set pct = score.get_percentage() %}
+            <div class="score-bar">
+                <div class="score-fill {{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}" style="width: {{ pct }}%;"></div>
+            </div>
+            {% if score.feedback %}
+            <div class="criterion-feedback">{{ score.feedback }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if session.uploaded_file_content %}
+    <h2>Document fourni</h2>
+    <p><strong>Fichier:</strong> {{ session.uploaded_file_name }}</p>
+    <div class="file-content">{{ session.uploaded_file_content[:1500] }}{% if session.uploaded_file_content|length > 1500 %}...{% endif %}</div>
+    {% endif %}
+
+    <div class="page-break"></div>
+
+    <h2>Transcription de l'entretien</h2>
+    <div class="transcript">
+        {% for message in session.messages %}
+        <div class="message message-{{ message.role }}">
+            <div class="message-header">
+                {% if message.role == 'user' %}
+                {{ session.user.first_name or session.user.username }}
+                {% elif message.role == 'assistant' %}
+                {{ interview.persona_name or 'Personnage' }}
+                {% endif %}
+                - {{ message.created_at.strftime('%H:%M') }}
+            </div>
+            <div class="message-content">{{ message.content }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if session.admin_comment %}
+    <h2>Commentaire de l'evaluateur</h2>
+    <p>{{ session.admin_comment }}</p>
+    {% endif %}
+
+    <div class="footer">
+        <p>Document genere le {{ now.strftime('%d/%m/%Y a %H:%M') }} - {{ site_title }}</p>
+    </div>
+</body>
+</html>

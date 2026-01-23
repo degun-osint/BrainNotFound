@@ -157,6 +157,30 @@ def get_anomaly_prompts() -> Dict[str, Any]:
     return {'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE': '', 'CLASS_ANALYSIS_PROMPT_TEMPLATE': ''}
 
 
+def get_interview_prompts() -> Dict[str, Any]:
+    """
+    Get interview prompts for conversational AI evaluation.
+    Returns dict with: PROMPT_GENERATOR_TEMPLATE, CONVERSATION_WRAPPER, EVALUATION_TEMPLATE,
+                       OPENING_MESSAGE_TEMPLATE, CRITERIA_TEMPLATES
+    """
+    module = _get_prompt_module('interview')
+    if module:
+        return {
+            'PROMPT_GENERATOR_TEMPLATE': getattr(module, 'PROMPT_GENERATOR_TEMPLATE', ''),
+            'CONVERSATION_WRAPPER': getattr(module, 'CONVERSATION_WRAPPER', ''),
+            'EVALUATION_TEMPLATE': getattr(module, 'EVALUATION_TEMPLATE', ''),
+            'OPENING_MESSAGE_TEMPLATE': getattr(module, 'OPENING_MESSAGE_TEMPLATE', ''),
+            'CRITERIA_TEMPLATES': getattr(module, 'CRITERIA_TEMPLATES', {}),
+        }
+    return {
+        'PROMPT_GENERATOR_TEMPLATE': '',
+        'CONVERSATION_WRAPPER': '',
+        'EVALUATION_TEMPLATE': '',
+        'OPENING_MESSAGE_TEMPLATE': '',
+        'CRITERIA_TEMPLATES': {},
+    }
+
+
 def get_seed_data_path(filename: str) -> Optional[Path]:
     """
     Get path to a seed data file with fallback.

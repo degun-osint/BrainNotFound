@@ -17,6 +17,7 @@ BrainNotFound est une application web open-source qui permet aux enseignants de 
 |----------------|-------------|
 | Quiz Markdown | Créez des quiz avec une syntaxe simple et intuitive |
 | Correction IA | Questions ouvertes évaluées par Claude avec feedback personnalisé |
+| Entretiens IA | Simulez des entretiens avec des personnages IA pour évaluer les soft skills |
 | Multi-organisations | Gérez plusieurs organisations sur une seule instance |
 | Groupes | Organisez vos étudiants par classe ou projet |
 | Temporisation | Définissez des limites de temps et périodes de disponibilité |

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Entretiens - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-2 flex-wrap gap-md">
+    <h1 class="mb-0">Entretiens</h1>
+    <a href="{{ url_for('interview.admin_create') }}" class="btn btn-primary">
+        <i class="iconoir-plus"></i> Nouvel entretien
+    </a>
+</div>
+
+{% if interviews.items or search or filter_group_id %}
+<div class="card">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>Mes Entretiens ({{ interviews.total }} entretien(s))</span>
+        <form method="GET" class="flex gap-sm items-center flex-wrap">
+            <div class="searchable-select" data-autosubmit="true">
+                <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
+                <div class="searchable-select-trigger">
+                    <i class="iconoir-group"></i>
+                    <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                    <i class="iconoir-nav-arrow-down"></i>
+                </div>
+                <div class="searchable-select-dropdown">
+                    <div class="searchable-select-search">
+                        <input type="text" placeholder="Rechercher un groupe...">
+                    </div>
+                    <div class="searchable-select-options">
+                        <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                        {% for group in all_groups %}
+                        <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
+                            {{ group.name }}
+                            {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <input type="text" name="search" value="{{ search }}" placeholder="Rechercher..."
+                   class="form-input input-search">
+            <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Rechercher">
+                <i class="iconoir-search"></i>
+            </button>
+            {% if search or filter_group_id %}
+            <a href="{{ url_for('interview.admin_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                <i class="iconoir-xmark"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if search or filter_group_id %}
+    <div class="search-results-info">
+        <span class="text-light">
+            {% if filter_group_id %}Groupe: {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
+            {% if filter_group_id and search %} - {% endif %}
+            {% if search %}Recherche: "{{ search }}"{% endif %}
+            - {{ interviews.total }} resultat(s)
+        </span>
+    </div>
+    {% endif %}
+
+    {% if interviews.items %}
+    <div class="quiz-grid">
+        {% for interview in interviews.items %}
+        <div class="quiz-card">
+            <div class="quiz-info">
+                <h3>{{ interview.title }}</h3>
+                <div class="quiz-meta">
+                    {% if interview.persona_name %}{{ interview.persona_name }}{% endif %}
+                    {% if interview.persona_role %} - {{ interview.persona_role }}{% endif %}
+                    {% if not interview.persona_name %}<span class="text-light">Personnage non defini</span>{% endif %}
+                    - {{ interview.sessions.count() }} session(s)
+                    {% if interview.max_interactions %} - <span class="text-info">{{ interview.max_interactions }} echanges max</span>{% endif %}
+                    {% if interview.max_duration_minutes %} - <span class="text-info">{{ interview.max_duration_minutes }} min</span>{% endif %}
+                    -
+                    <span class="{{ 'text-success' if interview.is_active and interview.is_open() else 'text-warning' if interview.is_active else 'text-error' }}">
+                        {% if interview.is_active %}
+                            {% if interview.is_open() %}Actif{% else %}Programme{% endif %}
+                        {% else %}Inactif{% endif %}
+                    </span>
+                </div>
+                {% if interview.groups.count() > 0 %}
+                <div class="quiz-groups text-sm mt-0">
+                    <span class="text-light">Groupes:</span>
+                    {% for group in interview.groups %}
+                    <span class="tag">{{ group.name }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="quiz-groups text-sm mt-0">
+                    <span class="text-light">Tous les groupes</span>
+                </div>
+                {% endif %}
+                {% if interview.require_file_upload %}
+                <div class="text-sm mt-0">
+                    <span class="badge badge-info"><i class="iconoir-attachment"></i> {{ interview.file_upload_label or 'Fichier requis' }}</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="quiz-actions">
+                <a href="{{ url_for('interview.admin_test', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Tester">
+                    <i class="iconoir-play"></i>
+                </a>
+                <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                    <i class="iconoir-stats-report"></i>
+                </a>
+                <a href="{{ url_for('interview.admin_edit', interview_id=interview.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <i class="iconoir-edit-pencil"></i>
+                </a>
+                <form method="POST" action="{{ url_for('interview.admin_toggle', interview_id=interview.id) }}" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if interview.is_active else 'Activer' }}">
+                        <i class="iconoir-{{ 'eye-closed' if interview.is_active else 'eye' }}"></i>
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('interview.admin_delete', interview_id=interview.id) }}"
+                      onsubmit="return confirmDelete(this, 'cet entretien');" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                        <i class="iconoir-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if interviews.pages > 1 %}
+    <div class="pagination">
+        {% if interviews.has_prev %}
+        <a href="{{ url_for('interview.admin_list', page=interviews.prev_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page precedente">
+            <i class="iconoir-nav-arrow-left"></i>
+        </a>
+        {% endif %}
+        {% for page_num in interviews.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if page_num == interviews.page %}
+                <span class="btn btn-primary btn-small">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('interview.admin_list', page=page_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if interviews.has_next %}
+        <a href="{{ url_for('interview.admin_list', page=interviews.next_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page suivante">
+            <i class="iconoir-nav-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="card-body">
+        <p class="text-center text-light p-2">
+            Aucun entretien trouve. <a href="{{ url_for('interview.admin_create') }}">Creez votre premier entretien</a>
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="card">
+    <p class="text-center text-light p-2">
+        Aucun entretien cree. <a href="{{ url_for('interview.admin_create') }}">Creez votre premier entretien</a>
+    </p>
+</div>
+{% endif %}
+{% endblock %}

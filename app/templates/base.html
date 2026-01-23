@@ -28,6 +28,20 @@
             <div class="nav-menu">
                 {% if current_user.is_any_admin %}
                     <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                    <div class="nav-dropdown">
+                        <button type="button" class="nav-dropdown-btn">
+                            <span>Evaluations</span>
+                            <i class="iconoir-nav-arrow-down"></i>
+                        </button>
+                        <div class="nav-dropdown-menu">
+                            <a href="{{ url_for('admin.quiz_list') }}" class="nav-dropdown-item">
+                                <i class="iconoir-clipboard-check"></i> Quiz
+                            </a>
+                            <a href="{{ url_for('interview.admin_list') }}" class="nav-dropdown-item">
+                                <i class="iconoir-chat-bubble"></i> Entretiens
+                            </a>
+                        </div>
+                    </div>
                     {% if current_user.is_superadmin %}
                     <a href="{{ url_for('tenant.list_tenants') }}">Organisations</a>
                     {% endif %}
@@ -58,6 +72,7 @@
                 {% else %}
                     <a href="{{ url_for('quiz.dashboard') }}">Tableau de bord</a>
                     <a href="{{ url_for('quiz.quiz_list') }}">Mes Quiz</a>
+                    <a href="{{ url_for('interview.interview_list') }}">Entretiens</a>
                 {% endif %}
                 {% for page in menu_pages %}
                 <a href="{{ url_for('auth.view_page', slug=page.slug) }}" {% if page.open_new_tab %}target="_blank"{% endif %}>{{ page.title }}</a>

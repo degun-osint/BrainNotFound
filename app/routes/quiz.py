@@ -7,6 +7,7 @@ from app import db, socketio
 from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
 from app.models.group import Group
 from app.models.tenant import Tenant
+from app.models.interview import InterviewSession
 
 quiz_bp = Blueprint('quiz', __name__)
 
@@ -25,26 +26,156 @@ def get_quiz_by_identifier(identifier):
 @quiz_bp.route('/dashboard')
 @login_required
 def dashboard():
-    """Student dashboard with stats and quiz history."""
+    """Student dashboard with stats, history, progress chart and to-do."""
     if current_user.is_any_admin:
         return redirect(url_for('admin.dashboard'))
+
+    now = datetime.now()
 
     # Get all user responses ordered by date
     responses = QuizResponse.query.filter_by(user_id=current_user.id)\
         .order_by(QuizResponse.submitted_at.desc()).all()
 
+    # Get user interview sessions
+    interview_sessions = InterviewSession.query.filter_by(
+        user_id=current_user.id,
+        is_test=False
+    ).order_by(InterviewSession.started_at.desc()).all()
+
+    completed_interviews = [s for s in interview_sessions if s.status == 'completed']
+
     # Calculate statistics
     stats = {
         'quiz_count': len(responses),
+        'interview_count': len(completed_interviews),
         'total_points': sum(r.total_score for r in responses),
         'max_possible_points': sum(r.max_score for r in responses),
-        'average_percentage': 0.0
+        'average_percentage': 0.0,
+        'total_evaluations': len(responses) + len(completed_interviews)
     }
 
     if stats['max_possible_points'] > 0:
         stats['average_percentage'] = (stats['total_points'] / stats['max_possible_points']) * 100
 
-    return render_template('quiz/dashboard.html', responses=responses, stats=stats)
+    # Calculate interview average
+    interview_total = sum(s.total_score for s in completed_interviews)
+    interview_max = sum(s.max_score for s in completed_interviews if s.max_score)
+    stats['interview_average'] = (interview_total / interview_max * 100) if interview_max > 0 else 0
+
+    # Combined average (quiz + interviews)
+    combined_total = stats['total_points'] + interview_total
+    combined_max = stats['max_possible_points'] + interview_max
+    stats['combined_average'] = (combined_total / combined_max * 100) if combined_max > 0 else 0
+
+    # Recent activity (last 5 items combined, sorted by date)
+    recent_activity = []
+
+    for r in responses[:10]:
+        pct = (r.total_score / r.max_score * 100) if r.max_score > 0 else 0
+        recent_activity.append({
+            'type': 'quiz',
+            'title': r.quiz.title,
+            'score': r.total_score,
+            'max_score': r.max_score,
+            'percentage': pct,
+            'date': r.submitted_at,
+            'url': url_for('quiz.result', response_id=r.id)
+        })
+
+    for s in completed_interviews[:10]:
+        recent_activity.append({
+            'type': 'interview',
+            'title': s.interview.title,
+            'score': s.total_score,
+            'max_score': s.max_score,
+            'percentage': s.get_score_percentage(),
+            'date': s.ended_at or s.started_at,
+            'url': url_for('interview.result', session_id=s.id)
+        })
+
+    # Sort by date and take last 5
+    recent_activity.sort(key=lambda x: x['date'], reverse=True)
+    recent_activity = recent_activity[:5]
+
+    # Progress data for chart (last 10 evaluations, oldest first)
+    progress_data = []
+    all_completed = []
+
+    for r in responses:
+        pct = (r.total_score / r.max_score * 100) if r.max_score > 0 else 0
+        all_completed.append({
+            'date': r.submitted_at,
+            'percentage': pct,
+            'label': r.quiz.title[:15]
+        })
+
+    for s in completed_interviews:
+        all_completed.append({
+            'date': s.ended_at or s.started_at,
+            'percentage': s.get_score_percentage(),
+            'label': s.interview.title[:15]
+        })
+
+    all_completed.sort(key=lambda x: x['date'])
+    progress_data = all_completed[-10:]  # Last 10
+
+    # To-do: Available quizzes not yet taken
+    user_groups = list(current_user.groups)
+    user_group_ids = [g.id for g in user_groups]
+    completed_quiz_ids = [r.quiz_id for r in responses]
+
+    available_quizzes = []
+    if user_group_ids:
+        quizzes_with_groups = db.session.query(quiz_groups.c.quiz_id).distinct()
+        quiz_query = Quiz.query.filter(
+            Quiz.is_active == True,
+            db.or_(Quiz.available_from == None, Quiz.available_from <= now),
+            db.or_(Quiz.available_until == None, Quiz.available_until >= now),
+            ~Quiz.id.in_(completed_quiz_ids),
+            db.or_(
+                Quiz.groups.any(Group.id.in_(user_group_ids)),
+                ~Quiz.id.in_(quizzes_with_groups)
+            )
+        ).order_by(
+            db.case((Quiz.available_until.is_(None), 1), else_=0),
+            Quiz.available_until.asc(),
+            Quiz.created_at.desc()
+        ).limit(5)
+        available_quizzes = quiz_query.all()
+
+    # To-do: Available interviews not yet taken
+    from app.models.interview import Interview, interview_groups
+    completed_interview_ids = [s.interview_id for s in interview_sessions]
+
+    available_interviews = []
+    if user_group_ids:
+        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
+        interview_query = Interview.query.filter(
+            Interview.is_active == True,
+            db.or_(Interview.available_from == None, Interview.available_from <= now),
+            db.or_(Interview.available_until == None, Interview.available_until >= now),
+            ~Interview.id.in_(completed_interview_ids),
+            db.or_(
+                Interview.groups.any(Group.id.in_(user_group_ids)),
+                ~Interview.id.in_(interviews_with_groups)
+            )
+        ).order_by(
+            db.case((Interview.available_until.is_(None), 1), else_=0),
+            Interview.available_until.asc(),
+            Interview.created_at.desc()
+        ).limit(5)
+        available_interviews = interview_query.all()
+
+    return render_template(
+        'quiz/dashboard.html',
+        responses=responses,
+        stats=stats,
+        interview_sessions=interview_sessions,
+        recent_activity=recent_activity,
+        progress_data=progress_data,
+        available_quizzes=available_quizzes,
+        available_interviews=available_interviews
+    )
 
 @quiz_bp.route('/list')
 @login_required

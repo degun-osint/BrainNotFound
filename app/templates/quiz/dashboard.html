@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Mon Tableau de Bord - BrainNotFound{% endblock %}
+{% block title %}Mon Tableau de Bord - {{ site_title }}{% endblock %}
 
 {% block content %}
 <h1 class="mb-2">Mon Tableau de Bord</h1>
@@ -8,76 +8,256 @@
 <!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-value">{{ stats.quiz_count }}</div>
-        <div class="stat-label">Quiz completes</div>
+        <div class="stat-value">{{ stats.total_evaluations }}</div>
+        <div class="stat-label">Evaluations</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">{{ "%.1f"|format(stats.total_points) }}</div>
-        <div class="stat-label">Points totaux</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ "%.1f"|format(stats.average_percentage) }}%</div>
+        <div class="stat-value">{{ "%.0f"|format(stats.combined_average) }}%</div>
         <div class="stat-label">Moyenne generale</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.quiz_count }}</div>
+        <div class="stat-label">Quiz ({{ "%.0f"|format(stats.average_percentage) }}%)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.interview_count }}</div>
+        <div class="stat-label">Entretiens ({{ "%.0f"|format(stats.interview_average) }}%)</div>
     </div>
 </div>
 
-<!-- Join Group Section -->
-<div class="card mb-2">
-    <div class="card-header" style="padding: 0.75rem 1rem;">
-        <h3 style="margin: 0; font-size: 1rem;"><i class="iconoir-group"></i> Rejoindre un groupe</h3>
-    </div>
-    <div class="card-body" style="padding: 1rem;">
-        <form method="POST" action="{{ url_for('auth.join_group') }}" style="display: flex; gap: 0.5rem; align-items: flex-end;">
-            <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                <input type="text" name="join_code" class="form-input"
-                       placeholder="Code de groupe (ex: ABC12DEF)" style="text-transform: uppercase;">
+<div class="dashboard-grid">
+    <!-- Left Column -->
+    <div class="dashboard-main">
+        <!-- To-Do Section -->
+        {% if available_quizzes or available_interviews %}
+        <div class="card mb-2">
+            <div class="card-header">
+                <i class="iconoir-task-list"></i> A faire
             </div>
-            <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Rejoindre
-            </button>
-        </form>
-        {% if current_user.groups.count() > 0 %}
-        <div class="mt-1" style="font-size: 0.85rem;">
-            <span class="text-light">Mes groupes :</span>
-            {% for group in current_user.groups %}
-            <span class="badge badge-secondary">{{ group.name }}</span>
-            {% endfor %}
+            <div class="todo-list">
+                {% for quiz in available_quizzes %}
+                <a href="{{ url_for('quiz.take', quiz_id=quiz.id) }}" class="todo-item">
+                    <div class="todo-icon todo-icon-quiz">
+                        <i class="iconoir-clipboard-check"></i>
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-title">{{ quiz.title }}</div>
+                        <div class="todo-meta">
+                            {{ quiz.questions.count() }} questions
+                            {% if quiz.time_limit_minutes %} - {{ quiz.time_limit_minutes }} min{% endif %}
+                            {% if quiz.available_until %}
+                            <span class="todo-deadline">
+                                <i class="iconoir-clock"></i> {{ quiz.available_until.strftime('%d/%m %H:%M') }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <i class="iconoir-nav-arrow-right todo-arrow"></i>
+                </a>
+                {% endfor %}
+                {% for interview in available_interviews %}
+                <a href="{{ url_for('interview.start', interview_id=interview.id) }}" class="todo-item">
+                    <div class="todo-icon todo-icon-interview">
+                        <i class="iconoir-chat-bubble"></i>
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-title">{{ interview.title }}</div>
+                        <div class="todo-meta">
+                            {% if interview.persona_name %}{{ interview.persona_name }}{% endif %}
+                            {% if interview.max_duration_minutes %} - {{ interview.max_duration_minutes }} min{% endif %}
+                            {% if interview.available_until %}
+                            <span class="todo-deadline">
+                                <i class="iconoir-clock"></i> {{ interview.available_until.strftime('%d/%m %H:%M') }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <i class="iconoir-nav-arrow-right todo-arrow"></i>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Progress Chart -->
+        {% if progress_data|length > 1 %}
+        <div class="card mb-2">
+            <div class="card-header">
+                <i class="iconoir-graph-up"></i> Progression
+            </div>
+            <div class="progress-chart">
+                <div class="chart-container">
+                    {% for item in progress_data %}
+                    <div class="chart-bar-wrapper" data-tooltip="{{ item.label }} - {{ '%.0f'|format(item.percentage) }}%">
+                        <div class="chart-bar {% if item.percentage >= 80 %}bar-good{% elif item.percentage >= 50 %}bar-medium{% else %}bar-bad{% endif %}"
+                             style="height: {{ item.percentage }}%;">
+                        </div>
+                        <div class="chart-label">{{ item.date.strftime('%d/%m') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="chart-axis">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Activity -->
+        {% if recent_activity %}
+        <div class="card mb-2">
+            <div class="card-header">
+                <i class="iconoir-activity"></i> Activite recente
+            </div>
+            <div class="activity-list">
+                {% for activity in recent_activity %}
+                <a href="{{ activity.url }}" class="activity-item">
+                    <div class="activity-icon activity-icon-{{ activity.type }}">
+                        <i class="iconoir-{{ 'clipboard-check' if activity.type == 'quiz' else 'chat-bubble' }}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ activity.title }}</div>
+                        <div class="activity-date">{{ activity.date.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                    <div class="activity-score">
+                        <span class="score-{{ 'good' if activity.percentage >= 80 else 'medium' if activity.percentage >= 50 else 'bad' }}">
+                            {{ "%.0f"|format(activity.percentage) }}%
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
         </div>
         {% endif %}
     </div>
+
+    <!-- Right Column -->
+    <div class="dashboard-sidebar">
+        <!-- Join Group Section -->
+        <div class="card mb-2">
+            <div class="card-header">
+                <i class="iconoir-group"></i> Rejoindre un groupe
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.join_group') }}" class="join-group-form">
+                    <input type="text" name="join_code" class="form-input"
+                           placeholder="Code (ex: ABC12DEF)" style="text-transform: uppercase;">
+                    <button type="submit" class="btn btn-primary btn-icon">
+                        <i class="iconoir-plus"></i>
+                    </button>
+                </form>
+                {% if current_user.groups.count() > 0 %}
+                <div class="groups-list">
+                    {% for group in current_user.groups %}
+                    <span class="badge badge-secondary">{{ group.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card mb-2">
+            <div class="card-header">
+                <i class="iconoir-flash"></i> Acces rapide
+            </div>
+            <div class="quick-links">
+                <a href="{{ url_for('quiz.quiz_list') }}" class="quick-link">
+                    <i class="iconoir-clipboard-check"></i>
+                    <span>Tous les quiz</span>
+                </a>
+                <a href="{{ url_for('interview.interview_list') }}" class="quick-link">
+                    <i class="iconoir-chat-bubble"></i>
+                    <span>Tous les entretiens</span>
+                </a>
+                <a href="{{ url_for('auth.profile') }}" class="quick-link">
+                    <i class="iconoir-user"></i>
+                    <span>Mon profil</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Quiz History -->
-<h2 class="mb-1">Historique des quiz</h2>
+<!-- Full History Section -->
+{% if responses or interview_sessions %}
+<h2 class="mb-1 mt-2">Historique complet</h2>
 
-{% if responses %}
 <div class="card">
-    <table class="table">
+    <div class="card-header flex justify-between items-center">
+        <span>Toutes mes evaluations</span>
+        <div class="history-tabs">
+            <button type="button" class="tab-btn active" data-tab="all">Tout</button>
+            <button type="button" class="tab-btn" data-tab="quiz">Quiz</button>
+            <button type="button" class="tab-btn" data-tab="interview">Entretiens</button>
+        </div>
+    </div>
+    <table class="table history-table">
         <thead>
             <tr>
-                <th>Quiz</th>
+                <th>Type</th>
+                <th>Titre</th>
                 <th>Score</th>
-                <th>Pourcentage</th>
                 <th>Date</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for response in responses %}
-            <tr>
+            <tr data-type="quiz">
+                <td><span class="badge badge-info">Quiz</span></td>
                 <td>{{ response.quiz.title }}</td>
-                <td>{{ "%.1f"|format(response.total_score) }} / {{ "%.1f"|format(response.max_score) }}</td>
                 <td>
                     {% set pct = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
                     <span class="score-{{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}">
-                        {{ "%.1f"|format(pct) }}%
+                        {{ "%.1f"|format(response.total_score) }}/{{ "%.1f"|format(response.max_score) }}
+                        ({{ "%.0f"|format(pct) }}%)
                     </span>
                 </td>
-                <td>{{ response.submitted_at.strftime('%d/%m/%Y') }}</td>
+                <td>{{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
-                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small">
-                        <i class="iconoir-eye"></i> Voir
+                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon">
+                        <i class="iconoir-eye"></i>
                     </a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% for session in interview_sessions %}
+            <tr data-type="interview">
+                <td><span class="badge badge-secondary">Entretien</span></td>
+                <td>{{ session.interview.title }}</td>
+                <td>
+                    {% if session.status == 'completed' %}
+                    {% set pct = session.get_score_percentage() %}
+                    <span class="score-{{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}">
+                        {{ "%.1f"|format(session.total_score) }}/{{ "%.1f"|format(session.max_score) }}
+                        ({{ "%.0f"|format(pct) }}%)
+                    </span>
+                    {% elif session.status == 'in_progress' %}
+                    <span class="badge badge-warning">En cours</span>
+                    {% elif session.status == 'evaluating' %}
+                    <span class="badge badge-info">Evaluation</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if session.status == 'completed' %}
+                    <a href="{{ url_for('interview.result', session_id=session.id) }}" class="btn btn-primary btn-small btn-icon">
+                        <i class="iconoir-eye"></i>
+                    </a>
+                    {% elif session.status == 'in_progress' %}
+                    <a href="{{ url_for('interview.chat', session_id=session.id) }}" class="btn btn-primary btn-small btn-icon">
+                        <i class="iconoir-play"></i>
+                    </a>
+                    {% elif session.status == 'evaluating' %}
+                    <a href="{{ url_for('interview.evaluating', session_id=session.id) }}" class="btn btn-secondary btn-small btn-icon">
+                        <i class="iconoir-refresh rotating"></i>
+                    </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -87,11 +267,32 @@
 {% else %}
 <div class="card">
     <p class="text-center text-light p-2">
-        Vous n'avez pas encore complete de quiz.<br>
+        Vous n'avez pas encore complete d'evaluation.<br>
         <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-primary mt-1">
             <i class="iconoir-list"></i> Voir les quiz disponibles
         </a>
     </p>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// History tabs filtering
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const tab = this.dataset.tab;
+        document.querySelectorAll('.history-table tbody tr').forEach(row => {
+            if (tab === 'all' || row.dataset.type === tab) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

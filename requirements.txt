@@ -18,6 +18,9 @@ gevent-websocket==0.10.1
 pypdf>=4.0.0
 python-docx==1.1.0
 
+# PDF generation
+reportlab==4.2.5
+
 # Email
 Flask-Mail==0.10.0
 

@@ -42,8 +42,8 @@
                 Créez vos examens en markdown avec <span class="text-gradient">l'IA</span> (ou pas)
             </h1>
             <p class="landing-hero-subtitle">
-                Créez des quiz en Markdown, faites vous aider par notre LLM, correction assistée sur les questions ouvertes,
-                et suivez la progression de vos étudiants en temps réel.
+                Quiz en Markdown, entretiens avec personnages IA, correction assistée par Claude,
+                et suivi de progression en temps réel.
             </p>
             <div class="landing-hero-actions">
                 <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-large">
@@ -130,6 +130,13 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                 <h3>Quiz temporisés</h3>
                 <p>Définissez des limites de temps et des périodes de disponibilité pour vos évaluations.</p>
             </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon">
+                    <i class="iconoir-chat-lines"></i>
+                </div>
+                <h3>Entretiens IA</h3>
+                <p>Simulez des entretiens avec des personnages IA pour évaluer les compétences relationnelles et situationnelles.</p>
+            </div>
         </div>
     </section>
 
@@ -155,7 +162,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                     <li><i class="iconoir-check"></i> Code source ouvert</li>
                     <li><i class="iconoir-check"></i> Toutes les fonctionnalites</li>
                     <li><i class="iconoir-check"></i> Correction IA illimitee*</li>
-                    <li><i class="iconoir-check"></i> Multi-organisations</li>
+                    <li><i class="iconoir-check"></i> Prompts de base</li>
                     <li><i class="iconoir-check"></i> Support communautaire</li>
                 </ul>
                 <p class="landing-pricing-note">* Votre cle API Anthropic requise</p>
@@ -178,7 +185,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                     <li><i class="iconoir-check"></i> Sauvegardes quotidiennes</li>
                     <li><i class="iconoir-check"></i> Support prioritaire</li>
                     <li><i class="iconoir-check"></i> Correction IA incluse</li>
-                    <li><i class="iconoir-check"></i> Analytics avances</li>
+                    <li><i class="iconoir-sparks"></i> <strong>Prompts experts optimises</strong></li>
                 </ul>
                 <p class="landing-pricing-note">Choisissez votre forfait ci-dessous</p>
                 <a href="#plans" class="btn btn-primary btn-block">
@@ -207,7 +214,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                         <li><strong>10</strong> quiz actifs</li>
                         <li><strong>500</strong> corrections IA/mois</li>
                         <li><strong>5</strong> generations quiz/mois</li>
-                        <li><strong>5</strong> analyses classe/mois</li>
+                        <li><strong>10</strong> entretiens IA/mois</li>
                         <li>Support <strong>email</strong></li>
                     </ul>
                     <a href="mailto:thebot@brainnotfound.app?subject=Forfait Solo" class="btn btn-secondary btn-block">
@@ -230,7 +237,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                         <li><strong>50</strong> quiz actifs</li>
                         <li><strong>2 500</strong> corrections IA/mois</li>
                         <li><strong>25</strong> generations quiz/mois</li>
-                        <li><strong>25</strong> analyses classe/mois</li>
+                        <li><strong>50</strong> entretiens IA/mois</li>
                         <li>Support <strong>email prioritaire</strong></li>
                     </ul>
                     <a href="mailto:thebot@brainnotfound.app?subject=Forfait Pro" class="btn btn-primary btn-block">
@@ -252,7 +259,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                         <li><strong>200</strong> quiz actifs</li>
                         <li><strong>15 000</strong> corrections IA/mois</li>
                         <li><strong>100</strong> generations quiz/mois</li>
-                        <li><strong>100</strong> analyses classe/mois</li>
+                        <li><strong>200</strong> entretiens IA/mois</li>
                         <li>Support <strong>visio</strong></li>
                     </ul>
                     <a href="mailto:thebot@brainnotfound.app?subject=Forfait Ecole" class="btn btn-secondary btn-block">
@@ -274,7 +281,7 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                         <li><strong>Illimite</strong> quiz actifs</li>
                         <li><strong>Illimite</strong> corrections IA/mois</li>
                         <li><strong>Illimite</strong> generations quiz/mois</li>
-                        <li><strong>Illimite</strong> analyses classe/mois</li>
+                        <li><strong>Illimite</strong> entretiens IA/mois</li>
                         <li>Support <strong>dedie</strong></li>
                     </ul>
                     <a href="mailto:thebot@brainnotfound.app?subject=Forfait Institution" class="btn btn-secondary btn-block">

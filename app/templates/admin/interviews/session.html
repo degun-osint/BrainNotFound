@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Session de {{ session.user.username }} - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.transcript {
+    max-height: 500px;
+    overflow-y: auto;
+}
+.message {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    max-width: 80%;
+}
+.message-user {
+    background: var(--primary);
+    color: white;
+    margin-left: auto;
+}
+.message-assistant {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+.message-header {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+}
+.score-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.score-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.score-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s;
+}
+.score-fill.good { background: var(--success); }
+.score-fill.medium { background: var(--warning); }
+.score-fill.bad { background: var(--danger); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-2 flex-wrap gap-md">
+    <div>
+        <h1 class="mb-0">Session de {{ session.user.full_name }}</h1>
+        <p class="text-light mt-0">{{ interview.title }} - {{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+    <div class="flex gap-sm">
+        {% if session.status == 'completed' %}
+        <a href="{{ url_for('interview.admin_session_pdf', interview_id=interview.id, session_id=session.id) }}" class="btn btn-primary">
+            <i class="iconoir-download"></i> Export PDF
+        </a>
+        {% endif %}
+        <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary">
+            <i class="iconoir-arrow-left"></i> Retour
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">
+            {% if session.status == 'completed' %}
+            {{ "%.0f"|format(session.get_score_percentage()) }}%
+            {% else %}
+            -
+            {% endif %}
+        </div>
+        <div class="stat-label">Score</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ session.get_duration_minutes() }} min</div>
+        <div class="stat-label">Duree</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ session.interaction_count }}</div>
+        <div class="stat-label">Echanges</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">
+            {% if session.status == 'completed' %}
+            <span class="badge badge-success">Complete</span>
+            {% elif session.status == 'in_progress' %}
+            <span class="badge badge-warning">En cours</span>
+            {% elif session.status == 'evaluating' %}
+            <span class="badge badge-info">Evaluation</span>
+            {% else %}
+            <span class="badge badge-light">{{ session.status }}</span>
+            {% endif %}
+        </div>
+        <div class="stat-label">Statut</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 gap-lg mt-2">
+    <!-- Info -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="iconoir-info-circle"></i> Informations</span>
+        </div>
+        <div class="card-body">
+            <table class="table table-compact">
+                <tr>
+                    <td class="text-light">Etudiant</td>
+                    <td>
+                        <a href="{{ url_for('admin.user_grades', user_id=session.user.id) }}" class="link-primary">
+                            {{ session.user.full_name }}
+                        </a>
+                        ({{ session.user.username }})
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-light">Debut</td>
+                    <td>{{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                {% if session.ended_at %}
+                <tr>
+                    <td class="text-light">Fin</td>
+                    <td>{{ session.ended_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                {% endif %}
+                {% if session.end_reason %}
+                <tr>
+                    <td class="text-light">Raison de fin</td>
+                    <td>
+                        {% if session.end_reason == 'student' %}L'etudiant a termine
+                        {% elif session.end_reason == 'ai_natural' %}Conclusion naturelle
+                        {% elif session.end_reason == 'limit' %}Limite atteinte
+                        {% elif session.end_reason == 'timeout' %}Temps ecoule
+                        {% else %}{{ session.end_reason }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if session.uploaded_file_name %}
+                <tr>
+                    <td class="text-light">Fichier</td>
+                    <td><span class="badge badge-info"><i class="iconoir-attachment"></i> {{ session.uploaded_file_name }}</span></td>
+                </tr>
+                {% endif %}
+                {% if session.is_test %}
+                <tr>
+                    <td class="text-light">Mode</td>
+                    <td><span class="badge badge-warning">TEST</span></td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Scores -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="iconoir-clipboard-check"></i> Score: {{ "%.1f"|format(session.total_score) }} / {{ "%.1f"|format(session.max_score) }}</span>
+        </div>
+        <div class="card-body">
+            {% if session.scores %}
+            {% for score in session.scores %}
+            <div class="mb-1">
+                <div class="flex justify-between text-sm">
+                    <strong>{{ score.criterion.name }}</strong>
+                    <span>{{ "%.1f"|format(score.score) }} / {{ "%.1f"|format(score.max_score) }}</span>
+                </div>
+                <div class="score-bar-container">
+                    {% set pct = score.get_percentage() %}
+                    <div class="score-bar">
+                        <div class="score-fill {{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}" style="width: {{ pct }}%"></div>
+                    </div>
+                </div>
+                {% if score.feedback %}
+                <p class="text-light text-sm mt-0">{{ score.feedback }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-light text-center">Evaluation non disponible</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- AI Summary -->
+{% if session.ai_summary %}
+<div class="card mt-2">
+    <div class="card-header">
+        <span><i class="iconoir-sparks"></i> Synthese de l'IA</span>
+    </div>
+    <div class="card-body">
+        <p>{{ session.ai_summary }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Uploaded file content -->
+{% if session.uploaded_file_content %}
+<div class="card mt-2">
+    <div class="card-header">
+        <span><i class="iconoir-submit-document"></i> Fichier fourni: {{ session.uploaded_file_name }}</span>
+    </div>
+    <div class="card-body">
+        <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; background: var(--bg-tertiary); padding: 1rem; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 0.875rem;">{{ session.uploaded_file_content }}</pre>
+    </div>
+</div>
+{% endif %}
+
+<!-- Transcript -->
+<div class="card mt-2">
+    <div class="card-header">
+        <span><i class="iconoir-chat-bubble"></i> Transcription</span>
+    </div>
+    <div class="card-body">
+        <div class="transcript">
+            {% for message in session.messages %}
+            <div class="message message-{{ message.role }}">
+                <div class="message-header">
+                    {% if message.role == 'user' %}
+                    {{ session.user.first_name or session.user.username }}
+                    {% elif message.role == 'assistant' %}
+                    {{ interview.persona_name or 'Personnage' }}
+                    {% endif %}
+                    - {{ message.created_at.strftime('%H:%M') }}
+                </div>
+                <div class="message-content">{{ message.content }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Admin comment -->
+<div class="card mt-2">
+    <div class="card-header">
+        <span><i class="iconoir-edit-pencil"></i> Commentaire administrateur</span>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('interview.admin_add_comment', interview_id=interview.id, session_id=session.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group mb-1">
+                <textarea name="comment" class="form-textarea" rows="3" placeholder="Ajouter un commentaire...">{{ session.admin_comment or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-small">
+                <i class="iconoir-check"></i> Enregistrer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

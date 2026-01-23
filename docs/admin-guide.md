@@ -153,6 +153,65 @@ Chaque correction de question ouverte consomme des tokens :
 - ~500-1000 tokens par question (entrée + sortie)
 - Voir les tarifs Anthropic pour estimer vos coûts
 
+## Entretiens conversationnels
+
+Les entretiens permettent d'évaluer les compétences relationnelles et situationnelles des étudiants via des conversations avec des personnages IA.
+
+### Créer un entretien
+
+1. Menu **Évaluations** > **Entretiens** > **Nouvel entretien**
+2. Configurez les informations de base :
+   - Titre et description
+   - Groupes autorisés
+   - Dates de disponibilité
+3. Définissez le personnage :
+   - Nom et rôle (ex: "Marie Dupont, collègue développeur")
+   - Contexte professionnel
+   - Traits de personnalité et état émotionnel
+   - Comportements déclencheurs
+4. Configurez le scénario :
+   - Ce que l'étudiant sait au départ
+   - Objectif à atteindre
+5. Créez la grille d'évaluation :
+   - Ajoutez des critères (écoute active, empathie, etc.)
+   - Définissez les points par critère
+   - Ajoutez des indices pour l'IA évaluatrice
+6. Générez le prompt système avec l'IA
+7. Testez et ajustez si nécessaire
+
+### Templates prédéfinis
+
+| Template | Usage | Critères |
+|----------|-------|----------|
+| **RPS** | Risques psychosociaux, collègue en difficulté | Écoute active, empathie, non-directivité |
+| **Entretien d'embauche** | Simulation de recrutement | Présentation, motivation, communication professionnelle |
+| **Biais cognitifs** | Identification et gestion des biais | Détection du biais, questionnement socratique |
+
+### Paramètres de session
+
+| Paramètre | Description |
+|-----------|-------------|
+| **Max interactions** | Nombre maximum d'échanges (défaut: 30) |
+| **Durée maximale** | Limite de temps en minutes |
+| **Fin par étudiant** | L'étudiant peut terminer manuellement |
+| **Fin par IA** | L'IA peut conclure la conversation |
+
+### Évaluation
+
+À la fin de l'entretien :
+1. L'IA analyse la transcription complète
+2. Chaque critère reçoit un score et un feedback
+3. Une synthèse globale est générée
+4. L'étudiant peut consulter ses résultats
+
+### Résultats admin
+
+Depuis la page de l'entretien :
+- Nombre de sessions et taux de complétion
+- Scores moyens par critère
+- Accès aux transcriptions complètes
+- Export des données
+
 ## Analytics et exports
 
 ### Statistiques disponibles
@@ -184,3 +243,26 @@ Accessibles aux super-admins dans **Paramètres** :
 ### Sauvegardes
 - Fréquence des backups automatiques
 - Rétention des sauvegardes
+
+## Gestion des organisations
+
+> Voir aussi : [Groupes et Organisations](groups-tenants)
+
+### Quotas
+
+Chaque organisation peut avoir des limites mensuelles :
+- Corrections IA
+- Générations de quiz
+- Analyses de classe
+- Entretiens IA
+
+### Alertes quota
+
+Activez les notifications pour anticiper les dépassements :
+
+1. Modifiez l'organisation
+2. Section **Alertes quota**
+3. Activez et définissez le seuil (ex: 10%)
+4. Vérifiez l'adresse de contact
+
+Un email est envoyé automatiquement quand un quota atteint le seuil configuré.

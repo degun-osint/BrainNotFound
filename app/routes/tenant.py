@@ -95,6 +95,11 @@ def create_tenant():
         monthly_ai_corrections = request.form.get('monthly_ai_corrections', 0, type=int)
         monthly_quiz_generations = request.form.get('monthly_quiz_generations', 0, type=int)
         monthly_class_analyses = request.form.get('monthly_class_analyses', 0, type=int)
+        monthly_interviews = request.form.get('monthly_interviews', 0, type=int)
+
+        # Alertes quota
+        quota_alert_enabled = 'quota_alert_enabled' in request.form
+        quota_alert_threshold = request.form.get('quota_alert_threshold', 10, type=int)
 
         # Date d'expiration
         subscription_expires_at = None
@@ -123,6 +128,9 @@ def create_tenant():
             monthly_ai_corrections=monthly_ai_corrections,
             monthly_quiz_generations=monthly_quiz_generations,
             monthly_class_analyses=monthly_class_analyses,
+            monthly_interviews=monthly_interviews,
+            quota_alert_enabled=quota_alert_enabled,
+            quota_alert_threshold=quota_alert_threshold,
             subscription_expires_at=subscription_expires_at
         )
         db.session.add(tenant)
@@ -188,6 +196,11 @@ def edit_tenant(tenant_id):
         tenant.monthly_ai_corrections = request.form.get('monthly_ai_corrections', 0, type=int)
         tenant.monthly_quiz_generations = request.form.get('monthly_quiz_generations', 0, type=int)
         tenant.monthly_class_analyses = request.form.get('monthly_class_analyses', 0, type=int)
+        tenant.monthly_interviews = request.form.get('monthly_interviews', 0, type=int)
+
+        # Alertes quota
+        tenant.quota_alert_enabled = 'quota_alert_enabled' in request.form
+        tenant.quota_alert_threshold = request.form.get('quota_alert_threshold', 10, type=int)
 
         # Date d'expiration
         expires_str = request.form.get('subscription_expires_at', '').strip()

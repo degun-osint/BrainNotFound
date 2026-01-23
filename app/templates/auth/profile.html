@@ -140,7 +140,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card mb-2">
         <div class="card-header">
             <h3><i class="iconoir-clock"></i> Activite du compte</h3>
         </div>
@@ -161,5 +161,107 @@
             </div>
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="iconoir-shield-check"></i> Donnees personnelles (RGPD)</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Export Data -->
+                <div>
+                    <h4 style="margin-bottom: 0.5rem;"><i class="iconoir-download"></i> Exporter mes donnees</h4>
+                    <p class="text-light" style="font-size: 0.9rem; margin-bottom: 1rem;">
+                        Telechargez une copie de toutes vos donnees personnelles au format JSON.
+                    </p>
+                    <a href="{{ url_for('auth.export_data') }}" class="btn btn-secondary">
+                        <i class="iconoir-download"></i> Telecharger mes donnees
+                    </a>
+                </div>
+
+                <!-- Delete Account -->
+                <div>
+                    <h4 style="margin-bottom: 0.5rem; color: var(--error);"><i class="iconoir-trash"></i> Supprimer mon compte</h4>
+                    <p class="text-light" style="font-size: 0.9rem; margin-bottom: 1rem;">
+                        Supprimez definitivement votre compte et toutes vos donnees. Cette action est irreversible.
+                    </p>
+                    <button type="button" class="btn btn-error" onclick="showDeleteAccountModal()">
+                        <i class="iconoir-trash"></i> Supprimer mon compte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Delete Account Modal -->
+<div id="delete-account-modal" class="modal-overlay modal-danger">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" style="color: var(--error);"><i class="iconoir-warning-triangle"></i> Supprimer mon compte</h3>
+            <button type="button" class="modal-close" onclick="hideDeleteAccountModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('auth.delete_account') }}">
+            <div class="modal-body">
+                <div class="alert alert-error" style="margin-bottom: 1rem;">
+                    <i class="iconoir-warning-circle"></i>
+                    <strong>Attention !</strong> Cette action est irreversible. Toutes vos donnees seront definitivement supprimees :
+                    <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                        <li>Votre profil et informations personnelles</li>
+                        <li>Vos reponses aux quiz et scores</li>
+                        <li>Vos sessions d'entretiens</li>
+                        <li>Vos appartenances aux groupes</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="delete_password">Mot de passe</label>
+                    <input type="password" id="delete_password" name="password" class="form-input" required
+                           placeholder="Entrez votre mot de passe">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirm_text">Tapez <strong>SUPPRIMER</strong> pour confirmer</label>
+                    <input type="text" id="confirm_text" name="confirm_text" class="form-input" required
+                           placeholder="SUPPRIMER" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideDeleteAccountModal()">Annuler</button>
+                <button type="submit" class="btn btn-error">
+                    <i class="iconoir-trash"></i> Supprimer definitivement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showDeleteAccountModal() {
+    document.getElementById('delete-account-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideDeleteAccountModal() {
+    document.getElementById('delete-account-modal').classList.remove('active');
+    document.body.style.overflow = '';
+    document.getElementById('delete_password').value = '';
+    document.getElementById('confirm_text').value = '';
+}
+
+// Close modal when clicking outside
+document.getElementById('delete-account-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideDeleteAccountModal();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideDeleteAccountModal();
+    }
+});
+</script>
 {% endblock %}

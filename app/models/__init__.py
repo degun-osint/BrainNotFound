@@ -5,6 +5,10 @@ from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
 from app.models.settings import SiteSettings
 from app.models.page import Page
 from app.models.tenant import Tenant, tenant_admins
+from app.models.interview import (
+    Interview, EvaluationCriterion, InterviewSession,
+    InterviewMessage, CriterionScore, interview_groups
+)
 
 __all__ = [
     'User', 'user_groups',
@@ -12,5 +16,7 @@ __all__ = [
     'Quiz', 'Question', 'QuizResponse', 'Answer', 'quiz_groups',
     'SiteSettings',
     'Page',
-    'Tenant', 'tenant_admins'
+    'Tenant', 'tenant_admins',
+    'Interview', 'EvaluationCriterion', 'InterviewSession',
+    'InterviewMessage', 'CriterionScore', 'interview_groups'
 ]

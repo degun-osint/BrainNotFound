@@ -1,0 +1,764 @@
+{% extends "base.html" %}
+
+{% block title %}{% if edit_mode %}Modifier{% else %}Creer{% endif %} un entretien - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.wizard-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0;
+    list-style: none;
+}
+.wizard-step {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+}
+.wizard-step::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 50%;
+    height: 2px;
+    background: var(--border-color);
+}
+.wizard-step:last-child::after {
+    display: none;
+}
+.wizard-step.active .step-number {
+    background: var(--primary);
+    color: white;
+}
+.wizard-step.completed .step-number {
+    background: var(--success);
+    color: white;
+}
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border-color);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.step-title {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+.wizard-content {
+    min-height: 400px;
+}
+.wizard-panel {
+    display: none;
+}
+.wizard-panel.active {
+    display: block;
+}
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+.criteria-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.criterion-item {
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    position: relative;
+}
+.criterion-item .remove-criterion {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+.criteria-locked .criterion-item {
+    opacity: 0.7;
+    pointer-events: none;
+}
+.criteria-locked .criterion-item input,
+.criteria-locked .criterion-item textarea {
+    background: var(--bg-tertiary);
+}
+.template-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.prompt-preview {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.loading-overlay.show {
+    display: flex;
+}
+.loading-spinner {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1>{% if edit_mode %}Modifier{% else %}Creer{% endif %} un entretien</h1>
+        <p class="text-light">Assistant de creation de personnage</p>
+    </div>
+</div>
+
+<div class="wizard-container">
+    <ul class="wizard-steps">
+        <li class="wizard-step active" data-step="1">
+            <span class="step-number">1</span>
+            <div class="step-title">Informations</div>
+        </li>
+        <li class="wizard-step" data-step="2">
+            <span class="step-number">2</span>
+            <div class="step-title">Identite</div>
+        </li>
+        <li class="wizard-step" data-step="3">
+            <span class="step-number">3</span>
+            <div class="step-title">Scenario</div>
+        </li>
+        <li class="wizard-step" data-step="4">
+            <span class="step-number">4</span>
+            <div class="step-title">Psychologie</div>
+        </li>
+        <li class="wizard-step" data-step="5">
+            <span class="step-number">5</span>
+            <div class="step-title">Criteres</div>
+        </li>
+        <li class="wizard-step" data-step="6">
+            <span class="step-number">6</span>
+            <div class="step-title">Generation</div>
+        </li>
+    </ul>
+
+    <form method="POST" id="interview-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="criteria_json" id="criteria_json" value="{% if edit_mode %}{{ current_criteria }}{% else %}[]{% endif %}">
+
+        <div class="wizard-content">
+            <!-- Step 1: Basic Info -->
+            <div class="wizard-panel active" data-panel="1">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Informations de base</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Titre *</label>
+                            <input type="text" name="title" class="form-input" required
+                                   value="{% if interview %}{{ interview.title }}{% endif %}"
+                                   placeholder="Ex: Entretien RPS - Collegue en difficulte">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-textarea" rows="2"
+                                      placeholder="Description visible par les etudiants">{% if interview %}{{ interview.description }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-md">
+                            <div class="form-group">
+                                <label class="form-label">Slug (URL)</label>
+                                <input type="text" name="slug" class="form-input"
+                                       value="{% if interview %}{{ interview.slug }}{% endif %}"
+                                       placeholder="ex: rps-collegue" pattern="[a-z0-9-]+">
+                                <small class="text-light">Lettres minuscules, chiffres et tirets uniquement</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Organisation</label>
+                                <select name="tenant_id" class="form-select">
+                                    <option value="">Aucune</option>
+                                    {% for tenant_id, data in groups_by_tenant.items() %}
+                                    {% if data.tenant %}
+                                    <option value="{{ data.tenant.id }}" {% if interview and interview.tenant_id == data.tenant.id %}selected{% endif %}>
+                                        {{ data.tenant.name }}
+                                    </option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Groupes</label>
+                            <div class="flex flex-wrap gap-sm">
+                                {% for tenant_id, data in groups_by_tenant.items() %}
+                                {% for group in data.groups %}
+                                <label class="check-item">
+                                    <input type="checkbox" name="group_ids" value="{{ group.id }}"
+                                           {% if interview and group in interview.groups %}checked{% endif %}>
+                                    <span>{{ group.name }}</span>
+                                </label>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                            <small class="text-light">Aucun groupe = accessible a tous</small>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-md">
+                            <div class="form-group">
+                                <label class="form-label">Disponible a partir de</label>
+                                <input type="datetime-local" name="available_from" class="form-input"
+                                       value="{% if interview and interview.available_from %}{{ interview.available_from.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Disponible jusqu'au</label>
+                                <input type="datetime-local" name="available_until" class="form-input"
+                                       value="{% if interview and interview.available_until %}{{ interview.available_until.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Persona Identity -->
+            <div class="wizard-panel" data-panel="2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Identite du personnage</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-2 gap-md">
+                            <div class="form-group">
+                                <label class="form-label">Nom du personnage</label>
+                                <input type="text" name="persona_name" class="form-input"
+                                       value="{% if interview %}{{ interview.persona_name }}{% endif %}"
+                                       placeholder="Ex: Marie Dupont">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Role / Fonction</label>
+                                <input type="text" name="persona_role" class="form-input"
+                                       value="{% if interview %}{{ interview.persona_role }}{% endif %}"
+                                       placeholder="Ex: Collegue developpeur">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Contexte professionnel</label>
+                            <textarea name="persona_context" class="form-textarea" rows="3"
+                                      placeholder="Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres impliquee...">{% if interview %}{{ interview.persona_context }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Situation -->
+            <div class="wizard-panel" data-panel="3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Situation et scenario</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Ce que l'etudiant sait au depart</label>
+                            <textarea name="student_context" class="form-textarea" rows="3"
+                                      placeholder="Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...">{% if interview %}{{ interview.student_context }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Objectif de l'etudiant</label>
+                            <textarea name="student_objective" class="form-textarea" rows="2"
+                                      placeholder="Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide">{% if interview %}{{ interview.student_objective }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Psychology -->
+            <div class="wizard-panel" data-panel="4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Psychologie du personnage</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Traits de personnalite</label>
+                            <textarea name="persona_personality" class="form-textarea" rows="3"
+                                      placeholder="Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, s'ouvre progressivement si elle se sent en confiance...">{% if interview %}{{ interview.persona_personality }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Ce que le personnage sait / pense</label>
+                            <textarea name="persona_knowledge" class="form-textarea" rows="3"
+                                      placeholder="Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a peur de passer pour faible...">{% if interview %}{{ interview.persona_knowledge }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Objectifs caches du personnage</label>
+                            <textarea name="persona_objectives" class="form-textarea" rows="2"
+                                      placeholder="Ex: Elle aimerait en parler mais attend qu'on lui tende la main de maniere bienveillante...">{% if interview %}{{ interview.persona_objectives }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Comportements declencheurs</label>
+                            <textarea name="persona_triggers" class="form-textarea" rows="3"
+                                      placeholder="Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on reformule ses emotions, devient defensive si on minimise...">{% if interview %}{{ interview.persona_triggers }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Evaluation Criteria -->
+            <div class="wizard-panel" data-panel="5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Criteres d'evaluation</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if has_results %}
+                        <div class="alert alert-warning mb-md">
+                            <i class="iconoir-lock"></i>
+                            <span>Les criteres ne peuvent plus etre modifies car des etudiants ont deja passe cet entretien.</span>
+                        </div>
+                        {% else %}
+                        <div class="template-buttons">
+                            <span class="text-light">Templates:</span>
+                            {% for key, template in criteria_templates.items() %}
+                            {% if key != 'custom' %}
+                            <button type="button" class="btn btn-sm" onclick="loadTemplate('{{ key }}')">
+                                {{ template.name }}
+                            </button>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="criteria-list {% if has_results %}criteria-locked{% endif %}" id="criteria-list">
+                            <!-- Criteria items will be added here by JS -->
+                        </div>
+
+                        {% if not has_results %}
+                        <button type="button" class="btn btn-secondary mt-md" onclick="addCriterion()">
+                            <i class="iconoir-plus"></i> Ajouter un critere
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Generation -->
+            <div class="wizard-panel" data-panel="6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Parametres et generation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-3 gap-md">
+                            <div class="form-group">
+                                <label class="form-label">Max interactions</label>
+                                <input type="number" name="max_interactions" class="form-input" min="5" max="100"
+                                       value="{% if interview %}{{ interview.max_interactions }}{% else %}30{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Duree max (min)</label>
+                                <input type="number" name="max_duration_minutes" class="form-input" min="5" max="120"
+                                       value="{% if interview %}{{ interview.max_duration_minutes }}{% else %}30{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Statut</label>
+                                <label class="check-item">
+                                    <input type="checkbox" name="is_active" {% if not interview or interview.is_active %}checked{% endif %}>
+                                    <span>Actif</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-md">
+                            <label class="check-item">
+                                <input type="checkbox" name="allow_student_end" {% if not interview or interview.allow_student_end %}checked{% endif %}>
+                                <span>L'etudiant peut terminer</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" name="ai_can_end" {% if not interview or interview.ai_can_end %}checked{% endif %}>
+                                <span>L'IA peut terminer</span>
+                            </label>
+                        </div>
+
+                        <hr class="my-lg">
+
+                        <!-- Who starts the conversation -->
+                        <div class="form-group">
+                            <label class="form-label">Qui commence la conversation ?</label>
+                            <div class="flex gap-lg">
+                                <label class="check-item">
+                                    <input type="radio" name="student_starts" value="0" {% if not interview or not interview.student_starts %}checked{% endif %}>
+                                    <span>Le personnage (bot)</span>
+                                </label>
+                                <label class="check-item">
+                                    <input type="radio" name="student_starts" value="1" {% if interview and interview.student_starts %}checked{% endif %}>
+                                    <span>L'etudiant</span>
+                                </label>
+                            </div>
+                            <small class="text-light">Si le bot commence, il utilisera le message d'ouverture ci-dessous</small>
+                        </div>
+
+                        <hr class="my-lg">
+
+                        <!-- File upload configuration -->
+                        <div class="form-group">
+                            <label class="check-item">
+                                <input type="checkbox" name="require_file_upload" id="require_file_upload"
+                                       onchange="toggleFileUploadOptions()"
+                                       {% if interview and interview.require_file_upload %}checked{% endif %}>
+                                <span>Demander un fichier au debut</span>
+                            </label>
+                            <small class="text-light">Ex: CV pour simulation d'entretien d'embauche</small>
+                        </div>
+
+                        <div id="file-upload-options" style="display: {% if interview and interview.require_file_upload %}block{% else %}none{% endif %}; margin-left: 1.5rem; margin-top: 1rem;">
+                            <div class="grid grid-cols-2 gap-md">
+                                <div class="form-group">
+                                    <label class="form-label">Label du fichier</label>
+                                    <input type="text" name="file_upload_label" class="form-input"
+                                           value="{% if interview and interview.file_upload_label %}{{ interview.file_upload_label }}{% else %}Votre CV{% endif %}"
+                                           placeholder="Ex: Votre CV, Votre dossier">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Instructions pour l'etudiant</label>
+                                <textarea name="file_upload_description" class="form-textarea" rows="2"
+                                          placeholder="Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.">{% if interview %}{{ interview.file_upload_description }}{% endif %}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Injection dans le prompt</label>
+                                <textarea name="file_upload_prompt_injection" class="form-textarea" rows="3"
+                                          placeholder="Ex: Voici le CV du candidat que tu vas interviewer:
+
+{file_content}
+
+Base tes questions sur ce CV.">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}Voici le document fourni par l'etudiant:
+
+{file_content}
+
+Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
+                                <small class="text-light">Utilisez {file_content} comme placeholder pour le contenu du fichier</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-lg">
+
+                        <div class="flex gap-md mb-md">
+                            <button type="button" class="btn btn-primary" onclick="generatePrompt()">
+                                <i class="iconoir-sparks"></i> Generer le prompt
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="generateOpening()">
+                                <i class="iconoir-chat-bubble"></i> Generer message d'ouverture
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message d'ouverture (optionnel)</label>
+                            <textarea name="opening_message" id="opening_message" class="form-textarea" rows="3"
+                                      placeholder="Premier message du personnage pour demarrer la conversation...">{% if interview %}{{ interview.opening_message }}{% endif %}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Prompt systeme *</label>
+                            <textarea name="system_prompt" id="system_prompt" class="form-textarea" rows="15" required
+                                      placeholder="Cliquez sur 'Generer le prompt' ou ecrivez manuellement...">{% if interview %}{{ interview.system_prompt }}{% endif %}</textarea>
+                            <small class="text-light">Ce prompt definit le comportement de l'IA pendant l'entretien</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-nav">
+            <button type="button" class="btn btn-secondary" id="prev-btn" onclick="prevStep()" style="visibility: hidden;">
+                <i class="iconoir-arrow-left"></i> Precedent
+            </button>
+            <button type="button" class="btn btn-primary" id="next-btn" onclick="nextStep()">
+                Suivant <i class="iconoir-arrow-right"></i>
+            </button>
+            <button type="submit" class="btn btn-success" id="submit-btn" style="display: none;">
+                <i class="iconoir-check"></i> {% if edit_mode %}Enregistrer{% else %}Creer l'entretien{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner">
+        <i class="iconoir-refresh rotating" style="font-size: 2rem;"></i>
+        <p id="loading-text">Generation en cours...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const criteriaTemplates = {{ criteria_templates | tojson | safe }};
+const hasResults = {{ 'true' if has_results else 'false' }};
+let currentStep = 1;
+const totalSteps = 6;
+let criteria = {% if edit_mode %}{{ current_criteria | safe }}{% else %}[]{% endif %};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    renderCriteria();
+    updateNavButtons();
+});
+
+function nextStep() {
+    if (currentStep < totalSteps) {
+        setStep(currentStep + 1);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        setStep(currentStep - 1);
+    }
+}
+
+function setStep(step) {
+    // Update step indicators
+    document.querySelectorAll('.wizard-step').forEach((el, index) => {
+        el.classList.remove('active', 'completed');
+        if (index + 1 < step) el.classList.add('completed');
+        if (index + 1 === step) el.classList.add('active');
+    });
+
+    // Update panels
+    document.querySelectorAll('.wizard-panel').forEach(panel => {
+        panel.classList.remove('active');
+        if (parseInt(panel.dataset.panel) === step) {
+            panel.classList.add('active');
+        }
+    });
+
+    currentStep = step;
+    updateNavButtons();
+}
+
+function updateNavButtons() {
+    document.getElementById('prev-btn').style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+    document.getElementById('next-btn').style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+    document.getElementById('submit-btn').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+}
+
+// Criteria management
+function addCriterion(data = null) {
+    if (hasResults) return;
+    const item = data || {
+        name: '',
+        description: '',
+        max_points: 5,
+        hints: ''
+    };
+    criteria.push(item);
+    renderCriteria();
+}
+
+function removeCriterion(index) {
+    if (hasResults) return;
+    criteria.splice(index, 1);
+    renderCriteria();
+}
+
+function updateCriterion(index, field, value) {
+    if (hasResults) return;
+    criteria[index][field] = field === 'max_points' ? parseFloat(value) : value;
+    updateCriteriaJSON();
+}
+
+function renderCriteria() {
+    const list = document.getElementById('criteria-list');
+    list.innerHTML = '';
+
+    criteria.forEach((c, index) => {
+        const item = document.createElement('div');
+        item.className = 'criterion-item';
+        const deleteBtn = hasResults ? '' : `
+            <button type="button" class="btn btn-sm btn-danger remove-criterion" onclick="removeCriterion(${index})">
+                <i class="iconoir-xmark"></i>
+            </button>
+        `;
+        const readonly = hasResults ? 'readonly' : '';
+        const disabled = hasResults ? 'disabled' : '';
+        item.innerHTML = `
+            ${deleteBtn}
+            <div class="grid grid-cols-3 gap-md">
+                <div class="form-group">
+                    <label class="form-label">Nom</label>
+                    <input type="text" class="form-input" value="${escapeHtml(c.name)}"
+                           onchange="updateCriterion(${index}, 'name', this.value)" ${readonly}>
+                </div>
+                <div class="form-group col-span-2">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" value="${escapeHtml(c.description)}"
+                           onchange="updateCriterion(${index}, 'description', this.value)" ${readonly}>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-md">
+                <div class="form-group">
+                    <label class="form-label">Points max</label>
+                    <input type="number" class="form-input" value="${c.max_points}" min="1" max="20" step="0.5"
+                           onchange="updateCriterion(${index}, 'max_points', this.value)" ${readonly}>
+                </div>
+                <div class="form-group col-span-2">
+                    <label class="form-label">Indices d'evaluation (pour l'IA)</label>
+                    <input type="text" class="form-input" value="${escapeHtml(c.hints || '')}"
+                           onchange="updateCriterion(${index}, 'hints', this.value)"
+                           placeholder="Ex: Chercher reformulations, questions ouvertes..." ${readonly}>
+                </div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+
+    updateCriteriaJSON();
+}
+
+function updateCriteriaJSON() {
+    document.getElementById('criteria_json').value = JSON.stringify(criteria);
+}
+
+function loadTemplate(key) {
+    if (hasResults) return;
+    const template = criteriaTemplates[key];
+    if (template && template.criteria) {
+        if (criteria.length > 0 && !confirm('Remplacer les criteres actuels ?')) {
+            return;
+        }
+        criteria = JSON.parse(JSON.stringify(template.criteria));
+        renderCriteria();
+    }
+}
+
+// Prompt generation
+async function generatePrompt() {
+    showLoading('Generation du prompt en cours...');
+
+    const data = {
+        persona_name: document.querySelector('[name="persona_name"]').value,
+        persona_role: document.querySelector('[name="persona_role"]').value,
+        persona_context: document.querySelector('[name="persona_context"]').value,
+        persona_personality: document.querySelector('[name="persona_personality"]').value,
+        persona_knowledge: document.querySelector('[name="persona_knowledge"]').value,
+        persona_objectives: document.querySelector('[name="persona_objectives"]').value,
+        persona_triggers: document.querySelector('[name="persona_triggers"]').value,
+        student_context: document.querySelector('[name="student_context"]').value,
+        student_objective: document.querySelector('[name="student_objective"]').value,
+        criteria: criteria
+    };
+
+    try {
+        const response = await fetch('{{ url_for("interview.generate_prompt") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        hideLoading();
+
+        if (result.success) {
+            document.getElementById('system_prompt').value = result.system_prompt;
+        } else {
+            alert('Erreur: ' + result.error);
+        }
+    } catch (error) {
+        hideLoading();
+        alert('Erreur de connexion: ' + error.message);
+    }
+}
+
+async function generateOpening() {
+    const systemPrompt = document.getElementById('system_prompt').value;
+    if (!systemPrompt) {
+        alert('Generez d\'abord le prompt systeme');
+        return;
+    }
+
+    showLoading('Generation du message d\'ouverture...');
+
+    try {
+        const response = await fetch('{{ url_for("interview.generate_opening") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ system_prompt: systemPrompt })
+        });
+
+        const result = await response.json();
+        hideLoading();
+
+        if (result.success) {
+            document.getElementById('opening_message').value = result.opening_message;
+        } else {
+            alert('Erreur: ' + result.error);
+        }
+    } catch (error) {
+        hideLoading();
+        alert('Erreur de connexion: ' + error.message);
+    }
+}
+
+function showLoading(text) {
+    document.getElementById('loading-text').textContent = text;
+    document.getElementById('loading-overlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('show');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+function toggleFileUploadOptions() {
+    const checkbox = document.getElementById('require_file_upload');
+    const options = document.getElementById('file-upload-options');
+    options.style.display = checkbox.checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}

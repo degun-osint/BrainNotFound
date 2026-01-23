@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluation en cours - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.evaluating-container {
+    max-width: 500px;
+    margin: 4rem auto;
+    text-align: center;
+}
+.progress-circle {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 2rem auto;
+}
+.progress-circle svg {
+    transform: rotate(-90deg);
+}
+.progress-circle circle {
+    fill: none;
+    stroke-width: 8;
+}
+.progress-bg {
+    stroke: var(--bg-tertiary);
+}
+.progress-bar {
+    stroke: var(--primary);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.criteria-list {
+    margin-top: 2rem;
+    text-align: left;
+}
+.criterion-progress {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.criterion-progress.completed {
+    background: var(--success-light, #e8f5e9);
+}
+.criterion-progress .score {
+    font-weight: bold;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="evaluating-container">
+    <h1>Evaluation en cours</h1>
+    <p class="text-light">Analyse de votre entretien...</p>
+
+    <div class="progress-circle">
+        <svg width="150" height="150">
+            <circle class="progress-bg" cx="75" cy="75" r="65"></circle>
+            <circle class="progress-bar" id="progress-bar" cx="75" cy="75" r="65"
+                    stroke-dasharray="408" stroke-dashoffset="408"></circle>
+        </svg>
+        <div class="progress-text">
+            <span id="progress-count">0</span>/<span id="progress-total">{{ session.interview.criteria|length }}</span>
+        </div>
+    </div>
+
+    <p id="status-text" class="text-light">Preparation de l'evaluation...</p>
+
+    <div class="criteria-list" id="criteria-list">
+        <!-- Criteria progress will be added here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+const sessionId = {{ session.id }};
+const totalCriteria = {{ session.interview.criteria|length }};
+let socket;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initWebSocket();
+
+    // Fallback: poll for status if WebSocket fails
+    setTimeout(checkStatus, 5000);
+});
+
+function initWebSocket() {
+    socket = io();
+
+    socket.on('connect', function() {
+        console.log('Connected for evaluation updates');
+    });
+
+    socket.on('evaluation_started', function(data) {
+        document.getElementById('status-text').textContent = 'Evaluation des criteres...';
+        document.getElementById('progress-total').textContent = data.total_criteria;
+    });
+
+    socket.on('evaluation_progress', function(data) {
+        const progress = data.progress;
+        const total = data.total;
+
+        // Update progress circle
+        const circumference = 408;
+        const offset = circumference - (progress / total) * circumference;
+        document.getElementById('progress-bar').style.strokeDashoffset = offset;
+        document.getElementById('progress-count').textContent = progress;
+
+        // Add criterion to list
+        addCriterionResult(data.criterion_name, data.score, data.max_score);
+
+        document.getElementById('status-text').textContent =
+            'Critere ' + progress + '/' + total + ' evalue...';
+    });
+
+    socket.on('evaluation_completed', function(data) {
+        document.getElementById('status-text').textContent = 'Evaluation terminee !';
+
+        // Redirect to results
+        setTimeout(function() {
+            window.location.href = '{{ url_for("interview.result", session_id=session.id) }}';
+        }, 1500);
+    });
+
+    socket.on('evaluation_error', function(data) {
+        document.getElementById('status-text').textContent = 'Erreur: ' + data.error;
+        document.getElementById('status-text').style.color = 'var(--danger)';
+    });
+}
+
+function addCriterionResult(name, score, maxScore) {
+    const list = document.getElementById('criteria-list');
+    const item = document.createElement('div');
+    item.className = 'criterion-progress completed';
+    item.innerHTML = `
+        <span>${escapeHtml(name)}</span>
+        <span class="score">${score.toFixed(1)} / ${maxScore.toFixed(1)}</span>
+    `;
+    list.appendChild(item);
+}
+
+function checkStatus() {
+    // Fallback polling in case WebSocket disconnects
+    fetch('{{ url_for("interview.result", session_id=session.id) }}', {
+        method: 'HEAD'
+    }).then(response => {
+        if (response.ok) {
+            window.location.href = '{{ url_for("interview.result", session_id=session.id) }}';
+        } else {
+            setTimeout(checkStatus, 3000);
+        }
+    }).catch(() => {
+        setTimeout(checkStatus, 3000);
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

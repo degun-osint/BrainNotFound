@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-2 flex-wrap gap-md">
+    <h1 class="mb-0">Quiz</h1>
+    <div class="flex gap-sm">
+        <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary" data-tooltip="Generer un quiz par IA">
+            <i class="iconoir-sparks"></i> Generator
+        </a>
+        <a href="{{ url_for('admin.create_quiz') }}" class="btn btn-primary">
+            <i class="iconoir-plus"></i> Nouveau quiz
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>Mes Quiz ({{ quizzes.total }} quiz)</span>
+        <form method="GET" class="flex gap-sm items-center flex-wrap">
+            <div class="searchable-select" data-autosubmit="true">
+                <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
+                <div class="searchable-select-trigger">
+                    <i class="iconoir-group"></i>
+                    <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                    <i class="iconoir-nav-arrow-down"></i>
+                </div>
+                <div class="searchable-select-dropdown">
+                    <div class="searchable-select-search">
+                        <input type="text" placeholder="Rechercher un groupe...">
+                    </div>
+                    <div class="searchable-select-options">
+                        <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                        {% for group in all_groups %}
+                        <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
+                            {{ group.name }}
+                            {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <input type="text" name="search" value="{{ search }}" placeholder="Rechercher..."
+                   class="form-input input-search">
+            <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Rechercher">
+                <i class="iconoir-search"></i>
+            </button>
+            {% if search or filter_group_id %}
+            <a href="{{ url_for('admin.quiz_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                <i class="iconoir-xmark"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if search or filter_group_id %}
+    <div class="search-results-info">
+        <span class="text-light">
+            {% if filter_group_id %}Groupe: {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
+            {% if filter_group_id and search %} - {% endif %}
+            {% if search %}Recherche: "{{ search }}"{% endif %}
+            - {{ quizzes.total }} resultat(s)
+        </span>
+    </div>
+    {% endif %}
+
+    {% if quizzes.items %}
+    <div class="quiz-grid">
+        {% for quiz in quizzes.items %}
+        <div class="quiz-card">
+            <div class="quiz-info">
+                <h3>{{ quiz.title }}</h3>
+                <div class="quiz-meta">
+                    {{ quiz.questions.count() }} questions -
+                    Cree le {{ quiz.created_at.strftime('%d/%m/%Y') }}
+                    {% if quiz.created_by %} par <strong>{{ quiz.created_by.username }}</strong>{% endif %}
+                    {% if quiz.time_limit_minutes %} - <span class="text-warning">{{ quiz.time_limit_minutes }} min</span>{% endif %}
+                    {% if quiz.available_from %}
+                    - <span class="text-info">Du {{ quiz.available_from.strftime('%d/%m %H:%M') }}</span>
+                    {% endif %}
+                    {% if quiz.available_until %}
+                    - <span class="text-info">au {{ quiz.available_until.strftime('%d/%m %H:%M') }}</span>
+                    {% endif %}
+                    -
+                    <span class="{{ 'text-success' if quiz.is_active else 'text-error' }}">
+                        {{ 'Actif' if quiz.is_active else 'Inactif' }}
+                    </span>
+                </div>
+                {% if quiz.groups.count() > 0 %}
+                <div class="quiz-groups text-sm mt-0">
+                    <span class="text-light">Groupes:</span>
+                    {% for group in quiz.groups %}
+                    <span class="tag">{{ group.name }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="quiz-groups text-sm mt-0">
+                    <span class="text-light">Tous les groupes</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="quiz-actions">
+                <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
+                    <i class="iconoir-eye"></i>
+                </a>
+                <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                    <i class="iconoir-stats-report"></i>
+                </a>
+                <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <i class="iconoir-edit-pencil"></i>
+                </a>
+                <form method="POST" action="{{ url_for('admin.duplicate_quiz', quiz_id=quiz.id) }}" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Dupliquer">
+                        <i class="iconoir-copy"></i>
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.toggle_quiz', quiz_id=quiz.id) }}" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if quiz.is_active else 'Activer' }}">
+                        <i class="iconoir-{{ 'eye-closed' if quiz.is_active else 'eye' }}"></i>
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}"
+                      onsubmit="return confirmDelete(this, 'ce quiz');" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                        <i class="iconoir-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if quizzes.pages > 1 %}
+    <div class="pagination">
+        {% if quizzes.has_prev %}
+        <a href="{{ url_for('admin.quiz_list', page=quizzes.prev_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page precedente">
+            <i class="iconoir-nav-arrow-left"></i>
+        </a>
+        {% endif %}
+        {% for page_num in quizzes.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if page_num == quizzes.page %}
+                <span class="btn btn-primary btn-small">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('admin.quiz_list', page=page_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if quizzes.has_next %}
+        <a href="{{ url_for('admin.quiz_list', page=quizzes.next_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page suivante">
+            <i class="iconoir-nav-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="card-body">
+        <p class="text-center text-light p-2">
+            Aucun quiz trouve. <a href="{{ url_for('admin.create_quiz') }}">Creez votre premier quiz</a>
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

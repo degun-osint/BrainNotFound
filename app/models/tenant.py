@@ -54,6 +54,15 @@ class Tenant(db.Model):
     used_class_analyses = db.Column(db.Integer, default=0)
     usage_reset_date = db.Column(db.Date)  # Date du dernier reset
 
+    # Limites interviews
+    monthly_interviews = db.Column(db.Integer, default=0)  # 0 = illimite
+    used_interviews = db.Column(db.Integer, default=0)
+
+    # Alertes quota
+    quota_alert_enabled = db.Column(db.Boolean, default=False)
+    quota_alert_threshold = db.Column(db.Integer, default=10)  # Pourcentage restant
+    quota_alert_sent_at = db.Column(db.DateTime)  # Date du dernier envoi d'alerte
+
     # Abonnement
     subscription_expires_at = db.Column(db.Date)  # None = pas d'expiration
 
@@ -208,6 +217,7 @@ class Tenant(db.Model):
             self.used_ai_corrections = 0
             self.used_quiz_generations = 0
             self.used_class_analyses = 0
+            self.used_interviews = 0
             self.usage_reset_date = first_of_month
             db.session.commit()
 
@@ -243,18 +253,37 @@ class Tenant(db.Model):
         self._check_reset_usage()
         self.used_ai_corrections += count
         db.session.commit()
+        self.check_and_send_quota_alert()
 
     def increment_quiz_generations(self, count=1):
         """Incrémente le compteur de générations de quiz."""
         self._check_reset_usage()
         self.used_quiz_generations += count
         db.session.commit()
+        self.check_and_send_quota_alert()
 
     def increment_class_analyses(self, count=1):
         """Incrémente le compteur d'analyses de classe."""
         self._check_reset_usage()
         self.used_class_analyses += count
         db.session.commit()
+        self.check_and_send_quota_alert()
+
+    def can_use_interview(self):
+        """Vérifie si on peut faire un entretien IA."""
+        if not self.is_subscription_active():
+            return False
+        if self.monthly_interviews <= 0:
+            return True  # 0 = illimité
+        self._check_reset_usage()
+        return self.used_interviews < self.monthly_interviews
+
+    def increment_interviews(self, count=1):
+        """Incrémente le compteur d'entretiens IA."""
+        self._check_reset_usage()
+        self.used_interviews += count
+        db.session.commit()
+        self.check_and_send_quota_alert()
 
     def get_ai_usage_stats(self):
         """Retourne les statistiques d'utilisation IA."""
@@ -271,5 +300,86 @@ class Tenant(db.Model):
             'analyses': {
                 'used': self.used_class_analyses,
                 'limit': self.monthly_class_analyses if self.monthly_class_analyses > 0 else None
+            },
+            'interviews': {
+                'used': self.used_interviews,
+                'limit': self.monthly_interviews if self.monthly_interviews > 0 else None
             }
         }
+
+    def check_and_send_quota_alert(self):
+        """Vérifie les quotas et envoie une alerte si un seuil est atteint."""
+        if not self.quota_alert_enabled or not self.contact_email:
+            return
+
+        # Vérifier si on a déjà envoyé une alerte ce mois
+        from datetime import date
+        today = date.today()
+        first_of_month = today.replace(day=1)
+        if self.quota_alert_sent_at and self.quota_alert_sent_at.date() >= first_of_month:
+            return  # Déjà alerté ce mois
+
+        # Calculer les quotas critiques
+        critical_quotas = []
+        threshold = self.quota_alert_threshold
+
+        def check_quota(name, used, limit):
+            if limit and limit > 0:
+                remaining_pct = ((limit - used) / limit) * 100
+                if remaining_pct <= threshold:
+                    return {'name': name, 'used': used, 'limit': limit, 'remaining_pct': round(remaining_pct, 1)}
+            return None
+
+        quotas_to_check = [
+            ('Corrections IA', self.used_ai_corrections, self.monthly_ai_corrections),
+            ('Générations quiz', self.used_quiz_generations, self.monthly_quiz_generations),
+            ('Analyses classe', self.used_class_analyses, self.monthly_class_analyses),
+            ('Entretiens IA', self.used_interviews, self.monthly_interviews),
+        ]
+
+        for name, used, limit in quotas_to_check:
+            result = check_quota(name, used, limit)
+            if result:
+                critical_quotas.append(result)
+
+        if not critical_quotas:
+            return
+
+        # Envoyer l'alerte
+        self._send_quota_alert_email(critical_quotas)
+        self.quota_alert_sent_at = datetime.utcnow()
+        db.session.commit()
+
+    def _send_quota_alert_email(self, critical_quotas):
+        """Envoie l'email d'alerte quota."""
+        from flask import current_app
+        from flask_mail import Message
+        from app import mail
+
+        try:
+            quota_list = '\n'.join([
+                f"  - {q['name']}: {q['used']}/{q['limit']} ({q['remaining_pct']}% restant)"
+                for q in critical_quotas
+            ])
+
+            msg = Message(
+                subject=f"[{current_app.config.get('SITE_TITLE', 'BrainNotFound')}] Alerte quota - {self.name}",
+                recipients=[self.contact_email],
+                body=f"""Bonjour,
+
+Certains quotas de votre organisation "{self.name}" sont presque atteints :
+
+{quota_list}
+
+Seuil d'alerte configuré : {self.quota_alert_threshold}%
+
+Contactez votre administrateur pour augmenter vos limites si nécessaire.
+
+--
+{current_app.config.get('SITE_TITLE', 'BrainNotFound')}
+"""
+            )
+            mail.send(msg)
+            current_app.logger.info(f"Quota alert sent to {self.contact_email} for tenant {self.slug}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send quota alert: {str(e)}")

@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}{{ interview.title }} - {{ site_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.start-container {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+.interview-info {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+.interview-info h2 {
+    margin: 0 0 0.5rem 0;
+}
+.interview-info p {
+    color: var(--text-light);
+    margin: 0;
+}
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+.file-upload-area:hover,
+.file-upload-area.dragover {
+    border-color: var(--primary);
+    background: var(--primary-light, rgba(99, 102, 241, 0.05));
+}
+.file-upload-area i {
+    font-size: 3rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+.file-upload-area p {
+    margin: 0.5rem 0;
+}
+.file-upload-area .hint {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+.file-input {
+    display: none;
+}
+.selected-file {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+.selected-file.show {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.selected-file .file-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.selected-file .file-name i {
+    color: var(--success);
+}
+.context-box {
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--primary);
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+.context-box h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+.context-box p {
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="start-container">
+    {% if is_test %}
+    <div class="flex justify-between items-center mb-1">
+        <span class="badge badge-warning"><i class="iconoir-flask"></i> Mode test</span>
+        <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-arrow-left"></i> Retour
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="interview-info">
+        <h2>{{ interview.title }}</h2>
+        {% if interview.description %}
+        <p>{{ interview.description }}</p>
+        {% endif %}
+    </div>
+
+    {% if interview.student_context %}
+    <div class="context-box">
+        <h4>Contexte</h4>
+        <p>{{ interview.student_context }}</p>
+    </div>
+    {% endif %}
+
+    {% if interview.student_objective %}
+    <div class="context-box">
+        <h4>Votre objectif</h4>
+        <p>{{ interview.student_objective }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ interview.file_upload_label or 'Document requis' }}</h3>
+        </div>
+        <div class="card-body">
+            {% if interview.file_upload_description %}
+            <p class="mb-md">{{ interview.file_upload_description }}</p>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" id="upload-form"
+                  action="{{ url_for('interview.admin_test', interview_id=interview.id) if is_test else url_for('interview.start', interview_id=interview.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="file-upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+                    <i class="iconoir-cloud-upload"></i>
+                    <p><strong>Cliquez pour telecharger</strong></p>
+                    <p class="hint">ou glissez-deposez votre fichier ici</p>
+                    <p class="hint">Formats acceptes: PDF, DOC, DOCX, TXT</p>
+                </div>
+
+                <input type="file" name="file" id="file-input" class="file-input"
+                       accept=".pdf,.doc,.docx,.txt" onchange="handleFileSelect(this)">
+
+                <div class="selected-file" id="selected-file">
+                    <span class="file-name">
+                        <i class="iconoir-check-circle"></i>
+                        <span id="file-name-text">Fichier selectionne</span>
+                    </span>
+                    <button type="button" class="btn btn-sm" onclick="clearFile()">
+                        <i class="iconoir-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="mt-lg">
+                    <button type="submit" class="btn btn-primary btn-lg" id="start-btn" disabled>
+                        <i class="iconoir-play"></i> Commencer l'entretien
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-lg text-center">
+        <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} min max</span>
+        <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} echanges max</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const uploadArea = document.getElementById('upload-area');
+const fileInput = document.getElementById('file-input');
+const selectedFile = document.getElementById('selected-file');
+const fileNameText = document.getElementById('file-name-text');
+const startBtn = document.getElementById('start-btn');
+
+// Drag and drop handlers
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect(fileInput);
+    }
+});
+
+function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        fileNameText.textContent = file.name;
+        selectedFile.classList.add('show');
+        uploadArea.style.display = 'none';
+        startBtn.disabled = false;
+    }
+}
+
+function clearFile() {
+    fileInput.value = '';
+    selectedFile.classList.remove('show');
+    uploadArea.style.display = 'block';
+    startBtn.disabled = true;
+}
+</script>
+{% endblock %}

@@ -11,6 +11,7 @@ from app.models.user import User, user_groups
 from app.models.group import Group
 from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
 from app.models.tenant import Tenant, tenant_admins
+from app.models.interview import Interview, InterviewSession
 from app.utils.markdown_parser import parse_quiz_markdown, validate_quiz_data
 from app.utils.quiz_generator import ContentExtractor, generate_quiz_from_content
 from app.utils.email_sender import send_verification_email
@@ -298,11 +299,24 @@ def dashboard():
         total_responses = QuizResponse.query.filter(QuizResponse.quiz_id.in_(accessible_quiz_ids)).count() if accessible_quiz_ids else 0
         total_groups = len(admin_group_ids)
 
+    # Interview stats
+    if current_user.is_superadmin:
+        total_interviews = Interview.query.count()
+    else:
+        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
+        total_interviews = Interview.query.filter(
+            db.or_(
+                Interview.created_by_id == current_user.id,
+                Interview.groups.any(Group.id.in_(admin_group_ids)) if admin_group_ids else False
+            )
+        ).count()
+
     stats = {
         'total_users': total_users,
         'total_quizzes': total_quizzes,
         'total_responses': total_responses,
-        'total_groups': total_groups
+        'total_groups': total_groups,
+        'total_interviews': total_interviews
     }
 
     # Recent activity - last 5 submissions (using accessible_quiz_ids from stats section)
@@ -334,7 +348,100 @@ def dashboard():
     if current_user.is_superadmin and is_using_fallback():
         fallback_warnings = get_fallback_warnings()
 
-    return render_template('admin/dashboard.html', quizzes=quizzes, stats=stats, pagination=pagination, search=search, all_groups=all_groups, filter_group_id=filter_group_id, all_tenants=all_tenants, filter_tenant_id=filter_tenant_id, recent_responses=recent_responses, pending_grading=pending_grading, fallback_warnings=fallback_warnings)
+    # Recent interview sessions
+    if current_user.is_superadmin:
+        recent_interviews = InterviewSession.query.filter(
+            InterviewSession.is_test == False
+        ).order_by(InterviewSession.started_at.desc()).limit(5).all()
+    else:
+        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
+        if admin_group_ids:
+            accessible_interview_ids = [i.id for i in Interview.query.filter(
+                db.or_(
+                    Interview.created_by_id == current_user.id,
+                    Interview.groups.any(Group.id.in_(admin_group_ids))
+                )
+            ).all()]
+            recent_interviews = InterviewSession.query.filter(
+                InterviewSession.interview_id.in_(accessible_interview_ids),
+                InterviewSession.is_test == False
+            ).order_by(InterviewSession.started_at.desc()).limit(5).all() if accessible_interview_ids else []
+        else:
+            recent_interviews = []
+
+    return render_template('admin/dashboard.html', quizzes=quizzes, stats=stats, pagination=pagination, search=search, all_groups=all_groups, filter_group_id=filter_group_id, all_tenants=all_tenants, filter_tenant_id=filter_tenant_id, recent_responses=recent_responses, pending_grading=pending_grading, fallback_warnings=fallback_warnings, recent_interviews=recent_interviews)
+
+
+@admin_bp.route('/quizzes')
+@login_required
+@admin_required
+def quiz_list():
+    """Dedicated quiz list page."""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    search = request.args.get('search', '', type=str).strip()
+    filter_group_id = request.args.get('group', 0, type=int)
+
+    # Get tenant context
+    tenant_ctx = get_tenant_context()
+    filter_tenant_id = tenant_ctx.id if tenant_ctx else 0
+
+    # Get groups for filter dropdown
+    all_groups = []
+    if filter_tenant_id:
+        all_groups = Group.query.filter(
+            Group.is_active == True,
+            Group.tenant_id == filter_tenant_id
+        ).order_by(Group.name).all()
+    elif current_user.is_superadmin:
+        all_groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
+    else:
+        all_groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
+
+    # Build query with optional search
+    query = Quiz.query
+    if search:
+        query = query.filter(Quiz.title.ilike(f'%{search}%'))
+
+    # Filter by selected group
+    if filter_group_id > 0:
+        query = query.filter(Quiz.groups.any(Group.id == filter_group_id))
+
+    # Apply tenant/permission filtering
+    if filter_tenant_id:
+        tenant_group_ids = [g.id for g in Group.query.filter(Group.tenant_id == filter_tenant_id).all()]
+        if tenant_group_ids:
+            query = query.filter(
+                db.or_(
+                    Quiz.tenant_id == filter_tenant_id,
+                    Quiz.groups.any(Group.id.in_(tenant_group_ids))
+                )
+            )
+        else:
+            query = query.filter(Quiz.tenant_id == filter_tenant_id)
+    elif not current_user.is_superadmin:
+        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
+        if admin_group_ids:
+            query = query.filter(
+                db.or_(
+                    Quiz.created_by_id == current_user.id,
+                    Quiz.groups.any(Group.id.in_(admin_group_ids))
+                )
+            )
+        else:
+            query = query.filter(Quiz.created_by_id == current_user.id)
+
+    # Paginate
+    quizzes = query.order_by(Quiz.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template(
+        'admin/quizzes.html',
+        quizzes=quizzes,
+        search=search,
+        all_groups=all_groups,
+        filter_group_id=filter_group_id
+    )
+
 
 @admin_bp.route('/quiz/create', methods=['GET', 'POST'])
 @login_required

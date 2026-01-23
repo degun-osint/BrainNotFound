@@ -87,6 +87,11 @@
                 <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
+            <div class="form-group">
+                <label class="form-label" for="monthly_interviews">Entretiens IA / mois</label>
+                <input type="number" id="monthly_interviews" name="monthly_interviews" class="form-input"
+                       value="0" min="0" style="width: 120px;">
+            </div>
         </div>
 
         <h3 class="mt-2 mb-1">Abonnement</h3>
@@ -95,6 +100,23 @@
             <input type="date" id="subscription_expires_at" name="subscription_expires_at" class="form-input"
                    style="width: 200px;">
             <small class="text-light">Laisser vide pour un abonnement sans expiration</small>
+        </div>
+
+        <h3 class="mt-2 mb-1">Alertes quota</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-checkbox">
+                    <input type="checkbox" name="quota_alert_enabled">
+                    <span>Activer les alertes quota</span>
+                </label>
+                <small class="text-light">Envoie un email quand un quota est presque atteint</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="quota_alert_threshold">Seuil d'alerte (%)</label>
+                <input type="number" id="quota_alert_threshold" name="quota_alert_threshold" class="form-input"
+                       value="10" min="1" max="50" style="width: 100px;">
+                <small class="text-light">Alerte quand il reste X% du quota</small>
+            </div>
         </div>
 
         <div class="actions">
