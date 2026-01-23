@@ -132,6 +132,36 @@
     border-radius: 8px;
     text-align: center;
 }
+.mode-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.mode-card:hover {
+    border-color: var(--primary);
+    background: var(--bg-tertiary);
+}
+.mode-card h4 {
+    margin: 0 0 0.5rem 0;
+}
+.mode-card p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+.hidden {
+    display: none !important;
+}
+.wizard-mode-only.hidden-step {
+    display: none;
+}
 </style>
 {% endblock %}
 
@@ -144,30 +174,54 @@
 </div>
 
 <div class="wizard-container">
-    <ul class="wizard-steps">
+    <!-- Mode selection (shown initially, hidden after choice) -->
+    <div id="mode-selection" class="{% if edit_mode %}hidden{% endif %}">
+        <div class="card mb-2">
+            <div class="card-header">
+                <h3>Mode de creation</h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-2 gap-lg">
+                    <button type="button" class="mode-card" onclick="selectMode('direct')">
+                        <i class="iconoir-paste-clipboard" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h4>Coller un prompt</h4>
+                        <p class="text-light">J'ai deja un prompt pret, je veux juste le coller et configurer les parametres.</p>
+                    </button>
+                    <button type="button" class="mode-card" onclick="selectMode('wizard')">
+                        <i class="iconoir-sparks" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h4>Creation assistee</h4>
+                        <p class="text-light">Je veux utiliser l'assistant pour definir le personnage et generer le prompt automatiquement.</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="wizard-main" class="{% if not edit_mode %}hidden{% endif %}">
+    <ul class="wizard-steps" id="wizard-steps-bar">
         <li class="wizard-step active" data-step="1">
             <span class="step-number">1</span>
             <div class="step-title">Informations</div>
         </li>
-        <li class="wizard-step" data-step="2">
+        <li class="wizard-step wizard-mode-only" data-step="2">
             <span class="step-number">2</span>
             <div class="step-title">Identite</div>
         </li>
-        <li class="wizard-step" data-step="3">
+        <li class="wizard-step wizard-mode-only" data-step="3">
             <span class="step-number">3</span>
             <div class="step-title">Scenario</div>
         </li>
-        <li class="wizard-step" data-step="4">
+        <li class="wizard-step wizard-mode-only" data-step="4">
             <span class="step-number">4</span>
             <div class="step-title">Psychologie</div>
         </li>
         <li class="wizard-step" data-step="5">
-            <span class="step-number">5</span>
+            <span class="step-number"><span class="step-number-text-5">5</span></span>
             <div class="step-title">Criteres</div>
         </li>
         <li class="wizard-step" data-step="6">
-            <span class="step-number">6</span>
-            <div class="step-title">Generation</div>
+            <span class="step-number"><span class="step-number-text-6">6</span></span>
+            <div class="step-title">Prompt</div>
         </li>
     </ul>
 
@@ -201,7 +255,7 @@
                                 <label class="form-label">Slug (URL)</label>
                                 <input type="text" name="slug" class="form-input"
                                        value="{% if interview %}{{ interview.slug }}{% endif %}"
-                                       placeholder="ex: rps-collegue" pattern="[a-z0-9-]+">
+                                       placeholder="ex: rps-collegue" pattern="[-a-z0-9]+">
                                 <small class="text-light">Lettres minuscules, chiffres et tirets uniquement</small>
                             </div>
                             <div class="form-group">
@@ -477,7 +531,7 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
 
                         <hr class="my-lg">
 
-                        <div class="flex gap-md mb-md">
+                        <div class="flex gap-md mb-md wizard-mode-only" id="generation-buttons">
                             <button type="button" class="btn btn-primary" onclick="generatePrompt()">
                                 <i class="iconoir-sparks"></i> Generer le prompt
                             </button>
@@ -515,6 +569,7 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
             </button>
         </div>
     </form>
+    </div><!-- end wizard-main -->
 </div>
 
 <div class="loading-overlay" id="loading-overlay">
@@ -529,34 +584,96 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
 <script>
 const criteriaTemplates = {{ criteria_templates | tojson | safe }};
 const hasResults = {{ 'true' if has_results else 'false' }};
+const editMode = {{ 'true' if edit_mode else 'false' }};
 let currentStep = 1;
 const totalSteps = 6;
 let criteria = {% if edit_mode %}{{ current_criteria | safe }}{% else %}[]{% endif %};
+let creationMode = editMode ? 'wizard' : null; // 'direct' or 'wizard'
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     renderCriteria();
-    updateNavButtons();
+    if (editMode) {
+        updateNavButtons();
+    }
 });
+
+function selectMode(mode) {
+    creationMode = mode;
+    document.getElementById('mode-selection').classList.add('hidden');
+    document.getElementById('wizard-main').classList.remove('hidden');
+
+    if (mode === 'direct') {
+        // Direct mode: hide steps 2-4 but keep step 5 (criteria)
+        document.querySelectorAll('.wizard-mode-only').forEach(el => {
+            el.classList.add('hidden-step');
+        });
+        // Update step numbers for direct mode: 1=Info, 2=Criteres, 3=Prompt
+        document.querySelector('.step-number-text-5').textContent = '2';
+        document.querySelector('.step-number-text-6').textContent = '3';
+    }
+
+    setStep(1);
+    updateNavButtons();
+}
 
 function nextStep() {
     if (currentStep < totalSteps) {
-        setStep(currentStep + 1);
+        let nextStepNum = currentStep + 1;
+        // In direct mode: 1 -> 5 -> 6
+        if (creationMode === 'direct') {
+            if (currentStep === 1) nextStepNum = 5;
+            else if (currentStep === 5) nextStepNum = 6;
+        }
+        // In wizard mode, auto-generate prompt when going from step 5 to 6
+        if (creationMode === 'wizard' && currentStep === 5) {
+            autoGeneratePrompt();
+        }
+        setStep(nextStepNum);
     }
 }
 
 function prevStep() {
     if (currentStep > 1) {
-        setStep(currentStep - 1);
+        let prevStepNum = currentStep - 1;
+        // In direct mode: 6 -> 5 -> 1
+        if (creationMode === 'direct') {
+            if (currentStep === 6) prevStepNum = 5;
+            else if (currentStep === 5) prevStepNum = 1;
+        }
+        setStep(prevStepNum);
     }
+}
+
+async function autoGeneratePrompt() {
+    // Only auto-generate if prompt is empty
+    const promptField = document.getElementById('system_prompt');
+    if (promptField.value.trim()) return;
+
+    showLoading('Generation automatique du prompt...');
+    await generatePromptInternal();
+    hideLoading();
 }
 
 function setStep(step) {
     // Update step indicators
-    document.querySelectorAll('.wizard-step').forEach((el, index) => {
+    document.querySelectorAll('.wizard-step').forEach((el) => {
+        const stepNum = parseInt(el.dataset.step);
         el.classList.remove('active', 'completed');
-        if (index + 1 < step) el.classList.add('completed');
-        if (index + 1 === step) el.classList.add('active');
+
+        if (creationMode === 'direct') {
+            // In direct mode, only steps 1 and 6 are visible
+            if (stepNum === 1) {
+                if (step > 1) el.classList.add('completed');
+                if (step === 1) el.classList.add('active');
+            } else if (stepNum === 6) {
+                if (step === 6) el.classList.add('active');
+            }
+        } else {
+            // Normal wizard mode
+            if (stepNum < step) el.classList.add('completed');
+            if (stepNum === step) el.classList.add('active');
+        }
     });
 
     // Update panels
@@ -572,9 +689,12 @@ function setStep(step) {
 }
 
 function updateNavButtons() {
-    document.getElementById('prev-btn').style.visibility = currentStep > 1 ? 'visible' : 'hidden';
-    document.getElementById('next-btn').style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
-    document.getElementById('submit-btn').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+    const isLastStep = currentStep === totalSteps;
+    const isFirstStep = currentStep === 1;
+
+    document.getElementById('prev-btn').style.visibility = isFirstStep ? 'hidden' : 'visible';
+    document.getElementById('next-btn').style.display = isLastStep ? 'none' : 'inline-flex';
+    document.getElementById('submit-btn').style.display = isLastStep ? 'inline-flex' : 'none';
 }
 
 // Criteria management
@@ -667,9 +787,7 @@ function loadTemplate(key) {
 }
 
 // Prompt generation
-async function generatePrompt() {
-    showLoading('Generation du prompt en cours...');
-
+async function generatePromptInternal() {
     const data = {
         persona_name: document.querySelector('[name="persona_name"]').value,
         persona_role: document.querySelector('[name="persona_role"]').value,
@@ -694,16 +812,26 @@ async function generatePrompt() {
         });
 
         const result = await response.json();
-        hideLoading();
 
         if (result.success) {
             document.getElementById('system_prompt').value = result.system_prompt;
+            return true;
         } else {
-            alert('Erreur: ' + result.error);
+            console.error('Erreur generation:', result.error);
+            return false;
         }
     } catch (error) {
-        hideLoading();
-        alert('Erreur de connexion: ' + error.message);
+        console.error('Erreur de connexion:', error.message);
+        return false;
+    }
+}
+
+async function generatePrompt() {
+    showLoading('Generation du prompt en cours...');
+    const success = await generatePromptInternal();
+    hideLoading();
+    if (!success) {
+        alert('Erreur lors de la generation du prompt');
     }
 }
 

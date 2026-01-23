@@ -28,6 +28,14 @@
     opacity: 0.7;
     margin-bottom: 0.25rem;
 }
+.message-content {
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+.message-content em {
+    font-style: italic;
+    opacity: 0.85;
+}
 .score-bar-container {
     display: flex;
     align-items: center;
@@ -232,7 +240,7 @@
                     {% endif %}
                     - {{ message.created_at.strftime('%H:%M') }}
                 </div>
-                <div class="message-content">{{ message.content }}</div>
+                <div class="message-content" data-raw="{{ message.content | e }}"></div>
             </div>
             {% endfor %}
         </div>
@@ -256,4 +264,29 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    formatExistingMessages();
+});
+
+function formatMessage(text) {
+    // Content is already HTML-escaped by Jinja's |e filter
+    // Convert *text* to <em>text</em> for actions/descriptions
+    let formatted = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    // Convert newlines to <br> for proper display
+    formatted = formatted.replace(/\n/g, '<br>');
+    return formatted;
+}
+
+function formatExistingMessages() {
+    document.querySelectorAll('.message-content[data-raw]').forEach(el => {
+        const rawContent = el.dataset.raw;
+        el.innerHTML = formatMessage(rawContent);
+        el.removeAttribute('data-raw');
+    });
+}
+</script>
 {% endblock %}

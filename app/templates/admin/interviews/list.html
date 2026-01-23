@@ -5,9 +5,14 @@
 {% block content %}
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <h1 class="mb-0">Entretiens</h1>
-    <a href="{{ url_for('interview.admin_create') }}" class="btn btn-primary">
-        <i class="iconoir-plus"></i> Nouvel entretien
-    </a>
+    <div class="flex gap-sm">
+        <a href="{{ url_for('interview.admin_import') }}" class="btn btn-secondary">
+            <i class="iconoir-upload"></i> Importer
+        </a>
+        <a href="{{ url_for('interview.admin_create') }}" class="btn btn-primary">
+            <i class="iconoir-plus"></i> Nouvel entretien
+        </a>
+    </div>
 </div>
 
 {% if interviews.items or search or filter_group_id %}
@@ -105,6 +110,9 @@
                 </a>
                 <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
                     <i class="iconoir-stats-report"></i>
+                </a>
+                <a href="{{ url_for('interview.admin_export', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter JSON">
+                    <i class="iconoir-download"></i>
                 </a>
                 <a href="{{ url_for('interview.admin_edit', interview_id=interview.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                     <i class="iconoir-edit-pencil"></i>

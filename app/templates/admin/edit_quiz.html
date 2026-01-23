@@ -59,7 +59,7 @@
                 <span class="text-light">/quiz/</span>
                 <input type="text" id="slug" name="slug" class="form-input input-lg"
                        value="{{ quiz.slug or '' }}" placeholder="mon-quiz"
-                       pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+                       pattern="[-a-z0-9]+" title="Lettres minuscules, chiffres et tirets uniquement">
             </div>
             <small class="help-text">Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID ({{ quiz.id }}).</small>
         </div>

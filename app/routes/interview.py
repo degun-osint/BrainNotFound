@@ -1073,3 +1073,187 @@ def get_templates():
     """Get criteria templates."""
     templates = get_criteria_templates()
     return jsonify(templates)
+
+
+# ============================================================================
+# Export / Import
+# ============================================================================
+
+@interview_bp.route('/admin/interviews/<int:interview_id>/export')
+@login_required
+@admin_required
+def admin_export(interview_id):
+    """Export interview configuration as JSON."""
+    from flask import Response
+
+    interview = Interview.query.get_or_404(interview_id)
+
+    # Build export data
+    export_data = {
+        'version': '1.0',
+        'export_type': 'interview',
+        'exported_at': datetime.now().isoformat(),
+
+        # Basic info
+        'title': interview.title,
+        'description': interview.description,
+        'slug': interview.slug,
+
+        # System prompt
+        'system_prompt': interview.system_prompt,
+
+        # Persona fields (for wizard re-editing)
+        'persona_name': interview.persona_name,
+        'persona_role': interview.persona_role,
+        'persona_context': interview.persona_context,
+        'persona_personality': interview.persona_personality,
+        'persona_knowledge': interview.persona_knowledge,
+        'persona_objectives': interview.persona_objectives,
+        'persona_triggers': interview.persona_triggers,
+        'student_context': interview.student_context,
+        'student_objective': interview.student_objective,
+
+        # Settings
+        'max_interactions': interview.max_interactions,
+        'max_duration_minutes': interview.max_duration_minutes,
+        'allow_student_end': interview.allow_student_end,
+        'ai_can_end': interview.ai_can_end,
+        'student_starts': interview.student_starts,
+        'opening_message': interview.opening_message,
+
+        # File upload
+        'require_file_upload': interview.require_file_upload,
+        'file_upload_label': interview.file_upload_label,
+        'file_upload_description': interview.file_upload_description,
+        'file_upload_prompt_injection': interview.file_upload_prompt_injection,
+
+        # Criteria
+        'criteria': [
+            {
+                'name': c.name,
+                'description': c.description,
+                'max_points': c.max_points,
+                'order': c.order,
+                'evaluation_hints': c.evaluation_hints
+            }
+            for c in interview.criteria
+        ]
+    }
+
+    # Generate filename
+    safe_title = ''.join(c if c.isalnum() or c in '-_' else '_' for c in interview.title[:30])
+    filename = f"entretien_{safe_title}_{datetime.now().strftime('%Y%m%d')}.json"
+
+    return Response(
+        json.dumps(export_data, ensure_ascii=False, indent=2),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
+
+@interview_bp.route('/admin/interviews/import', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_import():
+    """Import interview from JSON file."""
+    if request.method == 'GET':
+        return render_template('admin/interviews/import.html')
+
+    # Handle POST - file upload
+    if 'file' not in request.files:
+        flash('Aucun fichier selectionne.', 'error')
+        return redirect(url_for('interview.admin_import'))
+
+    file = request.files['file']
+    if file.filename == '':
+        flash('Aucun fichier selectionne.', 'error')
+        return redirect(url_for('interview.admin_import'))
+
+    if not file.filename.endswith('.json'):
+        flash('Le fichier doit etre au format JSON.', 'error')
+        return redirect(url_for('interview.admin_import'))
+
+    try:
+        # Parse JSON
+        data = json.load(file)
+
+        # Validate format
+        if data.get('export_type') != 'interview':
+            flash('Format de fichier invalide.', 'error')
+            return redirect(url_for('interview.admin_import'))
+
+        # Check if slug already exists
+        original_slug = data.get('slug')
+        slug = original_slug
+        if slug:
+            counter = 1
+            while Interview.query.filter_by(slug=slug).first():
+                slug = f"{original_slug}-{counter}"
+                counter += 1
+
+        # Create new interview
+        interview = Interview(
+            title=data.get('title', 'Entretien importe'),
+            description=data.get('description'),
+            slug=slug,
+            system_prompt=data.get('system_prompt', ''),
+
+            # Persona fields
+            persona_name=data.get('persona_name'),
+            persona_role=data.get('persona_role'),
+            persona_context=data.get('persona_context'),
+            persona_personality=data.get('persona_personality'),
+            persona_knowledge=data.get('persona_knowledge'),
+            persona_objectives=data.get('persona_objectives'),
+            persona_triggers=data.get('persona_triggers'),
+            student_context=data.get('student_context'),
+            student_objective=data.get('student_objective'),
+
+            # Settings
+            max_interactions=data.get('max_interactions', 30),
+            max_duration_minutes=data.get('max_duration_minutes', 30),
+            allow_student_end=data.get('allow_student_end', True),
+            ai_can_end=data.get('ai_can_end', True),
+            student_starts=data.get('student_starts', False),
+            opening_message=data.get('opening_message'),
+
+            # File upload
+            require_file_upload=data.get('require_file_upload', False),
+            file_upload_label=data.get('file_upload_label', 'Fichier'),
+            file_upload_description=data.get('file_upload_description'),
+            file_upload_prompt_injection=data.get('file_upload_prompt_injection'),
+
+            # Ownership
+            is_active=False,  # Imported interviews start inactive
+            tenant_id=get_tenant_context().id if get_tenant_context() else None,
+            created_by_id=current_user.id
+        )
+
+        db.session.add(interview)
+        db.session.flush()  # Get the interview ID
+
+        # Create criteria
+        for i, crit_data in enumerate(data.get('criteria', [])):
+            criterion = EvaluationCriterion(
+                interview_id=interview.id,
+                name=crit_data.get('name', f'Critere {i+1}'),
+                description=crit_data.get('description'),
+                max_points=crit_data.get('max_points', 5.0),
+                order=crit_data.get('order', i),
+                evaluation_hints=crit_data.get('evaluation_hints')
+            )
+            db.session.add(criterion)
+
+        db.session.commit()
+
+        flash(f'Entretien "{interview.title}" importe avec succes ! Il est inactif par defaut.', 'success')
+        return redirect(url_for('interview.admin_edit', interview_id=interview.id))
+
+    except json.JSONDecodeError:
+        flash('Erreur de lecture du fichier JSON.', 'error')
+        return redirect(url_for('interview.admin_import'))
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Import error: {str(e)}")
+        flash(f'Erreur lors de l\'import: {str(e)}', 'error')
+        return redirect(url_for('interview.admin_import'))
