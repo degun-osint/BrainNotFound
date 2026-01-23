@@ -111,7 +111,7 @@
                 <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
                     <i class="iconoir-stats-report"></i>
                 </a>
-                <a href="{{ url_for('interview.admin_export', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter JSON">
+                <a href="{{ url_for('interview.admin_export_json', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter JSON">
                     <i class="iconoir-download"></i>
                 </a>
                 <a href="{{ url_for('interview.admin_edit', interview_id=interview.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">

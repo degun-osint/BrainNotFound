@@ -1079,10 +1079,10 @@ def get_templates():
 # Export / Import
 # ============================================================================
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/export')
+@interview_bp.route('/admin/interviews/<int:interview_id>/export-json')
 @login_required
 @admin_required
-def admin_export(interview_id):
+def admin_export_json(interview_id):
     """Export interview configuration as JSON."""
     from flask import Response
 
