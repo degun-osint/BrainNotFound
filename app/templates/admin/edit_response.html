@@ -19,7 +19,7 @@
             ({{ "%.1f"|format((response.total_score / response.max_score * 100) if response.max_score > 0 else 0) }}%)
         </div>
         <div>
-            <strong>Soumis le:</strong> {{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}
+            <strong>Soumis le:</strong> {{ response.submitted_at|localtime }}
         </div>
     </div>
 </div>
@@ -111,7 +111,7 @@
         <button type="submit" class="btn btn-primary">
             <i class="iconoir-check"></i> Enregistrer
         </button>
-        <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary">
+        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
             <i class="iconoir-xmark"></i> Annuler
         </a>
     </div>

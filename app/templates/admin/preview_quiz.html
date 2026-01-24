@@ -11,10 +11,10 @@
         </p>
     </div>
     <div class="flex gap-sm">
-        <a href="{{ url_for('admin.test_quiz', quiz_id=quiz.id) }}" class="btn btn-small btn-primary">
+        <a href="{{ url_for('admin.test_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-primary">
             <i class="iconoir-play"></i> Tester le quiz
         </a>
-        <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-small btn-secondary-inverse">
+        <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-secondary-inverse">
             <i class="iconoir-edit-pencil"></i> Modifier
         </a>
         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-small btn-ghost">
@@ -27,7 +27,7 @@
 <div class="alert alert-info mb-2">
     <i class="iconoir-info-circle"></i>
     <span>Vous avez déjà testé ce quiz.
-        <a href="{{ url_for('quiz.result', response_id=existing_test.id) }}">Voir les résultats</a>
+        <a href="{{ url_for('quiz.result', identifier=existing_test.get_url_identifier()) }}">Voir les résultats</a>
         ou cliquez sur "Tester le quiz" pour recommencer.
     </span>
 </div>
@@ -57,8 +57,8 @@
         {% endif %}
         {% if quiz.available_from or quiz.available_until %}
         <li>Disponibilite :
-            {% if quiz.available_from %}du {{ quiz.available_from.strftime('%d/%m/%Y %H:%M') }}{% endif %}
-            {% if quiz.available_until %}jusqu'au {{ quiz.available_until.strftime('%d/%m/%Y %H:%M') }}{% endif %}
+            {% if quiz.available_from %}du {{ quiz.available_from|localtime }}{% endif %}
+            {% if quiz.available_until %}jusqu'au {{ quiz.available_until|localtime }}{% endif %}
         </li>
         {% endif %}
         {% if quiz.groups.count() > 0 %}
@@ -121,10 +121,10 @@
 {% endfor %}
 
 <div class="actions border-t pt-2 mt-2">
-    <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">
+    <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
         <i class="iconoir-edit-pencil"></i> Modifier le quiz
     </a>
-    <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-stats-report"></i> Voir les resultats
     </a>
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">

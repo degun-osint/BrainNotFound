@@ -29,3 +29,6 @@ Flask-Limiter==4.1.1
 
 # Scheduled tasks (backups)
 APScheduler==3.10.4
+
+# URL-friendly unique identifiers
+coolname==2.2.0

@@ -35,13 +35,13 @@
                     {% endif %}
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
+                    <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
                         <i class="iconoir-eye"></i>
                     </a>
-                    <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
                         <i class="iconoir-stats-report"></i>
                     </a>
-                    <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
                 </div>
@@ -56,7 +56,7 @@
 </div>
 
 <div class="mt-2">
-    <a href="{{ url_for('tenant.view_tenant', tenant_id=tenant.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> Retour au tenant
     </a>
 </div>

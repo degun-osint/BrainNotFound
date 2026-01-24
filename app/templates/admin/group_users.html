@@ -38,7 +38,7 @@
                 {% for user in users %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('admin.user_grades', user_id=user.id) }}" class="link-primary font-medium">
+                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
                             {{ user.full_name }}
                         </a>
                     </td>

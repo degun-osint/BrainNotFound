@@ -224,7 +224,7 @@
         {% for message in messages %}
         <div class="message message-{{ message.role }}">
             <div class="message-content" data-raw="{{ message.content | e }}"></div>
-            <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+            <div class="message-time">{{ message.created_at|localtime_short }}</div>
         </div>
         {% endfor %}
 
@@ -417,7 +417,7 @@ async function endInterview() {
     }
 
     try {
-        const response = await fetch('{{ url_for("interview.end_interview", session_id=session.id) }}', {
+        const response = await fetch('{{ url_for("interview.end_interview", session_identifier=session.get_url_identifier()) }}', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token() }}'
@@ -463,7 +463,7 @@ function showEndMessage(reason, message) {
         <div class="end-icon"><i class="iconoir-check-circle"></i></div>
         <h3>Entretien termine</h3>
         <p>${escapeHtml(message || 'L\'entretien est maintenant termine.')}</p>
-        <a href="{{ url_for('interview.evaluating', session_id=session.id) }}" class="btn btn-primary">
+        <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
             <i class="iconoir-arrow-right"></i> Passer a l'analyse et la correction
         </a>
     `;

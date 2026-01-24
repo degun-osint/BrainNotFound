@@ -37,7 +37,7 @@
             <button type="submit" class="btn btn-primary">
                 <i class="iconoir-plus"></i> Creer le groupe
             </button>
-            <a href="{{ url_for('tenant.tenant_groups', tenant_id=tenant.id) }}" class="btn btn-secondary">
+            <a href="{{ url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
                 <i class="iconoir-xmark"></i> Annuler
             </a>
         </div>

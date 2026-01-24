@@ -91,7 +91,7 @@
     {% if is_test %}
     <div class="flex justify-between items-center mb-1">
         <span class="badge badge-warning"><i class="iconoir-flask"></i> Mode test</span>
-        <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small">
+        <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small">
             <i class="iconoir-arrow-left"></i> Retour
         </a>
     </div>
@@ -128,7 +128,7 @@
             {% endif %}
 
             <form method="POST" enctype="multipart/form-data" id="upload-form"
-                  action="{{ url_for('interview.admin_test', interview_id=interview.id) if is_test else url_for('interview.start', interview_id=interview.id) }}">
+                  action="{{ url_for('interview.admin_test', identifier=interview.get_url_identifier()) if is_test else url_for('interview.start', identifier=interview.get_url_identifier()) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div class="file-upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">

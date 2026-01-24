@@ -406,7 +406,7 @@
     {% for student in stats.students %}
     <div class="student-row">
         <span>
-            <a href="{{ url_for('admin.response_analysis', response_id=student.id) }}" class="link-primary">
+            <a href="{{ url_for('admin.response_analysis', identifier=student.uid) }}" class="link-primary">
                 {{ student.name }}
             </a>
         </span>
@@ -438,7 +438,7 @@
 </div>
 
 <div class="mt-2 flex gap-md">
-    <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> Retour aux resultats
     </a>
 </div>

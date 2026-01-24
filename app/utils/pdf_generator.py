@@ -9,6 +9,7 @@ from reportlab.lib.units import cm, mm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from datetime import datetime
+from app.utils import format_datetime, format_time
 
 
 def generate_interview_pdf(session, interview):
@@ -84,7 +85,7 @@ def generate_interview_pdf(session, interview):
     # Header info
     info_text = f"""
     <b>Candidat:</b> {session.user.full_name} ({session.user.email})<br/>
-    <b>Date:</b> {session.started_at.strftime('%d/%m/%Y a %H:%M')}<br/>
+    <b>Date:</b> {format_datetime(session.started_at)}<br/>
     <b>Duree:</b> {session.get_duration_minutes()} minutes
     """
     if interview.persona_name:
@@ -204,7 +205,7 @@ def generate_interview_pdf(session, interview):
     persona_name = interview.persona_name or 'Personnage'
 
     for message in session.messages:
-        time_str = message.created_at.strftime('%H:%M')
+        time_str = format_time(message.created_at)
         content = message.content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br/>')
 
         if message.role == 'user':

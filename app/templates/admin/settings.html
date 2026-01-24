@@ -155,7 +155,7 @@
             {% if next_backup %}
             <div class="alert alert-info">
                 <i class="iconoir-clock"></i>
-                Prochaine sauvegarde prevue : <strong>{{ next_backup.strftime('%d/%m/%Y a %H:%M') }}</strong>
+                Prochaine sauvegarde prevue : <strong>{{ next_backup|localtime }}</strong>
             </div>
             {% endif %}
         </div>
@@ -171,7 +171,7 @@
             <div class="grid grid-cols-3 gap-md">
                 <div>
                     <span class="text-light">Date</span><br>
-                    <strong>{{ settings.last_backup_at.strftime('%d/%m/%Y %H:%M') }}</strong>
+                    <strong>{{ settings.last_backup_at|localtime }}</strong>
                 </div>
                 <div>
                     <span class="text-light">Statut</span><br>

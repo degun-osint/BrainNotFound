@@ -11,6 +11,8 @@ This module provides models for:
 
 from app import db
 from datetime import datetime
+from sqlalchemy import event
+from app.models.mixins import UIDMixin, init_uid_on_create
 
 # Association table for Interview-Group many-to-many relationship
 interview_groups = db.Table('interview_groups',
@@ -20,11 +22,12 @@ interview_groups = db.Table('interview_groups',
 )
 
 
-class Interview(db.Model):
+class Interview(UIDMixin, db.Model):
     """Interview template configured by admin - defines the AI persona and evaluation criteria."""
     __tablename__ = 'interviews'
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     slug = db.Column(db.String(100), unique=True, nullable=True, index=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
@@ -109,8 +112,12 @@ class Interview(db.Model):
         return self.is_active
 
     def get_url_identifier(self):
-        """Get the URL identifier (slug if available, otherwise id)."""
-        return self.slug if self.slug else str(self.id)
+        """Get the URL identifier (slug if available, then uid, finally id)."""
+        if self.slug:
+            return self.slug
+        if self.uid:
+            return self.uid
+        return str(self.id)
 
     def get_max_score(self):
         """Calculate maximum possible score from all criteria."""
@@ -139,7 +146,7 @@ class EvaluationCriterion(db.Model):
         return f'<EvaluationCriterion {self.name} ({self.max_points}pts)>'
 
 
-class InterviewSession(db.Model):
+class InterviewSession(UIDMixin, db.Model):
     """A student's interview attempt - tracks state and enables resumption."""
     __tablename__ = 'interview_sessions'
 
@@ -154,6 +161,7 @@ class InterviewSession(db.Model):
     STATUS_ERROR = 'error'
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     interview_id = db.Column(db.Integer, db.ForeignKey('interviews.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -225,6 +233,10 @@ class InterviewSession(db.Model):
             return False
         return True
 
+    def get_url_identifier(self):
+        """Get the URL identifier (uid)."""
+        return self.uid if self.uid else str(self.id)
+
 
 class InterviewMessage(db.Model):
     """Individual message in an interview conversation."""
@@ -278,3 +290,8 @@ class CriterionScore(db.Model):
         if self.max_score == 0:
             return 0
         return round((self.score / self.max_score) * 100, 1)
+
+
+# Register event listeners for auto-generating UIDs
+event.listen(Interview, 'before_insert', init_uid_on_create)
+event.listen(InterviewSession, 'before_insert', init_uid_on_create)

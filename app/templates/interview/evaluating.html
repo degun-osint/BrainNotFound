@@ -132,7 +132,7 @@ function initWebSocket() {
 
         // Redirect to results
         setTimeout(function() {
-            window.location.href = '{{ url_for("interview.result", session_id=session.id) }}';
+            window.location.href = '{{ url_for("interview.result", session_identifier=session.get_url_identifier()) }}';
         }, 1500);
     });
 
@@ -155,11 +155,11 @@ function addCriterionResult(name, score, maxScore) {
 
 function checkStatus() {
     // Fallback polling in case WebSocket disconnects
-    fetch('{{ url_for("interview.result", session_id=session.id) }}', {
+    fetch('{{ url_for("interview.result", session_identifier=session.get_url_identifier()) }}', {
         method: 'HEAD'
     }).then(response => {
         if (response.ok) {
-            window.location.href = '{{ url_for("interview.result", session_id=session.id) }}';
+            window.location.href = '{{ url_for("interview.result", session_identifier=session.get_url_identifier()) }}';
         } else {
             setTimeout(checkStatus, 3000);
         }

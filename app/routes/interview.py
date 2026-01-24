@@ -63,14 +63,6 @@ def inject_tenant_context():
 # Helper Functions
 # ============================================================================
 
-def get_interview_by_identifier(identifier):
-    """Get an interview by ID or slug."""
-    try:
-        interview_id = int(identifier)
-        return Interview.query.get(interview_id)
-    except (ValueError, TypeError):
-        pass
-    return Interview.query.filter_by(slug=identifier).first()
 
 
 def admin_required(f):
@@ -173,19 +165,28 @@ def interview_list():
 @interview_bp.route('/<identifier>')
 @login_required
 def interview_by_slug(identifier):
-    """Access an interview by slug or ID."""
-    interview = get_interview_by_identifier(identifier)
+    """Access an interview by uid, slug, or ID."""
+    interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash('Entretien introuvable', 'error')
         return redirect(url_for('interview.interview_list'))
-    return redirect(url_for('interview.start', interview_id=interview.id))
+    return redirect(url_for('interview.start', identifier=interview.get_url_identifier()))
 
 
-@interview_bp.route('/<int:interview_id>/start', methods=['GET', 'POST'])
+@interview_bp.route('/<identifier>/start', methods=['GET', 'POST'])
 @login_required
-def start(interview_id):
+def start(identifier):
     """Start or resume an interview session."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.interview_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != interview.get_url_identifier():
+        return redirect(url_for('interview.start', identifier=interview.get_url_identifier()), code=301)
+
+    interview_id = interview.id  # Keep for queries
 
     # Check availability
     if not interview.is_open():
@@ -206,14 +207,14 @@ def start(interview_id):
     if existing_session:
         if existing_session.status == InterviewSession.STATUS_IN_PROGRESS:
             # Resume existing session
-            return redirect(url_for('interview.chat', session_id=existing_session.id))
+            return redirect(url_for('interview.chat', identifier=existing_session.get_url_identifier()))
         elif existing_session.status == InterviewSession.STATUS_COMPLETED:
             # Already completed
             flash('Vous avez deja complete cet entretien', 'info')
-            return redirect(url_for('interview.result', session_id=existing_session.id))
+            return redirect(url_for('interview.result', identifier=existing_session.get_url_identifier()))
         elif existing_session.status == InterviewSession.STATUS_EVALUATING:
             # Still evaluating
-            return redirect(url_for('interview.evaluating', session_id=existing_session.id))
+            return redirect(url_for('interview.evaluating', identifier=existing_session.get_url_identifier()))
 
     # Check tenant quota for new sessions
     if interview.tenant_id:
@@ -250,14 +251,14 @@ def start(interview_id):
                 file_name=uploaded_file.filename,
                 file_content=file_content
             )
-            return redirect(url_for('interview.chat', session_id=session.id))
+            return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
         # GET - show start page
         return render_template('interview/start.html', interview=interview)
 
     # No file required - create session directly
     session = create_interview_session(interview=interview, user=current_user)
-    return redirect(url_for('interview.chat', session_id=session.id))
+    return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
 
 def extract_file_content(uploaded_file):
@@ -337,11 +338,18 @@ def create_interview_session(interview, user, file_name=None, file_content=None,
     return session
 
 
-@interview_bp.route('/session/<int:session_id>/chat')
+@interview_bp.route('/session/<identifier>/chat')
 @login_required
-def chat(session_id):
+def chat(identifier):
     """Chat interface for an interview session."""
-    session = InterviewSession.query.get_or_404(session_id)
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        flash('Session introuvable', 'error')
+        return redirect(url_for('interview.interview_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != session.get_url_identifier():
+        return redirect(url_for('interview.chat', identifier=session.get_url_identifier()), code=301)
 
     # Verify ownership
     if session.user_id != current_user.id and not current_user.is_any_admin:
@@ -350,9 +358,9 @@ def chat(session_id):
 
     # Check session status
     if session.status == InterviewSession.STATUS_COMPLETED:
-        return redirect(url_for('interview.result', session_id=session_id))
+        return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
     elif session.status == InterviewSession.STATUS_EVALUATING:
-        return redirect(url_for('interview.evaluating', session_id=session_id))
+        return redirect(url_for('interview.evaluating', identifier=session.get_url_identifier()))
 
     interview = session.interview
 
@@ -364,11 +372,13 @@ def chat(session_id):
     )
 
 
-@interview_bp.route('/session/<int:session_id>/end', methods=['POST'])
+@interview_bp.route('/session/<identifier>/end', methods=['POST'])
 @login_required
-def end_interview(session_id):
+def end_interview(identifier):
     """End an interview session manually."""
-    session = InterviewSession.query.get_or_404(session_id)
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        return jsonify({'error': 'Session introuvable'}), 404
 
     if session.user_id != current_user.id:
         return jsonify({'error': 'Acces non autorise'}), 403
@@ -391,21 +401,28 @@ def end_interview(session_id):
         session.id
     )
 
-    return jsonify({'success': True, 'redirect': url_for('interview.evaluating', session_id=session_id)})
+    return jsonify({'success': True, 'redirect': url_for('interview.evaluating', identifier=session.get_url_identifier())})
 
 
-@interview_bp.route('/session/<int:session_id>/evaluating')
+@interview_bp.route('/session/<identifier>/evaluating')
 @login_required
-def evaluating(session_id):
+def evaluating(identifier):
     """Show evaluation progress page."""
-    session = InterviewSession.query.get_or_404(session_id)
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        flash('Session introuvable', 'error')
+        return redirect(url_for('interview.interview_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != session.get_url_identifier():
+        return redirect(url_for('interview.evaluating', identifier=session.get_url_identifier()), code=301)
 
     if session.user_id != current_user.id and not current_user.is_any_admin:
         flash('Acces non autorise', 'error')
         return redirect(url_for('interview.interview_list'))
 
     if session.status == InterviewSession.STATUS_COMPLETED:
-        return redirect(url_for('interview.result', session_id=session_id))
+        return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
 
     return render_template(
         'interview/evaluating.html',
@@ -413,11 +430,18 @@ def evaluating(session_id):
     )
 
 
-@interview_bp.route('/session/<int:session_id>/result')
+@interview_bp.route('/session/<identifier>/result')
 @login_required
-def result(session_id):
+def result(identifier):
     """Show interview results."""
-    session = InterviewSession.query.get_or_404(session_id)
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        flash('Session introuvable', 'error')
+        return redirect(url_for('interview.interview_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != session.get_url_identifier():
+        return redirect(url_for('interview.result', identifier=session.get_url_identifier()), code=301)
 
     if session.user_id != current_user.id and not current_user.is_any_admin:
         flash('Acces non autorise', 'error')
@@ -425,7 +449,7 @@ def result(session_id):
 
     # Make sure session is complete
     if session.status not in [InterviewSession.STATUS_COMPLETED, InterviewSession.STATUS_ERROR]:
-        return redirect(url_for('interview.chat', session_id=session_id))
+        return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
     return render_template(
         'interview/result.html',
@@ -434,11 +458,18 @@ def result(session_id):
     )
 
 
-@interview_bp.route('/session/<int:session_id>/pdf')
+@interview_bp.route('/session/<identifier>/pdf')
 @login_required
-def result_pdf(session_id):
+def result_pdf(identifier):
     """Export interview results as PDF for student."""
-    session = InterviewSession.query.get_or_404(session_id)
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        flash('Session introuvable', 'error')
+        return redirect(url_for('interview.interview_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != session.get_url_identifier():
+        return redirect(url_for('interview.result_pdf', identifier=session.get_url_identifier()), code=301)
 
     # Check access
     if session.user_id != current_user.id and not current_user.is_any_admin:
@@ -448,7 +479,7 @@ def result_pdf(session_id):
     # Make sure session is complete
     if session.status != InterviewSession.STATUS_COMPLETED:
         flash('Entretien non termine', 'error')
-        return redirect(url_for('interview.result', session_id=session_id))
+        return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
 
     interview = session.interview
 
@@ -469,7 +500,7 @@ def result_pdf(session_id):
     except Exception as e:
         current_app.logger.error(f"PDF generation error: {e}")
         flash('Erreur lors de la generation du PDF', 'error')
-        return redirect(url_for('interview.result', session_id=session_id))
+        return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
 
 
 # ============================================================================
@@ -656,12 +687,19 @@ def admin_create():
     )
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>')
+@interview_bp.route('/admin/interviews/<identifier>')
 @login_required
 @admin_required
-def admin_view(interview_id):
+def admin_view(identifier):
     """View interview details and sessions."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != interview.get_url_identifier():
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()), code=301)
 
     # Get sessions statistics
     sessions = interview.sessions.all()
@@ -687,12 +725,21 @@ def admin_view(interview_id):
     )
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/edit', methods=['GET', 'POST'])
+@interview_bp.route('/admin/interviews/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_edit(interview_id):
+def admin_edit(identifier):
     """Edit an interview."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != interview.get_url_identifier():
+        return redirect(url_for('interview.admin_edit', identifier=interview.get_url_identifier()), code=301)
+
+    interview_id = interview.id  # Keep for queries
 
     # Check if there are completed sessions (non-test) - criteria cannot be edited
     has_results = InterviewSession.query.filter(
@@ -736,7 +783,7 @@ def admin_edit(interview_id):
             existing = Interview.query.filter_by(slug=new_slug).first()
             if existing and existing.id != interview.id:
                 flash('Ce slug est deja utilise', 'error')
-                return redirect(url_for('interview.admin_edit', interview_id=interview_id))
+                return redirect(url_for('interview.admin_edit', identifier=interview.get_url_identifier()))
         interview.slug = new_slug
 
         # Update dates
@@ -782,7 +829,7 @@ def admin_edit(interview_id):
 
         db.session.commit()
         flash('Entretien mis a jour', 'success')
-        return redirect(url_for('interview.admin_view', interview_id=interview_id))
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     # GET request
     groups_by_tenant = get_groups_by_tenant()
@@ -810,28 +857,43 @@ def admin_edit(interview_id):
     )
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/delete', methods=['POST'])
+@interview_bp.route('/admin/interviews/<identifier>/delete', methods=['POST'])
 @login_required
 @admin_required
-def admin_delete(interview_id):
+def admin_delete(identifier):
     """Delete an interview."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
     db.session.delete(interview)
     db.session.commit()
     flash('Entretien supprime', 'success')
     return redirect(url_for('interview.admin_list'))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/session/<int:session_id>')
+@interview_bp.route('/admin/interviews/<identifier>/session/<session_identifier>')
 @login_required
 @admin_required
-def admin_session(interview_id, session_id):
+def admin_session(identifier, session_identifier):
     """View a specific session transcript."""
-    session = InterviewSession.query.get_or_404(session_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
 
-    if session.interview_id != interview_id:
+    session = InterviewSession.get_by_identifier(session_identifier)
+    if not session:
         flash('Session non trouvee', 'error')
-        return redirect(url_for('interview.admin_view', interview_id=interview_id))
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    if session.interview_id != interview.id:
+        flash('Session non trouvee', 'error')
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != interview.get_url_identifier() or session_identifier != session.get_url_identifier():
+        return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()), code=301)
 
     return render_template(
         'admin/interviews/session.html',
@@ -840,14 +902,20 @@ def admin_session(interview_id, session_id):
     )
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/session/<int:session_id>/comment', methods=['POST'])
+@interview_bp.route('/admin/interviews/<identifier>/session/<session_identifier>/comment', methods=['POST'])
 @login_required
 @admin_required
-def admin_add_comment(interview_id, session_id):
+def admin_add_comment(identifier, session_identifier):
     """Add admin comment to a session."""
-    session = InterviewSession.query.get_or_404(session_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        return jsonify({'error': 'Entretien non trouve'}), 404
 
-    if session.interview_id != interview_id:
+    session = InterviewSession.get_by_identifier(session_identifier)
+    if not session:
+        return jsonify({'error': 'Session non trouvee'}), 404
+
+    if session.interview_id != interview.id:
         return jsonify({'error': 'Session non trouvee'}), 404
 
     comment = request.form.get('comment', '').strip()
@@ -855,19 +923,27 @@ def admin_add_comment(interview_id, session_id):
     db.session.commit()
 
     flash('Commentaire enregistre', 'success')
-    return redirect(url_for('interview.admin_session', interview_id=interview_id, session_id=session_id))
+    return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/session/<int:session_id>/pdf')
+@interview_bp.route('/admin/interviews/<identifier>/session/<session_identifier>/pdf')
 @login_required
 @admin_required
-def admin_session_pdf(interview_id, session_id):
+def admin_session_pdf(identifier, session_identifier):
     """Export session results as PDF."""
-    session = InterviewSession.query.get_or_404(session_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
 
-    if session.interview_id != interview_id:
+    session = InterviewSession.get_by_identifier(session_identifier)
+    if not session:
         flash('Session non trouvee', 'error')
-        return redirect(url_for('interview.admin_view', interview_id=interview_id))
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    if session.interview_id != interview.id:
+        flash('Session non trouvee', 'error')
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     interview = session.interview
 
@@ -888,19 +964,26 @@ def admin_session_pdf(interview_id, session_id):
     except Exception as e:
         current_app.logger.error(f"PDF generation error: {e}")
         flash('Erreur lors de la generation du PDF', 'error')
-        return redirect(url_for('interview.admin_session', interview_id=interview_id, session_id=session_id))
+        return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/test', methods=['GET', 'POST'])
+@interview_bp.route('/admin/interviews/<identifier>/test', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_test(interview_id):
+def admin_test(identifier):
     """Start a test session for admin preview."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != interview.get_url_identifier():
+        return redirect(url_for('interview.admin_test', identifier=interview.get_url_identifier()), code=301)
 
     # Delete any existing test session for this admin
     existing_test = InterviewSession.query.filter_by(
-        interview_id=interview_id,
+        interview_id=interview.id,
         user_id=current_user.id,
         is_test=True
     ).first()
@@ -937,7 +1020,7 @@ def admin_test(interview_id):
                 is_test=True
             )
             flash('Session de test demarree', 'info')
-            return redirect(url_for('interview.chat', session_id=session.id))
+            return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
         # GET - show start page for file upload
         return render_template('interview/start.html', interview=interview, is_test=True)
@@ -945,48 +1028,62 @@ def admin_test(interview_id):
     # No file required - create test session directly
     session = create_interview_session(interview=interview, user=current_user, is_test=True)
     flash('Session de test demarree', 'info')
-    return redirect(url_for('interview.chat', session_id=session.id))
+    return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/toggle', methods=['POST'])
+@interview_bp.route('/admin/interviews/<identifier>/toggle', methods=['POST'])
 @login_required
 @admin_required
-def admin_toggle(interview_id):
+def admin_toggle(identifier):
     """Toggle interview active status."""
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
     interview.is_active = not interview.is_active
     db.session.commit()
     flash(f'Entretien {"active" if interview.is_active else "desactive"}', 'success')
     return redirect(url_for('interview.admin_list'))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/session/<int:session_id>/delete', methods=['POST'])
+@interview_bp.route('/admin/interviews/<identifier>/session/<session_identifier>/delete', methods=['POST'])
 @login_required
 @admin_required
-def admin_delete_session(interview_id, session_id):
+def admin_delete_session(identifier, session_identifier):
     """Delete a session."""
-    session = InterviewSession.query.get_or_404(session_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
 
-    if session.interview_id != interview_id:
+    session = InterviewSession.get_by_identifier(session_identifier)
+    if not session:
         flash('Session non trouvee', 'error')
-        return redirect(url_for('interview.admin_view', interview_id=interview_id))
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    if session.interview_id != interview.id:
+        flash('Session non trouvee', 'error')
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     db.session.delete(session)
     db.session.commit()
     flash('Session supprimee', 'success')
-    return redirect(url_for('interview.admin_view', interview_id=interview_id))
+    return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/export')
+@interview_bp.route('/admin/interviews/<identifier>/export')
 @login_required
 @admin_required
-def admin_export(interview_id):
+def admin_export(identifier):
     """Export interview results as CSV."""
     from flask import Response
     import csv
     from io import StringIO
 
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
     sessions = interview.sessions.filter(InterviewSession.is_test == False).all()
 
     output = StringIO()
@@ -1079,14 +1176,17 @@ def get_templates():
 # Export / Import
 # ============================================================================
 
-@interview_bp.route('/admin/interviews/<int:interview_id>/export-json')
+@interview_bp.route('/admin/interviews/<identifier>/export-json')
 @login_required
 @admin_required
-def admin_export_json(interview_id):
+def admin_export_json(identifier):
     """Export interview configuration as JSON."""
     from flask import Response
 
-    interview = Interview.query.get_or_404(interview_id)
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash('Entretien introuvable', 'error')
+        return redirect(url_for('interview.admin_list'))
 
     # Build export data
     export_data = {
@@ -1247,7 +1347,7 @@ def admin_import():
         db.session.commit()
 
         flash(f'Entretien "{interview.title}" importe avec succes ! Il est inactif par defaut.', 'success')
-        return redirect(url_for('interview.admin_edit', interview_id=interview.id))
+        return redirect(url_for('interview.admin_edit', identifier=interview.get_url_identifier()))
 
     except json.JSONDecodeError:
         flash('Erreur de lecture du fichier JSON.', 'error')

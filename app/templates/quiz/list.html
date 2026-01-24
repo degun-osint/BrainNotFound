@@ -127,11 +127,11 @@
                     <span class="font-mono font-bold">
                         {{ "%.1f"|format(response.total_score) }}/{{ "%.1f"|format(response.max_score) }}
                     </span>
-                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small">
+                    <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-primary btn-small">
                         <i class="iconoir-eye"></i> Voir
                     </a>
                 {% else %}
-                    <a href="{{ url_for('quiz.take', quiz_id=quiz.id) }}" class="btn btn-primary btn-small">
+                    <a href="{{ url_for('quiz.take', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small">
                         <i class="iconoir-play"></i> Commencer
                     </a>
                 {% endif %}

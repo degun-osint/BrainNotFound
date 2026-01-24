@@ -47,21 +47,21 @@
                     {% if session.status == 'completed' %}
                     <div class="flex gap-md items-center">
                         <span class="badge badge-success">Complete - {{ "%.0f"|format(session.get_score_percentage()) }}%</span>
-                        <a href="{{ url_for('interview.result', session_id=session.id) }}" class="btn btn-secondary">
+                        <a href="{{ url_for('interview.result', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
                             Voir les resultats
                         </a>
                     </div>
                     {% elif session.status == 'in_progress' %}
-                    <a href="{{ url_for('interview.chat', session_id=session.id) }}" class="btn btn-primary">
+                    <a href="{{ url_for('interview.chat', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
                         <i class="iconoir-play"></i> Reprendre
                     </a>
                     {% elif session.status == 'evaluating' %}
-                    <a href="{{ url_for('interview.evaluating', session_id=session.id) }}" class="btn btn-secondary">
+                    <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
                         <i class="iconoir-refresh rotating"></i> Evaluation en cours...
                     </a>
                     {% endif %}
                 {% else %}
-                <a href="{{ url_for('interview.start', interview_id=interview.id) }}" class="btn btn-primary">
+                <a href="{{ url_for('interview.start', identifier=interview.get_url_identifier()) }}" class="btn btn-primary">
                     <i class="iconoir-play"></i> Commencer
                 </a>
                 {% endif %}

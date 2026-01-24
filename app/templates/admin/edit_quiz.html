@@ -13,7 +13,7 @@
         <button type="button" class="btn btn-secondary btn-small" onclick="copyQuizLink()" data-tooltip="Copier dans le presse-papier">
             <i class="iconoir-copy"></i> Copier
         </button>
-        <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small" data-tooltip="Voir le quiz">
+        <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="Voir le quiz">
             <i class="iconoir-eye"></i> Preview
         </a>
     </div>
@@ -59,7 +59,7 @@
                 <span class="text-light">/quiz/</span>
                 <input type="text" id="slug" name="slug" class="form-input input-lg"
                        value="{{ quiz.slug or '' }}" placeholder="mon-quiz"
-                       pattern="[-a-z0-9]+" title="Lettres minuscules, chiffres et tirets uniquement">
+                       pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement">
             </div>
             <small class="help-text">Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID ({{ quiz.id }}).</small>
         </div>

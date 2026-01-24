@@ -59,11 +59,11 @@
         {% for session in recent_interviews %}
         <div class="activity-item flex justify-between items-center gap-sm">
             <div class="flex-1">
-                <a href="{{ url_for('admin.user_grades', user_id=session.user.id) }}" class="font-medium link-primary">
+                <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="font-medium link-primary">
                     {{ session.user.full_name }}
                 </a>
                 a passe
-                <a href="{{ url_for('interview.admin_session', interview_id=session.interview.id, session_id=session.id) }}" class="link-primary">
+                <a href="{{ url_for('interview.admin_session', identifier=session.interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="link-primary">
                     {{ session.interview.title|truncate(30) }}
                 </a>
             </div>
@@ -78,7 +78,7 @@
                 {% elif session.status == 'evaluating' %}
                 <span class="badge badge-info">Evaluation</span>
                 {% endif %}
-                <span class="text-light text-sm">{{ session.started_at.strftime('%d/%m %H:%M') }}</span>
+                <span class="text-light text-sm">{{ session.started_at|localtime_short }}</span>
             </div>
         </div>
         {% endfor %}
@@ -120,11 +120,11 @@
         {% for response in recent_responses %}
         <div class="activity-item flex justify-between items-center gap-sm">
             <div class="flex-1">
-                <a href="{{ url_for('admin.user_grades', user_id=response.user.id) }}" class="font-medium link-primary">
+                <a href="{{ url_for('admin.user_grades', identifier=response.user.get_url_identifier()) }}" class="font-medium link-primary">
                     {{ response.user.full_name }}
                 </a>
                 a soumis
-                <a href="{{ url_for('admin.quiz_results', quiz_id=response.quiz.id) }}" class="link-primary">
+                <a href="{{ url_for('admin.quiz_results', identifier=response.quiz.get_url_identifier()) }}" class="link-primary">
                     {{ response.quiz.title|truncate(30) }}
                 </a>
             </div>
@@ -133,7 +133,7 @@
                 <span class="badge {% if percentage >= 80 %}badge-success{% elif percentage >= 50 %}badge-warning{% else %}badge-error{% endif %}">
                     {{ "%.0f"|format(percentage) }}%
                 </span>
-                <span class="text-light text-sm">{{ response.submitted_at.strftime('%d/%m %H:%M') }}</span>
+                <span class="text-light text-sm">{{ response.submitted_at|localtime_short }}</span>
             </div>
         </div>
         {% endfor %}

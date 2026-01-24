@@ -31,6 +31,27 @@ class Page(db.Model):
     def __repr__(self):
         return f'<Page {self.title}>'
 
+    @classmethod
+    def get_by_identifier(cls, identifier):
+        """Get page by slug or numeric ID."""
+        if not identifier:
+            return None
+        identifier_str = str(identifier)
+        # Try by slug first
+        page = cls.query.filter_by(slug=identifier_str).first()
+        if page:
+            return page
+        # Fall back to numeric ID
+        try:
+            page_id = int(identifier_str)
+            return cls.query.get(page_id)
+        except (ValueError, TypeError):
+            return None
+
+    def get_url_identifier(self):
+        """Get the preferred identifier for URLs."""
+        return self.slug
+
     @staticmethod
     def get_menu_pages():
         """Get all published pages for menu display."""

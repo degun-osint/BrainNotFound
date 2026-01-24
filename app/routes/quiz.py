@@ -11,18 +11,6 @@ from app.models.interview import InterviewSession
 
 quiz_bp = Blueprint('quiz', __name__)
 
-
-def get_quiz_by_identifier(identifier):
-    """Get a quiz by ID or slug."""
-    # Try as integer ID first
-    try:
-        quiz_id = int(identifier)
-        return Quiz.query.get(quiz_id)
-    except (ValueError, TypeError):
-        pass
-    # Try as slug
-    return Quiz.query.filter_by(slug=identifier).first()
-
 @quiz_bp.route('/dashboard')
 @login_required
 def dashboard():
@@ -79,7 +67,7 @@ def dashboard():
             'max_score': r.max_score,
             'percentage': pct,
             'date': r.submitted_at,
-            'url': url_for('quiz.result', response_id=r.id)
+            'url': url_for('quiz.result', identifier=r.get_url_identifier())
         })
 
     for s in completed_interviews[:10]:
@@ -90,7 +78,7 @@ def dashboard():
             'max_score': s.max_score,
             'percentage': s.get_score_percentage(),
             'date': s.ended_at or s.started_at,
-            'url': url_for('interview.result', session_id=s.id)
+            'url': url_for('interview.result', identifier=s.get_url_identifier())
         })
 
     # Sort by date and take last 5
@@ -265,18 +253,27 @@ def quiz_list():
 @quiz_bp.route('/<identifier>')
 @login_required
 def quiz_by_slug(identifier):
-    """Access a quiz by its slug or ID - redirects to take."""
-    quiz = get_quiz_by_identifier(identifier)
+    """Access a quiz by its uid, slug, or ID - redirects to take."""
+    quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
         flash('Quiz introuvable', 'error')
         return redirect(url_for('quiz.quiz_list'))
-    return redirect(url_for('quiz.take', quiz_id=quiz.id))
+    return redirect(url_for('quiz.take', identifier=quiz.get_url_identifier()))
 
 
-@quiz_bp.route('/<int:quiz_id>/take', methods=['GET', 'POST'])
+@quiz_bp.route('/<identifier>/take', methods=['GET', 'POST'])
 @login_required
-def take(quiz_id):
-    quiz = Quiz.query.get_or_404(quiz_id)
+def take(identifier):
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('quiz.quiz_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('quiz.take', identifier=quiz.get_url_identifier()), code=301)
+
+    quiz_id = quiz.id  # Keep for session keys compatibility
     now = datetime.now()
 
     if not quiz.is_active:
@@ -305,7 +302,7 @@ def take(quiz_id):
 
     if existing_response:
         flash('Vous avez déjà répondu à ce quiz', 'info')
-        return redirect(url_for('quiz.result', response_id=existing_response.id))
+        return redirect(url_for('quiz.result', identifier=existing_response.get_url_identifier()))
 
     questions = Question.query.filter_by(quiz_id=quiz.id).order_by(Question.order).all()
 
@@ -530,10 +527,10 @@ def take(quiz_id):
                 quiz_response.id,
                 answers_to_grade
             )
-            return redirect(url_for('quiz.grading', response_id=quiz_response.id))
+            return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
         else:
             flash('Quiz soumis avec succes !', 'success')
-            return redirect(url_for('quiz.result', response_id=quiz_response.id))
+            return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     # GET request - start or continue quiz
     exam_already_started = session_key in session
@@ -559,11 +556,18 @@ def take(quiz_id):
                          exam_mode=quiz.one_question_per_page,
                          exam_already_started=exam_already_started)
 
-@quiz_bp.route('/<int:quiz_id>/start-exam', methods=['POST'])
+@quiz_bp.route('/<identifier>/start-exam', methods=['POST'])
 @login_required
-def start_exam(quiz_id):
+def start_exam(identifier):
     """Start the exam - sets session flag and redirects to exam page."""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('quiz.quiz_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('quiz.start_exam', identifier=quiz.get_url_identifier()), code=301)
 
     if not quiz.is_active:
         flash('Ce quiz n\'est plus disponible', 'error')
@@ -580,21 +584,25 @@ def start_exam(quiz_id):
     ).first()
     if existing_response:
         flash('Vous avez déjà répondu à ce quiz', 'info')
-        return redirect(url_for('quiz.result', response_id=existing_response.id))
+        return redirect(url_for('quiz.result', identifier=existing_response.get_url_identifier()))
 
     # Set the session flag to mark exam as started
-    session_key = f'quiz_{quiz_id}_started_at'
+    session_key = f'quiz_{quiz.id}_started_at'
     if session_key not in session:
         session[session_key] = datetime.utcnow().isoformat()
 
-    return redirect(url_for('quiz.take', quiz_id=quiz_id))
+    return redirect(url_for('quiz.take', identifier=quiz.get_url_identifier()))
 
 
-@quiz_bp.route('/<int:quiz_id>/save-progress', methods=['POST'])
+@quiz_bp.route('/<identifier>/save-progress', methods=['POST'])
 @login_required
-def save_progress(quiz_id):
+def save_progress(identifier):
     """Auto-save answer progress during exam mode (AJAX endpoint)."""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        return jsonify({'error': 'Quiz not found'}), 404
+
+    quiz_id = quiz.id  # Keep for session keys compatibility
 
     # Verify user can access this quiz (student in group OR admin with access)
     is_student_access = quiz.is_available_for_user(current_user)
@@ -631,10 +639,17 @@ def save_progress(quiz_id):
     return jsonify({'status': 'saved', 'question_id': question_id})
 
 
-@quiz_bp.route('/result/<int:response_id>')
+@quiz_bp.route('/result/<identifier>')
 @login_required
-def result(response_id):
-    quiz_response = QuizResponse.query.get_or_404(response_id)
+def result(identifier):
+    quiz_response = QuizResponse.get_by_identifier(identifier)
+    if not quiz_response:
+        flash('Resultat introuvable', 'error')
+        return redirect(url_for('quiz.quiz_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz_response.get_url_identifier():
+        return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()), code=301)
 
     # Check ownership or admin access
     is_owner = quiz_response.user_id == current_user.id
@@ -643,7 +658,7 @@ def result(response_id):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('quiz.quiz_list'))
 
-    answers = Answer.query.filter_by(quiz_response_id=response_id).all()
+    answers = Answer.query.filter_by(quiz_response_id=quiz_response.id).all()
 
     # Organize answers by question
     answers_by_question = {}
@@ -658,11 +673,18 @@ def result(response_id):
                          answers_by_question=answers_by_question)
 
 
-@quiz_bp.route('/grading/<int:response_id>')
+@quiz_bp.route('/grading/<identifier>')
 @login_required
-def grading(response_id):
+def grading(identifier):
     """Show grading progress page with WebSocket updates."""
-    quiz_response = QuizResponse.query.get_or_404(response_id)
+    quiz_response = QuizResponse.get_by_identifier(identifier)
+    if not quiz_response:
+        flash('Resultat introuvable', 'error')
+        return redirect(url_for('quiz.quiz_list'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz_response.get_url_identifier():
+        return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()), code=301)
 
     # Check ownership or admin access
     is_owner = quiz_response.user_id == current_user.id
@@ -673,18 +695,18 @@ def grading(response_id):
 
     # If grading is already completed, redirect to results
     if quiz_response.grading_status == QuizResponse.STATUS_COMPLETED:
-        return redirect(url_for('quiz.result', response_id=response_id))
+        return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     return render_template('quiz/grading.html', quiz_response=quiz_response)
 
 
-@quiz_bp.route('/grading-status/<int:response_id>')
+@quiz_bp.route('/grading-status/<identifier>')
 @login_required
-def grading_status(response_id):
+def grading_status(identifier):
     """API endpoint to check grading status (fallback for WebSocket)."""
-    from flask import jsonify
-
-    quiz_response = QuizResponse.query.get_or_404(response_id)
+    quiz_response = QuizResponse.get_by_identifier(identifier)
+    if not quiz_response:
+        return jsonify({'error': 'Not found'}), 404
 
     # Check ownership or admin access
     is_owner = quiz_response.user_id == current_user.id

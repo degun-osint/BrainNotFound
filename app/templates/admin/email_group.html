@@ -54,14 +54,14 @@
                 onclick="return confirm('Envoyer cet email a {{ users|length }} destinataire(s) ?');">
             <i class="iconoir-send"></i> Envoyer ({{ users|length }})
         </button>
-        <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary">
+        <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
             <i class="iconoir-xmark"></i> Annuler
         </a>
     </div>
 </form>
 {% else %}
 <div class="actions">
-    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> Retour
     </a>
 </div>

@@ -35,7 +35,7 @@
                     <td>{{ admin.email }}</td>
                     <td>
                         {% if not admin.is_superadmin %}
-                        <form method="POST" action="{{ url_for('tenant.remove_admin', tenant_id=tenant.id, user_id=admin.id) }}"
+                        <form method="POST" action="{{ url_for('tenant.remove_admin', identifier=tenant.get_url_identifier(), user_identifier=admin.get_url_identifier()) }}"
                               onsubmit="return confirm('Retirer {{ admin.username }} des administrateurs ?');" class="inline">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Retirer">
                                 <i class="iconoir-user-minus"></i>
@@ -59,7 +59,7 @@
 
 <div class="card mb-2">
     <div class="card-header">Ajouter un administrateur</div>
-    <form method="POST" action="{{ url_for('tenant.add_admin', tenant_id=tenant.id) }}" class="p-2">
+    <form method="POST" action="{{ url_for('tenant.add_admin', identifier=tenant.get_url_identifier()) }}" class="p-2">
         <div class="form-group">
             <label class="form-label">Rechercher un utilisateur</label>
             {% if available_users %}
@@ -95,7 +95,7 @@
 </div>
 
 <div class="actions">
-    <a href="{{ url_for('tenant.view_tenant', tenant_id=tenant.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> Retour a l'organisation
     </a>
 </div>

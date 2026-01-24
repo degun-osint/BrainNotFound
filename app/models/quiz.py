@@ -1,5 +1,7 @@
 from app import db
 from datetime import datetime
+from sqlalchemy import event
+from app.models.mixins import UIDMixin, init_uid_on_create
 
 # Association table for Quiz-Group many-to-many relationship
 quiz_groups = db.Table('quiz_groups',
@@ -9,11 +11,12 @@ quiz_groups = db.Table('quiz_groups',
 )
 
 
-class Quiz(db.Model):
+class Quiz(UIDMixin, db.Model):
     __tablename__ = 'quizzes'
 
     id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String(100), unique=True, nullable=True, index=True)  # URL-friendly identifier
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
+    slug = db.Column(db.String(100), unique=True, nullable=True, index=True)  # User-defined URL-friendly identifier
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     markdown_content = db.Column(db.Text, nullable=False)
@@ -68,8 +71,12 @@ class Quiz(db.Model):
         return self.is_active
 
     def get_url_identifier(self):
-        """Get the URL identifier (slug if available, otherwise id)."""
-        return self.slug if self.slug else str(self.id)
+        """Get the URL identifier (slug if available, then uid, finally id)."""
+        if self.slug:
+            return self.slug
+        if self.uid:
+            return self.uid
+        return str(self.id)
 
 
 class Question(db.Model):
@@ -101,7 +108,7 @@ class Question(db.Model):
         return f'<Question {self.id} - {self.question_type}>'
 
 
-class QuizResponse(db.Model):
+class QuizResponse(UIDMixin, db.Model):
     __tablename__ = 'quiz_responses'
 
     # Grading status constants
@@ -111,6 +118,7 @@ class QuizResponse(db.Model):
     STATUS_ERROR = 'error'
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
     total_score = db.Column(db.Float, default=0.0)
@@ -138,6 +146,10 @@ class QuizResponse(db.Model):
     user = db.relationship('User', back_populates='responses')
     quiz = db.relationship('Quiz', back_populates='responses')
     answers = db.relationship('Answer', back_populates='quiz_response', cascade='all, delete-orphan')
+
+    def get_url_identifier(self):
+        """Get the URL identifier (uid)."""
+        return self.uid if self.uid else str(self.id)
 
     def __repr__(self):
         return f'<QuizResponse User:{self.user_id} Quiz:{self.quiz_id}>'
@@ -171,3 +183,8 @@ class Answer(db.Model):
 
     def __repr__(self):
         return f'<Answer Q:{self.question_id} Score:{self.score}/{self.max_score}>'
+
+
+# Register event listeners for auto-generating UIDs
+event.listen(Quiz, 'before_insert', init_uid_on_create)
+event.listen(QuizResponse, 'before_insert', init_uid_on_create)

@@ -137,20 +137,27 @@ def create_tenant():
         db.session.commit()
 
         flash(f'Tenant "{name}" créé avec succès', 'success')
-        return redirect(url_for('tenant.view_tenant', tenant_id=tenant.id))
+        return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/create.html')
 
 
-@tenant_bp.route('/<int:tenant_id>')
+@tenant_bp.route('/<identifier>')
 @login_required
 @tenant_admin_required
-def view_tenant(tenant_id):
+def view_tenant(identifier):
     """Voir les détails d'un tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()), code=301)
 
     # Vérifier accès
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant_id):
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('admin.dashboard'))
 
@@ -174,12 +181,19 @@ def view_tenant(tenant_id):
     )
 
 
-@tenant_bp.route('/<int:tenant_id>/edit', methods=['GET', 'POST'])
+@tenant_bp.route('/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @superadmin_required
-def edit_tenant(tenant_id):
+def edit_tenant(identifier):
     """Modifier un tenant (superadmin only)."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('tenant.list_tenants'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()), code=301)
 
     if request.method == 'POST':
         tenant.name = request.form.get('name', tenant.name).strip()
@@ -216,22 +230,25 @@ def edit_tenant(tenant_id):
 
         db.session.commit()
         flash('Tenant mis à jour', 'success')
-        return redirect(url_for('tenant.view_tenant', tenant_id=tenant.id))
+        return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/edit.html', tenant=tenant)
 
 
-@tenant_bp.route('/<int:tenant_id>/delete', methods=['POST'])
+@tenant_bp.route('/<identifier>/delete', methods=['POST'])
 @login_required
 @superadmin_required
-def delete_tenant(tenant_id):
+def delete_tenant(identifier):
     """Supprimer un tenant (superadmin only)."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('tenant.list_tenants'))
 
     # Vérifier qu'il n'y a pas de groupes
     if tenant.groups.count() > 0:
         flash('Impossible de supprimer un tenant qui contient des groupes', 'error')
-        return redirect(url_for('tenant.view_tenant', tenant_id=tenant.id))
+        return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     name = tenant.name
     db.session.delete(tenant)
@@ -243,12 +260,20 @@ def delete_tenant(tenant_id):
 
 # ==================== Gestion des admins de tenant ====================
 
-@tenant_bp.route('/<int:tenant_id>/admins')
+@tenant_bp.route('/<identifier>/admins')
 @login_required
 @superadmin_required
-def manage_admins(tenant_id):
+def manage_admins(identifier):
     """Gérer les admins d'un tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('tenant.list_tenants'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()), code=301)
+
     admins = tenant.admins.all()
 
     # Utilisateurs disponibles (non admin de ce tenant, email vérifié)
@@ -266,51 +291,73 @@ def manage_admins(tenant_id):
     )
 
 
-@tenant_bp.route('/<int:tenant_id>/admins/add', methods=['POST'])
+@tenant_bp.route('/<identifier>/admins/add', methods=['POST'])
 @login_required
 @superadmin_required
-def add_admin(tenant_id):
+def add_admin(identifier):
     """Ajouter un admin au tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('tenant.list_tenants'))
+
     user_id = request.form.get('user_id', type=int)
 
     if not user_id:
         flash('Utilisateur non spécifié', 'error')
-        return redirect(url_for('tenant.manage_admins', tenant_id=tenant_id))
+        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
-    user = User.query.get_or_404(user_id)
+    user = User.query.get(user_id)
+    if not user:
+        flash('Utilisateur introuvable', 'error')
+        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
+
     tenant.add_admin(user)
     db.session.commit()
 
     flash(f'{user.username} est maintenant admin du tenant', 'success')
-    return redirect(url_for('tenant.manage_admins', tenant_id=tenant_id))
+    return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
-@tenant_bp.route('/<int:tenant_id>/admins/<int:user_id>/remove', methods=['POST'])
+@tenant_bp.route('/<identifier>/admins/<user_identifier>/remove', methods=['POST'])
 @login_required
 @superadmin_required
-def remove_admin(tenant_id, user_id):
+def remove_admin(identifier, user_identifier):
     """Retirer un admin du tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
-    user = User.query.get_or_404(user_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('tenant.list_tenants'))
+
+    user = User.get_by_identifier(user_identifier)
+    if not user:
+        flash('Utilisateur introuvable', 'error')
+        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
     tenant.remove_admin(user)
     db.session.commit()
 
     flash(f'{user.username} n\'est plus admin du tenant', 'info')
-    return redirect(url_for('tenant.manage_admins', tenant_id=tenant_id))
+    return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
 # ==================== Routes Tenant Admin ====================
 
-@tenant_bp.route('/<int:tenant_id>/groups')
+@tenant_bp.route('/<identifier>/groups')
 @login_required
 @tenant_admin_required
-def tenant_groups(tenant_id):
+def tenant_groups(identifier):
     """Liste des groupes d'un tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant_id):
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()), code=301)
+
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('admin.dashboard'))
 
@@ -318,21 +365,28 @@ def tenant_groups(tenant_id):
     return render_template('admin/tenants/groups.html', tenant=tenant, groups=groups)
 
 
-@tenant_bp.route('/<int:tenant_id>/groups/create', methods=['GET', 'POST'])
+@tenant_bp.route('/<identifier>/groups/create', methods=['GET', 'POST'])
 @login_required
 @tenant_admin_required
-def create_group_in_tenant(tenant_id):
+def create_group_in_tenant(identifier):
     """Créer un groupe dans un tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant_id):
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()), code=301)
+
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Vérifier limite
     if not tenant.can_add_group():
         flash(f'Limite de groupes atteinte ({tenant.max_groups})', 'error')
-        return redirect(url_for('tenant.tenant_groups', tenant_id=tenant_id))
+        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
 
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
@@ -354,19 +408,26 @@ def create_group_in_tenant(tenant_id):
         db.session.commit()
 
         flash(f'Groupe "{name}" créé avec succès', 'success')
-        return redirect(url_for('tenant.tenant_groups', tenant_id=tenant_id))
+        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/create_group.html', tenant=tenant)
 
 
-@tenant_bp.route('/<int:tenant_id>/quizzes')
+@tenant_bp.route('/<identifier>/quizzes')
 @login_required
 @tenant_admin_required
-def tenant_quizzes(tenant_id):
+def tenant_quizzes(identifier):
     """Liste des quiz d'un tenant."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant_id):
+    # Redirect if accessed by old numeric ID
+    if identifier != tenant.get_url_identifier():
+        return redirect(url_for('tenant.tenant_quizzes', identifier=tenant.get_url_identifier()), code=301)
+
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('admin.dashboard'))
 

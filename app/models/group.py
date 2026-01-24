@@ -1,11 +1,14 @@
 from app import db
 from datetime import datetime
+from sqlalchemy import event
 import secrets
+from app.models.mixins import UIDMixin, init_uid_on_create
 
-class Group(db.Model):
+class Group(UIDMixin, db.Model):
     __tablename__ = 'groups'
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     join_code = db.Column(db.String(20), unique=True, nullable=False)
@@ -46,5 +49,13 @@ class Group(db.Model):
             return None  # Unlimited
         return max(0, self.max_members - self.get_member_count())
 
+    def get_url_identifier(self):
+        """Get the URL identifier (uid)."""
+        return self.uid if self.uid else str(self.id)
+
     def __repr__(self):
         return f'<Group {self.name}>'
+
+
+# Register event listener for auto-generating UIDs
+event.listen(Group, 'before_insert', init_uid_on_create)

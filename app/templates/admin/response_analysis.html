@@ -448,10 +448,10 @@
 {% endif %}
 
 <div class="mt-2 flex gap-md">
-    <a href="{{ url_for('admin.quiz_results', quiz_id=stats.response.quiz_id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.quiz_results', identifier=stats.quiz.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> Retour aux resultats
     </a>
-    <a href="{{ url_for('quiz.result', response_id=stats.response.id) }}" class="btn btn-secondary">
+    <a href="{{ url_for('quiz.result', identifier=stats.response.uid) }}" class="btn btn-secondary">
         <i class="iconoir-eye"></i> Voir les reponses
     </a>
 </div>

@@ -2,7 +2,9 @@ from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
+from sqlalchemy import event
 import secrets
+from app.models.mixins import UIDMixin, init_uid_on_create
 
 # Association table for User-Group many-to-many with role
 user_groups = db.Table('user_groups',
@@ -13,10 +15,11 @@ user_groups = db.Table('user_groups',
 )
 
 
-class User(UserMixin, db.Model):
+class User(UIDMixin, UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     first_name = db.Column(db.String(100), nullable=True)
@@ -252,5 +255,13 @@ class User(UserMixin, db.Model):
         self.last_login = datetime.utcnow()
         self.last_login_ip = ip_address
 
+    def get_url_identifier(self):
+        """Get the URL identifier (uid or username as fallback)."""
+        return self.uid if self.uid else self.username
+
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+# Register event listener for auto-generating UIDs
+event.listen(User, 'before_insert', init_uid_on_create)

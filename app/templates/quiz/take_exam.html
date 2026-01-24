@@ -441,7 +441,7 @@
             </ul>
         </div>
 
-        <form method="POST" action="{{ url_for('quiz.start_exam', quiz_id=quiz.id) }}">
+        <form method="POST" action="{{ url_for('quiz.start_exam', identifier=quiz.get_url_identifier()) }}">
             <button type="submit" class="btn btn-primary exam-start-btn">
                 Commencer l'examen
             </button>
@@ -455,7 +455,7 @@
         <h3><i class="iconoir-flask"></i> Mode Test</h3>
         <p class="text-sm" style="opacity: 0.9;">Vous testez ce quiz en tant qu'admin. Les résultats seront marqués comme test.</p>
     </div>
-    <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-small btn-ghost">
+    <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-ghost">
         <i class="iconoir-arrow-left"></i> Retour preview
     </a>
 </div>

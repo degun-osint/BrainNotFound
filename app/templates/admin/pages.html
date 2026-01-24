@@ -57,15 +57,15 @@
                 </td>
                 <td>
                     <div class="flex gap-sm">
-                        <a href="{{ url_for('admin.preview_page', page_id=page.id) }}"
+                        <a href="{{ url_for('admin.preview_page', identifier=page.get_url_identifier()) }}"
                            class="btn btn-secondary btn-small" title="Apercu" target="_blank">
                             <i class="iconoir-eye"></i>
                         </a>
-                        <a href="{{ url_for('admin.edit_page', page_id=page.id) }}"
+                        <a href="{{ url_for('admin.edit_page', identifier=page.get_url_identifier()) }}"
                            class="btn btn-primary btn-small" title="Modifier">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
-                        <form action="{{ url_for('admin.delete_page', page_id=page.id) }}"
+                        <form action="{{ url_for('admin.delete_page', identifier=page.get_url_identifier()) }}"
                               method="POST" style="display: inline;"
                               onsubmit="return confirm('Supprimer cette page ?')">
                             <button type="submit" class="btn btn-error btn-small" title="Supprimer">

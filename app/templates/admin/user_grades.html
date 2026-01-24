@@ -63,7 +63,7 @@
                         {{ "%.1f"|format(pct) }}%
                     </span>
                 </td>
-                <td>{{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ response.submitted_at|localtime }}</td>
                 <td>
                     {% if response.started_at %}
                     {% set duration = ((response.submitted_at - response.started_at).total_seconds() / 60) %}
@@ -81,13 +81,13 @@
                 </td>
                 <td>
                     <div class="flex gap-sm flex-wrap">
-                        <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
+                        <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
                             <i class="iconoir-eye"></i>
                         </a>
-                        <a href="{{ url_for('admin.edit_response', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
+                        <a href="{{ url_for('admin.edit_response', identifier=response.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
-                        <form method="POST" action="{{ url_for('admin.delete_response', response_id=response.id) }}"
+                        <form method="POST" action="{{ url_for('admin.delete_response', identifier=response.get_url_identifier()) }}"
                               onsubmit="return confirmDelete(this, 'cette reponse (l\'utilisateur pourra repasser le quiz)');" class="inline">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
                                 <i class="iconoir-trash"></i>

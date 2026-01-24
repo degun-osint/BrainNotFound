@@ -6,7 +6,7 @@
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <h1 class="mb-0">Resultats : {{ quiz.title }}</h1>
     {% if responses %}
-    <a href="{{ url_for('admin.class_analysis', quiz_id=quiz.id) }}" class="btn btn-primary">
+    <a href="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
         <i class="iconoir-stats-report"></i> Analyse de classe
     </a>
     {% endif %}
@@ -26,7 +26,7 @@
             </select>
         </div>
         {% if selected_group %}
-        <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Reinitialiser le filtre">
+        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Reinitialiser le filtre">
             <i class="iconoir-xmark"></i>
         </a>
         {% endif %}
@@ -48,13 +48,13 @@
         </span>
         {% if responses %}
         <div class="flex gap-sm">
-            <form method="POST" action="{{ url_for('admin.regrade_quiz', quiz_id=quiz.id) }}" class="inline"
+            <form method="POST" action="{{ url_for('admin.regrade_quiz', identifier=quiz.get_url_identifier()) }}" class="inline"
                   onsubmit="return confirm('Re-corriger toutes les questions ouvertes ? Les notes actuelles seront recalculées.');">
                 <button type="submit" class="btn btn-warning btn-small" data-tooltip="Re-corriger les questions ouvertes">
                     <i class="iconoir-refresh-double"></i> Re-corriger
                 </button>
             </form>
-            <a href="{{ url_for('admin.export_quiz_csv', quiz_id=quiz.id, group=selected_group or '') }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
+            <a href="{{ url_for('admin.export_quiz_csv', identifier=quiz.get_url_identifier(), group=selected_group or '') }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
                 <i class="iconoir-download"></i> CSV
             </a>
         </div>
@@ -80,7 +80,7 @@
                 {% for response in responses %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('admin.user_grades', user_id=response.user.id) }}" class="link-primary font-medium">
+                        <a href="{{ url_for('admin.user_grades', identifier=response.user.get_url_identifier()) }}" class="link-primary font-medium">
                             {{ response.user.full_name }}
                         </a>
                         <br>
@@ -143,23 +143,23 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}
+                        {{ response.submitted_at|localtime }}
                         {% if response.is_late %}
                         <span class="badge badge-error ml-1">En retard</span>
                         {% endif %}
                     </td>
                     <td>
                         <div class="flex gap-sm flex-wrap">
-                            <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
+                            <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir les reponses">
                                 <i class="iconoir-eye"></i>
                             </a>
-                            <a href="{{ url_for('admin.response_analysis', response_id=response.id) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Analyse detaillee">
+                            <a href="{{ url_for('admin.response_analysis', identifier=response.get_url_identifier()) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Analyse detaillee">
                                 <i class="iconoir-stats-report"></i>
                             </a>
-                            <a href="{{ url_for('admin.edit_response', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
+                            <a href="{{ url_for('admin.edit_response', identifier=response.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Editer les notes">
                                 <i class="iconoir-edit-pencil"></i>
                             </a>
-                            <form method="POST" action="{{ url_for('admin.delete_response', response_id=response.id) }}"
+                            <form method="POST" action="{{ url_for('admin.delete_response', identifier=response.get_url_identifier()) }}"
                                   onsubmit="return confirmDelete(this, 'cette reponse (l\'utilisateur pourra repasser le quiz)');" class="inline">
                                 <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
                                     <i class="iconoir-trash"></i>

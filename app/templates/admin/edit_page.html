@@ -27,7 +27,7 @@
                             <span class="text-light">/page/</span>
                             <input type="text" id="slug" name="slug" class="form-input"
                                    value="{{ page.slug if page else '' }}" maxlength="200"
-                                   placeholder="mentions-legales" pattern="[-a-z0-9]+">
+                                   placeholder="mentions-legales" pattern="[a-z0-9-]+">
                         </div>
                         <small class="text-light">Laissez vide pour generer automatiquement depuis le titre</small>
                     </div>
@@ -130,7 +130,7 @@ bloc de code
             <i class="iconoir-floppy-disk"></i> {{ 'Enregistrer' if page else 'Creer la page' }}
         </button>
         {% if page %}
-        <a href="{{ url_for('admin.preview_page', page_id=page.id) }}" class="btn btn-secondary" target="_blank">
+        <a href="{{ url_for('admin.preview_page', identifier=page.get_url_identifier()) }}" class="btn btn-secondary" target="_blank">
             <i class="iconoir-eye"></i> Apercu
         </a>
         {% endif %}

@@ -65,10 +65,10 @@
         <span>Informations</span>
         <div class="flex gap-sm">
             {% if current_user.is_superadmin %}
-            <a href="{{ url_for('tenant.manage_admins', tenant_id=tenant.id) }}" class="btn btn-secondary btn-small">
+            <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
                 <i class="iconoir-user-crown"></i> Gerer admins
             </a>
-            <a href="{{ url_for('tenant.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-primary btn-small">
+            <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small">
                 <i class="iconoir-edit-pencil"></i> Modifier
             </a>
             {% endif %}
@@ -84,7 +84,7 @@
             {% if tenant.contact_email %}
             <div><strong>Email:</strong> <a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a></div>
             {% endif %}
-            <div><strong>Cree le:</strong> {{ tenant.created_at.strftime('%d/%m/%Y a %H:%M') }}</div>
+            <div><strong>Cree le:</strong> {{ tenant.created_at|localtime }}</div>
         </div>
         {% if tenant.description %}
         <div class="mt-2">
@@ -100,7 +100,7 @@
     <div class="card-header flex justify-between items-center">
         <span>Administrateurs de l'organisation</span>
         {% if current_user.is_superadmin %}
-        <a href="{{ url_for('tenant.manage_admins', tenant_id=tenant.id) }}" class="btn btn-secondary btn-small">
+        <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
             <i class="iconoir-plus"></i> Ajouter
         </a>
         {% endif %}
@@ -120,7 +120,7 @@
 <div class="card mb-2">
     <div class="card-header flex justify-between items-center">
         <span>Groupes ({{ groups|length }})</span>
-        <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}" class="btn btn-primary btn-small">
+        <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small">
             <i class="iconoir-plus"></i> Nouveau groupe
         </a>
     </div>
@@ -138,10 +138,10 @@
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Membres">
+                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Membres">
                         <i class="iconoir-group"></i>
                     </a>
-                    <a href="{{ url_for('admin.edit_group', group_id=group.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
                 </div>
@@ -151,7 +151,7 @@
     </div>
     {% else %}
     <p class="text-center text-light p-2">
-        Aucun groupe dans cette organisation. <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}">Creer un groupe</a>
+        Aucun groupe dans cette organisation. <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">Creer un groupe</a>
     </p>
     {% endif %}
 </div>

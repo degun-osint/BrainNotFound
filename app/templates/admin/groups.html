@@ -15,7 +15,7 @@
         {% elif current_user.is_tenant_admin %}
             {% set user_tenants = current_user.admin_tenants.all() %}
             {% if user_tenants|length == 1 %}
-            <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=user_tenants[0].id) }}" class="btn btn-primary btn-small" data-tooltip="Creer un groupe dans {{ user_tenants[0].name }}">
+            <a href="{{ url_for('tenant.create_group_in_tenant', identifier=user_tenants[0].get_url_identifier()) }}" class="btn btn-primary btn-small" data-tooltip="Creer un groupe dans {{ user_tenants[0].name }}">
                 <i class="iconoir-plus"></i> Nouveau
             </a>
             {% else %}
@@ -25,7 +25,7 @@
                 </button>
                 <div class="dropdown-menu">
                     {% for tenant in user_tenants %}
-                    <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=tenant.id) }}" class="dropdown-item">
+                    <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}" class="dropdown-item">
                         {{ tenant.name }}
                     </a>
                     {% endfor %}
@@ -58,24 +58,24 @@
                     {% endif %}
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('admin.email_group', group_id=group.id) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Envoyer un email">
+                    <a href="{{ url_for('admin.email_group', identifier=group.get_url_identifier()) }}" class="btn btn-info btn-small btn-icon" data-tooltip="Envoyer un email">
                         <i class="iconoir-mail"></i>
                     </a>
-                    <a href="{{ url_for('admin.export_group_results', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter résultats CSV">
+                    <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter résultats CSV">
                         <i class="iconoir-download"></i>
                     </a>
-                    <a href="{{ url_for('admin.group_users', group_id=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Utilisateurs ({{ group.users.count() }})">
+                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Utilisateurs ({{ group.users.count() }})">
                         <i class="iconoir-group"></i>
                     </a>
-                    <a href="{{ url_for('admin.edit_group', group_id=group.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
-                    <form method="POST" action="{{ url_for('admin.toggle_group', group_id=group.id) }}" class="inline">
+                    <form method="POST" action="{{ url_for('admin.toggle_group', identifier=group.get_url_identifier()) }}" class="inline">
                         <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if group.is_active else 'Activer' }}">
                             <i class="iconoir-{{ 'eye-closed' if group.is_active else 'eye' }}"></i>
                         </button>
                     </form>
-                    <form method="POST" action="{{ url_for('admin.delete_group', group_id=group.id) }}"
+                    <form method="POST" action="{{ url_for('admin.delete_group', identifier=group.get_url_identifier()) }}"
                           onsubmit="return confirmDelete(this, 'ce groupe');" class="inline">
                         <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
                             <i class="iconoir-trash"></i>
@@ -93,7 +93,7 @@
             {% elif current_user.is_tenant_admin %}
                 {% set user_tenants = current_user.admin_tenants.all() %}
                 {% if user_tenants|length == 1 %}
-                <a href="{{ url_for('tenant.create_group_in_tenant', tenant_id=user_tenants[0].id) }}">Creez votre premier groupe</a>
+                <a href="{{ url_for('tenant.create_group_in_tenant', identifier=user_tenants[0].get_url_identifier()) }}">Creez votre premier groupe</a>
                 {% endif %}
             {% endif %}
         </p>

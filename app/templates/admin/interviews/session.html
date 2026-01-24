@@ -63,15 +63,15 @@
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <div>
         <h1 class="mb-0">Session de {{ session.user.full_name }}</h1>
-        <p class="text-light mt-0">{{ interview.title }} - {{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p class="text-light mt-0">{{ interview.title }} - {{ session.started_at|localtime }}</p>
     </div>
     <div class="flex gap-sm">
         {% if session.status == 'completed' %}
-        <a href="{{ url_for('interview.admin_session_pdf', interview_id=interview.id, session_id=session.id) }}" class="btn btn-primary">
+        <a href="{{ url_for('interview.admin_session_pdf', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
             <i class="iconoir-download"></i> Export PDF
         </a>
         {% endif %}
-        <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary">
+        <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary">
             <i class="iconoir-arrow-left"></i> Retour
         </a>
     </div>
@@ -124,7 +124,7 @@
                 <tr>
                     <td class="text-light">Etudiant</td>
                     <td>
-                        <a href="{{ url_for('admin.user_grades', user_id=session.user.id) }}" class="link-primary">
+                        <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary">
                             {{ session.user.full_name }}
                         </a>
                         ({{ session.user.username }})
@@ -132,12 +132,12 @@
                 </tr>
                 <tr>
                     <td class="text-light">Debut</td>
-                    <td>{{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ session.started_at|localtime }}</td>
                 </tr>
                 {% if session.ended_at %}
                 <tr>
                     <td class="text-light">Fin</td>
-                    <td>{{ session.ended_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ session.ended_at|localtime }}</td>
                 </tr>
                 {% endif %}
                 {% if session.end_reason %}
@@ -238,7 +238,7 @@
                     {% elif message.role == 'assistant' %}
                     {{ interview.persona_name or 'Personnage' }}
                     {% endif %}
-                    - {{ message.created_at.strftime('%H:%M') }}
+                    - {{ message.created_at|localtime_short }}
                 </div>
                 <div class="message-content" data-raw="{{ message.content | e }}"></div>
             </div>
@@ -253,7 +253,7 @@
         <span><i class="iconoir-edit-pencil"></i> Commentaire administrateur</span>
     </div>
     <div class="card-body">
-        <form action="{{ url_for('interview.admin_add_comment', interview_id=interview.id, session_id=session.id) }}" method="POST">
+        <form action="{{ url_for('interview.admin_add_comment', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group mb-1">
                 <textarea name="comment" class="form-textarea" rows="3" placeholder="Ajouter un commentaire...">{{ session.admin_comment or '' }}</textarea>

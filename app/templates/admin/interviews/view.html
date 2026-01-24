@@ -6,10 +6,10 @@
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <h1 class="mb-0">{{ interview.title }}</h1>
     <div class="flex gap-sm">
-        <a href="{{ url_for('interview.admin_test', interview_id=interview.id) }}" class="btn btn-secondary">
+        <a href="{{ url_for('interview.admin_test', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary">
             <i class="iconoir-play"></i> Tester
         </a>
-        <a href="{{ url_for('interview.admin_edit', interview_id=interview.id) }}" class="btn btn-primary">
+        <a href="{{ url_for('interview.admin_edit', identifier=interview.get_url_identifier()) }}" class="btn btn-primary">
             <i class="iconoir-edit-pencil"></i> Modifier
         </a>
         <a href="{{ url_for('interview.admin_list') }}" class="btn btn-secondary">
@@ -103,8 +103,8 @@
                 <tr>
                     <td class="text-light">Disponibilite</td>
                     <td>
-                        {% if interview.available_from %}Du {{ interview.available_from.strftime('%d/%m/%Y %H:%M') }}{% endif %}
-                        {% if interview.available_until %}au {{ interview.available_until.strftime('%d/%m/%Y %H:%M') }}{% endif %}
+                        {% if interview.available_from %}Du {{ interview.available_from|localtime }}{% endif %}
+                        {% if interview.available_until %}au {{ interview.available_until|localtime }}{% endif %}
                     </td>
                 </tr>
                 {% endif %}
@@ -167,7 +167,7 @@
     <div class="card-header flex justify-between items-center">
         <span><i class="iconoir-user-circle"></i> Sessions ({{ sessions|length }})</span>
         {% if sessions %}
-        <a href="{{ url_for('interview.admin_export', interview_id=interview.id) }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
+        <a href="{{ url_for('interview.admin_export', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
             <i class="iconoir-download"></i> CSV
         </a>
         {% endif %}
@@ -193,12 +193,12 @@
                     {% if session.is_test %}
                     <span class="badge badge-light">TEST</span>
                     {% endif %}
-                    <a href="{{ url_for('admin.user_grades', user_id=session.user.id) }}" class="link-primary font-medium">
+                    <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary font-medium">
                         {{ session.user.full_name }}
                     </a>
                     <br><small class="text-light">{{ session.user.username }}</small>
                 </td>
-                <td>{{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ session.started_at|localtime }}</td>
                 <td>{{ session.get_duration_minutes() }} min</td>
                 <td>{{ session.interaction_count }} / {{ interview.max_interactions }}</td>
                 <td>
@@ -225,10 +225,10 @@
                 </td>
                 <td>
                     <div class="flex gap-sm">
-                        <a href="{{ url_for('interview.admin_session', interview_id=interview.id, session_id=session.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir la session">
+                        <a href="{{ url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir la session">
                             <i class="iconoir-eye"></i>
                         </a>
-                        <form method="POST" action="{{ url_for('interview.admin_delete_session', interview_id=interview.id, session_id=session.id) }}"
+                        <form method="POST" action="{{ url_for('interview.admin_delete_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}"
                               onsubmit="return confirmDelete(this, 'cette session');" class="inline">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">

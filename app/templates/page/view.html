@@ -7,7 +7,7 @@
 <div class="alert alert-warning mb-2">
     <i class="iconoir-eye"></i>
     <strong>Mode apercu</strong> - Cette page {% if not page.is_published %}n'est pas encore publiee{% else %}est publiee{% endif %}.
-    <a href="{{ url_for('admin.edit_page', page_id=page.id) }}">Modifier</a>
+    <a href="{{ url_for('admin.edit_page', identifier=page.get_url_identifier()) }}">Modifier</a>
 </div>
 {% endif %}
 

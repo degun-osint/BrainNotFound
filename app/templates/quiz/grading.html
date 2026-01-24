@@ -122,7 +122,7 @@
 <script>
 const responseId = {{ quiz_response.id }};
 const totalQuestions = {{ quiz_response.grading_total }};
-const resultUrl = "{{ url_for('quiz.result', response_id=quiz_response.id) }}";
+const resultUrl = "{{ url_for('quiz.result', identifier=quiz_response.get_url_identifier()) }}";
 
 // Connect to WebSocket
 const socket = io();

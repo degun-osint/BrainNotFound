@@ -205,7 +205,7 @@
                 </td>
                 <td>
                     {% if not user.is_admin %}
-                    <a href="{{ url_for('admin.user_grades', user_id=user.id) }}" class="link-primary font-medium">
+                    <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
                         {{ user.full_name }}
                     </a>
                     {% else %}
@@ -253,7 +253,7 @@
                 <td>
                     {% if user.last_login %}
                     <span data-tooltip="IP: {{ user.last_login_ip or 'Inconnue' }}">
-                        {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                        {{ user.last_login|localtime }}
                     </span>
                     {% else %}
                     <span class="text-light">Jamais</span>
@@ -262,15 +262,15 @@
                 <td>
                     <div class="flex gap-sm flex-wrap">
                         {% if not user.is_admin %}
-                        <a href="{{ url_for('admin.user_grades', user_id=user.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Notes">
+                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Notes">
                             <i class="iconoir-stats-report"></i>
                         </a>
                         {% endif %}
                         {% if user.id != current_user.id %}
-                        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
-                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                        <form method="POST" action="{{ url_for('admin.delete_user', identifier=user.get_url_identifier()) }}"
                               onsubmit="return confirmDelete(this, 'cet utilisateur et toutes ses donnees');" class="inline">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
                                 <i class="iconoir-trash"></i>

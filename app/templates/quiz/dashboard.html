@@ -36,7 +36,7 @@
             </div>
             <div class="todo-list">
                 {% for quiz in available_quizzes %}
-                <a href="{{ url_for('quiz.take', quiz_id=quiz.id) }}" class="todo-item">
+                <a href="{{ url_for('quiz.take', identifier=quiz.get_url_identifier()) }}" class="todo-item">
                     <div class="todo-icon todo-icon-quiz">
                         <i class="iconoir-clipboard-check"></i>
                     </div>
@@ -47,7 +47,7 @@
                             {% if quiz.time_limit_minutes %} - {{ quiz.time_limit_minutes }} min{% endif %}
                             {% if quiz.available_until %}
                             <span class="todo-deadline">
-                                <i class="iconoir-clock"></i> {{ quiz.available_until.strftime('%d/%m %H:%M') }}
+                                <i class="iconoir-clock"></i> {{ quiz.available_until|localtime_short }}
                             </span>
                             {% endif %}
                         </div>
@@ -56,7 +56,7 @@
                 </a>
                 {% endfor %}
                 {% for interview in available_interviews %}
-                <a href="{{ url_for('interview.start', interview_id=interview.id) }}" class="todo-item">
+                <a href="{{ url_for('interview.start', identifier=interview.get_url_identifier()) }}" class="todo-item">
                     <div class="todo-icon todo-icon-interview">
                         <i class="iconoir-chat-bubble"></i>
                     </div>
@@ -67,7 +67,7 @@
                             {% if interview.max_duration_minutes %} - {{ interview.max_duration_minutes }} min{% endif %}
                             {% if interview.available_until %}
                             <span class="todo-deadline">
-                                <i class="iconoir-clock"></i> {{ interview.available_until.strftime('%d/%m %H:%M') }}
+                                <i class="iconoir-clock"></i> {{ interview.available_until|localtime_short }}
                             </span>
                             {% endif %}
                         </div>
@@ -216,9 +216,9 @@
                         ({{ "%.0f"|format(pct) }}%)
                     </span>
                 </td>
-                <td>{{ response.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ response.submitted_at|localtime }}</td>
                 <td>
-                    <a href="{{ url_for('quiz.result', response_id=response.id) }}" class="btn btn-primary btn-small btn-icon">
+                    <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
                         <i class="iconoir-eye"></i>
                     </a>
                 </td>
@@ -243,18 +243,18 @@
                     -
                     {% endif %}
                 </td>
-                <td>{{ session.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ session.started_at|localtime }}</td>
                 <td>
                     {% if session.status == 'completed' %}
-                    <a href="{{ url_for('interview.result', session_id=session.id) }}" class="btn btn-primary btn-small btn-icon">
+                    <a href="{{ url_for('interview.result', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
                         <i class="iconoir-eye"></i>
                     </a>
                     {% elif session.status == 'in_progress' %}
-                    <a href="{{ url_for('interview.chat', session_id=session.id) }}" class="btn btn-primary btn-small btn-icon">
+                    <a href="{{ url_for('interview.chat', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
                         <i class="iconoir-play"></i>
                     </a>
                     {% elif session.status == 'evaluating' %}
-                    <a href="{{ url_for('interview.evaluating', session_id=session.id) }}" class="btn btn-secondary btn-small btn-icon">
+                    <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon">
                         <i class="iconoir-refresh rotating"></i>
                     </a>
                     {% endif %}

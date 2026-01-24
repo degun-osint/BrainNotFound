@@ -136,7 +136,7 @@
         <div class="info-box bg-gray mb-2">
             <strong>Note :</strong> L'email d'alerte est envoye a l'adresse de contact ci-dessus.
             {% if tenant.quota_alert_sent_at %}
-            Derniere alerte : {{ tenant.quota_alert_sent_at.strftime('%d/%m/%Y %H:%M') }}
+            Derniere alerte : {{ tenant.quota_alert_sent_at|localtime }}
             {% endif %}
         </div>
         <div class="form-row">
@@ -166,7 +166,7 @@
             <button type="submit" class="btn btn-primary">
                 <i class="iconoir-check"></i> Enregistrer
             </button>
-            <a href="{{ url_for('tenant.view_tenant', tenant_id=tenant.id) }}" class="btn btn-secondary">
+            <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
                 <i class="iconoir-xmark"></i> Annuler
             </a>
         </div>

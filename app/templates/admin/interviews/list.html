@@ -105,25 +105,25 @@
                 {% endif %}
             </div>
             <div class="quiz-actions">
-                <a href="{{ url_for('interview.admin_test', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Tester">
+                <a href="{{ url_for('interview.admin_test', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Tester">
                     <i class="iconoir-play"></i>
                 </a>
-                <a href="{{ url_for('interview.admin_view', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
                     <i class="iconoir-stats-report"></i>
                 </a>
-                <a href="{{ url_for('interview.admin_export_json', interview_id=interview.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter JSON">
+                <a href="{{ url_for('interview.admin_export_json', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Exporter JSON">
                     <i class="iconoir-download"></i>
                 </a>
-                <a href="{{ url_for('interview.admin_edit', interview_id=interview.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                <a href="{{ url_for('interview.admin_edit', identifier=interview.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                     <i class="iconoir-edit-pencil"></i>
                 </a>
-                <form method="POST" action="{{ url_for('interview.admin_toggle', interview_id=interview.id) }}" class="inline">
+                <form method="POST" action="{{ url_for('interview.admin_toggle', identifier=interview.get_url_identifier()) }}" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if interview.is_active else 'Activer' }}">
                         <i class="iconoir-{{ 'eye-closed' if interview.is_active else 'eye' }}"></i>
                     </button>
                 </form>
-                <form method="POST" action="{{ url_for('interview.admin_delete', interview_id=interview.id) }}"
+                <form method="POST" action="{{ url_for('interview.admin_delete', identifier=interview.get_url_identifier()) }}"
                       onsubmit="return confirmDelete(this, 'cet entretien');" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">

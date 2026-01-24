@@ -89,6 +89,27 @@ class Tenant(db.Model):
     def __repr__(self):
         return f'<Tenant {self.slug}>'
 
+    @classmethod
+    def get_by_identifier(cls, identifier):
+        """Get tenant by slug or numeric ID."""
+        if not identifier:
+            return None
+        identifier_str = str(identifier)
+        # Try by slug first
+        tenant = cls.query.filter_by(slug=identifier_str).first()
+        if tenant:
+            return tenant
+        # Fall back to numeric ID
+        try:
+            tenant_id = int(identifier_str)
+            return cls.query.get(tenant_id)
+        except (ValueError, TypeError):
+            return None
+
+    def get_url_identifier(self):
+        """Get the preferred identifier for URLs."""
+        return self.slug
+
     @staticmethod
     def generate_slug(name):
         """Génère un slug à partir du nom."""

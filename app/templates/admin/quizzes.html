@@ -77,10 +77,10 @@
                     {% if quiz.created_by %} par <strong>{{ quiz.created_by.username }}</strong>{% endif %}
                     {% if quiz.time_limit_minutes %} - <span class="text-warning">{{ quiz.time_limit_minutes }} min</span>{% endif %}
                     {% if quiz.available_from %}
-                    - <span class="text-info">Du {{ quiz.available_from.strftime('%d/%m %H:%M') }}</span>
+                    - <span class="text-info">Du {{ quiz.available_from|localtime_short }}</span>
                     {% endif %}
                     {% if quiz.available_until %}
-                    - <span class="text-info">au {{ quiz.available_until.strftime('%d/%m %H:%M') }}</span>
+                    - <span class="text-info">au {{ quiz.available_until|localtime_short }}</span>
                     {% endif %}
                     -
                     <span class="{{ 'text-success' if quiz.is_active else 'text-error' }}">
@@ -101,28 +101,28 @@
                 {% endif %}
             </div>
             <div class="quiz-actions">
-                <a href="{{ url_for('admin.preview_quiz', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
+                <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
                     <i class="iconoir-eye"></i>
                 </a>
-                <a href="{{ url_for('admin.quiz_results', quiz_id=quiz.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
                     <i class="iconoir-stats-report"></i>
                 </a>
-                <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
                     <i class="iconoir-edit-pencil"></i>
                 </a>
-                <form method="POST" action="{{ url_for('admin.duplicate_quiz', quiz_id=quiz.id) }}" class="inline">
+                <form method="POST" action="{{ url_for('admin.duplicate_quiz', identifier=quiz.get_url_identifier()) }}" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Dupliquer">
                         <i class="iconoir-copy"></i>
                     </button>
                 </form>
-                <form method="POST" action="{{ url_for('admin.toggle_quiz', quiz_id=quiz.id) }}" class="inline">
+                <form method="POST" action="{{ url_for('admin.toggle_quiz', identifier=quiz.get_url_identifier()) }}" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ 'Desactiver' if quiz.is_active else 'Activer' }}">
                         <i class="iconoir-{{ 'eye-closed' if quiz.is_active else 'eye' }}"></i>
                     </button>
                 </form>
-                <form method="POST" action="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}"
+                <form method="POST" action="{{ url_for('admin.delete_quiz', identifier=quiz.get_url_identifier()) }}"
                       onsubmit="return confirmDelete(this, 'ce quiz');" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">

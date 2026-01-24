@@ -61,7 +61,7 @@
                                 </a>
                                 <div class="tenant-divider"></div>
                                 {% for t in accessible_tenants %}
-                                <a href="{{ url_for('admin.set_tenant_context', tenant_id=t.id) }}" class="tenant-option {% if tenant_context and tenant_context.id == t.id %}active{% endif %}">
+                                <a href="{{ url_for('admin.set_tenant_context', identifier=t.get_url_identifier()) }}" class="tenant-option {% if tenant_context and tenant_context.id == t.id %}active{% endif %}">
                                     <i class="iconoir-building"></i> {{ t.name }}
                                 </a>
                                 {% endfor %}

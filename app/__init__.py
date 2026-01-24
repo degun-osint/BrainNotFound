@@ -162,6 +162,12 @@ def create_app(config_class=Config):
 
     app.jinja_env.filters['render_quiz_images'] = render_quiz_images
 
+    # Timezone conversion filters for templates
+    from app.utils import format_datetime, format_time
+
+    app.jinja_env.filters['localtime'] = format_datetime
+    app.jinja_env.filters['localtime_short'] = format_time
+
     # Context processor for site settings and custom pages (available in all templates)
     @app.context_processor
     def inject_site_settings():

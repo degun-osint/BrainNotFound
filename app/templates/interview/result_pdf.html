@@ -164,7 +164,7 @@
 
     <div class="header-info">
         <p><strong>Candidat:</strong> {{ session.user.full_name }} ({{ session.user.email }})</p>
-        <p><strong>Date:</strong> {{ session.started_at.strftime('%d/%m/%Y a %H:%M') }}</p>
+        <p><strong>Date:</strong> {{ session.started_at|localtime }}</p>
         <p><strong>Duree:</strong> {{ session.get_duration_minutes() }} minutes</p>
         {% if interview.persona_name %}
         <p><strong>Personnage:</strong> {{ interview.persona_name }}{% if interview.persona_role %} - {{ interview.persona_role }}{% endif %}</p>
@@ -234,7 +234,7 @@
                 {% elif message.role == 'assistant' %}
                 {{ interview.persona_name or 'Personnage' }}
                 {% endif %}
-                - {{ message.created_at.strftime('%H:%M') }}
+                - {{ message.created_at|localtime_short }}
             </div>
             <div class="message-content">{{ message.content }}</div>
         </div>
@@ -247,7 +247,7 @@
     {% endif %}
 
     <div class="footer">
-        <p>Document genere le {{ now.strftime('%d/%m/%Y a %H:%M') }} - {{ site_title }}</p>
+        <p>Document genere le {{ now|localtime }} - {{ site_title }}</p>
     </div>
 </body>
 </html>

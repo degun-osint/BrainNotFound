@@ -139,19 +139,22 @@ def inject_tenant_context():
     }
 
 
-@admin_bp.route('/set-tenant-context/<int:tenant_id>')
+@admin_bp.route('/set-tenant-context/<identifier>')
 @login_required
 @admin_required
-def set_tenant_context(tenant_id):
+def set_tenant_context(identifier):
     """Set the tenant context filter."""
-    tenant = Tenant.query.get_or_404(tenant_id)
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash('Tenant introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
     # Verify access
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant_id):
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
         flash('Accès non autorisé à ce tenant', 'error')
         return redirect(url_for('admin.dashboard'))
 
-    session['admin_tenant_context'] = tenant_id
+    session['admin_tenant_context'] = tenant.id
     flash(f'Contexte: {tenant.name}', 'info')
 
     # Redirect back to referrer (validated) or dashboard
@@ -616,11 +619,18 @@ def create_quiz():
 
     return render_template('admin/create_quiz.html', groups=groups)
 
-@admin_bp.route('/quiz/<int:quiz_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/quiz/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_quiz(quiz_id):
-    quiz = Quiz.query.get_or_404(quiz_id)
+def edit_quiz(identifier):
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -799,12 +809,19 @@ def edit_quiz(quiz_id):
     return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/preview')
+@admin_bp.route('/quiz/<identifier>/preview')
 @login_required
 @admin_required
-def preview_quiz(quiz_id):
+def preview_quiz(identifier):
     """Preview a quiz as a student would see it (read-only)."""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -827,10 +844,10 @@ def preview_quiz(quiz_id):
                           existing_test=existing_test)
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/test', methods=['GET', 'POST'])
+@admin_bp.route('/quiz/<identifier>/test', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def test_quiz(quiz_id):
+def test_quiz(identifier):
     """Take a quiz in test mode (admin only)."""
     import json
     import random
@@ -838,7 +855,16 @@ def test_quiz(quiz_id):
     from datetime import timedelta
     from app.utils.grading_tasks import grade_quiz_async
 
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    quiz_id = quiz.id  # Keep for session keys compatibility
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('admin.test_quiz', identifier=quiz.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1050,11 +1076,16 @@ def test_quiz(quiz_id):
                          exam_already_started=True)
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/delete', methods=['POST'])
+@admin_bp.route('/quiz/<identifier>/delete', methods=['POST'])
 @login_required
 @admin_required
-def delete_quiz(quiz_id):
-    quiz = Quiz.query.get_or_404(quiz_id)
+def delete_quiz(identifier):
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    quiz_id = quiz.id  # Keep for file operations
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1075,12 +1106,15 @@ def delete_quiz(quiz_id):
     flash('Quiz supprimé avec succès', 'success')
     return redirect(url_for('admin.dashboard'))
 
-@admin_bp.route('/quiz/<int:quiz_id>/duplicate', methods=['POST'])
+@admin_bp.route('/quiz/<identifier>/duplicate', methods=['POST'])
 @login_required
 @admin_required
-def duplicate_quiz(quiz_id):
+def duplicate_quiz(identifier):
     """Duplicate an existing quiz."""
-    original = Quiz.query.get_or_404(quiz_id)
+    original = Quiz.get_by_identifier(identifier)
+    if not original:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
     # Check permission
     if not current_user.can_access_quiz(original):
@@ -1134,13 +1168,16 @@ def duplicate_quiz(quiz_id):
 
     db.session.commit()
     flash(f'Quiz dupliqué ! Le nouveau quiz "{new_quiz.title}" est désactivé par défaut.', 'success')
-    return redirect(url_for('admin.edit_quiz', quiz_id=new_quiz.id))
+    return redirect(url_for('admin.edit_quiz', identifier=new_quiz.get_url_identifier()))
 
-@admin_bp.route('/quiz/<int:quiz_id>/toggle', methods=['POST'])
+@admin_bp.route('/quiz/<identifier>/toggle', methods=['POST'])
 @login_required
 @admin_required
-def toggle_quiz(quiz_id):
-    quiz = Quiz.query.get_or_404(quiz_id)
+def toggle_quiz(identifier):
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1153,11 +1190,20 @@ def toggle_quiz(quiz_id):
     flash(f'Quiz {status}', 'success')
     return redirect(url_for('admin.dashboard'))
 
-@admin_bp.route('/quiz/<int:quiz_id>/results')
+@admin_bp.route('/quiz/<identifier>/results')
 @login_required
 @admin_required
-def quiz_results(quiz_id):
-    quiz = Quiz.query.get_or_404(quiz_id)
+def quiz_results(identifier):
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    quiz_id = quiz.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1200,14 +1246,19 @@ def quiz_results(quiz_id):
     return render_template('admin/quiz_results.html', quiz=quiz, responses=responses, groups=groups, selected_group=group_filter)
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/regrade', methods=['POST'])
+@admin_bp.route('/quiz/<identifier>/regrade', methods=['POST'])
 @login_required
 @admin_required
-def regrade_quiz(quiz_id):
+def regrade_quiz(identifier):
     """Re-grade all open questions for a quiz."""
     from app.utils.grading_tasks import grade_quiz_async
 
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    quiz_id = quiz.id  # Keep for queries
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1259,19 +1310,24 @@ def regrade_quiz(quiz_id):
     else:
         flash('Aucune question ouverte à re-corriger.', 'info')
 
-    return redirect(url_for('admin.quiz_results', quiz_id=quiz_id))
+    return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/export-csv')
+@admin_bp.route('/quiz/<identifier>/export-csv')
 @login_required
 @admin_required
-def export_quiz_csv(quiz_id):
+def export_quiz_csv(identifier):
     """Export quiz results as CSV."""
     import csv
     from io import StringIO
     from flask import Response
 
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    quiz_id = quiz.id  # Keep for queries
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
@@ -1610,11 +1666,18 @@ def create_group():
 
     return render_template('admin/create_group.html', tenants=tenants)
 
-@admin_bp.route('/group/<int:group_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/group/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @superadmin_required
-def edit_group(group_id):
-    group = Group.query.get_or_404(group_id)
+def edit_group(identifier):
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != group.get_url_identifier():
+        return redirect(url_for('admin.edit_group', identifier=group.get_url_identifier()), code=301)
 
     # Get available tenants for the current user
     if current_user.is_superadmin:
@@ -1637,11 +1700,14 @@ def edit_group(group_id):
 
     return render_template('admin/edit_group.html', group=group, tenants=tenants)
 
-@admin_bp.route('/group/<int:group_id>/toggle', methods=['POST'])
+@admin_bp.route('/group/<identifier>/toggle', methods=['POST'])
 @login_required
 @superadmin_required
-def toggle_group(group_id):
-    group = Group.query.get_or_404(group_id)
+def toggle_group(identifier):
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
     group.is_active = not group.is_active
     db.session.commit()
 
@@ -1649,11 +1715,14 @@ def toggle_group(group_id):
     flash(f'Groupe {status}', 'success')
     return redirect(url_for('admin.groups'))
 
-@admin_bp.route('/group/<int:group_id>/delete', methods=['POST'])
+@admin_bp.route('/group/<identifier>/delete', methods=['POST'])
 @login_required
 @superadmin_required
-def delete_group(group_id):
-    group = Group.query.get_or_404(group_id)
+def delete_group(identifier):
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
 
     # Check if group has users (via new relationship)
     if group.members.count() > 0:
@@ -1666,11 +1735,20 @@ def delete_group(group_id):
     flash('Groupe supprimé avec succès', 'success')
     return redirect(url_for('admin.groups'))
 
-@admin_bp.route('/group/<int:group_id>/users')
+@admin_bp.route('/group/<identifier>/users')
 @login_required
 @admin_required
-def group_users(group_id):
-    group = Group.query.get_or_404(group_id)
+def group_users(identifier):
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
+
+    group_id = group.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != group.get_url_identifier():
+        return redirect(url_for('admin.group_users', identifier=group.get_url_identifier()), code=301)
 
     # Check permission for group admins
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
@@ -1684,16 +1762,21 @@ def group_users(group_id):
     return render_template('admin/group_users.html', group=group, users=users)
 
 
-@admin_bp.route('/group/<int:group_id>/export-results')
+@admin_bp.route('/group/<identifier>/export-results')
 @login_required
 @admin_required
-def export_group_results(group_id):
+def export_group_results(identifier):
     """Export quiz results for all users in a group as CSV."""
     import csv
     from io import StringIO
     from flask import Response
 
-    group = Group.query.get_or_404(group_id)
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
+
+    group_id = group.id  # Keep for queries
 
     # Check permission
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
@@ -1778,14 +1861,23 @@ def export_group_results(group_id):
     )
 
 
-@admin_bp.route('/group/<int:group_id>/email', methods=['GET', 'POST'])
+@admin_bp.route('/group/<identifier>/email', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def email_group(group_id):
+def email_group(identifier):
     """Send bulk email to all members of a group."""
     from app.utils.email_sender import send_bulk_email
 
-    group = Group.query.get_or_404(group_id)
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash('Groupe introuvable', 'error')
+        return redirect(url_for('admin.groups'))
+
+    group_id = group.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != group.get_url_identifier():
+        return redirect(url_for('admin.email_group', identifier=group.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
@@ -1818,7 +1910,7 @@ def email_group(group_id):
         if fail > 0:
             flash(f'{fail} email(s) échoué(s)', 'warning')
 
-        return redirect(url_for('admin.group_users', group_id=group_id))
+        return redirect(url_for('admin.group_users', identifier=group.get_url_identifier()))
 
     return render_template('admin/email_group.html', group=group, users=users)
 
@@ -1907,12 +1999,21 @@ def serve_quiz_image(quiz_id, filename):
     upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], f'quiz-{quiz_id}')
     return send_from_directory(upload_dir, filename)
 
-@admin_bp.route('/user/<int:user_id>/grades')
+@admin_bp.route('/user/<identifier>/grades')
 @login_required
 @admin_required
-def user_grades(user_id):
+def user_grades(identifier):
     """View all grades for a specific user."""
-    user = User.query.get_or_404(user_id)
+    user = User.get_by_identifier(identifier)
+    if not user:
+        flash('Utilisateur introuvable', 'error')
+        return redirect(url_for('admin.users'))
+
+    user_id = user.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != user.get_url_identifier():
+        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.is_superadmin and not current_user.can_access_user(user):
@@ -2206,13 +2307,22 @@ def import_users():
     return render_template('admin/import_users.html', groups=groups)
 
 
-@admin_bp.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/user/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_user(user_id):
+def edit_user(identifier):
     """Edit an existing user."""
     from app.models.user import user_groups
-    user = User.query.get_or_404(user_id)
+    user = User.get_by_identifier(identifier)
+    if not user:
+        flash('Utilisateur introuvable', 'error')
+        return redirect(url_for('admin.users'))
+
+    user_id = user.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != user.get_url_identifier():
+        return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()), code=301)
 
     # Permission check - group admins can only edit users in their groups
     if not current_user.can_access_user(user):
@@ -2278,7 +2388,7 @@ def edit_user(user_id):
             user.clear_verification_token()
             db.session.commit()
             flash(f'Email de {user.username} verifie manuellement.', 'success')
-            return redirect(url_for('admin.edit_user', user_id=user_id))
+            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
 
         elif action == 'resend_verification':
             if send_verification_email(user):
@@ -2286,7 +2396,7 @@ def edit_user(user_id):
                 flash(f'Email de verification renvoye a {user.email}.', 'success')
             else:
                 flash('Erreur lors de l\'envoi de l\'email.', 'error')
-            return redirect(url_for('admin.edit_user', user_id=user_id))
+            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
 
         username = request.form.get('username', '').strip()
         first_name = request.form.get('first_name', '').strip()
@@ -2411,12 +2521,15 @@ def edit_user(user_id):
                           user_tenant_ids=user_tenant_ids,
                           is_superadmin=current_user.is_superadmin)
 
-@admin_bp.route('/user/<int:user_id>/delete', methods=['POST'])
+@admin_bp.route('/user/<identifier>/delete', methods=['POST'])
 @login_required
 @admin_required
-def delete_user(user_id):
+def delete_user(identifier):
     """Delete a user."""
-    user = User.query.get_or_404(user_id)
+    user = User.get_by_identifier(identifier)
+    if not user:
+        flash('Utilisateur introuvable', 'error')
+        return redirect(url_for('admin.users'))
 
     # Permission check - group admins can only delete users in their groups
     if not current_user.can_access_user(user):
@@ -2564,12 +2677,22 @@ def bulk_change_group():
 
 
 # Quiz response management
-@admin_bp.route('/response/<int:response_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/response/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_response(response_id):
+def edit_response(identifier):
     """Edit scores for a quiz response."""
-    response = QuizResponse.query.get_or_404(response_id)
+    response = QuizResponse.get_by_identifier(identifier)
+    if not response:
+        flash('Reponse introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    response_id = response.id  # Keep for queries
+
+    # Redirect to canonical URL if accessed by numeric ID
+    if identifier != response.get_url_identifier():
+        return redirect(url_for('admin.edit_response', identifier=response.get_url_identifier()), code=301)
+
     quiz = response.quiz
     user = response.user
 
@@ -2614,7 +2737,7 @@ def edit_response(response_id):
         db.session.commit()
 
         flash(f'Scores mis a jour pour {user.full_name}', 'success')
-        return redirect(url_for('admin.quiz_results', quiz_id=quiz.id))
+        return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
     return render_template('admin/edit_response.html',
                           response=response,
@@ -2623,13 +2746,17 @@ def edit_response(response_id):
                           answers=answers)
 
 
-@admin_bp.route('/response/<int:response_id>/delete', methods=['POST'])
+@admin_bp.route('/response/<identifier>/delete', methods=['POST'])
 @login_required
 @admin_required
-def delete_response(response_id):
+def delete_response(identifier):
     """Delete a quiz response (allows user to retake the quiz)."""
-    response = QuizResponse.query.get_or_404(response_id)
-    quiz_id = response.quiz_id
+    response = QuizResponse.get_by_identifier(identifier)
+    if not response:
+        flash('Reponse introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    response_id = response.id  # Keep for queries
     quiz = response.quiz
     user = response.user
 
@@ -2652,8 +2779,8 @@ def delete_response(response_id):
     # Redirect back to the referring page
     referer = request.referrer
     if referer and 'user_grades' in referer:
-        return redirect(url_for('admin.user_grades', user_id=user.id))
-    return redirect(url_for('admin.quiz_results', quiz_id=quiz_id))
+        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()))
+    return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
 
 # Quiz Generator routes
@@ -2736,21 +2863,28 @@ def generate_quiz():
     return render_template('admin/generate_quiz.html', groups=groups)
 
 
-@admin_bp.route('/response/<int:response_id>/analysis')
+@admin_bp.route('/response/<identifier>/analysis')
 @login_required
 @admin_required
-def response_analysis(response_id):
+def response_analysis(identifier):
     """Show detailed analysis page for a quiz response."""
     from app.utils.anomaly_detector import get_response_stats
 
-    response = QuizResponse.query.get_or_404(response_id)
+    response = QuizResponse.get_by_identifier(identifier)
+    if not response:
+        flash('Reponse introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != response.get_url_identifier():
+        return redirect(url_for('admin.response_analysis', identifier=response.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(response.quiz):
         flash('Vous n\'avez pas acces a ce quiz', 'error')
         return redirect(url_for('admin.dashboard'))
 
-    stats = get_response_stats(response_id)
+    stats = get_response_stats(response.id)
     if not stats:
         flash('Reponse introuvable', 'error')
         return redirect(url_for('admin.dashboard'))
@@ -2763,14 +2897,16 @@ def response_analysis(response_id):
                           quiz_id=response.quiz_id)
 
 
-@admin_bp.route('/response/<int:response_id>/analyze', methods=['POST'])
+@admin_bp.route('/response/<identifier>/analyze', methods=['POST'])
 @login_required
 @admin_required
-def analyze_response(response_id):
+def analyze_response(identifier):
     """Run AI analysis on a quiz response."""
     from app.utils.anomaly_detector import analyze_quiz_response
 
-    response = QuizResponse.query.get_or_404(response_id)
+    response = QuizResponse.get_by_identifier(identifier)
+    if not response:
+        return jsonify({'error': 'Response not found'}), 404
 
     # Check permission
     if not current_user.can_access_quiz(response.quiz):
@@ -2782,7 +2918,7 @@ def analyze_response(response_id):
 
     try:
         # Run analysis
-        result = analyze_quiz_response(response_id)
+        result = analyze_quiz_response(response.id)
 
         # Save result
         response.ai_analysis_result = result
@@ -2792,34 +2928,41 @@ def analyze_response(response_id):
         return jsonify({'success': True, 'result': result})
 
     except Exception as e:
-        current_app.logger.error(f"AI analysis error for response {response_id}: {str(e)}")
+        current_app.logger.error(f"AI analysis error for response {response.id}: {str(e)}")
         response.ai_analysis_status = 'error'
         db.session.commit()
         return jsonify({'error': 'Erreur lors de l\'analyse. Veuillez reessayer.'}), 500
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/class-analysis')
+@admin_bp.route('/quiz/<identifier>/class-analysis')
 @login_required
 @admin_required
-def class_analysis(quiz_id):
+def class_analysis(identifier):
     """Show class-wide analysis page for a quiz."""
     from app.utils.anomaly_detector import get_class_stats
 
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        flash('Quiz introuvable', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != quiz.get_url_identifier():
+        return redirect(url_for('admin.class_analysis', identifier=quiz.get_url_identifier()), code=301)
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
         flash('Vous n\'avez pas acces a ce quiz', 'error')
         return redirect(url_for('admin.dashboard'))
 
-    stats = get_class_stats(quiz_id)
+    stats = get_class_stats(quiz.id)
     if not stats:
         flash('Quiz introuvable', 'error')
         return redirect(url_for('admin.dashboard'))
 
     if 'error' in stats:
         flash(stats['error'], 'warning')
-        return redirect(url_for('admin.quiz_results', quiz_id=quiz_id))
+        return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
     # Check if analysis exists in quiz
     analysis_result = quiz.class_analysis_result if hasattr(quiz, 'class_analysis_result') else None
@@ -2830,21 +2973,23 @@ def class_analysis(quiz_id):
                           analysis=analysis_result)
 
 
-@admin_bp.route('/quiz/<int:quiz_id>/analyze-class', methods=['POST'])
+@admin_bp.route('/quiz/<identifier>/analyze-class', methods=['POST'])
 @login_required
 @admin_required
-def analyze_class_route(quiz_id):
+def analyze_class_route(identifier):
     """Run AI analysis on all responses for a quiz."""
     from app.utils.anomaly_detector import analyze_class
 
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.get_by_identifier(identifier)
+    if not quiz:
+        return jsonify({'error': 'Quiz not found'}), 404
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
         return jsonify({'error': 'Unauthorized'}), 403
 
     try:
-        result = analyze_class(quiz_id)
+        result = analyze_class(quiz.id)
 
         if 'error' in result and result.get('class_risk_level') == 'unknown':
             return jsonify({'error': result['error']}), 500
@@ -2856,7 +3001,7 @@ def analyze_class_route(quiz_id):
         return jsonify({'success': True, 'result': result})
 
     except Exception as e:
-        current_app.logger.error(f"Class analysis error for quiz {quiz_id}: {str(e)}")
+        current_app.logger.error(f"Class analysis error for quiz {quiz.id}: {str(e)}")
         return jsonify({'error': 'Erreur lors de l\'analyse. Veuillez reessayer.'}), 500
 
 
@@ -3104,15 +3249,22 @@ def create_page():
     return render_template('admin/edit_page.html', page=None)
 
 
-@admin_bp.route('/pages/<int:page_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/pages/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
 @superadmin_required
-def edit_page(page_id):
+def edit_page(identifier):
     """Edit an existing custom page."""
     from app.models.page import Page
     import re
 
-    page = Page.query.get_or_404(page_id)
+    page = Page.get_by_identifier(identifier)
+    if not page:
+        flash('Page introuvable', 'error')
+        return redirect(url_for('admin.pages'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != page.get_url_identifier():
+        return redirect(url_for('admin.edit_page', identifier=page.get_url_identifier()), code=301)
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -3133,7 +3285,7 @@ def edit_page(page_id):
             slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
 
         # Check slug uniqueness (excluding current page)
-        existing = Page.query.filter(Page.slug == slug, Page.id != page_id).first()
+        existing = Page.query.filter(Page.slug == slug, Page.id != page.id).first()
         if existing:
             flash('Ce slug existe deja', 'error')
             return render_template('admin/edit_page.html', page=page)
@@ -3159,14 +3311,17 @@ def edit_page(page_id):
     return render_template('admin/edit_page.html', page=page)
 
 
-@admin_bp.route('/pages/<int:page_id>/delete', methods=['POST'])
+@admin_bp.route('/pages/<identifier>/delete', methods=['POST'])
 @login_required
 @superadmin_required
-def delete_page(page_id):
+def delete_page(identifier):
     """Delete a custom page."""
     from app.models.page import Page
 
-    page = Page.query.get_or_404(page_id)
+    page = Page.get_by_identifier(identifier)
+    if not page:
+        flash('Page introuvable', 'error')
+        return redirect(url_for('admin.pages'))
     db.session.delete(page)
     db.session.commit()
 
@@ -3174,12 +3329,19 @@ def delete_page(page_id):
     return redirect(url_for('admin.pages'))
 
 
-@admin_bp.route('/pages/<int:page_id>/preview')
+@admin_bp.route('/pages/<identifier>/preview')
 @login_required
 @superadmin_required
-def preview_page(page_id):
+def preview_page(identifier):
     """Preview a page (even if not published)."""
     from app.models.page import Page
 
-    page = Page.query.get_or_404(page_id)
+    page = Page.get_by_identifier(identifier)
+    if not page:
+        flash('Page introuvable', 'error')
+        return redirect(url_for('admin.pages'))
+
+    # Redirect if accessed by old numeric ID
+    if identifier != page.get_url_identifier():
+        return redirect(url_for('admin.preview_page', identifier=page.get_url_identifier()), code=301)
     return render_template('page/view.html', page=page, is_preview=True)
