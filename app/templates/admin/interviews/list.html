@@ -105,6 +105,10 @@
                 {% endif %}
             </div>
             <div class="quiz-actions">
+                <button type="button" class="btn btn-secondary btn-small btn-icon" data-tooltip="Copier le lien"
+                        onclick="copyLink('{{ request.host_url }}interview/{{ interview.get_url_identifier() }}/start', this)">
+                    <i class="iconoir-link"></i>
+                </button>
                 <a href="{{ url_for('interview.admin_test', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Tester">
                     <i class="iconoir-play"></i>
                 </a>
@@ -176,4 +180,23 @@
     </p>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink(url, btn) {
+    navigator.clipboard.writeText(url).then(function() {
+        const icon = btn.querySelector('i');
+        const originalClass = icon.className;
+        icon.className = 'iconoir-check';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-secondary');
+        setTimeout(function() {
+            icon.className = originalClass;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-secondary');
+        }, 1500);
+    });
+}
+</script>
 {% endblock %}
