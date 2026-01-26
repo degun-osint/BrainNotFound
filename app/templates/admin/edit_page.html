@@ -27,7 +27,7 @@
                             <span class="text-light">/page/</span>
                             <input type="text" id="slug" name="slug" class="form-input"
                                    value="{{ page.slug if page else '' }}" maxlength="200"
-                                   placeholder="mentions-legales" pattern="[a-z0-9-]+">
+                                   placeholder="mentions-legales" pattern="[a-z0-9\-]+">
                         </div>
                         <small class="text-light">Laissez vide pour generer automatiquement depuis le titre</small>
                     </div>

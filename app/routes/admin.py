@@ -3227,7 +3227,7 @@ def create_page():
             return render_template('admin/edit_page.html', page=None)
 
         # Validate slug format
-        if not re.match(r'^[a-z0-9-]+$', slug):
+        if not re.match(r'^[a-z0-9\-]+$', slug):
             flash('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets', 'error')
             return render_template('admin/edit_page.html', page=None)
 
@@ -3291,7 +3291,7 @@ def edit_page(identifier):
             return render_template('admin/edit_page.html', page=page)
 
         # Validate slug format
-        if not re.match(r'^[a-z0-9-]+$', slug):
+        if not re.match(r'^[a-z0-9\-]+$', slug):
             flash('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets', 'error')
             return render_template('admin/edit_page.html', page=page)
 

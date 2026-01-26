@@ -255,7 +255,7 @@
                                 <label class="form-label">Slug (URL)</label>
                                 <input type="text" name="slug" class="form-input"
                                        value="{% if interview %}{{ interview.slug }}{% endif %}"
-                                       placeholder="ex: rps-collegue" pattern="[a-z0-9-]+">
+                                       placeholder="ex: rps-collegue" pattern="[a-z0-9\-]+">
                                 <small class="text-light">Lettres minuscules, chiffres et tirets uniquement</small>
                             </div>
                             <div class="form-group">
