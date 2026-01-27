@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Analyse - {{ stats.response.user_name }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Analyse') }} - {{ stats.response.user_name }} - BrainNotFound{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -229,28 +229,28 @@
 
 {% block content %}
 <h1 class="mb-2">
-    Analyse detaillee
+    {{ _('Analyse detaillee') }}
     <span class="text-light text-sm">{{ stats.response.user_name }} - {{ stats.response.quiz_title }}</span>
 </h1>
 
 <!-- Summary Stats -->
 <div class="analysis-grid mb-2">
     <div class="stat-card">
-        <h3>Duree totale</h3>
+        <h3>{{ _('Duree totale') }}</h3>
         <div class="stat-value">{{ stats.response.total_duration_minutes }} min</div>
     </div>
     <div class="stat-card">
-        <h3>Temps moyen / question</h3>
+        <h3>{{ _('Temps moyen / question') }}</h3>
         <div class="stat-value">{{ stats.averages.avg_time_per_question }}s</div>
     </div>
     <div class="stat-card">
-        <h3>Score</h3>
+        <h3>{{ _('Score') }}</h3>
         <div class="stat-value {% if stats.response.total_score / stats.response.max_score >= 0.7 %}success{% elif stats.response.total_score / stats.response.max_score >= 0.5 %}warning{% else %}danger{% endif %}">
             {{ "%.1f"|format(stats.response.total_score) }} / {{ "%.1f"|format(stats.response.max_score) }}
         </div>
     </div>
     <div class="stat-card">
-        <h3>Pertes de focus</h3>
+        <h3>{{ _('Pertes de focus') }}</h3>
         <div class="stat-value {% if stats.response.total_focus_lost == 0 %}success{% elif stats.response.total_focus_lost < 3 %}warning{% else %}danger{% endif %}">
             {{ stats.response.total_focus_lost }}
         </div>
@@ -260,10 +260,10 @@
 <!-- AI Analysis Section -->
 <div class="card mb-2">
     <div class="card-header flex justify-between items-center">
-        <span><i class="iconoir-sparks"></i> Analyse pedagogique IA</span>
+        <span><i class="iconoir-sparks"></i> {{ _('Analyse pedagogique IA') }}</span>
         {% if not stats.response.ai_analysis_status or stats.response.ai_analysis_status != 'completed' %}
         <button type="button" class="btn btn-primary btn-small" id="analyze-btn" onclick="runAnalysis()">
-            <i class="iconoir-sparks"></i> Lancer l'analyse
+            <i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse') }}
         </button>
         {% endif %}
     </div>
@@ -275,9 +275,9 @@
             <div class="analysis-result {{ level }}" style="background: var(--gray-50);">
                 <div class="analysis-header mb-1">
                     <span class="risk-badge {{ level }}" style="{% if level == 'none' %}background: var(--gray-400);{% endif %}">
-                        {% if level == 'none' %}RAS{% elif level == 'low' %}Attention faible{% elif level == 'moderate' or level == 'medium' %}Attention moderee{% else %}Attention requise{% endif %}
+                        {% if level == 'none' %}{{ _('RAS') }}{% elif level == 'low' %}{{ _('Attention faible') }}{% elif level == 'moderate' or level == 'medium' %}{{ _('Attention moderee') }}{% else %}{{ _('Attention requise') }}{% endif %}
                     </span>
-                    <span class="text-light">Confiance: {{ (result.confidence * 100)|round(0)|int }}%</span>
+                    <span class="text-light">{{ _('Confiance:') }} {{ (result.confidence * 100)|round(0)|int }}%</span>
                 </div>
 
                 <p class="mb-2">{{ result.summary }}</p>
@@ -285,7 +285,7 @@
                 <!-- Strengths -->
                 {% if result.strengths %}
                 <div class="mb-2">
-                    <h4 style="font-size: 0.9rem; color: var(--accent-success);"><i class="iconoir-check-circle"></i> Points forts</h4>
+                    <h4 style="font-size: 0.9rem; color: var(--accent-success);"><i class="iconoir-check-circle"></i> {{ _('Points forts') }}</h4>
                     <div class="flex flex-wrap gap-sm">
                         {% for strength in result.strengths %}
                         <span class="badge badge-success">{{ strength }}</span>
@@ -297,7 +297,7 @@
                 <!-- Learning Gaps -->
                 {% if result.learning_gaps %}
                 <div class="mb-2">
-                    <h4 style="font-size: 0.9rem; color: var(--accent-warning);"><i class="iconoir-book"></i> Axes d'amelioration</h4>
+                    <h4 style="font-size: 0.9rem; color: var(--accent-warning);"><i class="iconoir-book"></i> {{ _('Axes d\'amelioration') }}</h4>
                     {% for gap in result.learning_gaps %}
                     <div class="anomaly-item" style="border-left-color: var(--accent-warning); background: rgba(139, 105, 20, 0.05);">
                         <strong>{{ gap.topic }}</strong>
@@ -316,12 +316,12 @@
                 <!-- Behavioral Indicators -->
                 {% if result.behavioral_indicators or result.anomalies %}
                 <div class="anomaly-list">
-                    <h4 style="font-size: 0.9rem; color: var(--text-light);"><i class="iconoir-eye-solid"></i> Indicateurs comportementaux</h4>
+                    <h4 style="font-size: 0.9rem; color: var(--text-light);"><i class="iconoir-eye-solid"></i> {{ _('Indicateurs comportementaux') }}</h4>
                     {% for indicator in (result.behavioral_indicators or result.anomalies) %}
                     <div class="anomaly-item" style="border-left-color: {% if indicator.level == 'review' or indicator.severity == 'severe' %}var(--accent-error){% elif indicator.level == 'attention' or indicator.severity == 'moderate' %}var(--accent-warning){% else %}var(--gray-300){% endif %};">
                         <span class="severity {{ indicator.level or indicator.severity }}" style="font-size: 0.7rem;">{{ indicator.level or indicator.severity }}</span>
                         {% if indicator.question_number %}
-                        <strong>Question {{ indicator.question_number }}:</strong>
+                        <strong>{{ _('Question') }} {{ indicator.question_number }}:</strong>
                         {% endif %}
                         {{ indicator.description }}
                     </div>
@@ -331,7 +331,7 @@
             </div>
         {% else %}
             <p class="text-center text-light p-2">
-                Cliquez sur "Lancer l'analyse" pour obtenir un bilan pedagogique.
+                {{ _('Cliquez sur "Lancer l\'analyse" pour obtenir un bilan pedagogique.') }}
             </p>
         {% endif %}
     </div>
@@ -339,14 +339,14 @@
 
 <!-- Time per Question -->
 <div class="card mb-2">
-    <div class="card-header">Temps par question</div>
+    <div class="card-header">{{ _('Temps par question') }}</div>
 
     <div class="header-row">
         <span>#</span>
-        <span>Question</span>
-        <span style="text-align: right;">Temps</span>
-        <span style="text-align: center;">Focus</span>
-        <span style="text-align: right;">Score</span>
+        <span>{{ _('Question') }}</span>
+        <span style="text-align: right;">{{ _('Temps') }}</span>
+        <span style="text-align: center;">{{ _('Focus') }}</span>
+        <span style="text-align: right;">{{ _('Score') }}</span>
     </div>
 
     <div class="question-timeline">
@@ -367,7 +367,7 @@
             <span class="q-time">
                 {{ q.time_spent_seconds or 0 }}s
                 {% if class_averages.get(q.question_id, {}).get('avg_time') %}
-                <br><small class="text-light">(moy: {{ class_averages[q.question_id]['avg_time']|int }}s)</small>
+                <br><small class="text-light">({{ _('moy:') }} {{ class_averages[q.question_id]['avg_time']|int }}s)</small>
                 {% endif %}
             </span>
             <span class="q-focus">
@@ -389,8 +389,8 @@
 {% if stats.response.focus_events %}
 <div class="card mb-2">
     <div class="card-header">
-        <i class="iconoir-shield-alert"></i> Journal des evenements de surveillance
-        <span class="badge badge-secondary" style="margin-left: 0.5rem;">{{ stats.response.focus_events|length }} evenement(s)</span>
+        <i class="iconoir-shield-alert"></i> {{ _('Journal des evenements de surveillance') }}
+        <span class="badge badge-secondary" style="margin-left: 0.5rem;">{{ stats.response.focus_events|length }} {{ _('evenement(s)') }}</span>
     </div>
     <div class="focus-events-list">
         {% for event in stats.response.focus_events %}
@@ -400,39 +400,39 @@
                     {% if event.loss_type == 'tab_hidden' %}TAB{% elif event.loss_type == 'window_blur' %}BLUR{% else %}FOCUS{% endif %}
                 </span>
             {% elif 'blocked' in event.event_type %}
-                <span class="event-type-badge blocked">BLOQUE</span>
+                <span class="event-type-badge blocked">{{ _('BLOQUE') }}</span>
             {% elif 'detected' in event.event_type %}
-                <span class="event-type-badge security">DETECTE</span>
+                <span class="event-type-badge security">{{ _('DETECTE') }}</span>
             {% else %}
-                <span class="event-type-badge security">SECU</span>
+                <span class="event-type-badge security">{{ _('SECU') }}</span>
             {% endif %}
             <span class="event-description">
                 {% if event.description %}
                     {{ event.description }}
                 {% elif event.event_type == 'context_menu_blocked' %}
-                    Clic droit bloque
+                    {{ _('Clic droit bloque') }}
                 {% elif event.event_type == 'f12_blocked' %}
-                    Touche F12 bloquee (DevTools)
+                    {{ _('Touche F12 bloquee (DevTools)') }}
                 {% elif event.event_type == 'devtools_shortcut_blocked' %}
-                    Raccourci DevTools bloque (Ctrl+Shift+I)
+                    {{ _('Raccourci DevTools bloque (Ctrl+Shift+I)') }}
                 {% elif event.event_type == 'console_shortcut_blocked' %}
-                    Raccourci Console bloque (Ctrl+Shift+J)
+                    {{ _('Raccourci Console bloque (Ctrl+Shift+J)') }}
                 {% elif event.event_type == 'inspector_shortcut_blocked' %}
-                    Raccourci Inspecteur bloque (Ctrl+Shift+C)
+                    {{ _('Raccourci Inspecteur bloque (Ctrl+Shift+C)') }}
                 {% elif event.event_type == 'view_source_blocked' %}
-                    Affichage source bloque (Ctrl+U)
+                    {{ _('Affichage source bloque (Ctrl+U)') }}
                 {% elif event.event_type == 'save_page_blocked' %}
-                    Sauvegarde page bloquee (Ctrl+S)
+                    {{ _('Sauvegarde page bloquee (Ctrl+S)') }}
                 {% elif event.event_type == 'print_blocked' %}
-                    Impression bloquee (Ctrl+P)
+                    {{ _('Impression bloquee (Ctrl+P)') }}
                 {% elif event.event_type == 'copy_question_blocked' %}
-                    Copie de question bloquee
+                    {{ _('Copie de question bloquee') }}
                 {% elif event.event_type == 'paste_detected' %}
-                    Collage detecte{% if event.length %} ({{ event.length }} car.){% endif %}
+                    {{ _('Collage detecte') }}{% if event.length %} ({{ event.length }} {{ _('car.') }}){% endif %}
                 {% elif event.event_type == 'devtools_detected' %}
-                    Ouverture DevTools detectee
+                    {{ _('Ouverture DevTools detectee') }}
                 {% elif event.event_type == 'print_screen_detected' %}
-                    Capture d'ecran detectee
+                    {{ _('Capture d\'ecran detectee') }}
                 {% else %}
                     {{ event.event_type|replace('_', ' ')|capitalize }}
                 {% endif %}
@@ -449,10 +449,10 @@
 
 <div class="mt-2 flex gap-md">
     <a href="{{ url_for('admin.quiz_results', identifier=stats.quiz.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour aux resultats
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux resultats') }}
     </a>
     <a href="{{ url_for('quiz.result', identifier=stats.response.uid) }}" class="btn btn-secondary">
-        <i class="iconoir-eye"></i> Voir les reponses
+        <i class="iconoir-eye"></i> {{ _('Voir les reponses') }}
     </a>
 </div>
 {% endblock %}
@@ -466,7 +466,7 @@ async function runAnalysis() {
     const container = document.getElementById('analysis-container');
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> Analyse en cours...';
+    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> {{ _('Analyse en cours...') }}';
 
     try {
         const response = await fetch('/admin/response/' + responseId + '/analyze', {
@@ -483,14 +483,14 @@ async function runAnalysis() {
             // Reload page to show results
             location.reload();
         } else {
-            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            alert('{{ _('Erreur:') }} ' + (data.error || '{{ _('Erreur inconnue') }}'));
             btn.disabled = false;
-            btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse';
+            btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse') }}';
         }
     } catch (err) {
-        alert('Erreur de connexion');
+        alert('{{ _('Erreur de connexion') }}');
         btn.disabled = false;
-        btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse';
+        btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse') }}';
     }
 }
 </script>

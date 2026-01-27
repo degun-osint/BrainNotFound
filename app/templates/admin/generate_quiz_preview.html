@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Quiz genere - BrainNotFound{% endblock %}
+{% block title %}{{ _('Quiz genere') }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Quiz genere : {{ title }}</h1>
+<h1 class="mb-2">{{ _('Quiz genere :') }} {{ title }}</h1>
 
 <div class="alert alert-success mb-2">
-    <strong>Quiz genere avec succes !</strong> Verifiez et modifiez le contenu si necessaire avant de creer le quiz.
+    <strong>{{ _('Quiz genere avec succes !') }}</strong> {{ _('Verifiez et modifiez le contenu si necessaire avant de creer le quiz.') }}
 </div>
 
 <div class="card">
-    <div class="card-header">Contenu genere (modifiable)</div>
+    <div class="card-header">{{ _('Contenu genere (modifiable)') }}</div>
 
     <form method="POST" action="{{ url_for('admin.create_quiz') }}">
         <div class="form-group">
@@ -18,47 +18,47 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <label class="form-label" for="time_limit_minutes">{{ _('Limite de temps (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <input type="number" id="time_limit_minutes" name="time_limit_minutes"
                        class="form-input input-sm" min="1" max="180" placeholder="--">
-                <span class="text-light">minutes (laisser vide pour illimite)</span>
+                <span class="text-light">{{ _('minutes (laisser vide pour illimite)') }}</span>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <label class="form-label" for="slug">{{ _('Lien personnalise (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <span class="text-light">/quiz/</span>
                 <input type="text" id="slug" name="slug" class="form-input input-lg"
-                       placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+                       placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="{{ _('Lettres minuscules, chiffres et tirets uniquement') }}">
             </div>
             <small class="help-text">
-                Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.
+                {{ _('Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <label class="form-label">{{ _('Periode de disponibilite (optionnel)') }}</label>
             <div class="flex items-center gap-md flex-wrap">
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">Du</span>
+                    <span class="text-light">{{ _('Du') }}</span>
                     <input type="datetime-local" id="available_from" name="available_from"
                            class="form-input input-md">
                 </div>
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">au</span>
+                    <span class="text-light">{{ _('au') }}</span>
                     <input type="datetime-local" id="available_until" name="available_until"
                            class="form-input input-md">
                 </div>
             </div>
             <small class="help-text">
-                Laisser vide pour un quiz toujours disponible
+                {{ _('Laisser vide pour un quiz toujours disponible') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Groupes autorises (optionnel)</label>
+            <label class="form-label">{{ _('Groupes autorises (optionnel)') }}</label>
             <div class="flex flex-wrap gap-md mt-1">
                 {% for group in groups %}
                 <label class="check-item">
@@ -68,33 +68,33 @@
                 {% endfor %}
             </div>
             <small class="help-text">
-                Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs
+                {{ _('Si aucun groupe n\'est selectionne, le quiz sera disponible pour tous les utilisateurs') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Severite de la correction IA</label>
+            <label class="form-label">{{ _('Severite de la correction IA') }}</label>
             <div class="flex gap-lg mt-1">
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="gentil">
-                    <span class="text-success">Gentil</span>
+                    <span class="text-success">{{ _('Gentil') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="modere" checked>
-                    <span>Modere</span>
+                    <span>{{ _('Modere') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="severe">
-                    <span class="text-error">Severe</span>
+                    <span class="text-error">{{ _('Severe') }}</span>
                 </label>
             </div>
             <small class="help-text">
-                Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision
+                {{ _('Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            <label class="form-label">{{ _('Humeur du correcteur (optionnel, plusieurs choix possibles)') }}</label>
             <div class="flex flex-wrap gap-md mt-1">
                 {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
                 <label class="check-item">
@@ -104,32 +104,32 @@
                 {% endfor %}
             </div>
             <small class="help-text">
-                Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.
+                {{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}
             </small>
         </div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="randomize_questions">
-                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+                <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
             </label>
             <small class="help-text">
-                Si active, les questions seront affichees dans un ordre different pour chaque etudiant
+                {{ _('Si active, les questions seront affichees dans un ordre different pour chaque etudiant') }}
             </small>
         </div>
 
         <div class="actions flex-wrap">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Creer le quiz
+                <i class="iconoir-plus"></i> {{ _('Creer le quiz') }}
             </button>
             <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary">
-                <i class="iconoir-refresh"></i> Regenerer
+                <i class="iconoir-refresh"></i> {{ _('Regenerer') }}
             </a>
             <button type="button" class="btn btn-secondary" onclick="copyMarkdown()">
-                <i class="iconoir-copy"></i> Copier
+                <i class="iconoir-copy"></i> {{ _('Copier') }}
             </button>
             <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>
@@ -137,7 +137,7 @@
 
 <!-- Copy success notification -->
 <div id="copy-toast" class="toast">
-    Markdown copie dans le presse-papiers !
+    {{ _('Markdown copie dans le presse-papiers !') }}
 </div>
 {% endblock %}
 

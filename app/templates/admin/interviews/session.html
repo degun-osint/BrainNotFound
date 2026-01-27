@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Session de {{ session.user.username }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Session de') }} {{ session.user.username }} - {{ site_title }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -62,17 +62,25 @@
 {% block content %}
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <div>
-        <h1 class="mb-0">Session de {{ session.user.full_name }}</h1>
+        <h1 class="mb-0">{{ _('Session de') }} {{ session.user.full_name }}</h1>
         <p class="text-light mt-0">{{ interview.title }} - {{ session.started_at|localtime }}</p>
     </div>
     <div class="flex gap-sm">
         {% if session.status == 'completed' %}
         <a href="{{ url_for('interview.admin_session_pdf', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
-            <i class="iconoir-download"></i> Export PDF
+            <i class="iconoir-download"></i> {{ _('Export PDF') }}
         </a>
         {% endif %}
+        {% if session.status in ['completed', 'evaluating', 'error'] %}
+        <form method="POST" action="{{ url_for('interview.admin_reevaluate_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="inline" onsubmit="return confirm('{{ _("Relancer l'evaluation ? Les scores actuels seront supprimes.") }}');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary" data-tooltip="{{ _("Relancer l'evaluation IA") }}">
+                <i class="iconoir-refresh"></i> {{ _('Re-evaluer') }}
+            </button>
+        </form>
+        {% endif %}
         <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary">
-            <i class="iconoir-arrow-left"></i> Retour
+            <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
         </a>
     </div>
 </div>
@@ -87,29 +95,29 @@
             -
             {% endif %}
         </div>
-        <div class="stat-label">Score</div>
+        <div class="stat-label">{{ _('Score') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ session.get_duration_minutes() }} min</div>
-        <div class="stat-label">Duree</div>
+        <div class="stat-label">{{ _('Duree') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ session.interaction_count }}</div>
-        <div class="stat-label">Echanges</div>
+        <div class="stat-label">{{ _('Echanges') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">
             {% if session.status == 'completed' %}
-            <span class="badge badge-success">Complete</span>
+            <span class="badge badge-success">{{ _('Complete') }}</span>
             {% elif session.status == 'in_progress' %}
-            <span class="badge badge-warning">En cours</span>
+            <span class="badge badge-warning">{{ _('En cours') }}</span>
             {% elif session.status == 'evaluating' %}
-            <span class="badge badge-info">Evaluation</span>
+            <span class="badge badge-info">{{ _('Evaluation') }}</span>
             {% else %}
             <span class="badge badge-light">{{ session.status }}</span>
             {% endif %}
         </div>
-        <div class="stat-label">Statut</div>
+        <div class="stat-label">{{ _('Statut') }}</div>
     </div>
 </div>
 
@@ -117,12 +125,12 @@
     <!-- Info -->
     <div class="card">
         <div class="card-header">
-            <span><i class="iconoir-info-circle"></i> Informations</span>
+            <span><i class="iconoir-info-circle"></i> {{ _('Informations') }}</span>
         </div>
         <div class="card-body">
             <table class="table table-compact">
                 <tr>
-                    <td class="text-light">Etudiant</td>
+                    <td class="text-light">{{ _('Etudiant') }}</td>
                     <td>
                         <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary">
                             {{ session.user.full_name }}
@@ -131,37 +139,37 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="text-light">Debut</td>
+                    <td class="text-light">{{ _('Debut') }}</td>
                     <td>{{ session.started_at|localtime }}</td>
                 </tr>
                 {% if session.ended_at %}
                 <tr>
-                    <td class="text-light">Fin</td>
+                    <td class="text-light">{{ _('Fin') }}</td>
                     <td>{{ session.ended_at|localtime }}</td>
                 </tr>
                 {% endif %}
                 {% if session.end_reason %}
                 <tr>
-                    <td class="text-light">Raison de fin</td>
+                    <td class="text-light">{{ _('Raison de fin') }}</td>
                     <td>
-                        {% if session.end_reason == 'student' %}L'etudiant a termine
-                        {% elif session.end_reason == 'ai_natural' %}Conclusion naturelle
-                        {% elif session.end_reason == 'limit' %}Limite atteinte
-                        {% elif session.end_reason == 'timeout' %}Temps ecoule
+                        {% if session.end_reason == 'student' %}{{ _("L'etudiant a termine") }}
+                        {% elif session.end_reason == 'ai_natural' %}{{ _('Conclusion naturelle') }}
+                        {% elif session.end_reason == 'limit' %}{{ _('Limite atteinte') }}
+                        {% elif session.end_reason == 'timeout' %}{{ _('Temps ecoule') }}
                         {% else %}{{ session.end_reason }}{% endif %}
                     </td>
                 </tr>
                 {% endif %}
                 {% if session.uploaded_file_name %}
                 <tr>
-                    <td class="text-light">Fichier</td>
+                    <td class="text-light">{{ _('Fichier') }}</td>
                     <td><span class="badge badge-info"><i class="iconoir-attachment"></i> {{ session.uploaded_file_name }}</span></td>
                 </tr>
                 {% endif %}
                 {% if session.is_test %}
                 <tr>
-                    <td class="text-light">Mode</td>
-                    <td><span class="badge badge-warning">TEST</span></td>
+                    <td class="text-light">{{ _('Mode') }}</td>
+                    <td><span class="badge badge-warning">{{ _('TEST') }}</span></td>
                 </tr>
                 {% endif %}
             </table>
@@ -171,7 +179,7 @@
     <!-- Scores -->
     <div class="card">
         <div class="card-header">
-            <span><i class="iconoir-clipboard-check"></i> Score: {{ "%.1f"|format(session.total_score) }} / {{ "%.1f"|format(session.max_score) }}</span>
+            <span><i class="iconoir-clipboard-check"></i> {{ _('Score:') }} {{ "%.1f"|format(session.total_score) }} / {{ "%.1f"|format(session.max_score) }}</span>
         </div>
         <div class="card-body">
             {% if session.scores %}
@@ -193,7 +201,7 @@
             </div>
             {% endfor %}
             {% else %}
-            <p class="text-light text-center">Evaluation non disponible</p>
+            <p class="text-light text-center">{{ _('Evaluation non disponible') }}</p>
             {% endif %}
         </div>
     </div>
@@ -203,7 +211,7 @@
 {% if session.ai_summary %}
 <div class="card mt-2">
     <div class="card-header">
-        <span><i class="iconoir-sparks"></i> Synthese de l'IA</span>
+        <span><i class="iconoir-sparks"></i> {{ _("Synthese de l'IA") }}</span>
     </div>
     <div class="card-body">
         <p>{{ session.ai_summary }}</p>
@@ -215,7 +223,7 @@
 {% if session.uploaded_file_content %}
 <div class="card mt-2">
     <div class="card-header">
-        <span><i class="iconoir-submit-document"></i> Fichier fourni: {{ session.uploaded_file_name }}</span>
+        <span><i class="iconoir-submit-document"></i> {{ _('Fichier fourni:') }} {{ session.uploaded_file_name }}</span>
     </div>
     <div class="card-body">
         <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; background: var(--bg-tertiary); padding: 1rem; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 0.875rem;">{{ session.uploaded_file_content }}</pre>
@@ -226,7 +234,7 @@
 <!-- Transcript -->
 <div class="card mt-2">
     <div class="card-header">
-        <span><i class="iconoir-chat-bubble"></i> Transcription</span>
+        <span><i class="iconoir-chat-bubble"></i> {{ _('Transcription') }}</span>
     </div>
     <div class="card-body">
         <div class="transcript">
@@ -236,7 +244,7 @@
                     {% if message.role == 'user' %}
                     {{ session.user.first_name or session.user.username }}
                     {% elif message.role == 'assistant' %}
-                    {{ interview.persona_name or 'Personnage' }}
+                    {{ interview.persona_name or _('Personnage') }}
                     {% endif %}
                     - {{ message.created_at|localtime_short }}
                 </div>
@@ -250,16 +258,16 @@
 <!-- Admin comment -->
 <div class="card mt-2">
     <div class="card-header">
-        <span><i class="iconoir-edit-pencil"></i> Commentaire administrateur</span>
+        <span><i class="iconoir-edit-pencil"></i> {{ _('Commentaire administrateur') }}</span>
     </div>
     <div class="card-body">
         <form action="{{ url_for('interview.admin_add_comment', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group mb-1">
-                <textarea name="comment" class="form-textarea" rows="3" placeholder="Ajouter un commentaire...">{{ session.admin_comment or '' }}</textarea>
+                <textarea name="comment" class="form-textarea" rows="3" placeholder="{{ _('Ajouter un commentaire...') }}">{{ session.admin_comment or '' }}</textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-small">
-                <i class="iconoir-check"></i> Enregistrer
+                <i class="iconoir-check"></i> {{ _('Enregistrer') }}
             </button>
         </form>
     </div>

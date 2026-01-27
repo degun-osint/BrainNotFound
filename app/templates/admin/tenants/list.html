@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Gestion des Organisations - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Gestion des Organisations') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Gestion des Organisations</h1>
+<h1 class="mb-2">{{ _('Gestion des Organisations') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
-        <span>Liste des organisations</span>
-        <a href="{{ url_for('tenant.create_tenant') }}" class="btn btn-primary btn-small" data-tooltip="Creer une nouvelle organisation">
-            <i class="iconoir-plus"></i> Nouveau
+        <span>{{ _('Liste des organisations') }}</span>
+        <a href="{{ url_for('tenant.create_tenant') }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer une nouvelle organisation') }}">
+            <i class="iconoir-plus"></i> {{ _('Nouveau') }}
         </a>
     </div>
 
@@ -20,41 +20,41 @@
                 <div class="quiz-info">
                     <h3>{{ tenant.name }}</h3>
                     <div class="quiz-meta">
-                        Slug: <strong class="font-mono text-info">{{ tenant.slug }}</strong> -
-                        {{ tenant.get_groups_count() }} groupe(s) -
-                        {{ tenant.get_quizzes_count() }} quiz -
-                        Cree le {{ tenant.created_at.strftime('%d/%m/%Y') }} -
+                        {{ _('Slug') }}: <strong class="font-mono text-info">{{ tenant.slug }}</strong> -
+                        {{ tenant.get_groups_count() }} {{ _('groupe(s)') }} -
+                        {{ tenant.get_quizzes_count() }} {{ _('quiz') }} -
+                        {{ _('Cree le') }} {{ tenant.created_at.strftime('%d/%m/%Y') }} -
                         <span class="{{ 'text-success' if tenant.is_active else 'text-error' }}">
-                            {{ 'Actif' if tenant.is_active else 'Inactif' }}
+                            {{ _('Actif') if tenant.is_active else _('Inactif') }}
                         </span>
                     </div>
                     {% if tenant.description %}
                     <p class="text-light text-sm mt-1">{{ tenant.description|truncate(100) }}</p>
                     {% endif %}
                     <div class="mt-1 text-sm">
-                        <span class="text-light">Limites:</span>
-                        {% if tenant.max_users > 0 %}Users: {{ tenant.max_users }}{% else %}Users: illimite{% endif %} |
-                        {% if tenant.max_quizzes > 0 %}Quiz: {{ tenant.max_quizzes }}{% else %}Quiz: illimite{% endif %} |
-                        {% if tenant.max_groups > 0 %}Groupes: {{ tenant.max_groups }}{% else %}Groupes: illimite{% endif %}
+                        <span class="text-light">{{ _('Limites') }}:</span>
+                        {% if tenant.max_users > 0 %}{{ _('Utilisateurs') }}: {{ tenant.max_users }}{% else %}{{ _('Utilisateurs') }}: {{ _('illimite') }}{% endif %} |
+                        {% if tenant.max_quizzes > 0 %}{{ _('Quiz') }}: {{ tenant.max_quizzes }}{% else %}{{ _('Quiz') }}: {{ _('illimite') }}{% endif %} |
+                        {% if tenant.max_groups > 0 %}{{ _('Groupes') }}: {{ tenant.max_groups }}{% else %}{{ _('Groupes') }}: {{ _('illimite') }}{% endif %}
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir details">
+                    <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir details') }}">
                         <i class="iconoir-eye"></i>
                     </a>
-                    <a href="{{ url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Groupes">
+                    <a href="{{ url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Groupes') }}">
                         <i class="iconoir-group"></i>
                     </a>
-                    <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Admins">
+                    <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Admins') }}">
                         <i class="iconoir-user-crown"></i>
                     </a>
-                    <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
                     {% if tenant.groups.count() == 0 %}
                     <form method="POST" action="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}"
-                          onsubmit="return confirmDelete(this, 'cette organisation');" class="inline">
-                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                          onsubmit="return confirmDelete(this, '{{ _('cette organisation') }}');" class="inline">
+                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
                             <i class="iconoir-trash"></i>
                         </button>
                     </form>
@@ -65,14 +65,14 @@
         </div>
     {% else %}
         <p class="text-center text-light p-2">
-            Aucune organisation creee. <a href="{{ url_for('tenant.create_tenant') }}">Creez votre premiere organisation</a>
+            {{ _('Aucune organisation creee.') }} <a href="{{ url_for('tenant.create_tenant') }}">{{ _('Creez votre premiere organisation') }}</a>
         </p>
     {% endif %}
 </div>
 
 <div class="mt-2">
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour au dashboard
+        <i class="iconoir-arrow-left"></i> {{ _('Retour au dashboard') }}
     </a>
 </div>
 {% endblock %}

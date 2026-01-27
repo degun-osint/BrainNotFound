@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ get_locale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +25,12 @@
             <div class="nav-brand">
                 <a href="{{ url_for('auth.index') }}">{{ site_title }}</a>
             </div>
-            <div class="nav-menu">
+            <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="nav-menu" id="nav-menu">
                 {% if current_user.is_any_admin %}
                     <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
                     <div class="nav-dropdown">
@@ -83,11 +88,27 @@
                 {% if current_user.is_superadmin %}
                 <a href="{{ url_for('admin.site_settings') }}" data-tooltip="Parametres"><i class="iconoir-settings"></i></a>
                 {% endif %}
-                <button type="button" class="theme-toggle" id="theme-toggle" data-tooltip="Theme">
+                <button type="button" class="theme-toggle" id="theme-toggle" data-tooltip="{{ _('Theme') }}">
                     <i class="iconoir-sun-light" id="theme-icon-light"></i>
                     <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
                 </button>
-                <a href="{{ url_for('auth.logout') }}" class="btn-logout" data-tooltip="Deconnexion">
+                <div class="nav-dropdown lang-selector">
+                    <button type="button" class="nav-dropdown-btn" data-tooltip="{{ _('Langue') }}">
+                        <i class="iconoir-language"></i>
+                        <span>{{ get_locale()|upper }}</span>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="{{ url_for('auth.set_language', lang='fr') }}"
+                           class="nav-dropdown-item {% if get_locale() == 'fr' %}active{% endif %}">
+                            <i class="iconoir-check" {% if get_locale() != 'fr' %}style="visibility: hidden;"{% endif %}></i> Francais
+                        </a>
+                        <a href="{{ url_for('auth.set_language', lang='en') }}"
+                           class="nav-dropdown-item {% if get_locale() == 'en' %}active{% endif %}">
+                            <i class="iconoir-check" {% if get_locale() != 'en' %}style="visibility: hidden;"{% endif %}></i> English
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout" data-tooltip="{{ _('Deconnexion') }}">
                     <i class="iconoir-log-out"></i>
                 </a>
             </div>
@@ -133,11 +154,17 @@
     </footer>
 
     {% if not current_user.is_authenticated %}
-    <!-- Theme toggle for non-authenticated pages -->
-    <button type="button" class="theme-toggle theme-toggle-floating" id="theme-toggle" data-tooltip="Theme">
-        <i class="iconoir-sun-light" id="theme-icon-light"></i>
-        <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
-    </button>
+    <!-- Theme and language toggle for non-authenticated pages -->
+    <div class="floating-controls">
+        <button type="button" class="theme-toggle theme-toggle-floating" id="theme-toggle" data-tooltip="{{ _('Theme') }}">
+            <i class="iconoir-sun-light" id="theme-icon-light"></i>
+            <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
+        </button>
+        <div class="lang-toggle-floating">
+            <a href="{{ url_for('auth.set_language', lang='fr') }}" class="lang-btn {% if get_locale() == 'fr' %}active{% endif %}" data-tooltip="Francais">FR</a>
+            <a href="{{ url_for('auth.set_language', lang='en') }}" class="lang-btn {% if get_locale() == 'en' %}active{% endif %}" data-tooltip="English">EN</a>
+        </div>
+    </div>
     {% endif %}
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

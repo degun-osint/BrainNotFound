@@ -7,13 +7,13 @@
     <h1 class="mb-0">{{ interview.title }}</h1>
     <div class="flex gap-sm">
         <a href="{{ url_for('interview.admin_test', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary">
-            <i class="iconoir-play"></i> Tester
+            <i class="iconoir-play"></i> {{ _('Tester') }}
         </a>
         <a href="{{ url_for('interview.admin_edit', identifier=interview.get_url_identifier()) }}" class="btn btn-primary">
-            <i class="iconoir-edit-pencil"></i> Modifier
+            <i class="iconoir-edit-pencil"></i> {{ _('Modifier') }}
         </a>
         <a href="{{ url_for('interview.admin_list') }}" class="btn btn-secondary">
-            <i class="iconoir-arrow-left"></i> Retour
+            <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
         </a>
     </div>
 </div>
@@ -22,19 +22,19 @@
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-value">{{ stats.total }}</div>
-        <div class="stat-label">Sessions totales</div>
+        <div class="stat-label">{{ _('Sessions totales') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.completed }}</div>
-        <div class="stat-label">Completees</div>
+        <div class="stat-label">{{ _('Completees') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ "%.0f"|format(stats.avg_score) }}%</div>
-        <div class="stat-label">Score moyen</div>
+        <div class="stat-label">{{ _('Score moyen') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ "%.0f"|format(stats.avg_duration) }} min</div>
-        <div class="stat-label">Duree moyenne</div>
+        <div class="stat-label">{{ _('Duree moyenne') }}</div>
     </div>
 </div>
 
@@ -42,69 +42,69 @@
     <!-- Details -->
     <div class="card">
         <div class="card-header">
-            <span><i class="iconoir-info-circle"></i> Details</span>
+            <span><i class="iconoir-info-circle"></i> {{ _('Details') }}</span>
         </div>
         <div class="card-body">
             <table class="table table-compact">
                 <tr>
-                    <td class="text-light" style="width: 40%">Personnage</td>
+                    <td class="text-light" style="width: 40%">{{ _('Personnage') }}</td>
                     <td>
                         <strong>{{ interview.persona_name or '-' }}</strong>
                         {% if interview.persona_role %}<br><small class="text-light">{{ interview.persona_role }}</small>{% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <td class="text-light">Statut</td>
+                    <td class="text-light">{{ _('Statut') }}</td>
                     <td>
                         {% if interview.is_active %}
                             {% if interview.is_open() %}
-                            <span class="badge badge-success">Actif</span>
+                            <span class="badge badge-success">{{ _('Actif') }}</span>
                             {% else %}
-                            <span class="badge badge-warning">Programme</span>
+                            <span class="badge badge-warning">{{ _('Programme') }}</span>
                             {% endif %}
                         {% else %}
-                        <span class="badge badge-error">Inactif</span>
+                        <span class="badge badge-error">{{ _('Inactif') }}</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% if interview.slug %}
                 <tr>
-                    <td class="text-light">URL</td>
+                    <td class="text-light">{{ _('URL') }}</td>
                     <td><code class="text-sm">/interview/{{ interview.slug }}</code></td>
                 </tr>
                 {% endif %}
                 <tr>
-                    <td class="text-light">Max interactions</td>
+                    <td class="text-light">{{ _('Max interactions') }}</td>
                     <td>{{ interview.max_interactions }}</td>
                 </tr>
                 <tr>
-                    <td class="text-light">Duree max</td>
+                    <td class="text-light">{{ _('Duree max') }}</td>
                     <td>{{ interview.max_duration_minutes }} min</td>
                 </tr>
                 <tr>
-                    <td class="text-light">Qui commence</td>
-                    <td>{% if interview.student_starts %}L'etudiant{% else %}Le personnage{% endif %}</td>
+                    <td class="text-light">{{ _('Qui commence') }}</td>
+                    <td>{% if interview.student_starts %}{{ _("L'etudiant") }}{% else %}{{ _('Le personnage') }}{% endif %}</td>
                 </tr>
                 <tr>
-                    <td class="text-light">Fin par etudiant</td>
-                    <td>{% if interview.allow_student_end %}<span class="text-success">Oui</span>{% else %}<span class="text-error">Non</span>{% endif %}</td>
+                    <td class="text-light">{{ _('Fin par etudiant') }}</td>
+                    <td>{% if interview.allow_student_end %}<span class="text-success">{{ _('Oui') }}</span>{% else %}<span class="text-error">{{ _('Non') }}</span>{% endif %}</td>
                 </tr>
                 <tr>
-                    <td class="text-light">Fin auto IA</td>
-                    <td>{% if interview.ai_can_end %}<span class="text-success">Oui</span>{% else %}<span class="text-error">Non</span>{% endif %}</td>
+                    <td class="text-light">{{ _('Fin auto IA') }}</td>
+                    <td>{% if interview.ai_can_end %}<span class="text-success">{{ _('Oui') }}</span>{% else %}<span class="text-error">{{ _('Non') }}</span>{% endif %}</td>
                 </tr>
                 {% if interview.require_file_upload %}
                 <tr>
-                    <td class="text-light">Fichier requis</td>
+                    <td class="text-light">{{ _('Fichier requis') }}</td>
                     <td><span class="badge badge-info"><i class="iconoir-attachment"></i> {{ interview.file_upload_label }}</span></td>
                 </tr>
                 {% endif %}
                 {% if interview.available_from or interview.available_until %}
                 <tr>
-                    <td class="text-light">Disponibilite</td>
+                    <td class="text-light">{{ _('Disponibilite') }}</td>
                     <td>
-                        {% if interview.available_from %}Du {{ interview.available_from|localtime }}{% endif %}
-                        {% if interview.available_until %}au {{ interview.available_until|localtime }}{% endif %}
+                        {% if interview.available_from %}{{ _('Du') }} {{ interview.available_from|localtime }}{% endif %}
+                        {% if interview.available_until %}{{ _('au') }} {{ interview.available_until|localtime }}{% endif %}
                     </td>
                 </tr>
                 {% endif %}
@@ -112,7 +112,7 @@
 
             {% if interview.groups.count() > 0 %}
             <div class="mt-1">
-                <span class="text-light">Groupes:</span>
+                <span class="text-light">{{ _('Groupes:') }}</span>
                 {% for group in interview.groups %}
                 <span class="tag">{{ group.name }}</span>
                 {% endfor %}
@@ -124,14 +124,14 @@
     <!-- Criteria -->
     <div class="card">
         <div class="card-header">
-            <span><i class="iconoir-clipboard-check"></i> Criteres d'evaluation</span>
+            <span><i class="iconoir-clipboard-check"></i> {{ _("Criteres d'evaluation") }}</span>
         </div>
         {% if interview.criteria %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Critere</th>
-                    <th class="text-right">Points</th>
+                    <th>{{ _('Critere') }}</th>
+                    <th class="text-right">{{ _('Points') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -149,14 +149,14 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td><strong>Total</strong></td>
+                    <td><strong>{{ _('Total') }}</strong></td>
                     <td class="text-right"><strong>{{ interview.get_max_score() }}</strong></td>
                 </tr>
             </tfoot>
         </table>
         {% else %}
         <div class="card-body">
-            <p class="text-light text-center">Aucun critere defini</p>
+            <p class="text-light text-center">{{ _('Aucun critere defini') }}</p>
         </div>
         {% endif %}
     </div>
@@ -165,9 +165,9 @@
 <!-- Sessions list -->
 <div class="card mt-2">
     <div class="card-header flex justify-between items-center">
-        <span><i class="iconoir-user-circle"></i> Sessions ({{ sessions|length }})</span>
+        <span><i class="iconoir-user-circle"></i> {{ _('Sessions') }} ({{ sessions|length }})</span>
         {% if sessions %}
-        <a href="{{ url_for('interview.admin_export', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="Telecharger les resultats">
+        <a href="{{ url_for('interview.admin_export', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="{{ _('Telecharger les resultats') }}">
             <i class="iconoir-download"></i> CSV
         </a>
         {% endif %}
@@ -177,13 +177,13 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Etudiant</th>
-                <th>Date</th>
-                <th>Duree</th>
-                <th>Echanges</th>
-                <th>Score</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th>{{ _('Etudiant') }}</th>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Duree') }}</th>
+                <th>{{ _('Echanges') }}</th>
+                <th>{{ _('Score') }}</th>
+                <th>{{ _('Statut') }}</th>
+                <th>{{ _('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -214,24 +214,24 @@
                 </td>
                 <td>
                     {% if session.status == 'completed' %}
-                    <span class="badge badge-success">Complete</span>
+                    <span class="badge badge-success">{{ _('Complete') }}</span>
                     {% elif session.status == 'in_progress' %}
-                    <span class="badge badge-warning">En cours</span>
+                    <span class="badge badge-warning">{{ _('En cours') }}</span>
                     {% elif session.status == 'evaluating' %}
-                    <span class="badge badge-info">Evaluation</span>
+                    <span class="badge badge-info">{{ _('Evaluation') }}</span>
                     {% else %}
                     <span class="badge badge-light">{{ session.status }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <div class="flex gap-sm">
-                        <a href="{{ url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Voir la session">
+                        <a href="{{ url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir la session') }}">
                             <i class="iconoir-eye"></i>
                         </a>
                         <form method="POST" action="{{ url_for('interview.admin_delete_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()) }}"
-                              onsubmit="return confirmDelete(this, 'cette session');" class="inline">
+                              onsubmit="return confirmDelete(this, '{{ _("cette session") }}');" class="inline">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
                                 <i class="iconoir-trash"></i>
                             </button>
                         </form>
@@ -243,7 +243,7 @@
     </table>
     {% else %}
     <div class="card-body">
-        <p class="text-light text-center">Aucune session pour le moment</p>
+        <p class="text-light text-center">{{ _('Aucune session pour le moment') }}</p>
     </div>
     {% endif %}
 </div>

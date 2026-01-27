@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Mon Tableau de Bord - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Mon Tableau de Bord') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Mon Tableau de Bord</h1>
+<h1 class="mb-2">{{ _('Mon Tableau de Bord') }}</h1>
 
 <!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-value">{{ stats.total_evaluations }}</div>
-        <div class="stat-label">Evaluations</div>
+        <div class="stat-label">{{ _('Evaluations') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ "%.0f"|format(stats.combined_average) }}%</div>
-        <div class="stat-label">Moyenne generale</div>
+        <div class="stat-label">{{ _('Moyenne generale') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.quiz_count }}</div>
-        <div class="stat-label">Quiz ({{ "%.0f"|format(stats.average_percentage) }}%)</div>
+        <div class="stat-label">{{ _('Quiz') }} ({{ "%.0f"|format(stats.average_percentage) }}%)</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.interview_count }}</div>
-        <div class="stat-label">Entretiens ({{ "%.0f"|format(stats.interview_average) }}%)</div>
+        <div class="stat-label">{{ _('Entretiens') }} ({{ "%.0f"|format(stats.interview_average) }}%)</div>
     </div>
 </div>
 
@@ -32,7 +32,7 @@
         {% if available_quizzes or available_interviews %}
         <div class="card mb-2">
             <div class="card-header">
-                <i class="iconoir-task-list"></i> A faire
+                <i class="iconoir-task-list"></i> {{ _('A faire') }}
             </div>
             <div class="todo-list">
                 {% for quiz in available_quizzes %}
@@ -43,7 +43,7 @@
                     <div class="todo-content">
                         <div class="todo-title">{{ quiz.title }}</div>
                         <div class="todo-meta">
-                            {{ quiz.questions.count() }} questions
+                            {{ quiz.questions.count() }} {{ _('questions') }}
                             {% if quiz.time_limit_minutes %} - {{ quiz.time_limit_minutes }} min{% endif %}
                             {% if quiz.available_until %}
                             <span class="todo-deadline">
@@ -83,7 +83,7 @@
         {% if progress_data|length > 1 %}
         <div class="card mb-2">
             <div class="card-header">
-                <i class="iconoir-graph-up"></i> Progression
+                <i class="iconoir-graph-up"></i> {{ _('Progression') }}
             </div>
             <div class="progress-chart">
                 <div class="chart-container">
@@ -109,7 +109,7 @@
         {% if recent_activity %}
         <div class="card mb-2">
             <div class="card-header">
-                <i class="iconoir-activity"></i> Activite recente
+                <i class="iconoir-activity"></i> {{ _('Activite recente') }}
             </div>
             <div class="activity-list">
                 {% for activity in recent_activity %}
@@ -138,12 +138,12 @@
         <!-- Join Group Section -->
         <div class="card mb-2">
             <div class="card-header">
-                <i class="iconoir-group"></i> Rejoindre un groupe
+                <i class="iconoir-group"></i> {{ _('Rejoindre un groupe') }}
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ url_for('auth.join_group') }}" class="join-group-form">
                     <input type="text" name="join_code" class="form-input"
-                           placeholder="Code (ex: ABC12DEF)" style="text-transform: uppercase;">
+                           placeholder="{{ _('Code (ex: ABC12DEF)') }}" style="text-transform: uppercase;">
                     <button type="submit" class="btn btn-primary btn-icon">
                         <i class="iconoir-plus"></i>
                     </button>
@@ -161,20 +161,20 @@
         <!-- Quick Links -->
         <div class="card mb-2">
             <div class="card-header">
-                <i class="iconoir-flash"></i> Acces rapide
+                <i class="iconoir-flash"></i> {{ _('Acces rapide') }}
             </div>
             <div class="quick-links">
                 <a href="{{ url_for('quiz.quiz_list') }}" class="quick-link">
                     <i class="iconoir-clipboard-check"></i>
-                    <span>Tous les quiz</span>
+                    <span>{{ _('Tous les quiz') }}</span>
                 </a>
                 <a href="{{ url_for('interview.interview_list') }}" class="quick-link">
                     <i class="iconoir-chat-bubble"></i>
-                    <span>Tous les entretiens</span>
+                    <span>{{ _('Tous les entretiens') }}</span>
                 </a>
                 <a href="{{ url_for('auth.profile') }}" class="quick-link">
                     <i class="iconoir-user"></i>
-                    <span>Mon profil</span>
+                    <span>{{ _('Mon profil') }}</span>
                 </a>
             </div>
         </div>
@@ -183,31 +183,31 @@
 
 <!-- Full History Section -->
 {% if responses or interview_sessions %}
-<h2 class="mb-1 mt-2">Historique complet</h2>
+<h2 class="mb-1 mt-2">{{ _('Historique complet') }}</h2>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
-        <span>Toutes mes evaluations</span>
+        <span>{{ _('Toutes mes evaluations') }}</span>
         <div class="history-tabs">
-            <button type="button" class="tab-btn active" data-tab="all">Tout</button>
-            <button type="button" class="tab-btn" data-tab="quiz">Quiz</button>
-            <button type="button" class="tab-btn" data-tab="interview">Entretiens</button>
+            <button type="button" class="tab-btn active" data-tab="all">{{ _('Tout') }}</button>
+            <button type="button" class="tab-btn" data-tab="quiz">{{ _('Quiz') }}</button>
+            <button type="button" class="tab-btn" data-tab="interview">{{ _('Entretiens') }}</button>
         </div>
     </div>
     <table class="table history-table">
         <thead>
             <tr>
-                <th>Type</th>
-                <th>Titre</th>
-                <th>Score</th>
-                <th>Date</th>
-                <th>Action</th>
+                <th>{{ _('Type') }}</th>
+                <th>{{ _('Titre') }}</th>
+                <th>{{ _('Score') }}</th>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
         <tbody>
             {% for response in responses %}
             <tr data-type="quiz">
-                <td><span class="badge badge-info">Quiz</span></td>
+                <td><span class="badge badge-info">{{ _('Quiz') }}</span></td>
                 <td>{{ response.quiz.title }}</td>
                 <td>
                     {% set pct = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
@@ -226,7 +226,7 @@
             {% endfor %}
             {% for session in interview_sessions %}
             <tr data-type="interview">
-                <td><span class="badge badge-secondary">Entretien</span></td>
+                <td><span class="badge badge-secondary">{{ _('Entretien') }}</span></td>
                 <td>{{ session.interview.title }}</td>
                 <td>
                     {% if session.status == 'completed' %}
@@ -236,9 +236,9 @@
                         ({{ "%.0f"|format(pct) }}%)
                     </span>
                     {% elif session.status == 'in_progress' %}
-                    <span class="badge badge-warning">En cours</span>
+                    <span class="badge badge-warning">{{ _('En cours') }}</span>
                     {% elif session.status == 'evaluating' %}
-                    <span class="badge badge-info">Evaluation</span>
+                    <span class="badge badge-info">{{ _('Evaluation') }}</span>
                     {% else %}
                     -
                     {% endif %}
@@ -246,15 +246,15 @@
                 <td>{{ session.started_at|localtime }}</td>
                 <td>
                     {% if session.status == 'completed' %}
-                    <a href="{{ url_for('interview.result', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
+                    <a href="{{ url_for('interview.result', identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
                         <i class="iconoir-eye"></i>
                     </a>
                     {% elif session.status == 'in_progress' %}
-                    <a href="{{ url_for('interview.chat', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
+                    <a href="{{ url_for('interview.chat', identifier=session.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon">
                         <i class="iconoir-play"></i>
                     </a>
                     {% elif session.status == 'evaluating' %}
-                    <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon">
+                    <a href="{{ url_for('interview.evaluating', identifier=session.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon">
                         <i class="iconoir-refresh rotating"></i>
                     </a>
                     {% endif %}
@@ -267,9 +267,9 @@
 {% else %}
 <div class="card">
     <p class="text-center text-light p-2">
-        Vous n'avez pas encore complete d'evaluation.<br>
+        {{ _('Vous n\'avez pas encore complete d\'evaluation.') }}<br>
         <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-primary mt-1">
-            <i class="iconoir-list"></i> Voir les quiz disponibles
+            <i class="iconoir-list"></i> {{ _('Voir les quiz disponibles') }}
         </a>
     </p>
 </div>

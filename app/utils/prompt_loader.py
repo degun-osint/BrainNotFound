@@ -1,5 +1,5 @@
 """
-Prompt loader with fallback mechanism.
+Prompt loader with fallback mechanism and multilingual support.
 Loads prompts from /private/ if available, otherwise falls back to /private.example/
 """
 
@@ -16,6 +16,9 @@ _EXAMPLE_DIR = _BASE_DIR / 'private.example'
 
 # Track which resources are using fallback (example)
 _using_fallback: Dict[str, bool] = {}
+
+# Default language
+DEFAULT_LANG = 'fr'
 
 
 def _check_fallback_status() -> Dict[str, bool]:
@@ -113,64 +116,193 @@ def _get_prompt_module(module_name: str):
     return None
 
 
-def get_grading_prompts() -> Dict[str, Any]:
+def _get_prompt_value(value: Any, lang: str = None) -> Any:
+    """
+    Get prompt value for the specified language.
+    Handles both old-style (simple string/dict) and new-style (language-keyed dict) prompts.
+
+    Args:
+        value: The prompt value (can be string, dict, or language-keyed dict)
+        lang: Language code ('fr', 'en'). Defaults to DEFAULT_LANG.
+
+    Returns:
+        The prompt value for the specified language
+    """
+    if lang is None:
+        lang = DEFAULT_LANG
+
+    # If value is a dict with language keys ('fr', 'en')
+    if isinstance(value, dict):
+        if lang in value:
+            return value[lang]
+        # Fallback to default language
+        if DEFAULT_LANG in value:
+            return value[DEFAULT_LANG]
+        # If not a language-keyed dict, return as-is (e.g., severity dict)
+        # Check if it looks like a language dict (has 'fr' or 'en' key)
+        if 'fr' not in value and 'en' not in value:
+            return value
+
+    return value
+
+
+def _get_nested_prompt_value(value: Any, lang: str = None) -> Any:
+    """
+    Get nested prompt value for the specified language.
+    Handles dictionaries where values might also be language-keyed.
+
+    Args:
+        value: The prompt value (can be string, dict with nested lang dicts)
+        lang: Language code ('fr', 'en'). Defaults to DEFAULT_LANG.
+
+    Returns:
+        The prompt value for the specified language
+    """
+    if lang is None:
+        lang = DEFAULT_LANG
+
+    # If value is a dict, check if it's language-keyed at the top level
+    if isinstance(value, dict):
+        if lang in value and isinstance(value.get(lang), dict):
+            # Top-level language dict (e.g., SEVERITY_INSTRUCTIONS['fr'])
+            return value[lang]
+        elif 'fr' in value or 'en' in value:
+            # It's a language-keyed dict, return the language version
+            return value.get(lang, value.get(DEFAULT_LANG, value))
+
+    return value
+
+
+def get_grading_prompts(lang: str = None) -> Dict[str, Any]:
     """
     Get grading prompts (severity instructions, mood descriptions, template).
-    Returns dict with: SEVERITY_INSTRUCTIONS, MOOD_DESCRIPTIONS, GRADING_PROMPT_TEMPLATE
+
+    Args:
+        lang: Language code ('fr', 'en'). Defaults to user's current language or 'fr'.
+
+    Returns:
+        dict with: SEVERITY_INSTRUCTIONS, MOOD_DESCRIPTIONS, GRADING_PROMPT_TEMPLATE, MOOD_HEADER
     """
+    if lang is None:
+        lang = DEFAULT_LANG
+
     module = _get_prompt_module('grading')
     if module:
         return {
-            'SEVERITY_INSTRUCTIONS': getattr(module, 'SEVERITY_INSTRUCTIONS', {}),
-            'MOOD_DESCRIPTIONS': getattr(module, 'MOOD_DESCRIPTIONS', {}),
-            'GRADING_PROMPT_TEMPLATE': getattr(module, 'GRADING_PROMPT_TEMPLATE', ''),
+            'SEVERITY_INSTRUCTIONS': _get_nested_prompt_value(
+                getattr(module, 'SEVERITY_INSTRUCTIONS', {}), lang
+            ),
+            'MOOD_DESCRIPTIONS': _get_nested_prompt_value(
+                getattr(module, 'MOOD_DESCRIPTIONS', {}), lang
+            ),
+            'GRADING_PROMPT_TEMPLATE': _get_prompt_value(
+                getattr(module, 'GRADING_PROMPT_TEMPLATE', ''), lang
+            ),
+            'MOOD_HEADER': _get_prompt_value(
+                getattr(module, 'MOOD_HEADER', {'fr': '**TON DU FEEDBACK:**', 'en': '**FEEDBACK TONE:**'}), lang
+            ),
         }
-    return {'SEVERITY_INSTRUCTIONS': {}, 'MOOD_DESCRIPTIONS': {}, 'GRADING_PROMPT_TEMPLATE': ''}
+    return {
+        'SEVERITY_INSTRUCTIONS': {},
+        'MOOD_DESCRIPTIONS': {},
+        'GRADING_PROMPT_TEMPLATE': '',
+        'MOOD_HEADER': '**TON DU FEEDBACK:**' if lang == 'fr' else '**FEEDBACK TONE:**'
+    }
 
 
-def get_generator_prompts() -> Dict[str, Any]:
+def get_generator_prompts(lang: str = None) -> Dict[str, Any]:
     """
     Get quiz generator prompts.
-    Returns dict with: QUIZ_FORMAT, DIFFICULTY_INSTRUCTIONS, GENERATION_PROMPT_TEMPLATE
+
+    Args:
+        lang: Language code ('fr', 'en'). Defaults to 'fr'.
+
+    Returns:
+        dict with: QUIZ_FORMAT, DIFFICULTY_INSTRUCTIONS, GENERATION_PROMPT_TEMPLATE
     """
+    if lang is None:
+        lang = DEFAULT_LANG
+
     module = _get_prompt_module('generator')
     if module:
         return {
-            'QUIZ_FORMAT': getattr(module, 'QUIZ_FORMAT', ''),
-            'DIFFICULTY_INSTRUCTIONS': getattr(module, 'DIFFICULTY_INSTRUCTIONS', {}),
-            'GENERATION_PROMPT_TEMPLATE': getattr(module, 'GENERATION_PROMPT_TEMPLATE', ''),
+            'QUIZ_FORMAT': _get_prompt_value(
+                getattr(module, 'QUIZ_FORMAT', ''), lang
+            ),
+            'DIFFICULTY_INSTRUCTIONS': _get_nested_prompt_value(
+                getattr(module, 'DIFFICULTY_INSTRUCTIONS', {}), lang
+            ),
+            'GENERATION_PROMPT_TEMPLATE': _get_prompt_value(
+                getattr(module, 'GENERATION_PROMPT_TEMPLATE', ''), lang
+            ),
         }
     return {'QUIZ_FORMAT': '', 'DIFFICULTY_INSTRUCTIONS': {}, 'GENERATION_PROMPT_TEMPLATE': ''}
 
 
-def get_anomaly_prompts() -> Dict[str, Any]:
+def get_anomaly_prompts(lang: str = None) -> Dict[str, Any]:
     """
     Get anomaly detection prompts.
-    Returns dict with: INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE, CLASS_ANALYSIS_PROMPT_TEMPLATE
+
+    Args:
+        lang: Language code ('fr', 'en'). Defaults to 'fr'.
+
+    Returns:
+        dict with: INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE, CLASS_ANALYSIS_PROMPT_TEMPLATE
     """
+    if lang is None:
+        lang = DEFAULT_LANG
+
     module = _get_prompt_module('anomaly')
     if module:
         return {
-            'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE': getattr(module, 'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE', ''),
-            'CLASS_ANALYSIS_PROMPT_TEMPLATE': getattr(module, 'CLASS_ANALYSIS_PROMPT_TEMPLATE', ''),
+            'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE': _get_prompt_value(
+                getattr(module, 'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE', ''), lang
+            ),
+            'CLASS_ANALYSIS_PROMPT_TEMPLATE': _get_prompt_value(
+                getattr(module, 'CLASS_ANALYSIS_PROMPT_TEMPLATE', ''), lang
+            ),
         }
     return {'INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE': '', 'CLASS_ANALYSIS_PROMPT_TEMPLATE': ''}
 
 
-def get_interview_prompts() -> Dict[str, Any]:
+def get_interview_prompts(lang: str = None) -> Dict[str, Any]:
     """
     Get interview prompts for conversational AI evaluation.
-    Returns dict with: PROMPT_GENERATOR_TEMPLATE, CONVERSATION_WRAPPER, EVALUATION_TEMPLATE,
-                       OPENING_MESSAGE_TEMPLATE, CRITERIA_TEMPLATES
+
+    Args:
+        lang: Language code ('fr', 'en'). Defaults to 'fr'.
+
+    Returns:
+        dict with: PROMPT_GENERATOR_TEMPLATE, CONVERSATION_WRAPPER, EVALUATION_TEMPLATE,
+                   OPENING_MESSAGE_TEMPLATE, CRITERIA_TEMPLATES, ERROR_MESSAGES, FILE_INJECTION_TEMPLATE
     """
+    if lang is None:
+        lang = DEFAULT_LANG
+
     module = _get_prompt_module('interview')
     if module:
         return {
-            'PROMPT_GENERATOR_TEMPLATE': getattr(module, 'PROMPT_GENERATOR_TEMPLATE', ''),
-            'CONVERSATION_WRAPPER': getattr(module, 'CONVERSATION_WRAPPER', ''),
-            'EVALUATION_TEMPLATE': getattr(module, 'EVALUATION_TEMPLATE', ''),
-            'OPENING_MESSAGE_TEMPLATE': getattr(module, 'OPENING_MESSAGE_TEMPLATE', ''),
-            'CRITERIA_TEMPLATES': getattr(module, 'CRITERIA_TEMPLATES', {}),
+            'PROMPT_GENERATOR_TEMPLATE': _get_prompt_value(
+                getattr(module, 'PROMPT_GENERATOR_TEMPLATE', ''), lang
+            ),
+            'CONVERSATION_WRAPPER': _get_prompt_value(
+                getattr(module, 'CONVERSATION_WRAPPER', ''), lang
+            ),
+            'EVALUATION_TEMPLATE': _get_prompt_value(
+                getattr(module, 'EVALUATION_TEMPLATE', ''), lang
+            ),
+            'OPENING_MESSAGE_TEMPLATE': _get_prompt_value(
+                getattr(module, 'OPENING_MESSAGE_TEMPLATE', ''), lang
+            ),
+            'CRITERIA_TEMPLATES': _get_nested_prompt_value(
+                getattr(module, 'CRITERIA_TEMPLATES', {}), lang
+            ),
+            'ERROR_MESSAGES': _get_nested_prompt_value(
+                getattr(module, 'ERROR_MESSAGES', {}), lang
+            ),
+            'FILE_INJECTION_TEMPLATE': _get_prompt_value(
+                getattr(module, 'FILE_INJECTION_TEMPLATE', ''), lang
+            ),
         }
     return {
         'PROMPT_GENERATOR_TEMPLATE': '',
@@ -178,6 +310,8 @@ def get_interview_prompts() -> Dict[str, Any]:
         'EVALUATION_TEMPLATE': '',
         'OPENING_MESSAGE_TEMPLATE': '',
         'CRITERIA_TEMPLATES': {},
+        'ERROR_MESSAGES': {},
+        'FILE_INJECTION_TEMPLATE': '',
     }
 
 

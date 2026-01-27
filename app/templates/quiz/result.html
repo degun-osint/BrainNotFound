@@ -1,39 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Résultat - {{ quiz_response.quiz.title }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Resultat') }} - {{ quiz_response.quiz.title }} - BrainNotFound{% endblock %}
 
 {% block content %}
 {% if quiz_response.is_test %}
 <div class="preview-banner mb-2 flex justify-between items-center">
     <div>
-        <h3><i class="iconoir-flask"></i> Résultat de test</h3>
-        <p class="text-sm" style="opacity: 0.9;">Ceci est un test admin - non comptabilisé dans les statistiques.</p>
+        <h3><i class="iconoir-flask"></i> {{ _('Resultat de test') }}</h3>
+        <p class="text-sm" style="opacity: 0.9;">{{ _('Ceci est un test admin - non comptabilise dans les statistiques.') }}</p>
     </div>
     <a href="{{ url_for('admin.preview_quiz', identifier=quiz_response.quiz.get_url_identifier()) }}" class="btn btn-small btn-ghost">
-        <i class="iconoir-arrow-left"></i> Retour preview
+        <i class="iconoir-arrow-left"></i> {{ _('Retour preview') }}
     </a>
 </div>
 {% endif %}
 
-<h1 class="mb-2">Résultats : {{ quiz_response.quiz.title }}</h1>
+<h1 class="mb-2">{{ _('Resultats :') }} {{ quiz_response.quiz.title }}</h1>
 
 <div class="score-banner">
     <div class="score-value">{{ "%.2f"|format(quiz_response.total_score) }} / {{ "%.2f"|format(quiz_response.max_score) }}</div>
     <div class="score-label">
         {% set percentage = (quiz_response.total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0 %}
-        Soit {{ "%.1f"|format(percentage) }}% de réussite
+        {{ _('Soit') }} {{ "%.1f"|format(percentage) }}% {{ _('de reussite') }}
     </div>
     <div class="mt-1 text-sm">
-        Soumis le {{ quiz_response.submitted_at|localtime }}
+        {{ _('Soumis le') }} {{ quiz_response.submitted_at|localtime }}
         {% if quiz_response.is_late %}
-        <span class="badge badge-error ml-1">Soumission en retard</span>
+        <span class="badge badge-error ml-1">{{ _('Soumission en retard') }}</span>
         {% endif %}
         {% if quiz_response.started_at %}
         <br>
         {% set duration_minutes = ((quiz_response.submitted_at - quiz_response.started_at).total_seconds() / 60) %}
-        Duree : {{ "%.1f"|format(duration_minutes) }} minutes
+        {{ _('Duree :') }} {{ "%.1f"|format(duration_minutes) }} {{ _('minutes') }}
         {% if quiz_response.quiz.time_limit_minutes %}
-        / {{ quiz_response.quiz.time_limit_minutes }} minutes allouees
+        / {{ quiz_response.quiz.time_limit_minutes }} {{ _('minutes allouees') }}
         {% endif %}
         {% endif %}
     </div>
@@ -42,7 +42,7 @@
 {% if quiz_response.admin_comment %}
 <div class="card mb-2">
     <div class="card-header">
-        <i class="iconoir-message-text"></i> Commentaire du correcteur
+        <i class="iconoir-message-text"></i> {{ _('Commentaire du correcteur') }}
     </div>
     <div class="p-1 whitespace-pre">{{ quiz_response.admin_comment }}</div>
 </div>
@@ -51,11 +51,11 @@
 {% if quiz_response.quiz.randomize_questions %}
 <div class="alert alert-info mb-2">
     <i class="iconoir-info-circle"></i>
-    <span>Les questions étaient affichées dans un ordre aléatoire pendant l'examen. Ci-dessous, elles sont présentées dans l'ordre original du quiz.</span>
+    <span>{{ _('Les questions etaient affichees dans un ordre aleatoire pendant l\'examen. Ci-dessous, elles sont presentees dans l\'ordre original du quiz.') }}</span>
 </div>
 {% endif %}
 
-<h2 class="mb-1">Détails des réponses</h2>
+<h2 class="mb-1">{{ _('Details des reponses') }}</h2>
 
 {% for question in questions %}
     {% set answer = answers_by_question.get(question.id) %}
@@ -76,7 +76,7 @@
         <div class="question-header">
             <span class="question-type">{{ question.question_type|upper }}</span>
             <span class="question-points">
-                {{ "%.2f"|format(answer.score if answer else 0) }} / {{ "%.2f"|format(question.points) }} points
+                {{ "%.2f"|format(answer.score if answer else 0) }} / {{ "%.2f"|format(question.points) }} {{ _('points') }}
             </span>
         </div>
 
@@ -91,27 +91,27 @@
                     {% endif %}
                     {{ option|render_quiz_images(quiz_response.quiz.id) }}
                     {% if loop.index0 in question.correct_answers %}
-                        <span class="text-success font-bold ml-1"><i class="iconoir-check"></i> Correct</span>
+                        <span class="text-success font-bold ml-1"><i class="iconoir-check"></i> {{ _('Correct') }}</span>
                     {% endif %}
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
             <div class="mt-1">
-                <strong>Votre réponse :</strong>
-                <div class="answer-box mt-0 whitespace-pre">{{ answer.answer_text if answer else "Aucune réponse" }}</div>
+                <strong>{{ _('Votre reponse :') }}</strong>
+                <div class="answer-box mt-0 whitespace-pre">{{ answer.answer_text if answer else _('Aucune reponse') }}</div>
             </div>
 
             {% if question.expected_answer %}
             <div class="mt-1">
-                <strong>Réponse attendue :</strong>
+                <strong>{{ _('Reponse attendue :') }}</strong>
                 <div class="expected-answer mt-0 whitespace-pre">{{ question.expected_answer }}</div>
             </div>
             {% endif %}
 
             {% if answer and answer.ai_feedback %}
             <div class="feedback">
-                <strong>Correction :</strong>
+                <strong>{{ _('Correction :') }}</strong>
                 <p class="mt-0">{{ answer.ai_feedback }}</p>
             </div>
             {% endif %}
@@ -121,7 +121,7 @@
 
 <div class="mt-2">
     <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-primary">
-        <i class="iconoir-arrow-left"></i> Retour aux quiz
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux quiz') }}
     </a>
 </div>
 {% endblock %}

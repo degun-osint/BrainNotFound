@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ quiz.title }} - Mode Examen{% endblock %}
+{% block title %}{{ quiz.title }} - {{ _('Mode Examen') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -397,53 +397,53 @@
     <div class="exam-intro-card">
         <div class="exam-intro-header">
             <h1>{{ quiz.title }}</h1>
-            <p class="subtitle">Mode examen</p>
+            <p class="subtitle">{{ _('Mode examen') }}</p>
         </div>
 
         <div class="exam-info-grid">
             <div class="exam-info-item">
-                <div class="label">Questions</div>
+                <div class="label">{{ _('Questions') }}</div>
                 <div class="value">{{ questions|length }}</div>
             </div>
             {% if time_limit_minutes %}
             <div class="exam-info-item">
-                <div class="label">Temps limite</div>
+                <div class="label">{{ _('Temps limite') }}</div>
                 <div class="value">{{ time_limit_minutes }} min</div>
             </div>
             {% endif %}
             <div class="exam-info-item">
-                <div class="label">Points total</div>
+                <div class="label">{{ _('Points total') }}</div>
                 <div class="value">{{ questions|sum(attribute='points') }}</div>
             </div>
         </div>
 
         <div class="exam-warnings">
-            <h3><i class="iconoir-warning-triangle"></i> Avertissements importants</h3>
+            <h3><i class="iconoir-warning-triangle"></i> {{ _('Avertissements importants') }}</h3>
             <ul>
-                <li><strong>Ne quittez pas cette fenêtre</strong> pendant l'examen. Tout changement d'onglet ou de fenêtre sera détecté et enregistré.</li>
-                <li>Le temps passé sur chaque question est mesuré et enregistré.</li>
-                <li>Le copier-coller, le clic droit et les outils de développement sont <strong>désactivés</strong>.</li>
-                <li>Toute tentative de contournement sera enregistrée et signalée.</li>
+                <li><strong>{{ _('Ne quittez pas cette fenetre') }}</strong> {{ _('pendant l\'examen. Tout changement d\'onglet ou de fenetre sera detecte et enregistre.') }}</li>
+                <li>{{ _('Le temps passe sur chaque question est mesure et enregistre.') }}</li>
+                <li>{{ _('Le copier-coller, le clic droit et les outils de developpement sont') }} <strong>{{ _('desactives') }}</strong>.</li>
+                <li>{{ _('Toute tentative de contournement sera enregistree et signalee.') }}</li>
                 {% if time_limit_minutes %}
-                <li>Vous disposez de <strong>{{ time_limit_minutes }} minutes</strong> pour compléter l'examen. Le temps commence dès que vous cliquez sur "Commencer".</li>
+                <li>{{ _('Vous disposez de') }} <strong>{{ time_limit_minutes }} {{ _('minutes') }}</strong> {{ _('pour completer l\'examen. Le temps commence des que vous cliquez sur "Commencer".') }}</li>
                 {% endif %}
-                <li>Une fois l'examen commencé, il ne peut pas être mis en pause.</li>
+                <li>{{ _('Une fois l\'examen commence, il ne peut pas etre mis en pause.') }}</li>
             </ul>
         </div>
 
         <div class="exam-rules">
-            <h3>Déroulement de l'examen</h3>
+            <h3>{{ _('Deroulement de l\'examen') }}</h3>
             <ul>
-                <li>Les questions sont présentées une par une</li>
-                <li>Vous pouvez naviguer entre les questions avec les boutons ou les points de navigation</li>
-                <li>Vos réponses sont sauvegardées automatiquement</li>
-                <li>Cliquez sur "Terminer l'examen" à la dernière question pour soumettre</li>
+                <li>{{ _('Les questions sont presentees une par une') }}</li>
+                <li>{{ _('Vous pouvez naviguer entre les questions avec les boutons ou les points de navigation') }}</li>
+                <li>{{ _('Vos reponses sont sauvegardees automatiquement') }}</li>
+                <li>{{ _('Cliquez sur "Terminer l\'examen" a la derniere question pour soumettre') }}</li>
             </ul>
         </div>
 
         <form method="POST" action="{{ url_for('quiz.start_exam', identifier=quiz.get_url_identifier()) }}">
             <button type="submit" class="btn btn-primary exam-start-btn">
-                Commencer l'examen
+                {{ _('Commencer l\'examen') }}
             </button>
         </form>
     </div>
@@ -452,11 +452,11 @@
 {% if is_test %}
 <div class="preview-banner mb-2 flex justify-between items-center">
     <div>
-        <h3><i class="iconoir-flask"></i> Mode Test</h3>
-        <p class="text-sm" style="opacity: 0.9;">Vous testez ce quiz en tant qu'admin. Les résultats seront marqués comme test.</p>
+        <h3><i class="iconoir-flask"></i> {{ _('Mode Test') }}</h3>
+        <p class="text-sm" style="opacity: 0.9;">{{ _('Vous testez ce quiz en tant qu\'admin. Les resultats seront marques comme test.') }}</p>
     </div>
     <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-ghost">
-        <i class="iconoir-arrow-left"></i> Retour preview
+        <i class="iconoir-arrow-left"></i> {{ _('Retour preview') }}
     </a>
 </div>
 {% endif %}
@@ -464,23 +464,23 @@
     <!-- Header sticky avec progression et timers -->
     <div class="exam-header">
         <div class="exam-progress">
-            <span class="progress-text">Question <span id="current-question-num">1</span> / {{ questions|length }}</span>
+            <span class="progress-text">{{ _('Question') }} <span id="current-question-num">1</span> / {{ questions|length }}</span>
             <div class="progress-bar-container">
                 <div class="progress-bar-fill" id="progress-bar" style="width: {{ (1 / questions|length * 100)|round(1) }}%"></div>
             </div>
             <div class="focus-counter" id="focus-counter" style="display: none;">
-                Sorties: <span id="focus-count">0</span>
+                {{ _('Sorties:') }} <span id="focus-count">0</span>
             </div>
         </div>
         <div class="exam-timers">
             {% if time_limit_minutes %}
             <div class="timer-item" id="global-timer">
-                <span>Temps total:</span>
+                <span>{{ _('Temps total:') }}</span>
                 <strong id="global-timer-display">--:--</strong>
             </div>
             {% endif %}
             <div class="timer-item">
-                <span>Cette question:</span>
+                <span>{{ _('Cette question:') }}</span>
                 <strong id="question-timer-display">0:00</strong>
             </div>
         </div>
@@ -495,9 +495,9 @@
             <div class="question-card">
                 <div class="question-meta">
                     <span class="question-type-badge {{ question.question_type }}">
-                        {{ 'QCM' if question.question_type == 'mcq' else 'Question ouverte' }}
+                        {{ _('QCM') if question.question_type == 'mcq' else _('Question ouverte') }}
                     </span>
-                    <span class="question-points">{{ question.points }} point(s)</span>
+                    <span class="question-points">{{ question.points }} {{ _('point(s)') }}</span>
                 </div>
 
                 <div class="question-text">{{ question.question_text|render_quiz_images(quiz.id) }}</div>
@@ -520,15 +520,15 @@
                 </ul>
                 {% if question.allow_multiple %}
                 <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem;">
-                    <em>Plusieurs reponses possibles</em>
+                    <em>{{ _('Plusieurs reponses possibles') }}</em>
                 </p>
                 {% endif %}
                 {% else %}
                 <div class="form-group">
                     <textarea name="question_{{ question.id }}" class="form-textarea open-answer"
-                              placeholder="Votre reponse..." rows="6" maxlength="5000"></textarea>
+                              placeholder="{{ _('Votre reponse...') }}" rows="6" maxlength="5000"></textarea>
                     <div class="char-counter">
-                        <span class="char-count">0</span> / 5000 caracteres
+                        <span class="char-count">0</span> / 5000 {{ _('caracteres') }}
                     </div>
                 </div>
                 {% endif %}
@@ -542,22 +542,22 @@
             {% for question in questions %}
             <div class="question-dot{% if loop.first %} current{% endif %}"
                  data-index="{{ loop.index0 }}"
-                 title="Question {{ loop.index }}"></div>
+                 title="{{ _('Question') }} {{ loop.index }}"></div>
             {% endfor %}
         </div>
 
         <!-- Navigation buttons -->
         <div class="exam-navigation">
             <button type="button" class="btn btn-secondary nav-btn" id="prev-btn" disabled>
-                <span>&#8592;</span> Precedent
+                <span>&#8592;</span> {{ _('Precedent') }}
             </button>
 
             <button type="button" class="btn btn-primary nav-btn" id="next-btn">
-                Suivant <span>&#8594;</span>
+                {{ _('Suivant') }} <span>&#8594;</span>
             </button>
 
             <button type="button" class="btn btn-success nav-btn" id="submit-btn" style="display: none;">
-                Terminer l'examen
+                {{ _('Terminer l\'examen') }}
             </button>
         </div>
 
@@ -573,10 +573,10 @@
 <div class="focus-warning" id="focus-warning">
     <div class="focus-warning-content">
         <div class="focus-warning-icon">&#9888;</div>
-        <h3>Attention !</h3>
-        <p>Vous avez quitté la fenêtre de l'examen.</p>
-        <p>Cet événement a été enregistré.</p>
-        <button type="button" class="btn btn-primary" id="focus-warning-close">J'ai compris</button>
+        <h3>{{ _('Attention !') }}</h3>
+        <p>{{ _('Vous avez quitte la fenetre de l\'examen.') }}</p>
+        <p>{{ _('Cet evenement a ete enregistre.') }}</p>
+        <button type="button" class="btn btn-primary" id="focus-warning-close">{{ _('J\'ai compris') }}</button>
     </div>
 </div>
 {% endif %}
@@ -884,7 +884,7 @@
         const toast = document.createElement('div');
         toast.id = 'security-toast';
         toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent-warning);color:white;padding:0.75rem 1rem;border-radius:4px;font-size:0.9rem;z-index:9999;animation:fadeIn 0.3s ease;';
-        toast.textContent = 'Action non autorisée pendant l\'examen';
+        toast.textContent = '{{ _('Action non autorisee pendant l\'examen') }}';
         document.body.appendChild(toast);
 
         setTimeout(() => toast.remove(), 2000);
@@ -998,7 +998,7 @@
 
         globalTimerInterval = setInterval(() => {
             if (globalRemainingSeconds <= 0) {
-                globalTimerDisplay.textContent = 'Temps ecoule !';
+                globalTimerDisplay.textContent = '{{ _('Temps ecoule !') }}';
                 globalTimer.classList.add('danger');
                 clearInterval(globalTimerInterval);
                 return;
@@ -1048,7 +1048,7 @@
         // Tab visibility change (switch tab, minimize window)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                handleFocusLoss('tab_hidden', 'Onglet masqué (changement d\'onglet ou fenêtre minimisée)');
+                handleFocusLoss('tab_hidden', '{{ _('Onglet masque (changement d\'onglet ou fenetre minimisee)') }}');
             }
         });
 
@@ -1057,7 +1057,7 @@
         window.addEventListener('blur', () => {
             setTimeout(() => {
                 if (!document.hidden) {
-                    handleFocusLoss('window_blur', 'Fenêtre a perdu le focus (clic extérieur ou Alt+Tab)');
+                    handleFocusLoss('window_blur', '{{ _('Fenetre a perdu le focus (clic exterieur ou Alt+Tab)') }}');
                 }
             }, 100);
         });
@@ -1188,13 +1188,13 @@
                 }
             });
 
-            let message = 'Etes-vous sur de vouloir soumettre votre examen ?';
+            let message = '{{ _('Etes-vous sur de vouloir soumettre votre examen ?') }}';
             if (unanswered.length > 0) {
-                message = 'Attention ! Les questions suivantes ne sont pas repondues : ' +
-                    unanswered.join(', ') + '.\n\nVoulez-vous quand meme soumettre ?';
+                message = '{{ _('Attention ! Les questions suivantes ne sont pas repondues :') }} ' +
+                    unanswered.join(', ') + '.\n\n{{ _('Voulez-vous quand meme soumettre ?') }}';
             }
 
-            Modal.confirm(message, 'Confirmation de soumission').then(function(confirmed) {
+            Modal.confirm(message, '{{ _('Confirmation de soumission') }}').then(function(confirmed) {
                 if (confirmed) {
                     // Fill hidden fields
                     document.getElementById('timing-data').value = JSON.stringify(questionTimes);

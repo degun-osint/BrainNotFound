@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Utilisateurs - BrainNotFound{% endblock %}
+{% block title %}{{ _('Utilisateurs - BrainNotFound') }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Gestion des utilisateurs</h1>
+<h1 class="mb-2">{{ _('Gestion des utilisateurs') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
-        <span>Liste des utilisateurs</span>
+        <span>{{ _('Liste des utilisateurs') }}</span>
         <div class="flex gap-sm items-center flex-wrap">
             <form method="GET" class="flex gap-sm items-center">
                 {% if all_tenants and all_tenants|length > 0 %}
@@ -15,15 +15,15 @@
                     <input type="hidden" name="tenant" value="{{ filter_tenant_id or 0 }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-building"></i>
-                        <span>{% if filter_tenant_id %}{% for t in all_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}Toutes les organisations{% endif %}</span>
+                        <span>{% if filter_tenant_id %}{% for t in all_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}{{ _('Toutes les organisations') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="Rechercher une organisation...">
+                            <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
                         </div>
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">Toutes les organisations</div>
+                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">{{ _('Toutes les organisations') }}</div>
                             {% for tenant in all_tenants %}
                             <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
                             {% endfor %}
@@ -35,15 +35,15 @@
                     <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-group"></i>
-                        <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                        <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}{{ _('Tous les groupes') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="Rechercher un groupe...">
+                            <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
                         </div>
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">{{ _('Tous les groupes') }}</div>
                             {% for group in all_groups %}
                             <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
                                 {{ group.name }}
@@ -57,35 +57,35 @@
                     <input type="hidden" name="role" value="{{ filter_role or '' }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-user-badge-check"></i>
-                        <span>{% if filter_role == 'superadmin' %}Super-Admin{% elif filter_role == 'tenant_admin' %}Admin organisation{% elif filter_role == 'group_admin' %}Admin groupe{% elif filter_role == 'user' %}Utilisateur{% else %}Tous les rôles{% endif %}</span>
+                        <span>{% if filter_role == 'superadmin' %}{{ _('Super-Admin') }}{% elif filter_role == 'tenant_admin' %}{{ _('Admin organisation') }}{% elif filter_role == 'group_admin' %}{{ _('Admin groupe') }}{% elif filter_role == 'user' %}{{ _('Utilisateur') }}{% else %}{{ _('Tous les rôles') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_role %}selected{% endif %}" data-value="">Tous les rôles</div>
-                            <div class="searchable-select-option {% if filter_role == 'superadmin' %}selected{% endif %}" data-value="superadmin">Super-Admin</div>
-                            <div class="searchable-select-option {% if filter_role == 'tenant_admin' %}selected{% endif %}" data-value="tenant_admin">Admin organisation</div>
-                            <div class="searchable-select-option {% if filter_role == 'group_admin' %}selected{% endif %}" data-value="group_admin">Admin groupe</div>
-                            <div class="searchable-select-option {% if filter_role == 'user' %}selected{% endif %}" data-value="user">Utilisateur</div>
+                            <div class="searchable-select-option {% if not filter_role %}selected{% endif %}" data-value="">{{ _('Tous les rôles') }}</div>
+                            <div class="searchable-select-option {% if filter_role == 'superadmin' %}selected{% endif %}" data-value="superadmin">{{ _('Super-Admin') }}</div>
+                            <div class="searchable-select-option {% if filter_role == 'tenant_admin' %}selected{% endif %}" data-value="tenant_admin">{{ _('Admin organisation') }}</div>
+                            <div class="searchable-select-option {% if filter_role == 'group_admin' %}selected{% endif %}" data-value="group_admin">{{ _('Admin groupe') }}</div>
+                            <div class="searchable-select-option {% if filter_role == 'user' %}selected{% endif %}" data-value="user">{{ _('Utilisateur') }}</div>
                         </div>
                     </div>
                 </div>
-                <input type="text" name="search" value="{{ search }}" placeholder="Rechercher..."
+                <input type="text" name="search" value="{{ search }}" placeholder="{{ _('Rechercher...') }}"
                        class="form-input input-search">
-                <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="Rechercher">
+                <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Rechercher') }}">
                     <i class="iconoir-search"></i>
                 </button>
                 {% if search or filter_group_id or filter_tenant_id or filter_role %}
-                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
                     <i class="iconoir-xmark"></i>
                 </a>
                 {% endif %}
             </form>
-            <a href="{{ url_for('admin.import_users') }}" class="btn btn-secondary btn-small" data-tooltip="Importer depuis CSV">
-                <i class="iconoir-upload"></i> Import
+            <a href="{{ url_for('admin.import_users') }}" class="btn btn-secondary btn-small" data-tooltip="{{ _('Importer depuis CSV') }}">
+                <i class="iconoir-upload"></i> {{ _('Import') }}
             </a>
-            <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary btn-small" data-tooltip="Creer un nouvel utilisateur">
-                <i class="iconoir-plus"></i> Nouveau
+            <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer un nouvel utilisateur') }}">
+                <i class="iconoir-plus"></i> {{ _('Nouveau') }}
             </a>
         </div>
     </div>
@@ -93,14 +93,14 @@
     {% if search or filter_group_id or filter_tenant_id or filter_role %}
     <div class="search-results-info">
         <span class="text-light">
-            {% if filter_tenant_id %}Organisation: {{ all_tenants|selectattr('id', 'eq', filter_tenant_id)|map(attribute='name')|first }}{% endif %}
+            {% if filter_tenant_id %}{{ _('Organisation:') }} {{ all_tenants|selectattr('id', 'eq', filter_tenant_id)|map(attribute='name')|first }}{% endif %}
             {% if filter_tenant_id and filter_group_id %} - {% endif %}
-            {% if filter_group_id %}Groupe: {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
+            {% if filter_group_id %}{{ _('Groupe:') }} {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
             {% if (filter_tenant_id or filter_group_id) and filter_role %} - {% endif %}
-            {% if filter_role %}Rôle: {% if filter_role == 'superadmin' %}Super-Admin{% elif filter_role == 'tenant_admin' %}Admin organisation{% elif filter_role == 'group_admin' %}Admin groupe{% elif filter_role == 'user' %}Utilisateur{% endif %}{% endif %}
+            {% if filter_role %}{{ _('Rôle:') }} {% if filter_role == 'superadmin' %}{{ _('Super-Admin') }}{% elif filter_role == 'tenant_admin' %}{{ _('Admin organisation') }}{% elif filter_role == 'group_admin' %}{{ _('Admin groupe') }}{% elif filter_role == 'user' %}{{ _('Utilisateur') }}{% endif %}{% endif %}
             {% if (filter_tenant_id or filter_group_id or filter_role) and search %} - {% endif %}
-            {% if search %}Recherche: "{{ search }}"{% endif %}
-            - {{ pagination.total }} resultat(s)
+            {% if search %}{{ _('Recherche:') }} "{{ search }}"{% endif %}
+            - {{ pagination.total }} {{ _('resultat(s)') }}
         </span>
     </div>
     {% endif %}
@@ -108,18 +108,18 @@
     <!-- Bulk Actions Toolbar -->
     <div id="bulk-actions-bar" class="bulk-actions-bar" style="display: none;">
         <div class="flex items-center gap-md">
-            <span class="bulk-count"><strong id="selected-count">0</strong> selectionne(s)</span>
+            <span class="bulk-count"><strong id="selected-count">0</strong> {{ _('selectionne(s)') }}</span>
             <div class="flex gap-sm">
                 <div class="searchable-select" id="bulk-group-select">
                     <input type="hidden" id="bulk-group-id" value="">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-group"></i>
-                        <span>Choisir un groupe</span>
+                        <span>{{ _('Choisir un groupe') }}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="Rechercher un groupe...">
+                            <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
                         </div>
                         <div class="searchable-select-options">
                             {% for group in all_groups %}
@@ -131,20 +131,20 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('add')" data-tooltip="Ajouter au groupe">
-                    <i class="iconoir-plus"></i> Ajouter
+                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('add')" data-tooltip="{{ _('Ajouter au groupe') }}">
+                    <i class="iconoir-plus"></i> {{ _('Ajouter') }}
                 </button>
-                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('remove')" data-tooltip="Retirer du groupe">
-                    <i class="iconoir-minus"></i> Retirer
+                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('remove')" data-tooltip="{{ _('Retirer du groupe') }}">
+                    <i class="iconoir-minus"></i> {{ _('Retirer') }}
                 </button>
-                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('replace')" data-tooltip="Remplacer les groupes">
-                    <i class="iconoir-refresh"></i> Remplacer
+                <button type="button" class="btn btn-secondary btn-small" onclick="bulkChangeGroup('replace')" data-tooltip="{{ _('Remplacer les groupes') }}">
+                    <i class="iconoir-refresh"></i> {{ _('Remplacer') }}
                 </button>
             </div>
             <button type="button" class="btn btn-error btn-small" onclick="bulkDelete()">
-                <i class="iconoir-trash"></i> Supprimer
+                <i class="iconoir-trash"></i> {{ _('Supprimer') }}
             </button>
-            <button type="button" class="btn btn-secondary btn-small btn-icon" onclick="clearSelection()" data-tooltip="Annuler la selection">
+            <button type="button" class="btn btn-secondary btn-small btn-icon" onclick="clearSelection()" data-tooltip="{{ _('Annuler la selection') }}">
                 <i class="iconoir-xmark"></i>
             </button>
         </div>
@@ -168,31 +168,31 @@
                 </th>
                 <th class="th-sortable {% if sort_by == 'full_name' %}sorted-{{ sort_dir }}{% endif %}">
                     <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='full_name', dir='asc' if sort_by == 'full_name' and sort_dir == 'desc' else 'desc') }}">
-                        Nom complet
+                        {{ _('Nom complet') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'full_name' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
                 <th class="th-sortable {% if sort_by == 'username' %}sorted-{{ sort_dir }}{% endif %}">
                     <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='username', dir='asc' if sort_by == 'username' and sort_dir == 'desc' else 'desc') }}">
-                        Identifiant
+                        {{ _('Identifiant') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'username' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
                 <th class="th-sortable {% if sort_by == 'email' %}sorted-{{ sort_dir }}{% endif %}">
                     <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='email', dir='asc' if sort_by == 'email' and sort_dir == 'desc' else 'desc') }}">
-                        Email
+                        {{ _('Email') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'email' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
-                <th>Groupe</th>
-                <th>Role</th>
+                <th>{{ _('Groupe') }}</th>
+                <th>{{ _('Role') }}</th>
                 <th class="th-sortable {% if sort_by == 'last_login' %}sorted-{{ sort_dir }}{% endif %}">
                     <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='last_login', dir='asc' if sort_by == 'last_login' and sort_dir == 'desc' else 'desc') }}">
-                        Derniere connexion
+                        {{ _('Derniere connexion') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'last_login' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
-                <th>Actions</th>
+                <th>{{ _('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -217,7 +217,7 @@
                     {{ user.email }}
                     {% if not user.email_verified %}
                     <i class="iconoir-warning-circle" style="color: var(--warning); margin-left: 0.25rem;"
-                       data-tooltip="Email non verifie"></i>
+                       data-tooltip="{{ _('Email non verifie') }}"></i>
                     {% endif %}
                 </td>
                 <td>
@@ -228,12 +228,12 @@
                             <span class="font-medium">{{ g.name }}</span>
                             {% set role = user.get_role_in_group(g.id) %}
                             {% if role == 'admin' %}
-                            <span class="badge-mini badge-warning">admin</span>
+                            <span class="badge-mini badge-warning">{{ _('admin') }}</span>
                             {% endif %}
                         </div>
                         {% endfor %}
                         {% if user_groups|length > 3 %}
-                        <small class="text-light">+{{ user_groups|length - 3 }} autres</small>
+                        <small class="text-light">+{{ user_groups|length - 3 }} {{ _('autres') }}</small>
                         {% endif %}
                     {% else %}
                         <span class="text-light">-</span>
@@ -241,43 +241,43 @@
                 </td>
                 <td>
                     {% if user.is_admin %}
-                        <span class="badge badge-primary">Super-Admin</span>
+                        <span class="badge badge-primary">{{ _('Super-Admin') }}</span>
                     {% elif user.is_tenant_admin %}
-                        <span class="badge badge-info">Admin organisation</span>
+                        <span class="badge badge-info">{{ _('Admin organisation') }}</span>
                     {% elif user.is_group_admin %}
-                        <span class="badge badge-warning">Admin groupe</span>
+                        <span class="badge badge-warning">{{ _('Admin groupe') }}</span>
                     {% else %}
-                        <span class="badge badge-default">Utilisateur</span>
+                        <span class="badge badge-default">{{ _('Utilisateur') }}</span>
                     {% endif %}
                 </td>
                 <td>
                     {% if user.last_login %}
-                    <span data-tooltip="IP: {{ user.last_login_ip or 'Inconnue' }}">
+                    <span data-tooltip="{{ _('IP:') }} {{ user.last_login_ip or _('Inconnue') }}">
                         {{ user.last_login|localtime }}
                     </span>
                     {% else %}
-                    <span class="text-light">Jamais</span>
+                    <span class="text-light">{{ _('Jamais') }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <div class="flex gap-sm flex-wrap">
                         {% if not user.is_admin %}
-                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Notes">
+                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Notes') }}">
                             <i class="iconoir-stats-report"></i>
                         </a>
                         {% endif %}
                         {% if user.id != current_user.id %}
-                        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
                         <form method="POST" action="{{ url_for('admin.delete_user', identifier=user.get_url_identifier()) }}"
-                              onsubmit="return confirmDelete(this, 'cet utilisateur et toutes ses donnees');" class="inline">
-                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Supprimer">
+                              onsubmit="return confirmDelete(this, '{{ _("cet utilisateur et toutes ses donnees") }}');" class="inline">
+                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
                                 <i class="iconoir-trash"></i>
                             </button>
                         </form>
                         {% else %}
-                        <span class="text-light text-sm">(vous)</span>
+                        <span class="text-light text-sm">({{ _('vous') }})</span>
                         {% endif %}
                     </div>
                 </td>
@@ -289,7 +289,7 @@
     {% if pagination and pagination.pages > 1 %}
     <div class="pagination">
         {% if pagination.has_prev %}
-        <a href="{{ url_for('admin.users', page=pagination.prev_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page precedente">
+        <a href="{{ url_for('admin.users', page=pagination.prev_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page precedente') }}">
             <i class="iconoir-nav-arrow-left"></i>
         </a>
         {% endif %}
@@ -305,7 +305,7 @@
             {% endif %}
         {% endfor %}
         {% if pagination.has_next %}
-        <a href="{{ url_for('admin.users', page=pagination.next_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Page suivante">
+        <a href="{{ url_for('admin.users', page=pagination.next_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page suivante') }}">
             <i class="iconoir-nav-arrow-right"></i>
         </a>
         {% endif %}
@@ -370,11 +370,11 @@ function clearSelection() {
 function bulkDelete() {
     const selected = getSelectedUserIds();
     if (selected.length === 0) {
-        Toast.warning('Aucun utilisateur selectionne');
+        Toast.warning('{{ _("Aucun utilisateur selectionne") }}');
         return;
     }
 
-    Modal.confirmDelete(`Voulez-vous vraiment supprimer ${selected.length} utilisateur(s) ? Cette action est irreversible.`)
+    Modal.confirmDelete('{{ _("Voulez-vous vraiment supprimer") }} ' + selected.length + ' {{ _("utilisateur(s) ? Cette action est irreversible.") }}')
         .then(confirmed => {
             if (confirmed) {
                 const form = document.getElementById('bulk-delete-form');
@@ -397,24 +397,24 @@ function bulkChangeGroup(action) {
     const groupId = document.getElementById('bulk-group-id').value;
 
     if (selected.length === 0) {
-        Toast.warning('Aucun utilisateur selectionne');
+        Toast.warning('{{ _("Aucun utilisateur selectionne") }}');
         return;
     }
 
     if (!groupId) {
-        Toast.warning('Veuillez choisir un groupe');
+        Toast.warning('{{ _("Veuillez choisir un groupe") }}');
         return;
     }
 
     const actionText = {
-        'add': 'ajouter au',
-        'remove': 'retirer du',
-        'replace': 'deplacer vers le'
-    }[action] || 'modifier pour le';
+        'add': '{{ _("ajouter au") }}',
+        'remove': '{{ _("retirer du") }}',
+        'replace': '{{ _("deplacer vers le") }}'
+    }[action] || '{{ _("modifier pour le") }}';
 
     const groupName = document.querySelector('#bulk-group-select .searchable-select-trigger span').textContent;
 
-    Modal.confirm(`Voulez-vous ${actionText} groupe "${groupName}" pour ${selected.length} utilisateur(s) ?`)
+    Modal.confirm('{{ _("Voulez-vous") }} ' + actionText + ' {{ _("groupe") }} "' + groupName + '" {{ _("pour") }} ' + selected.length + ' {{ _("utilisateur(s) ?") }}')
         .then(confirmed => {
             if (confirmed) {
                 const form = document.getElementById('bulk-group-form');

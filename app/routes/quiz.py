@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app, jsonify
 from flask_login import login_required, current_user
+from flask_babel import lazy_gettext as _l
 from datetime import datetime, timedelta
 import random
 import json
@@ -256,7 +257,7 @@ def quiz_by_slug(identifier):
     """Access a quiz by its uid, slug, or ID - redirects to take."""
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('quiz.quiz_list'))
     return redirect(url_for('quiz.take', identifier=quiz.get_url_identifier()))
 
@@ -266,7 +267,7 @@ def quiz_by_slug(identifier):
 def take(identifier):
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -277,21 +278,21 @@ def take(identifier):
     now = datetime.now()
 
     if not quiz.is_active:
-        flash('Ce quiz n\'est plus disponible', 'error')
+        flash(_l("Ce quiz n'est plus disponible"), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Check availability window
     if quiz.available_from and quiz.available_from > now:
-        flash('Ce quiz n\'est pas encore disponible', 'error')
+        flash(_l("Ce quiz n'est pas encore disponible"), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     if quiz.available_until and quiz.available_until < now:
-        flash('Ce quiz est fermé', 'error')
+        flash(_l('Ce quiz est ferme'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Check group permission - quiz must be available for at least one of user's groups
     if not quiz.is_available_for_user(current_user):
-        flash('Ce quiz n\'est pas disponible pour vos groupes', 'error')
+        flash(_l("Ce quiz n'est pas disponible pour vos groupes"), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Check if user already submitted
@@ -301,7 +302,7 @@ def take(identifier):
     ).first()
 
     if existing_response:
-        flash('Vous avez déjà répondu à ce quiz', 'info')
+        flash(_l('Vous avez deja repondu a ce quiz'), 'info')
         return redirect(url_for('quiz.result', identifier=existing_response.get_url_identifier()))
 
     questions = Question.query.filter_by(quiz_id=quiz.id).order_by(Question.order).all()
@@ -529,7 +530,7 @@ def take(identifier):
             )
             return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
         else:
-            flash('Quiz soumis avec succes !', 'success')
+            flash(_l('Quiz soumis avec succes !'), 'success')
             return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     # GET request - start or continue quiz
@@ -562,7 +563,7 @@ def start_exam(identifier):
     """Start the exam - sets session flag and redirects to exam page."""
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -570,11 +571,11 @@ def start_exam(identifier):
         return redirect(url_for('quiz.start_exam', identifier=quiz.get_url_identifier()), code=301)
 
     if not quiz.is_active:
-        flash('Ce quiz n\'est plus disponible', 'error')
+        flash(_l("Ce quiz n'est plus disponible"), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     if not quiz.is_available_for_user(current_user):
-        flash('Ce quiz n\'est pas disponible pour vos groupes', 'error')
+        flash(_l("Ce quiz n'est pas disponible pour vos groupes"), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Check if user already submitted
@@ -583,7 +584,7 @@ def start_exam(identifier):
         quiz_id=quiz.id
     ).first()
     if existing_response:
-        flash('Vous avez déjà répondu à ce quiz', 'info')
+        flash(_l('Vous avez deja repondu a ce quiz'), 'info')
         return redirect(url_for('quiz.result', identifier=existing_response.get_url_identifier()))
 
     # Set the session flag to mark exam as started
@@ -644,7 +645,7 @@ def save_progress(identifier):
 def result(identifier):
     quiz_response = QuizResponse.get_by_identifier(identifier)
     if not quiz_response:
-        flash('Resultat introuvable', 'error')
+        flash(_l('Resultat introuvable'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -655,7 +656,7 @@ def result(identifier):
     is_owner = quiz_response.user_id == current_user.id
     is_admin_with_access = current_user.is_any_admin and current_user.can_access_quiz(quiz_response.quiz)
     if not is_owner and not is_admin_with_access:
-        flash('Accès non autorisé', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     answers = Answer.query.filter_by(quiz_response_id=quiz_response.id).all()
@@ -679,7 +680,7 @@ def grading(identifier):
     """Show grading progress page with WebSocket updates."""
     quiz_response = QuizResponse.get_by_identifier(identifier)
     if not quiz_response:
-        flash('Resultat introuvable', 'error')
+        flash(_l('Resultat introuvable'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -690,7 +691,7 @@ def grading(identifier):
     is_owner = quiz_response.user_id == current_user.id
     is_admin_with_access = current_user.is_any_admin and current_user.can_access_quiz(quiz_response.quiz)
     if not is_owner and not is_admin_with_access:
-        flash('Acces non autorise', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('quiz.quiz_list'))
 
     # If grading is already completed, redirect to results

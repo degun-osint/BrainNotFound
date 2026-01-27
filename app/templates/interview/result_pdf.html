@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Resultat Entretien - {{ session.user.full_name }}</title>
+    <title>{{ _('Resultat Entretien') }} - {{ session.user.full_name }}</title>
     <style>
         @page {
             size: A4;
@@ -163,41 +163,41 @@
     <h1>{{ interview.title }}</h1>
 
     <div class="header-info">
-        <p><strong>Candidat:</strong> {{ session.user.full_name }} ({{ session.user.email }})</p>
-        <p><strong>Date:</strong> {{ session.started_at|localtime }}</p>
-        <p><strong>Duree:</strong> {{ session.get_duration_minutes() }} minutes</p>
+        <p><strong>{{ _('Candidat:') }}</strong> {{ session.user.full_name }} ({{ session.user.email }})</p>
+        <p><strong>{{ _('Date:') }}</strong> {{ session.started_at|localtime }}</p>
+        <p><strong>{{ _('Duree:') }}</strong> {{ session.get_duration_minutes() }} {{ _('minutes') }}</p>
         {% if interview.persona_name %}
-        <p><strong>Personnage:</strong> {{ interview.persona_name }}{% if interview.persona_role %} - {{ interview.persona_role }}{% endif %}</p>
+        <p><strong>{{ _('Personnage:') }}</strong> {{ interview.persona_name }}{% if interview.persona_role %} - {{ interview.persona_role }}{% endif %}</p>
         {% endif %}
     </div>
 
     <div class="stats-grid">
         <div class="stat-item">
             <div class="stat-value">{{ "%.0f"|format(percentage) }}%</div>
-            <div class="stat-label">Score</div>
+            <div class="stat-label">{{ _('Score') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ "%.1f"|format(session.total_score) }}/{{ "%.1f"|format(session.max_score) }}</div>
-            <div class="stat-label">Points</div>
+            <div class="stat-label">{{ _('Points') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ session.interaction_count }}</div>
-            <div class="stat-label">Echanges</div>
+            <div class="stat-label">{{ _('Echanges') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ session.get_duration_minutes() }}</div>
-            <div class="stat-label">Minutes</div>
+            <div class="stat-label">{{ _('Minutes') }}</div>
         </div>
     </div>
 
     {% if session.ai_summary %}
     <div class="summary-box">
-        <h3>Synthese</h3>
+        <h3>{{ _('Synthese') }}</h3>
         <p>{{ session.ai_summary }}</p>
     </div>
     {% endif %}
 
-    <h2>Detail des scores</h2>
+    <h2>{{ _('Detail des scores') }}</h2>
     <div class="score-section">
         {% for score in session.scores %}
         <div class="criterion">
@@ -217,14 +217,14 @@
     </div>
 
     {% if session.uploaded_file_content %}
-    <h2>Document fourni</h2>
-    <p><strong>Fichier:</strong> {{ session.uploaded_file_name }}</p>
+    <h2>{{ _('Document fourni') }}</h2>
+    <p><strong>{{ _('Fichier:') }}</strong> {{ session.uploaded_file_name }}</p>
     <div class="file-content">{{ session.uploaded_file_content[:1500] }}{% if session.uploaded_file_content|length > 1500 %}...{% endif %}</div>
     {% endif %}
 
     <div class="page-break"></div>
 
-    <h2>Transcription de l'entretien</h2>
+    <h2>{{ _("Transcription de l'entretien") }}</h2>
     <div class="transcript">
         {% for message in session.messages %}
         <div class="message message-{{ message.role }}">
@@ -232,7 +232,7 @@
                 {% if message.role == 'user' %}
                 {{ session.user.first_name or session.user.username }}
                 {% elif message.role == 'assistant' %}
-                {{ interview.persona_name or 'Personnage' }}
+                {{ interview.persona_name or _('Personnage') }}
                 {% endif %}
                 - {{ message.created_at|localtime_short }}
             </div>
@@ -242,12 +242,12 @@
     </div>
 
     {% if session.admin_comment %}
-    <h2>Commentaire de l'evaluateur</h2>
+    <h2>{{ _("Commentaire de l'evaluateur") }}</h2>
     <p>{{ session.admin_comment }}</p>
     {% endif %}
 
     <div class="footer">
-        <p>Document genere le {{ now|localtime }} - {{ site_title }}</p>
+        <p>{{ _('Document genere le') }} {{ now|localtime }} - {{ site_title }}</p>
     </div>
 </body>
 </html>

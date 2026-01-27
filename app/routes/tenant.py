@@ -3,6 +3,7 @@ Routes pour la gestion des tenants (organisations).
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
+from flask_babel import lazy_gettext as _l
 from functools import wraps
 import re
 from app import db
@@ -19,7 +20,7 @@ def superadmin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_superadmin:
-            flash('Accès réservé aux super-administrateurs', 'error')
+            flash(_l('Acces reserve aux super-administrateurs'), 'error')
             return redirect(url_for('admin.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -32,7 +33,7 @@ def tenant_admin_required(f):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         if not (current_user.is_superadmin or current_user.is_tenant_admin):
-            flash('Accès non autorisé', 'error')
+            flash(_l('Acces non autorise'), 'error')
             return redirect(url_for('admin.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -41,13 +42,13 @@ def tenant_admin_required(f):
 def validate_slug(slug):
     """Valide le format du slug."""
     if not slug:
-        return False, "Le slug est requis"
+        return False, _l("Le slug est requis")
     if len(slug) < 3 or len(slug) > 50:
-        return False, "Le slug doit faire entre 3 et 50 caractères"
+        return False, _l("Le slug doit faire entre 3 et 50 caracteres")
     if not re.match(r'^[a-z][a-z0-9-]*[a-z0-9]$', slug) and len(slug) > 2:
-        return False, "Le slug doit commencer par une lettre et ne contenir que des lettres minuscules, chiffres et tirets"
+        return False, _l("Le slug doit commencer par une lettre et ne contenir que des lettres minuscules, chiffres et tirets")
     if '--' in slug:
-        return False, "Le slug ne peut pas contenir deux tirets consécutifs"
+        return False, _l("Le slug ne peut pas contenir deux tirets consecutifs")
     return True, None
 
 
@@ -80,7 +81,7 @@ def create_tenant():
         # Validation
         errors = []
         if not name:
-            errors.append("Le nom est requis")
+            errors.append(_l("Le nom est requis"))
 
         if not slug:
             slug = Tenant.generate_slug(name)
@@ -89,7 +90,7 @@ def create_tenant():
             if not valid:
                 errors.append(error)
             elif Tenant.query.filter_by(slug=slug).first():
-                errors.append("Ce slug est déjà utilisé")
+                errors.append(_l("Ce slug est deja utilise"))
 
         # Limites mensuelles IA
         monthly_ai_corrections = request.form.get('monthly_ai_corrections', 0, type=int)
@@ -109,7 +110,7 @@ def create_tenant():
             try:
                 subscription_expires_at = datetime.strptime(expires_str, '%Y-%m-%d').date()
             except ValueError:
-                errors.append("Format de date invalide")
+                errors.append(_l("Format de date invalide"))
 
         if errors:
             for error in errors:
@@ -136,7 +137,7 @@ def create_tenant():
         db.session.add(tenant)
         db.session.commit()
 
-        flash(f'Tenant "{name}" créé avec succès', 'success')
+        flash(_l('Tenant "%(name)s" cree avec succes', name=name), 'success')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/create.html')
@@ -149,7 +150,7 @@ def view_tenant(identifier):
     """Voir les détails d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -158,7 +159,7 @@ def view_tenant(identifier):
 
     # Vérifier accès
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash('Accès non autorisé', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Stats
@@ -188,7 +189,7 @@ def edit_tenant(identifier):
     """Modifier un tenant (superadmin only)."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Redirect if accessed by old numeric ID
@@ -223,13 +224,13 @@ def edit_tenant(identifier):
             try:
                 tenant.subscription_expires_at = datetime.strptime(expires_str, '%Y-%m-%d').date()
             except ValueError:
-                flash("Format de date d'expiration invalide", 'error')
+                flash(_l('Format de date d\'expiration invalide'), 'error')
                 return render_template('admin/tenants/edit.html', tenant=tenant)
         else:
             tenant.subscription_expires_at = None
 
         db.session.commit()
-        flash('Tenant mis à jour', 'success')
+        flash(_l('Tenant mis a jour'), 'success')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/edit.html', tenant=tenant)
@@ -242,19 +243,19 @@ def delete_tenant(identifier):
     """Supprimer un tenant (superadmin only)."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Vérifier qu'il n'y a pas de groupes
     if tenant.groups.count() > 0:
-        flash('Impossible de supprimer un tenant qui contient des groupes', 'error')
+        flash(_l('Impossible de supprimer un tenant qui contient des groupes'), 'error')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     name = tenant.name
     db.session.delete(tenant)
     db.session.commit()
 
-    flash(f'Tenant "{name}" supprimé', 'info')
+    flash(_l('Tenant "%(name)s" supprime', name=name), 'info')
     return redirect(url_for('tenant.list_tenants'))
 
 
@@ -267,7 +268,7 @@ def manage_admins(identifier):
     """Gérer les admins d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Redirect if accessed by old numeric ID
@@ -298,24 +299,24 @@ def add_admin(identifier):
     """Ajouter un admin au tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     user_id = request.form.get('user_id', type=int)
 
     if not user_id:
-        flash('Utilisateur non spécifié', 'error')
+        flash(_l('Utilisateur non specifie'), 'error')
         return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
     user = User.query.get(user_id)
     if not user:
-        flash('Utilisateur introuvable', 'error')
+        flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
     tenant.add_admin(user)
     db.session.commit()
 
-    flash(f'{user.username} est maintenant admin du tenant', 'success')
+    flash(_l('%(username)s est maintenant admin du tenant', username=user.username), 'success')
     return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
@@ -326,18 +327,18 @@ def remove_admin(identifier, user_identifier):
     """Retirer un admin du tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     user = User.get_by_identifier(user_identifier)
     if not user:
-        flash('Utilisateur introuvable', 'error')
+        flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
     tenant.remove_admin(user)
     db.session.commit()
 
-    flash(f'{user.username} n\'est plus admin du tenant', 'info')
+    flash(_l('%(username)s n\'est plus admin du tenant', username=user.username), 'info')
     return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
@@ -350,7 +351,7 @@ def tenant_groups(identifier):
     """Liste des groupes d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -358,7 +359,7 @@ def tenant_groups(identifier):
         return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()), code=301)
 
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash('Accès non autorisé', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     groups = tenant.groups.order_by(Group.name).all()
@@ -372,7 +373,7 @@ def create_group_in_tenant(identifier):
     """Créer un groupe dans un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -380,12 +381,12 @@ def create_group_in_tenant(identifier):
         return redirect(url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()), code=301)
 
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash('Accès non autorisé', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Vérifier limite
     if not tenant.can_add_group():
-        flash(f'Limite de groupes atteinte ({tenant.max_groups})', 'error')
+        flash(_l('Limite de groupes atteinte (%(max)s)', max=tenant.max_groups), 'error')
         return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
 
     if request.method == 'POST':
@@ -394,7 +395,7 @@ def create_group_in_tenant(identifier):
         max_members = request.form.get('max_members', 0, type=int)
 
         if not name:
-            flash('Le nom est requis', 'error')
+            flash(_l('Le nom est requis'), 'error')
             return render_template('admin/tenants/create_group.html', tenant=tenant)
 
         group = Group(
@@ -407,7 +408,7 @@ def create_group_in_tenant(identifier):
         db.session.add(group)
         db.session.commit()
 
-        flash(f'Groupe "{name}" créé avec succès', 'success')
+        flash(_l('Groupe "%(name)s" cree avec succes', name=name), 'success')
         return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/create_group.html', tenant=tenant)
@@ -420,7 +421,7 @@ def tenant_quizzes(identifier):
     """Liste des quiz d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -428,7 +429,7 @@ def tenant_quizzes(identifier):
         return redirect(url_for('tenant.tenant_quizzes', identifier=tenant.get_url_identifier()), code=301)
 
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash('Accès non autorisé', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quizzes = tenant.quizzes.order_by(Quiz.created_at.desc()).all()

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Correction en cours - {{ quiz_response.quiz.title }}{% endblock %}
+{% block title %}{{ _('Correction en cours') }} - {{ quiz_response.quiz.title }}{% endblock %}
 
 {% block content %}
 <div class="grading-container">
     <div class="card" style="max-width: 600px; margin: 2rem auto; text-align: center;">
-        <h1 style="margin-bottom: 1rem;">Correction en cours</h1>
+        <h1 style="margin-bottom: 1rem;">{{ _('Correction en cours') }}</h1>
         <p style="color: var(--text-light); margin-bottom: 2rem;">
-            L'IA analyse vos reponses. Veuillez patienter...
+            {{ _('L\'IA analyse vos reponses. Veuillez patienter...') }}
         </p>
 
         <!-- Progress Circle -->
@@ -25,7 +25,7 @@
 
         <!-- Current Question -->
         <div id="current-question" style="margin: 1.5rem 0; min-height: 2rem;">
-            <span style="color: var(--text-light);">Preparation...</span>
+            <span style="color: var(--text-light);">{{ _('Preparation...') }}</span>
         </div>
 
         <!-- Graded Questions List -->
@@ -138,7 +138,7 @@ socket.on('connected', function(data) {
 socket.on('grading_started', function(data) {
     if (data.response_id === responseId) {
         document.getElementById('current-question').innerHTML =
-            '<span style="color: var(--primary);">Correction demarree...</span>';
+            '<span style="color: var(--primary);">{{ _('Correction demarree...') }}</span>';
     }
 });
 
@@ -154,7 +154,7 @@ socket.on('grading_progress', function(data) {
 
         // Update current question
         document.getElementById('current-question').innerHTML =
-            '<span style="color: var(--primary);">Correction de : ' + data.question_text + '</span>';
+            '<span style="color: var(--primary);">{{ _('Correction de :') }} ' + data.question_text + '</span>';
 
         // Add to graded list
         const percentage = (data.score / data.max_score) * 100;
@@ -185,12 +185,12 @@ socket.on('grading_completed', function(data) {
         const statusMsg = document.getElementById('status-message');
         statusMsg.className = 'success';
         statusMsg.innerHTML = `
-            <strong>Correction terminee !</strong><br>
-            Score: ${data.total_score.toFixed(1)}/${data.max_score} (${data.percentage.toFixed(0)}%)
+            <strong>{{ _('Correction terminee !') }}</strong><br>
+            {{ _('Score:') }} ${data.total_score.toFixed(1)}/${data.max_score} (${data.percentage.toFixed(0)}%)
         `;
 
         document.getElementById('current-question').innerHTML =
-            '<span style="color: var(--success);">Redirection vers les resultats...</span>';
+            '<span style="color: var(--success);">{{ _('Redirection vers les resultats...') }}</span>';
 
         // Redirect to results after a short delay
         setTimeout(function() {
@@ -204,12 +204,12 @@ socket.on('grading_error', function(data) {
         const statusMsg = document.getElementById('status-message');
         statusMsg.className = 'error';
         statusMsg.innerHTML = `
-            <strong>Erreur lors de la correction</strong><br>
+            <strong>{{ _('Erreur lors de la correction') }}</strong><br>
             ${data.error}
         `;
 
         document.getElementById('current-question').innerHTML =
-            '<span style="color: var(--error);">Une erreur est survenue</span>';
+            '<span style="color: var(--error);">{{ _('Une erreur est survenue') }}</span>';
     }
 });
 

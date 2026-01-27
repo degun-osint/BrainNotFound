@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, send_from_directory, abort, session
 from flask_login import login_required, current_user
+from flask_babel import lazy_gettext as _l
 from functools import wraps
 from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
@@ -18,8 +19,19 @@ from app.utils.email_sender import send_verification_email
 from app.utils.prompt_loader import get_fallback_warnings, is_using_fallback
 from datetime import datetime
 from io import BytesIO
+import unicodedata
+import re
 
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+
+def sanitize_filename(text):
+    """Sanitize text for use in HTTP Content-Disposition filename header."""
+    text = unicodedata.normalize('NFKD', text)
+    text = text.encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^\w\s\-\.]', '', text)
+    text = re.sub(r'[\s\-]+', '_', text)
+    return text.strip('_')
 
 def allowed_image_file(filename):
     return '.' in filename and \
@@ -66,7 +78,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_any_admin:
-            flash('Accès non autorisé', 'error')
+            flash(_l('Acces non autorise'), 'error')
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
@@ -76,7 +88,7 @@ def superadmin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_superadmin:
-            flash('Accès réservé aux super-administrateurs', 'error')
+            flash(_l('Acces reserve aux super-administrateurs'), 'error')
             return redirect(url_for('admin.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -146,16 +158,16 @@ def set_tenant_context(identifier):
     """Set the tenant context filter."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash('Tenant introuvable', 'error')
+        flash(_l('Tenant introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Verify access
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash('Accès non autorisé à ce tenant', 'error')
+        flash(_l('Acces non autorise a ce tenant'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     session['admin_tenant_context'] = tenant.id
-    flash(f'Contexte: {tenant.name}', 'info')
+    flash(_l('Contexte: %(name)s', name=tenant.name), 'info')
 
     # Redirect back to referrer (validated) or dashboard
     return safe_redirect_referrer(url_for('admin.dashboard'))
@@ -167,7 +179,7 @@ def set_tenant_context(identifier):
 def clear_tenant_context():
     """Clear the tenant context filter (show all)."""
     session.pop('admin_tenant_context', None)
-    flash('Contexte: Tous les tenants', 'info')
+    flash(_l('Contexte: Tous les tenants'), 'info')
     return safe_redirect_referrer(url_for('admin.dashboard'))
 
 
@@ -497,7 +509,7 @@ def create_quiz():
             valid_group_ids = [str(g.id) for g in groups]  # groups already filtered
             valid_ids = [gid for gid in group_ids if gid in valid_group_ids]
             if not valid_ids:
-                flash('Vous devez assigner le quiz à au moins un groupe accessible', 'error')
+                flash(_l('Vous devez assigner le quiz a au moins un groupe accessible'), 'error')
                 return render_template('admin/create_quiz.html', groups=groups)
             group_ids = valid_ids
 
@@ -523,7 +535,7 @@ def create_quiz():
                 pass
 
         if not markdown_content:
-            flash('Le contenu Markdown est requis', 'error')
+            flash(_l('Le contenu Markdown est requis'), 'error')
             return render_template('admin/create_quiz.html', groups=groups)
 
         try:
@@ -531,7 +543,7 @@ def create_quiz():
             quiz_data = parse_quiz_markdown(markdown_content)
 
             if not quiz_data['questions']:
-                flash('Aucune question trouvée dans le Markdown', 'error')
+                flash(_l('Aucune question trouvee dans le Markdown'), 'error')
                 return render_template('admin/create_quiz.html', markdown_content=markdown_content, groups=groups)
 
             # Validate quiz data
@@ -556,7 +568,7 @@ def create_quiz():
                     return render_template('admin/create_quiz.html', markdown_content=markdown_content, groups=groups)
                 # Check slug uniqueness
                 if Quiz.query.filter_by(slug=custom_slug).first():
-                    flash(f'Le slug "{custom_slug}" est deja utilise', 'error')
+                    flash(_l('Le slug "%(slug)s" est deja utilise', slug=custom_slug), 'error')
                     return render_template('admin/create_quiz.html', markdown_content=markdown_content, groups=groups)
 
             # Create quiz
@@ -608,13 +620,13 @@ def create_quiz():
                 db.session.add(question)
 
             db.session.commit()
-            flash(f'Quiz "{quiz.title}" cree avec succes !', 'success')
+            flash(_l('Quiz "%(title)s" cree avec succes !', title=quiz.title), 'success')
             return redirect(url_for('admin.dashboard'))
 
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f'Quiz creation error: {str(e)}')
-            flash('Erreur lors de la creation du quiz. Verifiez le format Markdown.', 'error')
+            flash(_l('Erreur lors de la creation du quiz. Verifiez le format Markdown.'), 'error')
             return render_template('admin/create_quiz.html', markdown_content=markdown_content, groups=groups)
 
     return render_template('admin/create_quiz.html', groups=groups)
@@ -625,7 +637,7 @@ def create_quiz():
 def edit_quiz(identifier):
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -634,7 +646,7 @@ def edit_quiz(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get tenant context from navbar
@@ -689,12 +701,12 @@ def edit_quiz(identifier):
         one_question_per_page = request.form.get('one_question_per_page') == 'on'
         custom_slug = request.form.get('slug', '').strip() or None
 
-        # Group admins must keep at least one of their groups
+        # Non-superadmins must keep at least one of their accessible groups
         if not current_user.is_superadmin:
-            admin_group_ids = [str(g.id) for g in current_user.get_admin_groups()]
-            valid_ids = [gid for gid in group_ids if gid in admin_group_ids]
+            accessible_group_ids = [str(g.id) for g in current_user.get_accessible_groups()]
+            valid_ids = [gid for gid in group_ids if gid in accessible_group_ids]
             if not valid_ids:
-                flash('Le quiz doit rester assigné à au moins un de vos groupes', 'error')
+                flash(_l('Le quiz doit rester assigne a au moins un de vos groupes'), 'error')
                 return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
             group_ids = valid_ids
 
@@ -739,7 +751,7 @@ def edit_quiz(identifier):
                     return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
                 existing = Quiz.query.filter_by(slug=custom_slug).first()
                 if existing and existing.id != quiz.id:
-                    flash(f'Le slug "{custom_slug}" est deja utilise', 'error')
+                    flash(_l('Le slug "%(slug)s" est deja utilise', slug=custom_slug), 'error')
                     return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
 
             # Update quiz
@@ -798,13 +810,13 @@ def edit_quiz(identifier):
                 db.session.add(question)
 
             db.session.commit()
-            flash('Quiz mis a jour avec succes !', 'success')
+            flash(_l('Quiz mis a jour avec succes !'), 'success')
             return redirect(url_for('admin.dashboard'))
 
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f'Quiz update error: {str(e)}')
-            flash('Erreur lors de la mise a jour. Verifiez le format Markdown.', 'error')
+            flash(_l('Erreur lors de la mise a jour. Verifiez le format Markdown.'), 'error')
 
     return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
 
@@ -816,7 +828,7 @@ def preview_quiz(identifier):
     """Preview a quiz as a student would see it (read-only)."""
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -825,7 +837,7 @@ def preview_quiz(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     questions = Question.query.filter_by(quiz_id=quiz.id).order_by(Question.order).all()
@@ -857,7 +869,7 @@ def test_quiz(identifier):
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz_id = quiz.id  # Keep for session keys compatibility
@@ -868,7 +880,7 @@ def test_quiz(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     questions = list(Question.query.filter_by(quiz_id=quiz.id).order_by(Question.order).all())
@@ -1047,7 +1059,7 @@ def test_quiz(identifier):
             )
             return redirect(url_for('quiz.grading', response_id=quiz_response.id))
 
-        flash('Test du quiz terminé !', 'success')
+        flash(_l('Test du quiz termine !'), 'success')
         return redirect(url_for('quiz.result', response_id=quiz_response.id))
 
     # GET request - show the quiz
@@ -1082,14 +1094,14 @@ def test_quiz(identifier):
 def delete_quiz(identifier):
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz_id = quiz.id  # Keep for file operations
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Delete associated uploaded images
@@ -1103,7 +1115,7 @@ def delete_quiz(identifier):
 
     db.session.delete(quiz)
     db.session.commit()
-    flash('Quiz supprimé avec succès', 'success')
+    flash(_l('Quiz supprime avec succes'), 'success')
     return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/quiz/<identifier>/duplicate', methods=['POST'])
@@ -1113,12 +1125,12 @@ def duplicate_quiz(identifier):
     """Duplicate an existing quiz."""
     original = Quiz.get_by_identifier(identifier)
     if not original:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Check permission
     if not current_user.can_access_quiz(original):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Create new quiz with copied data
@@ -1140,14 +1152,14 @@ def duplicate_quiz(identifier):
     db.session.add(new_quiz)
     db.session.flush()
 
-    # Copy group assignments (only admin's groups for group admins)
+    # Copy group assignments (only accessible groups for non-superadmins)
     if current_user.is_superadmin:
         for group in original.groups:
             new_quiz.groups.append(group)
     else:
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
+        accessible_group_ids = [g.id for g in current_user.get_accessible_groups()]
         for group in original.groups:
-            if group.id in admin_group_ids:
+            if group.id in accessible_group_ids:
                 new_quiz.groups.append(group)
 
     # Copy questions
@@ -1167,7 +1179,7 @@ def duplicate_quiz(identifier):
         db.session.add(new_q)
 
     db.session.commit()
-    flash(f'Quiz dupliqué ! Le nouveau quiz "{new_quiz.title}" est désactivé par défaut.', 'success')
+    flash(_l('Quiz duplique ! Le nouveau quiz "%(title)s" est desactive par defaut.', title=new_quiz.title), 'success')
     return redirect(url_for('admin.edit_quiz', identifier=new_quiz.get_url_identifier()))
 
 @admin_bp.route('/quiz/<identifier>/toggle', methods=['POST'])
@@ -1176,18 +1188,18 @@ def duplicate_quiz(identifier):
 def toggle_quiz(identifier):
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz.is_active = not quiz.is_active
     db.session.commit()
     status = 'activé' if quiz.is_active else 'désactivé'
-    flash(f'Quiz {status}', 'success')
+    flash(_l('Quiz %(status)s', status=status), 'success')
     return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/quiz/<identifier>/results')
@@ -1196,7 +1208,7 @@ def toggle_quiz(identifier):
 def quiz_results(identifier):
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz_id = quiz.id  # Keep for queries
@@ -1207,7 +1219,7 @@ def quiz_results(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     group_filter = request.args.get('group', None, type=int)
@@ -1255,14 +1267,14 @@ def regrade_quiz(identifier):
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz_id = quiz.id  # Keep for queries
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get all completed responses for this quiz
@@ -1306,9 +1318,9 @@ def regrade_quiz(identifier):
             regrade_count += 1
 
     if regrade_count > 0:
-        flash(f'Re-correction lancée pour {regrade_count} copie(s). Les notes seront mises à jour progressivement.', 'success')
+        flash(_l('Re-correction lancee pour %(count)s copie(s). Les notes seront mises a jour progressivement.', count=regrade_count), 'success')
     else:
-        flash('Aucune question ouverte à re-corriger.', 'info')
+        flash(_l('Aucune question ouverte a re-corriger.'), 'info')
 
     return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
@@ -1324,14 +1336,14 @@ def export_quiz_csv(identifier):
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     quiz_id = quiz.id  # Keep for queries
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     group_filter = request.args.get('group', None, type=int)
@@ -1393,7 +1405,7 @@ def export_quiz_csv(identifier):
 
     # Generate response
     output.seek(0)
-    filename = f"resultats_{quiz.title.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.csv"
+    filename = f"resultats_{sanitize_filename(quiz.title[:30])}_{datetime.now().strftime('%Y%m%d')}.csv"
 
     return Response(
         output.getvalue(),
@@ -1624,13 +1636,17 @@ def groups():
 
 @admin_bp.route('/group/create', methods=['GET', 'POST'])
 @login_required
-@superadmin_required
+@admin_required
 def create_group():
     # Get available tenants for the current user
     if current_user.is_superadmin:
         tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
+    elif current_user.is_tenant_admin:
+        tenants = list(current_user.admin_tenants.filter_by(is_active=True))
     else:
-        tenants = current_user.administered_tenants
+        # Group admins cannot create groups
+        flash(_l('Vous n\'avez pas la permission de creer des groupes'), 'error')
+        return redirect(url_for('admin.groups'))
 
     if request.method == 'POST':
         name = request.form.get('name')
@@ -1639,12 +1655,19 @@ def create_group():
         tenant_id = request.form.get('tenant_id', type=int)
 
         if not name:
-            flash('Le nom du groupe est requis', 'error')
+            flash(_l('Le nom du groupe est requis'), 'error')
             return render_template('admin/create_group.html', tenants=tenants)
 
-        # Validate tenant selection
+        # Validate tenant selection for non-superadmins
+        if not current_user.is_superadmin:
+            valid_tenant_ids = [t.id for t in tenants]
+            if tenant_id and tenant_id not in valid_tenant_ids:
+                flash(_l('Vous ne pouvez creer des groupes que dans vos tenants'), 'error')
+                return render_template('admin/create_group.html', tenants=tenants)
+
+        # Default to first available tenant if not specified
         if not tenant_id and tenants:
-            tenant_id = tenants[0].id  # Default to first available tenant
+            tenant_id = tenants[0].id
 
         # Generate unique join code
         join_code = Group.generate_join_code()
@@ -1661,18 +1684,23 @@ def create_group():
         db.session.add(group)
         db.session.commit()
 
-        flash(f'Groupe "{name}" créé avec le code : {join_code}', 'success')
+        flash(_l('Groupe "%(name)s" cree avec le code : %(code)s', name=name, code=join_code), 'success')
         return redirect(url_for('admin.groups'))
 
     return render_template('admin/create_group.html', tenants=tenants)
 
 @admin_bp.route('/group/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
-@superadmin_required
+@admin_required
 def edit_group(identifier):
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
+        return redirect(url_for('admin.groups'))
+
+    # Check permission
+    if not current_user.can_access_group(group):
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.groups'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -1683,7 +1711,7 @@ def edit_group(identifier):
     if current_user.is_superadmin:
         tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
     else:
-        tenants = current_user.administered_tenants
+        tenants = list(current_user.admin_tenants.filter_by(is_active=True))
 
     if request.method == 'POST':
         group.name = request.form.get('name')
@@ -1695,44 +1723,55 @@ def edit_group(identifier):
             group.tenant_id = tenant_id
         db.session.commit()
 
-        flash('Groupe mis à jour avec succès', 'success')
+        flash(_l('Groupe mis a jour avec succes'), 'success')
         return redirect(url_for('admin.groups'))
 
     return render_template('admin/edit_group.html', group=group, tenants=tenants)
 
 @admin_bp.route('/group/<identifier>/toggle', methods=['POST'])
 @login_required
-@superadmin_required
+@admin_required
 def toggle_group(identifier):
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
         return redirect(url_for('admin.groups'))
+
+    # Check permission
+    if not current_user.can_access_group(group):
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
+        return redirect(url_for('admin.groups'))
+
     group.is_active = not group.is_active
     db.session.commit()
 
     status = 'activé' if group.is_active else 'désactivé'
-    flash(f'Groupe {status}', 'success')
+    flash(_l('Groupe %(status)s', status=status), 'success')
     return redirect(url_for('admin.groups'))
 
 @admin_bp.route('/group/<identifier>/delete', methods=['POST'])
 @login_required
-@superadmin_required
+@admin_required
 def delete_group(identifier):
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
+        return redirect(url_for('admin.groups'))
+
+    # Check permission
+    if not current_user.can_access_group(group):
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.groups'))
 
     # Check if group has users (via new relationship)
     if group.members.count() > 0:
-        flash('Impossible de supprimer un groupe qui contient des utilisateurs', 'error')
+        flash(_l('Impossible de supprimer un groupe qui contient des utilisateurs'), 'error')
         return redirect(url_for('admin.groups'))
 
     db.session.delete(group)
     db.session.commit()
 
-    flash('Groupe supprimé avec succès', 'success')
+    flash(_l('Groupe supprime avec succes'), 'success')
     return redirect(url_for('admin.groups'))
 
 @admin_bp.route('/group/<identifier>/users')
@@ -1741,7 +1780,7 @@ def delete_group(identifier):
 def group_users(identifier):
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
         return redirect(url_for('admin.groups'))
 
     group_id = group.id  # Keep for queries
@@ -1752,7 +1791,7 @@ def group_users(identifier):
 
     # Check permission for group admins
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
-        flash('Vous n\'avez pas accès à ce groupe', 'error')
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get users from new many-to-many relationship
@@ -1773,14 +1812,14 @@ def export_group_results(identifier):
 
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
         return redirect(url_for('admin.groups'))
 
     group_id = group.id  # Keep for queries
 
     # Check permission
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
-        flash('Vous n\'avez pas accès à ce groupe', 'error')
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get all users in the group
@@ -1849,7 +1888,7 @@ def export_group_results(identifier):
 
     # Create response with UTF-8 BOM for Excel compatibility
     output.seek(0)
-    filename = f'resultats_{group.name.replace(" ", "_")}_{datetime.utcnow().strftime("%Y%m%d")}.csv'
+    filename = f'resultats_{sanitize_filename(group.name[:30])}_{datetime.utcnow().strftime("%Y%m%d")}.csv'
 
     # Add UTF-8 BOM for Excel to recognize encoding
     csv_content = '\ufeff' + output.getvalue()
@@ -1870,7 +1909,7 @@ def email_group(identifier):
 
     group = Group.get_by_identifier(identifier)
     if not group:
-        flash('Groupe introuvable', 'error')
+        flash(_l('Groupe introuvable'), 'error')
         return redirect(url_for('admin.groups'))
 
     group_id = group.id  # Keep for queries
@@ -1881,7 +1920,7 @@ def email_group(identifier):
 
     # Check permission
     if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
-        flash('Vous n\'avez pas accès à ce groupe', 'error')
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get all users in the group with email
@@ -1896,19 +1935,19 @@ def email_group(identifier):
         message = request.form.get('message', '').strip()
 
         if not subject or not message:
-            flash('Le sujet et le message sont requis', 'error')
+            flash(_l('Le sujet et le message sont requis'), 'error')
             return render_template('admin/email_group.html', group=group, users=users)
 
         if not users:
-            flash('Aucun utilisateur avec email dans ce groupe', 'error')
+            flash(_l('Aucun utilisateur avec email dans ce groupe'), 'error')
             return render_template('admin/email_group.html', group=group, users=users)
 
         success, fail = send_bulk_email(users, subject, message)
 
         if success > 0:
-            flash(f'{success} email(s) envoyé(s) avec succès', 'success')
+            flash(_l('%(count)s email(s) envoye(s) avec succes', count=success), 'success')
         if fail > 0:
-            flash(f'{fail} email(s) échoué(s)', 'warning')
+            flash(_l('%(count)s email(s) echoue(s)', count=fail), 'warning')
 
         return redirect(url_for('admin.group_users', identifier=group.get_url_identifier()))
 
@@ -2006,7 +2045,7 @@ def user_grades(identifier):
     """View all grades for a specific user."""
     user = User.get_by_identifier(identifier)
     if not user:
-        flash('Utilisateur introuvable', 'error')
+        flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
     user_id = user.id  # Keep for queries
@@ -2017,7 +2056,7 @@ def user_grades(identifier):
 
     # Check permission
     if not current_user.is_superadmin and not current_user.can_access_user(user):
-        flash('Vous n\'avez pas accès à cet utilisateur', 'error')
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
     # Get all responses for this user
@@ -2095,29 +2134,32 @@ def create_user():
         is_tenant_admin = (user_role == 'tenant_admin')
         is_group_admin = (user_role == 'group_admin')
 
-        # Only superadmins can create superadmins, tenant admins or group admins
+        # Only superadmins can create superadmins or tenant admins
+        # Tenant admins can create group admins in their tenant
         if not current_user.is_superadmin:
             is_superadmin = False
             is_tenant_admin = False
-            is_group_admin = False
             tenant_ids = []
+            # Tenant admins can create group admins, group admins cannot
+            if not current_user.is_tenant_admin:
+                is_group_admin = False
 
-        # Validate group ids for group admins
+        # Validate group ids based on accessible groups
         if not current_user.is_superadmin:
-            admin_group_ids = [str(g.id) for g in current_user.get_admin_groups()]
-            group_ids = [gid for gid in group_ids if gid in admin_group_ids]
+            accessible_group_ids = [str(g.id) for g in current_user.get_accessible_groups()]
+            group_ids = [gid for gid in group_ids if gid in accessible_group_ids]
 
         # Validation
         if not username or not email or not password:
-            flash('Nom d\'utilisateur, email et mot de passe sont requis', 'error')
+            flash(_l('Nom d\'utilisateur, email et mot de passe sont requis'), 'error')
         elif User.query.filter_by(username=username).first():
-            flash('Ce nom d\'utilisateur existe deja', 'error')
+            flash(_l('Ce nom d\'utilisateur existe deja'), 'error')
         elif User.query.filter_by(email=email).first():
-            flash('Cette adresse email est deja utilisee', 'error')
+            flash(_l('Cette adresse email est deja utilisee'), 'error')
         elif not group_ids and not is_superadmin and not is_tenant_admin:
-            flash('Vous devez assigner au moins un groupe', 'error')
+            flash(_l('Vous devez assigner au moins un groupe'), 'error')
         elif is_tenant_admin and not tenant_ids:
-            flash('Vous devez assigner au moins un tenant pour un admin de tenant', 'error')
+            flash(_l('Vous devez assigner au moins un tenant pour un admin de tenant'), 'error')
         else:
             user = User(
                 username=username,
@@ -2155,7 +2197,7 @@ def create_user():
                 role_name = 'administrateur de groupe'
             else:
                 role_name = 'utilisateur'
-            flash(f'{role_name.capitalize()} "{username}" cree avec succes', 'success')
+            flash(_l('%(role)s "%(username)s" cree avec succes', role=role_name.capitalize(), username=username), 'success')
             return redirect(url_for('admin.users'))
 
     return render_template('admin/create_user.html', groups=groups, tenants=tenants,
@@ -2199,31 +2241,31 @@ def import_users():
 
     if request.method == 'POST':
         if 'csv_file' not in request.files:
-            flash('Aucun fichier selectionne', 'error')
+            flash(_l('Aucun fichier selectionne'), 'error')
             return redirect(request.url)
 
         file = request.files['csv_file']
         if file.filename == '':
-            flash('Aucun fichier selectionne', 'error')
+            flash(_l('Aucun fichier selectionne'), 'error')
             return redirect(request.url)
 
         default_group_id = request.form.get('default_group', type=int)
         default_password = request.form.get('default_password', '').strip()
 
         if not default_group_id:
-            flash('Veuillez selectionner un groupe par defaut', 'error')
+            flash(_l('Veuillez selectionner un groupe par defaut'), 'error')
             return redirect(request.url)
 
         # Check group access
         if not current_user.is_superadmin:
-            admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-            if default_group_id not in admin_group_ids:
-                flash('Vous n\'avez pas acces a ce groupe', 'error')
+            accessible_group_ids = [g.id for g in current_user.get_accessible_groups()]
+            if default_group_id not in accessible_group_ids:
+                flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
                 return redirect(request.url)
 
         default_group = Group.query.get(default_group_id)
         if not default_group:
-            flash('Groupe invalide', 'error')
+            flash(_l('Groupe invalide'), 'error')
             return redirect(request.url)
 
         try:
@@ -2289,20 +2331,20 @@ def import_users():
             db.session.commit()
 
             if created_count > 0:
-                flash(f'{created_count} utilisateur(s) importe(s) avec succes dans le groupe "{default_group.name}"', 'success')
+                flash(_l('%(count)s utilisateur(s) importe(s) avec succes dans le groupe "%(group)s"', count=created_count, group=default_group.name), 'success')
             if skipped_count > 0:
-                flash(f'{skipped_count} utilisateur(s) ignore(s)', 'warning')
+                flash(_l('%(count)s utilisateur(s) ignore(s)', count=skipped_count), 'warning')
             if errors:
                 for error in errors[:5]:  # Show first 5 errors
                     flash(error, 'error')
                 if len(errors) > 5:
-                    flash(f'... et {len(errors) - 5} autre(s) erreur(s)', 'error')
+                    flash(_l('... et %(count)s autre(s) erreur(s)', count=len(errors) - 5), 'error')
 
             return redirect(url_for('admin.users'))
 
         except Exception as e:
             db.session.rollback()
-            flash(f'Erreur lors de l\'import: {str(e)}', 'error')
+            flash(_l('Erreur lors de l\'import: %(error)s', error=str(e)), 'error')
 
     return render_template('admin/import_users.html', groups=groups)
 
@@ -2315,7 +2357,7 @@ def edit_user(identifier):
     from app.models.user import user_groups
     user = User.get_by_identifier(identifier)
     if not user:
-        flash('Utilisateur introuvable', 'error')
+        flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
     user_id = user.id  # Keep for queries
@@ -2326,17 +2368,17 @@ def edit_user(identifier):
 
     # Permission check - group admins can only edit users in their groups
     if not current_user.can_access_user(user):
-        flash('Vous n\'avez pas accès à cet utilisateur', 'error')
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
     # Group admins cannot edit superadmins
     if not current_user.is_superadmin and user.is_superadmin:
-        flash('Vous ne pouvez pas modifier un super-administrateur', 'error')
+        flash(_l('Vous ne pouvez pas modifier un super-administrateur'), 'error')
         return redirect(url_for('admin.users'))
 
     # Prevent editing yourself to remove admin rights
     if user.id == current_user.id:
-        flash('Vous ne pouvez pas modifier votre propre compte ici', 'error')
+        flash(_l('Vous ne pouvez pas modifier votre propre compte ici'), 'error')
         return redirect(url_for('admin.users'))
 
     # Get tenant context from navbar
@@ -2387,15 +2429,15 @@ def edit_user(identifier):
             user.email_verified = True
             user.clear_verification_token()
             db.session.commit()
-            flash(f'Email de {user.username} verifie manuellement.', 'success')
+            flash(_l('Email de %(username)s verifie manuellement.', username=user.username), 'success')
             return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
 
         elif action == 'resend_verification':
             if send_verification_email(user):
                 db.session.commit()
-                flash(f'Email de verification renvoye a {user.email}.', 'success')
+                flash(_l('Email de verification renvoye a %(email)s.', email=user.email), 'success')
             else:
-                flash('Erreur lors de l\'envoi de l\'email.', 'error')
+                flash(_l('Erreur lors de l\'envoi de l\'email.'), 'error')
             return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
 
         username = request.form.get('username', '').strip()
@@ -2409,20 +2451,22 @@ def edit_user(identifier):
         selected_group_ids = request.form.getlist('group_ids')
         selected_tenant_ids = request.form.getlist('tenant_ids')
 
-        # Group admins cannot change superadmin/tenant_admin status
+        # Non-superadmins cannot change superadmin/tenant_admin status
         if not current_user.is_superadmin:
             is_superadmin = user.is_superadmin  # Keep original value
             is_tenant_admin = user.is_tenant_admin  # Keep original value
-            is_group_admin = False  # Group admins can't create other group admins
-            selected_tenant_ids = []  # Group admins can't modify tenant assignments
+            selected_tenant_ids = []  # Non-superadmins can't modify tenant assignments
+            # Tenant admins can modify group admin status, group admins cannot
+            if not current_user.is_tenant_admin:
+                is_group_admin = False
 
         # Validation
         if not username or not email:
-            flash('Nom d\'utilisateur et email sont requis', 'error')
+            flash(_l('Nom d\'utilisateur et email sont requis'), 'error')
         elif User.query.filter(User.username == username, User.id != user_id).first():
-            flash('Ce nom d\'utilisateur existe deja', 'error')
+            flash(_l('Ce nom d\'utilisateur existe deja'), 'error')
         elif User.query.filter(User.email == email, User.id != user_id).first():
-            flash('Cette adresse email est deja utilisee', 'error')
+            flash(_l('Cette adresse email est deja utilisee'), 'error')
         else:
             user.username = username
             user.first_name = first_name if first_name else None
@@ -2461,8 +2505,8 @@ def edit_user(identifier):
                     # Superadmin can modify all groups
                     modifiable_group_ids = set(g.id for g in groups)
                 else:
-                    # Group admin can only modify their admin groups
-                    modifiable_group_ids = set(g.id for g in current_user.get_admin_groups())
+                    # Tenant/group admin can only modify their accessible groups
+                    modifiable_group_ids = set(g.id for g in current_user.get_accessible_groups())
 
                 # Get current groups the user is in
                 current_group_ids = set(g.id for g in user.groups)
@@ -2487,12 +2531,14 @@ def edit_user(identifier):
                         user.remove_from_group(group)
 
                 # Update roles for existing memberships if changing to/from group admin
-                if current_user.is_superadmin and is_group_admin:
-                    # Update role to admin for all selected groups
+                # Superadmins and tenant admins can modify group admin roles
+                can_modify_roles = current_user.is_superadmin or current_user.is_tenant_admin
+                if can_modify_roles and is_group_admin:
+                    # Update role to admin for all selected groups within modifiable scope
                     for gid in selected_group_ids:
                         if gid:
                             gid = int(gid)
-                            if gid in current_group_ids:
+                            if gid in current_group_ids and gid in modifiable_group_ids:
                                 # Update existing membership role
                                 db.session.execute(
                                     user_groups.update().where(
@@ -2500,20 +2546,23 @@ def edit_user(identifier):
                                         user_groups.c.group_id == gid
                                     ).values(role='admin')
                                 )
-                elif current_user.is_superadmin and not is_group_admin:
-                    # Demote to member for all groups
-                    db.session.execute(
-                        user_groups.update().where(
-                            user_groups.c.user_id == user.id
-                        ).values(role='member')
-                    )
+                elif can_modify_roles and not is_group_admin:
+                    # Demote to member for modifiable groups only
+                    for gid in modifiable_group_ids:
+                        if gid in current_group_ids:
+                            db.session.execute(
+                                user_groups.update().where(
+                                    user_groups.c.user_id == user.id,
+                                    user_groups.c.group_id == gid
+                                ).values(role='member')
+                            )
 
             # Only update password if provided
             if password:
                 user.set_password(password)
 
             db.session.commit()
-            flash(f'Utilisateur "{username}" mis a jour avec succes', 'success')
+            flash(_l('Utilisateur "%(username)s" mis a jour avec succes', username=username), 'success')
             return redirect(url_for('admin.users'))
 
     return render_template('admin/edit_user.html', user=user, groups=groups,
@@ -2528,33 +2577,33 @@ def delete_user(identifier):
     """Delete a user."""
     user = User.get_by_identifier(identifier)
     if not user:
-        flash('Utilisateur introuvable', 'error')
+        flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
     # Permission check - group admins can only delete users in their groups
     if not current_user.can_access_user(user):
-        flash('Vous n\'avez pas accès à cet utilisateur', 'error')
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
     # Group admins cannot delete superadmins or other group admins
     if not current_user.is_superadmin:
         if user.is_superadmin:
-            flash('Vous ne pouvez pas supprimer un super-administrateur', 'error')
+            flash(_l('Vous ne pouvez pas supprimer un super-administrateur'), 'error')
             return redirect(url_for('admin.users'))
         if user.is_group_admin:
-            flash('Vous ne pouvez pas supprimer un administrateur de groupe', 'error')
+            flash(_l('Vous ne pouvez pas supprimer un administrateur de groupe'), 'error')
             return redirect(url_for('admin.users'))
 
     # Prevent self-deletion
     if user.id == current_user.id:
-        flash('Vous ne pouvez pas supprimer votre propre compte', 'error')
+        flash(_l('Vous ne pouvez pas supprimer votre propre compte'), 'error')
         return redirect(url_for('admin.users'))
 
     username = user.username
     db.session.delete(user)
     db.session.commit()
 
-    flash(f'Utilisateur "{username}" supprime avec succes', 'success')
+    flash(_l('Utilisateur "%(username)s" supprime avec succes', username=username), 'success')
     return redirect(url_for('admin.users'))
 
 
@@ -2566,7 +2615,7 @@ def bulk_delete_users():
     """Delete multiple users at once."""
     user_ids = request.form.getlist('user_ids', type=int)
     if not user_ids:
-        flash('Aucun utilisateur selectionne', 'warning')
+        flash(_l('Aucun utilisateur selectionne'), 'warning')
         return redirect(url_for('admin.users'))
 
     deleted_count = 0
@@ -2599,9 +2648,9 @@ def bulk_delete_users():
     db.session.commit()
 
     if deleted_count > 0:
-        flash(f'{deleted_count} utilisateur(s) supprime(s)', 'success')
+        flash(_l('%(count)s utilisateur(s) supprime(s)', count=deleted_count), 'success')
     if skipped_count > 0:
-        flash(f'{skipped_count} utilisateur(s) ignore(s) (pas de permission)', 'warning')
+        flash(_l('%(count)s utilisateur(s) ignore(s) (pas de permission)', count=skipped_count), 'warning')
 
     return redirect(url_for('admin.users'))
 
@@ -2616,21 +2665,21 @@ def bulk_change_group():
     group_id = request.form.get('group_id', type=int)
 
     if not user_ids:
-        flash('Aucun utilisateur selectionne', 'warning')
+        flash(_l('Aucun utilisateur selectionne'), 'warning')
         return redirect(url_for('admin.users'))
 
     if not group_id:
-        flash('Aucun groupe selectionne', 'warning')
+        flash(_l('Aucun groupe selectionne'), 'warning')
         return redirect(url_for('admin.users'))
 
     group = Group.query.get(group_id)
     if not group:
-        flash('Groupe non trouve', 'error')
+        flash(_l('Groupe non trouve'), 'error')
         return redirect(url_for('admin.users'))
 
     # Check group access
     if not current_user.can_access_group(group):
-        flash('Vous n\'avez pas acces a ce groupe', 'error')
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
         return redirect(url_for('admin.users'))
 
     updated_count = 0
@@ -2669,9 +2718,9 @@ def bulk_change_group():
 
     action_text = {'add': 'ajoute(s) au', 'remove': 'retire(s) du', 'replace': 'deplace(s) vers le'}.get(action, 'modifie(s) pour le')
     if updated_count > 0:
-        flash(f'{updated_count} utilisateur(s) {action_text} groupe "{group.name}"', 'success')
+        flash(_l('%(count)s utilisateur(s) %(action)s groupe "%(group)s"', count=updated_count, action=action_text, group=group.name), 'success')
     if skipped_count > 0:
-        flash(f'{skipped_count} utilisateur(s) ignore(s)', 'warning')
+        flash(_l('%(count)s utilisateur(s) ignore(s)', count=skipped_count), 'warning')
 
     return redirect(url_for('admin.users'))
 
@@ -2684,7 +2733,7 @@ def edit_response(identifier):
     """Edit scores for a quiz response."""
     response = QuizResponse.get_by_identifier(identifier)
     if not response:
-        flash('Reponse introuvable', 'error')
+        flash(_l('Reponse introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     response_id = response.id  # Keep for queries
@@ -2698,11 +2747,11 @@ def edit_response(identifier):
 
     # Permission check
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas acces a ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     if not current_user.can_access_user(user):
-        flash('Vous n\'avez pas acces a cet utilisateur', 'error')
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Get answers with their questions, ordered by question order
@@ -2736,7 +2785,7 @@ def edit_response(identifier):
         response.admin_comment = request.form.get('admin_comment', '').strip() or None
         db.session.commit()
 
-        flash(f'Scores mis a jour pour {user.full_name}', 'success')
+        flash(_l('Scores mis a jour pour %(name)s', name=user.full_name), 'success')
         return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
     return render_template('admin/edit_response.html',
@@ -2753,7 +2802,7 @@ def delete_response(identifier):
     """Delete a quiz response (allows user to retake the quiz)."""
     response = QuizResponse.get_by_identifier(identifier)
     if not response:
-        flash('Reponse introuvable', 'error')
+        flash(_l('Reponse introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     response_id = response.id  # Keep for queries
@@ -2762,11 +2811,11 @@ def delete_response(identifier):
 
     # Permission check - must have access to both the quiz and the user
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas accès à ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     if not current_user.can_access_user(user):
-        flash('Vous n\'avez pas accès à cet utilisateur', 'error')
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Delete all answers first (cascade should handle this but being explicit)
@@ -2774,7 +2823,7 @@ def delete_response(identifier):
     db.session.delete(response)
     db.session.commit()
 
-    flash(f'Reponse de {user.full_name} supprimee. L\'utilisateur peut maintenant repasser le quiz.', 'success')
+    flash(_l('Reponse de %(name)s supprimee. L\'utilisateur peut maintenant repasser le quiz.', name=user.full_name), 'success')
 
     # Redirect back to the referring page
     referer = request.referrer
@@ -2792,6 +2841,12 @@ def generate_quiz():
     # Get groups for form (same pattern as create_quiz)
     if current_user.is_superadmin:
         groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
+    elif current_user.is_tenant_admin:
+        tenant_ids = [t.id for t in current_user.admin_tenants]
+        groups = Group.query.filter(
+            Group.is_active == True,
+            Group.tenant_id.in_(tenant_ids)
+        ).order_by(Group.name).all()
     else:
         groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
 
@@ -2808,22 +2863,22 @@ def generate_quiz():
         num_open = max(0, min(10, num_open))
 
         if num_mcq + num_open == 0:
-            flash('Vous devez generer au moins une question', 'error')
+            flash(_l('Vous devez generer au moins une question'), 'error')
             return render_template('admin/generate_quiz.html', groups=groups)
 
         # Handle file upload
         if 'course_file' not in request.files:
-            flash('Veuillez selectionner un fichier', 'error')
+            flash(_l('Veuillez selectionner un fichier'), 'error')
             return render_template('admin/generate_quiz.html', groups=groups)
 
         file = request.files['course_file']
 
         if file.filename == '':
-            flash('Aucun fichier selectionne', 'error')
+            flash(_l('Aucun fichier selectionne'), 'error')
             return render_template('admin/generate_quiz.html', groups=groups)
 
         if not ContentExtractor.allowed_file(file.filename):
-            flash('Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)', 'error')
+            flash(_l('Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)'), 'error')
             return render_template('admin/generate_quiz.html', groups=groups)
 
         try:
@@ -2832,7 +2887,7 @@ def generate_quiz():
             content = ContentExtractor.extract(file_stream, file.filename)
 
             if not content or len(content.strip()) < 100:
-                flash('Le fichier ne contient pas assez de texte exploitable (minimum 100 caracteres)', 'error')
+                flash(_l('Le fichier ne contient pas assez de texte exploitable (minimum 100 caracteres)'), 'error')
                 return render_template('admin/generate_quiz.html', groups=groups)
 
             # Generate quiz using Claude
@@ -2852,12 +2907,12 @@ def generate_quiz():
                                      title=title,
                                      groups=groups)
             else:
-                flash(f'Erreur lors de la generation: {result.get("error", "Erreur inconnue")}', 'error')
+                flash(_l('Erreur lors de la generation: %(error)s', error=result.get("error", _l("Erreur inconnue"))), 'error')
                 return render_template('admin/generate_quiz.html', groups=groups)
 
         except Exception as e:
             current_app.logger.error(f'Quiz generation error: {str(e)}')
-            flash(f'Erreur lors du traitement du fichier: {str(e)}', 'error')
+            flash(_l('Erreur lors du traitement du fichier: %(error)s', error=str(e)), 'error')
             return render_template('admin/generate_quiz.html', groups=groups)
 
     return render_template('admin/generate_quiz.html', groups=groups)
@@ -2872,7 +2927,7 @@ def response_analysis(identifier):
 
     response = QuizResponse.get_by_identifier(identifier)
     if not response:
-        flash('Reponse introuvable', 'error')
+        flash(_l('Reponse introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -2881,12 +2936,12 @@ def response_analysis(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(response.quiz):
-        flash('Vous n\'avez pas acces a ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     stats = get_response_stats(response.id)
     if not stats:
-        flash('Reponse introuvable', 'error')
+        flash(_l('Reponse introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     class_averages = stats.get('class_averages', {})
@@ -2943,7 +2998,7 @@ def class_analysis(identifier):
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -2952,12 +3007,12 @@ def class_analysis(identifier):
 
     # Check permission
     if not current_user.can_access_quiz(quiz):
-        flash('Vous n\'avez pas acces a ce quiz', 'error')
+        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     stats = get_class_stats(quiz.id)
     if not stats:
-        flash('Quiz introuvable', 'error')
+        flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     if 'error' in stats:
@@ -3051,7 +3106,7 @@ def site_settings():
             except Exception as e:
                 current_app.logger.error(f"Failed to update backup schedule: {str(e)}")
 
-            flash('Parametres sauvegardes avec succes', 'success')
+            flash(_l('Parametres sauvegardes avec succes'), 'success')
             return redirect(url_for('admin.site_settings'))
 
     # Get next backup time
@@ -3213,7 +3268,7 @@ def create_page():
 
         # Validate
         if not title:
-            flash('Le titre est requis', 'error')
+            flash(_l('Le titre est requis'), 'error')
             return render_template('admin/edit_page.html', page=None)
 
         # Generate slug if not provided
@@ -3223,12 +3278,12 @@ def create_page():
         # Check slug uniqueness
         existing = Page.query.filter_by(slug=slug).first()
         if existing:
-            flash('Ce slug existe deja', 'error')
+            flash(_l('Ce slug existe deja'), 'error')
             return render_template('admin/edit_page.html', page=None)
 
         # Validate slug format
         if not re.match(r'^[a-z0-9\-]+$', slug):
-            flash('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets', 'error')
+            flash(_l('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets'), 'error')
             return render_template('admin/edit_page.html', page=None)
 
         page = Page(
@@ -3243,7 +3298,7 @@ def create_page():
         db.session.add(page)
         db.session.commit()
 
-        flash('Page creee avec succes', 'success')
+        flash(_l('Page creee avec succes'), 'success')
         return redirect(url_for('admin.pages'))
 
     return render_template('admin/edit_page.html', page=None)
@@ -3259,7 +3314,7 @@ def edit_page(identifier):
 
     page = Page.get_by_identifier(identifier)
     if not page:
-        flash('Page introuvable', 'error')
+        flash(_l('Page introuvable'), 'error')
         return redirect(url_for('admin.pages'))
 
     # Redirect if accessed by old numeric ID
@@ -3277,7 +3332,7 @@ def edit_page(identifier):
 
         # Validate
         if not title:
-            flash('Le titre est requis', 'error')
+            flash(_l('Le titre est requis'), 'error')
             return render_template('admin/edit_page.html', page=page)
 
         # Generate slug if not provided
@@ -3287,12 +3342,12 @@ def edit_page(identifier):
         # Check slug uniqueness (excluding current page)
         existing = Page.query.filter(Page.slug == slug, Page.id != page.id).first()
         if existing:
-            flash('Ce slug existe deja', 'error')
+            flash(_l('Ce slug existe deja'), 'error')
             return render_template('admin/edit_page.html', page=page)
 
         # Validate slug format
         if not re.match(r'^[a-z0-9\-]+$', slug):
-            flash('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets', 'error')
+            flash(_l('Le slug ne peut contenir que des lettres minuscules, chiffres et tirets'), 'error')
             return render_template('admin/edit_page.html', page=page)
 
         page.title = title
@@ -3305,7 +3360,7 @@ def edit_page(identifier):
 
         db.session.commit()
 
-        flash('Page modifiee avec succes', 'success')
+        flash(_l('Page modifiee avec succes'), 'success')
         return redirect(url_for('admin.pages'))
 
     return render_template('admin/edit_page.html', page=page)
@@ -3320,12 +3375,12 @@ def delete_page(identifier):
 
     page = Page.get_by_identifier(identifier)
     if not page:
-        flash('Page introuvable', 'error')
+        flash(_l('Page introuvable'), 'error')
         return redirect(url_for('admin.pages'))
     db.session.delete(page)
     db.session.commit()
 
-    flash('Page supprimee avec succes', 'success')
+    flash(_l('Page supprimee avec succes'), 'success')
     return redirect(url_for('admin.pages'))
 
 
@@ -3338,7 +3393,7 @@ def preview_page(identifier):
 
     page = Page.get_by_identifier(identifier)
     if not page:
-        flash('Page introuvable', 'error')
+        flash(_l('Page introuvable'), 'error')
         return redirect(url_for('admin.pages'))
 
     # Redirect if accessed by old numeric ID

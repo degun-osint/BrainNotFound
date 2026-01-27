@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Modifier {{ group.name }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Modifier') }} {{ group.name }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Modifier le groupe</h1>
+<h1 class="mb-2">{{ _('Modifier le groupe') }}</h1>
 
 <div class="card">
-    <div class="card-header">Informations du groupe</div>
+    <div class="card-header">{{ _('Informations du groupe') }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>Code du groupe :</strong>
+        <strong>{{ _('Code du groupe :') }}</strong>
         <span class="font-mono text-xl text-info font-bold">
             {{ group.join_code }}
         </span>
         <p class="text-light text-sm mt-1">
-            Le code ne peut pas être modifié pour des raisons de sécurité.
+            {{ _('Le code ne peut pas être modifié pour des raisons de sécurité.') }}
         </p>
     </div>
 
     <form method="POST">
         {% if tenants and tenants|length > 1 %}
         <div class="form-group">
-            <label class="form-label">Organisation *</label>
+            <label class="form-label">{{ _('Organisation') }} *</label>
             <div class="searchable-select">
                 <input type="hidden" name="tenant_id" value="{{ group.tenant_id }}">
                 <div class="searchable-select-trigger">
@@ -31,7 +31,7 @@
                 </div>
                 <div class="searchable-select-dropdown">
                     <div class="searchable-select-search">
-                        <input type="text" placeholder="Rechercher une organisation...">
+                        <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
                     </div>
                     <div class="searchable-select-options">
                         {% for tenant in tenants %}
@@ -46,29 +46,29 @@
         {% endif %}
 
         <div class="form-group">
-            <label class="form-label" for="name">Nom du groupe *</label>
+            <label class="form-label" for="name">{{ _('Nom du groupe') }} *</label>
             <input type="text" id="name" name="name" class="form-input"
                    value="{{ group.name }}" required autofocus>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="description">Description</label>
+            <label class="form-label" for="description">{{ _('Description') }}</label>
             <textarea id="description" name="description" class="form-textarea form-textarea-short">{{ group.description or '' }}</textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="max_members">Nombre maximum de membres</label>
+            <label class="form-label" for="max_members">{{ _('Nombre maximum de membres') }}</label>
             <input type="number" id="max_members" name="max_members" class="form-input"
                    value="{{ group.max_members or 0 }}" min="0" style="max-width: 150px;">
-            <small class="text-light">0 = illimite | Actuellement : {{ group.get_member_count() }} membre(s)</small>
+            <small class="text-light">{{ _('0 = illimite') }} | {{ _('Actuellement :') }} {{ group.get_member_count() }} {{ _('membre(s)') }}</small>
         </div>
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-check"></i> Enregistrer
+                <i class="iconoir-check"></i> {{ _('Enregistrer') }}
             </button>
             <a href="{{ url_for('admin.groups') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>

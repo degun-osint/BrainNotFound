@@ -16,11 +16,12 @@ class ClaudeInterviewer:
     # End signal marker
     END_SIGNAL = '[INTERVIEW_COMPLETE]'
 
-    def __init__(self, api_key: str = None, model: str = None):
+    def __init__(self, api_key: str = None, model: str = None, lang: str = None):
         self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
         self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
         self.client = anthropic.Anthropic(api_key=self.api_key)
-        self.prompts = get_interview_prompts()
+        self.lang = lang or 'fr'
+        self.prompts = get_interview_prompts(lang=self.lang)
 
     def generate_system_prompt(self, wizard_data: dict) -> str:
         """
@@ -112,14 +113,12 @@ class ClaudeInterviewer:
 
         # Inject file content if available
         if session.uploaded_file_content:
-            injection_template = interview.file_upload_prompt_injection or """Voici le document fourni par l'etudiant ({file_name}):
-
-{file_content}
-
-Utilise ces informations dans tes reponses et questions."""
+            # Use custom injection template or fall back to language-specific default
+            default_injection = self.prompts.get('FILE_INJECTION_TEMPLATE', '')
+            injection_template = interview.file_upload_prompt_injection or default_injection
             file_injection = injection_template.replace(
                 '{file_content}', session.uploaded_file_content
-            ).replace('{file_name}', session.uploaded_file_name or 'fichier')
+            ).replace('{file_name}', session.uploaded_file_name or ('fichier' if self.lang == 'fr' else 'file'))
             base_system_prompt = f"{base_system_prompt}\n\n{file_injection}"
 
         # Build the conversation wrapper
@@ -156,8 +155,10 @@ Utilise ces informations dans tes reponses et questions."""
 
         except Exception as e:
             current_app.logger.error(f"Interview response error: {str(e)}")
+            error_messages = self.prompts.get('ERROR_MESSAGES', {})
+            error_msg = error_messages.get('technical_error', "*Une erreur technique s'est produite. Veuillez reessayer.*")
             return {
-                'content': f"*Une erreur technique s'est produite. Veuillez reessayer.*",
+                'content': error_msg,
                 'end_signal': False,
                 'token_count': 0
             }
@@ -252,6 +253,8 @@ Utilise ces informations dans tes reponses et questions."""
             current_app.logger.error(f"Interview evaluation error: {str(e)}")
             # Return default scores on error
             max_total = sum(c.max_points for c in interview.criteria)
+            error_messages = self.prompts.get('ERROR_MESSAGES', {})
+            error_msg = error_messages.get('evaluation_error', "Erreur lors de l'evaluation automatique.")
             return {
                 'scores': [
                     {
@@ -259,11 +262,11 @@ Utilise ces informations dans tes reponses et questions."""
                         'criterion_name': c.name,
                         'score': 0,
                         'max_score': c.max_points,
-                        'feedback': 'Erreur lors de l\'evaluation automatique.'
+                        'feedback': error_msg
                     }
                     for c in interview.criteria
                 ],
-                'summary': f'Erreur lors de l\'evaluation: {str(e)}',
+                'summary': f'{error_msg}: {str(e)}',
                 'total_score': 0,
                 'max_total': max_total
             }
@@ -360,7 +363,7 @@ Utilise ces informations dans tes reponses et questions."""
         return {}
 
 
-def get_criteria_templates() -> dict:
+def get_criteria_templates(lang: str = None) -> dict:
     """Get predefined criteria templates for common interview types."""
-    prompts = get_interview_prompts()
+    prompts = get_interview_prompts(lang=lang)
     return prompts.get('CRITERIA_TEMPLATES', {})

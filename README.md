@@ -55,6 +55,13 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 - **Paramètres** : Titre du site et email configurables
 - **Pages personnalisées** : Création de pages en Markdown (mentions légales, CGU, etc.)
 
+### Internationalisation (i18n)
+- **Langues supportées** : Français (défaut) et Anglais
+- **Sélecteur de langue** : Dans la barre de navigation
+- **Préférence utilisateur** : Sauvegardée en base de données
+- **Prompts IA multilingues** : Correction et feedback dans la langue choisie
+- **Détection automatique** : Via Accept-Language du navigateur
+
 ### Documentation intégrée
 - **Portail `/docs`** : Documentation complète accessible dans l'application
 - **Navigation** : Sidebar, table des matières, pagination
@@ -203,9 +210,54 @@ docs/             # Documentation Markdown intégrée
 migrations/       # Migrations Alembic
 ```
 
+## Internationalisation
+
+L'application utilise Flask-Babel pour le support multilingue. Les traductions sont compilées automatiquement au démarrage du conteneur Docker.
+
+### Ajouter/modifier des traductions
+
+```bash
+# 1. Extraire les nouvelles chaînes à traduire
+pybabel extract -F babel.cfg -k _l -k _ -o messages.pot .
+
+# 2. Mettre à jour les catalogues existants
+pybabel update -i messages.pot -d translations
+
+# 3. Éditer les traductions
+# Fichier : translations/en/LC_MESSAGES/messages.po
+
+# 4. Compiler (automatique au démarrage Docker, ou manuellement)
+pybabel compile -d translations
+```
+
+### Structure des fichiers
+
+```
+babel.cfg                    # Configuration d'extraction
+messages.pot                 # Catalogue source (généré)
+translations/
+├── fr/LC_MESSAGES/
+│   ├── messages.po         # Traductions françaises
+│   └── messages.mo         # Compilé (généré)
+└── en/LC_MESSAGES/
+    ├── messages.po         # Traductions anglaises
+    └── messages.mo         # Compilé (généré)
+```
+
+### Prompts IA multilingues
+
+Les prompts dans `private.example/prompts/` utilisent des dictionnaires par langue :
+
+```python
+GRADING_PROMPT_TEMPLATE = {
+    'fr': """Tu es un correcteur...""",
+    'en': """You are a grader..."""
+}
+```
+
 ## Technologies
 
-- **Backend** : Flask 3.x, SQLAlchemy, Flask-SocketIO
+- **Backend** : Flask 3.x, SQLAlchemy, Flask-SocketIO, Flask-Babel
 - **Base de données** : MySQL 8.0
 - **IA** : Anthropic Claude API
 - **Temps réel** : WebSocket (gevent)

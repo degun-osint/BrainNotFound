@@ -139,6 +139,12 @@ with app.app_context():
     print('Seed data initialized successfully')
 "
 
+# Compile translations if translations directory exists
+if [ -d "translations" ]; then
+    echo "Compiling translations..."
+    pybabel compile -d translations 2>/dev/null || echo "Translation compilation skipped (no .po files or error)"
+fi
+
 # Start the application with WebSocket support
 echo "Starting application with WebSocket support..."
 exec gunicorn --bind 0.0.0.0:5000 --workers 1 --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker wsgi:app

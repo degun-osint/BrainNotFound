@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}Connexion - BrainNotFound{% endblock %}
+{% block title %}{{ _('Connexion') }} - BrainNotFound{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <h1 class="auth-title">BrainNotFound</h1>
-        <h2 class="text-center mb-2">Connexion</h2>
+        <h2 class="text-center mb-2">{{ _('Connexion') }}</h2>
 
         {% if unverified_email %}
         <div class="alert alert-warning mb-2">
-            <p>Votre compte n'est pas encore verifie.</p>
+            <p>{{ _('Votre compte n\'est pas encore verifie.') }}</p>
             <a href="{{ url_for('auth.resend_verification') }}?email={{ unverified_email }}">
-                Renvoyer l'email de verification
+                {{ _('Renvoyer l\'email de verification') }}
             </a>
         </div>
         {% endif %}
 
         <form method="POST">
             <div class="form-group">
-                <label class="form-label" for="username">Nom d'utilisateur</label>
+                <label class="form-label" for="username">{{ _('Nom d\'utilisateur') }}</label>
                 <input type="text" id="username" name="username" class="form-input" required autofocus>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Mot de passe</label>
+                <label class="form-label" for="password">{{ _('Mot de passe') }}</label>
                 <input type="password" id="password" name="password" class="form-input" required>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Se connecter</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">{{ _('Se connecter') }}</button>
         </form>
 
         <div class="auth-link">
-            <a href="{{ url_for('auth.forgot_password') }}">Mot de passe oublie ?</a>
+            <a href="{{ url_for('auth.forgot_password') }}">{{ _('Mot de passe oublie ?') }}</a>
         </div>
 
         <div class="auth-link">
-            Pas encore de compte ? <a href="{{ url_for('auth.register') }}">S'inscrire</a>
+            {{ _('Pas encore de compte ?') }} <a href="{{ url_for('auth.register') }}">{{ _('S\'inscrire') }}</a>
         </div>
     </div>
 </div>

@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_babel import lazy_gettext as _l, get_locale
 from urllib.parse import urlparse
 from datetime import datetime
 import json
+import unicodedata
+import re
 from app import db, limiter
 from app.models.user import User
 from app.models.group import Group
@@ -10,10 +13,19 @@ from app.utils.email_sender import send_verification_email, send_reset_email
 
 auth_bp = Blueprint('auth', __name__)
 
+
+def sanitize_filename(text):
+    """Sanitize text for use in HTTP Content-Disposition filename header."""
+    text = unicodedata.normalize('NFKD', text)
+    text = text.encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^\w\s\-\.]', '', text)
+    text = re.sub(r'[\s\-]+', '_', text)
+    return text.strip('_')
+
 # Rate limit error handler
 @auth_bp.errorhandler(429)
 def ratelimit_handler(e):
-    flash('Trop de tentatives. Veuillez reessayer dans quelques minutes.', 'error')
+    flash(_l('Trop de tentatives. Veuillez reessayer dans quelques minutes.'), 'error')
     return redirect(request.url)
 
 
@@ -34,8 +46,39 @@ def index():
             return redirect(url_for('admin.dashboard'))
         else:
             return redirect(url_for('quiz.dashboard'))
-    # Show landing page for non-authenticated visitors
+    # Show landing page for non-authenticated visitors (language-specific if available)
+    locale = str(get_locale())
+    if locale != 'fr':
+        # Try language-specific landing page
+        try:
+            return render_template(f'landing_{locale}.html')
+        except Exception:
+            pass
     return render_template('landing.html')
+
+
+@auth_bp.route('/set-language/<lang>')
+def set_language(lang):
+    """Set user's language preference."""
+    # Validate language
+    if lang not in current_app.config.get('LANGUAGES', ['fr', 'en']):
+        lang = 'fr'
+
+    # Store in session
+    session['language'] = lang
+    session.modified = True  # Force session persistence
+
+    # Store in database if authenticated
+    if current_user.is_authenticated:
+        current_user.language_preference = lang
+        db.session.commit()
+
+    # Redirect back to previous page
+    referrer = request.referrer
+    if referrer and is_safe_url(referrer):
+        return redirect(referrer)
+    return redirect(url_for('auth.index'))
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute", methods=["POST"])
@@ -52,7 +95,7 @@ def login():
         if user and user.check_password(password):
             # Check if email is verified
             if not user.email_verified:
-                flash('Veuillez verifier votre adresse email avant de vous connecter.', 'warning')
+                flash(_l('Veuillez verifier votre adresse email avant de vous connecter.'), 'warning')
                 return render_template('auth/login.html', unverified_email=user.email)
 
             # Record login info
@@ -66,7 +109,7 @@ def login():
                 next_page = url_for('auth.index')
             return redirect(next_page)
         else:
-            flash('Identifiants incorrects', 'error')
+            flash(_l('Identifiants incorrects'), 'error')
 
     return render_template('auth/login.html')
 
@@ -87,20 +130,20 @@ def register():
 
         # Validation
         if not username or not email or not password or not join_code or not first_name or not last_name:
-            flash('Tous les champs sont requis', 'error')
+            flash(_l('Tous les champs sont requis'), 'error')
         elif password != password_confirm:
-            flash('Les mots de passe ne correspondent pas', 'error')
+            flash(_l('Les mots de passe ne correspondent pas'), 'error')
         elif User.query.filter_by(username=username).first():
-            flash('Ce nom d\'utilisateur existe déjà', 'error')
+            flash(_l("Ce nom d'utilisateur existe deja"), 'error')
         elif User.query.filter_by(email=email).first():
-            flash('Cette adresse email est déjà utilisée', 'error')
+            flash(_l('Cette adresse email est deja utilisee'), 'error')
         else:
             # Validate join code
             group = Group.query.filter_by(join_code=join_code, is_active=True).first()
             if not group:
-                flash('Code de groupe invalide ou inactif', 'error')
+                flash(_l('Code de groupe invalide ou inactif'), 'error')
             elif group.is_full():
-                flash('Ce groupe a atteint sa limite de membres', 'error')
+                flash(_l('Ce groupe a atteint sa limite de membres'), 'error')
             else:
                 user = User(
                     username=username,
@@ -124,7 +167,7 @@ def register():
                     return redirect(url_for('auth.verification_sent', email=email))
                 else:
                     db.session.rollback()
-                    flash('Erreur lors de l\'envoi de l\'email de verification. Veuillez reessayer.', 'error')
+                    flash(_l("Erreur lors de l'envoi de l'email de verification. Veuillez reessayer."), 'error')
 
     return render_template('auth/register.html')
 
@@ -132,7 +175,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    flash('Vous avez été déconnecté.', 'info')
+    flash(_l('Vous avez ete deconnecte.'), 'info')
     return redirect(url_for('auth.login'))
 
 
@@ -152,9 +195,9 @@ def verify_email(token):
         user.email_verified = True
         user.clear_verification_token()
         db.session.commit()
-        flash('Votre adresse email a ete verifiee ! Vous pouvez maintenant vous connecter.', 'success')
+        flash(_l('Votre adresse email a ete verifiee ! Vous pouvez maintenant vous connecter.'), 'success')
     else:
-        flash('Le lien de verification est invalide ou a expire.', 'error')
+        flash(_l('Le lien de verification est invalide ou a expire.'), 'error')
 
     return redirect(url_for('auth.login'))
 
@@ -170,19 +213,19 @@ def resend_verification():
         email = request.form.get('email', '').strip()
 
         if not email:
-            flash('Veuillez entrer votre adresse email.', 'error')
+            flash(_l('Veuillez entrer votre adresse email.'), 'error')
         else:
             user = User.query.filter_by(email=email).first()
 
             if user and not user.email_verified:
                 if send_verification_email(user):
                     db.session.commit()
-                    flash('Un nouvel email de verification a ete envoye.', 'success')
+                    flash(_l('Un nouvel email de verification a ete envoye.'), 'success')
                 else:
-                    flash('Erreur lors de l\'envoi de l\'email. Veuillez reessayer.', 'error')
+                    flash(_l("Erreur lors de l'envoi de l'email. Veuillez reessayer."), 'error')
             else:
                 # Generic message to avoid email enumeration
-                flash('Si cette adresse est associee a un compte non verifie, un email a ete envoye.', 'info')
+                flash(_l('Si cette adresse est associee a un compte non verifie, un email a ete envoye.'), 'info')
 
             return redirect(url_for('auth.login'))
 
@@ -200,7 +243,7 @@ def forgot_password():
         email = request.form.get('email', '').strip()
 
         if not email:
-            flash('Veuillez entrer votre adresse email.', 'error')
+            flash(_l('Veuillez entrer votre adresse email.'), 'error')
         else:
             user = User.query.filter_by(email=email).first()
 
@@ -209,7 +252,7 @@ def forgot_password():
                     db.session.commit()
 
             # Always show same message to avoid email enumeration
-            flash('Si cette adresse est associee a un compte, un email de reinitialisation a ete envoye.', 'info')
+            flash(_l('Si cette adresse est associee a un compte, un email de reinitialisation a ete envoye.'), 'info')
             return redirect(url_for('auth.login'))
 
     return render_template('auth/forgot_password.html')
@@ -225,7 +268,7 @@ def reset_password(token):
     user = User.verify_reset_token(token)
 
     if not user:
-        flash('Le lien de reinitialisation est invalide ou a expire.', 'error')
+        flash(_l('Le lien de reinitialisation est invalide ou a expire.'), 'error')
         return redirect(url_for('auth.forgot_password'))
 
     if request.method == 'POST':
@@ -233,14 +276,14 @@ def reset_password(token):
         password_confirm = request.form.get('password_confirm')
 
         if not password:
-            flash('Veuillez entrer un mot de passe.', 'error')
+            flash(_l('Veuillez entrer un mot de passe.'), 'error')
         elif password != password_confirm:
-            flash('Les mots de passe ne correspondent pas.', 'error')
+            flash(_l('Les mots de passe ne correspondent pas.'), 'error')
         else:
             user.set_password(password)
             user.clear_reset_token()
             db.session.commit()
-            flash('Votre mot de passe a ete reinitialise ! Vous pouvez maintenant vous connecter.', 'success')
+            flash(_l('Votre mot de passe a ete reinitialise ! Vous pouvez maintenant vous connecter.'), 'success')
             return redirect(url_for('auth.login'))
 
     return render_template('auth/reset_password.html', token=token)
@@ -261,9 +304,9 @@ def profile():
                 current_user.first_name = first_name
                 current_user.last_name = last_name
                 db.session.commit()
-                flash('Informations mises a jour.', 'success')
+                flash(_l('Informations mises a jour.'), 'success')
             else:
-                flash('Le prenom et le nom sont requis.', 'error')
+                flash(_l('Le prenom et le nom sont requis.'), 'error')
 
         elif action == 'change_password':
             current_password = request.form.get('current_password')
@@ -271,35 +314,35 @@ def profile():
             confirm_password = request.form.get('confirm_password')
 
             if not current_user.check_password(current_password):
-                flash('Mot de passe actuel incorrect.', 'error')
+                flash(_l('Mot de passe actuel incorrect.'), 'error')
             elif not new_password:
-                flash('Veuillez entrer un nouveau mot de passe.', 'error')
+                flash(_l('Veuillez entrer un nouveau mot de passe.'), 'error')
             elif new_password != confirm_password:
-                flash('Les nouveaux mots de passe ne correspondent pas.', 'error')
+                flash(_l('Les nouveaux mots de passe ne correspondent pas.'), 'error')
             else:
                 current_user.set_password(new_password)
                 db.session.commit()
-                flash('Mot de passe modifie avec succes.', 'success')
+                flash(_l('Mot de passe modifie avec succes.'), 'success')
 
         elif action == 'change_email':
             new_email = request.form.get('new_email', '').strip()
             password = request.form.get('email_password')
 
             if not current_user.check_password(password):
-                flash('Mot de passe incorrect.', 'error')
+                flash(_l('Mot de passe incorrect.'), 'error')
             elif not new_email:
-                flash('Veuillez entrer une adresse email.', 'error')
+                flash(_l('Veuillez entrer une adresse email.'), 'error')
             elif User.query.filter(User.email == new_email, User.id != current_user.id).first():
-                flash('Cette adresse email est deja utilisee.', 'error')
+                flash(_l('Cette adresse email est deja utilisee.'), 'error')
             else:
                 current_user.email = new_email
                 current_user.email_verified = False
                 if send_verification_email(current_user):
                     db.session.commit()
-                    flash('Un email de verification a ete envoye a votre nouvelle adresse.', 'success')
+                    flash(_l('Un email de verification a ete envoye a votre nouvelle adresse.'), 'success')
                 else:
                     db.session.rollback()
-                    flash('Erreur lors de l\'envoi de l\'email de verification.', 'error')
+                    flash(_l("Erreur lors de l'envoi de l'email de verification."), 'error')
 
         return redirect(url_for('auth.profile'))
 
@@ -313,21 +356,21 @@ def join_group():
     join_code = request.form.get('join_code', '').strip().upper()
 
     if not join_code:
-        flash('Veuillez entrer un code de groupe', 'error')
+        flash(_l('Veuillez entrer un code de groupe'), 'error')
         return redirect(url_for('auth.profile'))
 
     group = Group.query.filter_by(join_code=join_code, is_active=True).first()
 
     if not group:
-        flash('Code de groupe invalide ou inactif', 'error')
+        flash(_l('Code de groupe invalide ou inactif'), 'error')
     elif group.is_full():
-        flash('Ce groupe a atteint sa limite de membres', 'error')
+        flash(_l('Ce groupe a atteint sa limite de membres'), 'error')
     elif current_user.is_in_group(group):
-        flash('Vous êtes déjà membre de ce groupe', 'warning')
+        flash(_l('Vous etes deja membre de ce groupe'), 'warning')
     else:
         current_user.add_to_group(group, role='member')
         db.session.commit()
-        flash(f'Vous avez rejoint le groupe "{group.name}"', 'success')
+        flash(_l('Vous avez rejoint le groupe "%(group_name)s"', group_name=group.name), 'success')
 
     return redirect(url_for('auth.profile'))
 
@@ -423,7 +466,7 @@ def export_data():
 
     # Return as downloadable JSON file
     json_data = json.dumps(user_data, ensure_ascii=False, indent=2)
-    filename = f"mes-donnees-{current_user.username}-{datetime.now().strftime('%Y%m%d')}.json"
+    filename = f"mes-donnees-{sanitize_filename(current_user.username)}-{datetime.now().strftime('%Y%m%d')}.json"
 
     return Response(
         json_data,
@@ -445,17 +488,17 @@ def delete_account():
 
     # Verify password
     if not current_user.check_password(password):
-        flash('Mot de passe incorrect.', 'error')
+        flash(_l('Mot de passe incorrect.'), 'error')
         return redirect(url_for('auth.profile'))
 
     # Verify confirmation text
     if confirm_text != 'SUPPRIMER':
-        flash('Veuillez taper SUPPRIMER pour confirmer.', 'error')
+        flash(_l('Veuillez taper SUPPRIMER pour confirmer.'), 'error')
         return redirect(url_for('auth.profile'))
 
     # Prevent admin accounts from self-deleting
     if current_user.is_admin:
-        flash('Les comptes super-administrateurs ne peuvent pas etre supprimes via cette interface.', 'error')
+        flash(_l('Les comptes super-administrateurs ne peuvent pas etre supprimes via cette interface.'), 'error')
         return redirect(url_for('auth.profile'))
 
     user_id = current_user.id
@@ -489,16 +532,15 @@ def delete_account():
 
         db.session.commit()
 
-        flash(f'Le compte "{username}" a ete supprime avec succes.', 'success')
+        flash(_l('Le compte "%(username)s" a ete supprime avec succes.', username=username), 'success')
         return redirect(url_for('auth.login'))
 
     except Exception as e:
         db.session.rollback()
         import traceback
-        from flask import current_app
         current_app.logger.error(f'Error deleting account {username}: {str(e)}')
         current_app.logger.error(traceback.format_exc())
-        flash('Une erreur est survenue lors de la suppression du compte.', 'error')
+        flash(_l('Une erreur est survenue lors de la suppression du compte.'), 'error')
         return redirect(url_for('auth.profile'))
 
 

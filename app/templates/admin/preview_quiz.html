@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Preview: {{ quiz.title }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Preview:') }} {{ quiz.title }} - BrainNotFound{% endblock %}
 
 {% block content %}
 <div class="preview-banner flex justify-between items-center flex-wrap gap-md">
     <div>
-        <h3>Mode Preview</h3>
+        <h3>{{ _('Mode Preview') }}</h3>
         <p class="text-sm" style="opacity: 0.9;">
-            Visualisation du quiz comme un etudiant le verra (avec les reponses correctes visibles)
+            {{ _('Visualisation du quiz comme un etudiant le verra (avec les reponses correctes visibles)') }}
         </p>
     </div>
     <div class="flex gap-sm">
         <a href="{{ url_for('admin.test_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-primary">
-            <i class="iconoir-play"></i> Tester le quiz
+            <i class="iconoir-play"></i> {{ _('Tester le quiz') }}
         </a>
         <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-secondary-inverse">
-            <i class="iconoir-edit-pencil"></i> Modifier
+            <i class="iconoir-edit-pencil"></i> {{ _('Modifier') }}
         </a>
         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-small btn-ghost">
-            <i class="iconoir-arrow-left"></i> Dashboard
+            <i class="iconoir-arrow-left"></i> {{ _('Dashboard') }}
         </a>
     </div>
 </div>
@@ -26,9 +26,9 @@
 {% if existing_test %}
 <div class="alert alert-info mb-2">
     <i class="iconoir-info-circle"></i>
-    <span>Vous avez déjà testé ce quiz.
-        <a href="{{ url_for('quiz.result', identifier=existing_test.get_url_identifier()) }}">Voir les résultats</a>
-        ou cliquez sur "Tester le quiz" pour recommencer.
+    <span>{{ _('Vous avez déjà testé ce quiz.') }}
+        <a href="{{ url_for('quiz.result', identifier=existing_test.get_url_identifier()) }}">{{ _('Voir les résultats') }}</a>
+        {{ _('ou cliquez sur "Tester le quiz" pour recommencer.') }}
     </span>
 </div>
 {% endif %}
@@ -37,7 +37,7 @@
 
 {% if quiz.time_limit_minutes %}
 <div class="alert alert-info flex justify-between items-center">
-    <span><strong>Temps limite :</strong> {{ quiz.time_limit_minutes }} minutes</span>
+    <span><strong>{{ _('Temps limite :') }}</strong> {{ quiz.time_limit_minutes }} {{ _('minutes') }}</span>
 </div>
 {% endif %}
 
@@ -48,25 +48,25 @@
 {% endif %}
 
 <div class="info-box bg-gray text-sm mb-2">
-    <strong>Informations du quiz :</strong>
+    <strong>{{ _('Informations du quiz :') }}</strong>
     <ul class="info-list">
-        <li>Questions : {{ questions|length }}</li>
-        <li>Points total : {{ questions|sum(attribute='points') }}</li>
+        <li>{{ _('Questions :') }} {{ questions|length }}</li>
+        <li>{{ _('Points total :') }} {{ questions|sum(attribute='points') }}</li>
         {% if quiz.randomize_questions %}
-        <li class="text-info">Ordre aleatoire des questions active</li>
+        <li class="text-info">{{ _('Ordre aleatoire des questions active') }}</li>
         {% endif %}
         {% if quiz.available_from or quiz.available_until %}
-        <li>Disponibilite :
-            {% if quiz.available_from %}du {{ quiz.available_from|localtime }}{% endif %}
-            {% if quiz.available_until %}jusqu'au {{ quiz.available_until|localtime }}{% endif %}
+        <li>{{ _('Disponibilite :') }}
+            {% if quiz.available_from %}{{ _('du') }} {{ quiz.available_from|localtime }}{% endif %}
+            {% if quiz.available_until %}{{ _("jusqu'au") }} {{ quiz.available_until|localtime }}{% endif %}
         </li>
         {% endif %}
         {% if quiz.groups.count() > 0 %}
-        <li>Groupes : {{ quiz.groups.all()|map(attribute='name')|join(', ') }}</li>
+        <li>{{ _('Groupes :') }} {{ quiz.groups.all()|map(attribute='name')|join(', ') }}</li>
         {% else %}
-        <li>Groupes : Tous les utilisateurs</li>
+        <li>{{ _('Groupes :') }} {{ _('Tous les utilisateurs') }}</li>
         {% endif %}
-        <li>Severite correction : {{ quiz.grading_severity or 'modere' }}</li>
+        <li>{{ _('Severite correction :') }} {{ quiz.grading_severity or _('modere') }}</li>
     </ul>
 </div>
 
@@ -74,7 +74,7 @@
 <div class="question relative">
     <div class="question-header">
         <span class="question-type">{{ question.question_type|upper }}</span>
-        <span class="question-points">{{ question.points }} point(s)</span>
+        <span class="question-points">{{ question.points }} {{ _('point(s)') }}</span>
     </div>
 
     <div class="question-text">{{ question.question_text|render_quiz_images(quiz.id) }}</div>
@@ -91,7 +91,7 @@
                     {% endif %}
                     {{ option|render_quiz_images(quiz.id) }}
                     {% if loop.index0 in question.correct_answers %}
-                    <span class="text-success ml-1 font-medium">(Correct)</span>
+                    <span class="text-success ml-1 font-medium">({{ _('Correct') }})</span>
                     {% endif %}
                 </label>
             </li>
@@ -99,21 +99,21 @@
         </ul>
         {% if question.allow_multiple %}
         <p class="text-sm text-light mt-1">
-            <em>Plusieurs reponses possibles</em>
+            <em>{{ _('Plusieurs reponses possibles') }}</em>
         </p>
         {% endif %}
     {% else %}
         <div class="form-group mt-1">
-            <textarea class="form-textarea" placeholder="Zone de reponse de l'etudiant..." disabled></textarea>
+            <textarea class="form-textarea" placeholder="{{ _("Zone de reponse de l'etudiant...") }}" disabled></textarea>
         </div>
         {% if question.expected_answer %}
         <div class="expected-answer mt-1">
-            <strong class="text-success block mb-0">Reponse attendue :</strong>
+            <strong class="text-success block mb-0">{{ _('Reponse attendue :') }}</strong>
             <div class="whitespace-pre">{{ question.expected_answer }}</div>
         </div>
         {% else %}
         <div class="warning-box mt-1">
-            <span class="text-warning"><strong>Attention :</strong> Pas de reponse attendue definie - l'IA notera sans reference</span>
+            <span class="text-warning"><strong>{{ _('Attention :') }}</strong> {{ _("Pas de reponse attendue definie - l'IA notera sans reference") }}</span>
         </div>
         {% endif %}
     {% endif %}
@@ -122,13 +122,13 @@
 
 <div class="actions border-t pt-2 mt-2">
     <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
-        <i class="iconoir-edit-pencil"></i> Modifier le quiz
+        <i class="iconoir-edit-pencil"></i> {{ _('Modifier le quiz') }}
     </a>
     <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-stats-report"></i> Voir les resultats
+        <i class="iconoir-stats-report"></i> {{ _('Voir les resultats') }}
     </a>
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour au dashboard
+        <i class="iconoir-arrow-left"></i> {{ _('Retour au dashboard') }}
     </a>
 </div>
 {% endblock %}

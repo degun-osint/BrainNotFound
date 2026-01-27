@@ -1,67 +1,67 @@
 {% extends "base.html" %}
 
-{% block title %}Creer un utilisateur - BrainNotFound{% endblock %}
+{% block title %}{{ _('Creer un utilisateur - BrainNotFound') }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Creer un utilisateur</h1>
+<h1 class="mb-2">{{ _('Creer un utilisateur') }}</h1>
 
 <div class="card">
     <form method="POST">
         <div class="grid-2 gap-md">
             <div class="form-group">
-                <label class="form-label" for="first_name">Prenom</label>
+                <label class="form-label" for="first_name">{{ _('Prenom') }}</label>
                 <input type="text" id="first_name" name="first_name" class="form-input">
             </div>
             <div class="form-group">
-                <label class="form-label" for="last_name">Nom</label>
+                <label class="form-label" for="last_name">{{ _('Nom') }}</label>
                 <input type="text" id="last_name" name="last_name" class="form-input">
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="username">Nom d'utilisateur *</label>
+            <label class="form-label" for="username">{{ _("Nom d'utilisateur") }} *</label>
             <input type="text" id="username" name="username" class="form-input" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="email">Email *</label>
+            <label class="form-label" for="email">{{ _('Email') }} *</label>
             <input type="email" id="email" name="email" class="form-input" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="password">Mot de passe *</label>
+            <label class="form-label" for="password">{{ _('Mot de passe') }} *</label>
             <input type="password" id="password" name="password" class="form-input" required>
         </div>
 
         {% if is_superadmin %}
         <div class="form-group">
-            <label class="form-label">Role</label>
+            <label class="form-label">{{ _('Role') }}</label>
             <div class="radio-group">
                 <label class="radio-item">
                     <input type="radio" name="user_role" value="user" checked onchange="toggleRoleOptions()">
-                    <span>Utilisateur</span>
+                    <span>{{ _('Utilisateur') }}</span>
                 </label>
                 <label class="radio-item">
                     <input type="radio" name="user_role" value="group_admin" onchange="toggleRoleOptions()">
-                    <span>Administrateur de groupe</span>
+                    <span>{{ _('Administrateur de groupe') }}</span>
                 </label>
                 <label class="radio-item">
                     <input type="radio" name="user_role" value="tenant_admin" onchange="toggleRoleOptions()">
-                    <span>Administrateur d'organisation</span>
+                    <span>{{ _("Administrateur d'organisation") }}</span>
                 </label>
                 <label class="radio-item">
                     <input type="radio" name="user_role" value="superadmin" onchange="toggleRoleOptions()">
-                    <span>Super-administrateur</span>
+                    <span>{{ _('Super-administrateur') }}</span>
                 </label>
             </div>
             <small class="text-light">
-                Super-admin: acces total. Admin organisation: gere une ou plusieurs organisations. Admin groupe: gere ses groupes assignes.
+                {{ _("Super-admin: acces total. Admin organisation: gere une ou plusieurs organisations. Admin groupe: gere ses groupes assignes.") }}
             </small>
         </div>
 
         {% if tenants %}
         <div class="form-group" id="tenant-select" style="display: none;">
-            <label class="form-label">Organisations a administrer</label>
+            <label class="form-label">{{ _('Organisations a administrer') }}</label>
             <div class="checkbox-list">
                 {% for tenant in tenants %}
                 <label class="checkbox-item">
@@ -74,14 +74,14 @@
                 {% endfor %}
             </div>
             <small class="text-light">
-                Selectionnez les organisations que cet administrateur pourra gerer.
+                {{ _('Selectionnez les organisations que cet administrateur pourra gerer.') }}
             </small>
         </div>
         {% endif %}
         {% endif %}
 
         <div class="form-group" id="group-select">
-            <label class="form-label">Groupes</label>
+            <label class="form-label">{{ _('Groupes') }}</label>
             {% set groups_by_tenant = {} %}
             {% set groups_no_tenant = [] %}
             {% for group in groups %}
@@ -103,7 +103,7 @@
                         <i class="iconoir-building"></i>
                         <strong>{{ data.tenant.name }}</strong>
                         <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
-                            Tout selectionner
+                            {{ _('Tout selectionner') }}
                         </button>
                     </div>
                     <div class="checkbox-list mt-0">
@@ -122,7 +122,7 @@
                 <div class="tenant-group-section mb-1">
                     <div class="tenant-group-header">
                         <i class="iconoir-globe"></i>
-                        <strong>Sans organisation</strong>
+                        <strong>{{ _('Sans organisation') }}</strong>
                     </div>
                     <div class="checkbox-list mt-0">
                         {% for group in groups_no_tenant %}
@@ -146,22 +146,22 @@
                 </label>
                 {% endfor %}
                 {% if not groups %}
-                <span class="text-light">Aucun groupe disponible</span>
+                <span class="text-light">{{ _('Aucun groupe disponible') }}</span>
                 {% endif %}
             </div>
             {% endif %}
             <small class="text-light">
-                Selectionnez un ou plusieurs groupes pour l'utilisateur.
-                {% if is_superadmin %}Les super-administrateurs et admins d'organisation n'ont pas besoin de groupes.{% endif %}
+                {{ _("Selectionnez un ou plusieurs groupes pour l'utilisateur.") }}
+                {% if is_superadmin %}{{ _("Les super-administrateurs et admins d'organisation n'ont pas besoin de groupes.") }}{% endif %}
             </small>
         </div>
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Creer l'utilisateur
+                <i class="iconoir-plus"></i> {{ _("Creer l'utilisateur") }}
             </button>
             <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>
@@ -201,7 +201,7 @@ function toggleTenantGroups(btn, tenantId) {
         cb.checked = !allChecked;
     });
 
-    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+    btn.textContent = allChecked ? '{{ _("Tout selectionner") }}' : '{{ _("Tout deselectionner") }}';
 }
 </script>
 {% endblock %}

@@ -88,6 +88,34 @@ Required in `.env`:
 - `DATABASE_URL` - MySQL connection string
 - `CLAUDE_MODEL` - Claude model to use (default: `claude-sonnet-4-20250514`)
 
-## Language
+## Internationalization (i18n)
 
-UI and AI prompts are in French (educational platform for French-speaking users).
+The app supports French (default) and English via Flask-Babel.
+
+### Key files
+- `babel.cfg` - Extraction configuration
+- `translations/` - Translation catalogs (.po/.mo files)
+- `private.example/prompts/*.py` - AI prompts with language-keyed dicts
+
+### Translation workflow
+```bash
+# Extract new strings
+pybabel extract -F babel.cfg -k _l -k _ -o messages.pot .
+
+# Update catalogs
+pybabel update -i messages.pot -d translations
+
+# Compile (automatic on Docker startup)
+pybabel compile -d translations
+```
+
+### Code patterns
+- Routes: `from flask_babel import lazy_gettext as _l` → `flash(_l('Message'), 'error')`
+- Templates: `{{ _('Text to translate') }}`
+- AI prompts: `{'fr': "...", 'en': "..."}`
+
+### Language selection priority
+1. User preference (stored in `User.language_preference`)
+2. Session value
+3. Browser Accept-Language header
+4. Default: French

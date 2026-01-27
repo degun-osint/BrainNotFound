@@ -24,6 +24,7 @@ DOCS_STRUCTURE = [
             {'slug': 'quiz-syntax', 'title': 'Syntaxe des quiz', 'icon': 'page-edit'},
             {'slug': 'admin-guide', 'title': 'Administration', 'icon': 'settings'},
             {'slug': 'groups-tenants', 'title': 'Groupes & Tenants', 'icon': 'building'},
+            {'slug': 'i18n', 'title': 'Langues (i18n)', 'icon': 'language'},
         ]
     },
     {

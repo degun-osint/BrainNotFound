@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Parametres du site - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Parametres du site') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Parametres du site</h1>
+<h1 class="mb-2">{{ _('Parametres du site') }}</h1>
 
 <form method="POST" id="settings-form">
     <!-- Site Branding -->
     <div class="card mb-2">
         <div class="card-header">
-            <i class="iconoir-home-alt"></i> Identite du site
+            <i class="iconoir-home-alt"></i> {{ _('Identite du site') }}
         </div>
         <div class="p-2">
             <div class="form-group">
-                <label for="site_title" class="form-label">Nom du site</label>
+                <label for="site_title" class="form-label">{{ _('Nom du site') }}</label>
                 <input type="text" id="site_title" name="site_title" class="form-input"
                        value="{{ settings.site_title }}" maxlength="100" required>
-                <small class="text-light">Affiche dans la barre de navigation et les titres de page</small>
+                <small class="text-light">{{ _('Affiche dans la barre de navigation et les titres de page') }}</small>
             </div>
 
             <div class="form-group mb-0">
-                <label for="contact_email" class="form-label">Email de contact</label>
+                <label for="contact_email" class="form-label">{{ _('Email de contact') }}</label>
                 <input type="email" id="contact_email" name="contact_email" class="form-input"
                        value="{{ settings.contact_email }}" maxlength="255">
-                <small class="text-light">Email affiche pour le support et les notifications</small>
+                <small class="text-light">{{ _('Email affiche pour le support et les notifications') }}</small>
             </div>
         </div>
     </div>
@@ -31,15 +31,15 @@
     <!-- Custom Pages -->
     <div class="card mb-2">
         <div class="card-header flex justify-between items-center">
-            <span><i class="iconoir-page"></i> Pages personnalisees</span>
+            <span><i class="iconoir-page"></i> {{ _('Pages personnalisees') }}</span>
             <a href="{{ url_for('admin.pages') }}" class="btn btn-primary btn-small">
-                <i class="iconoir-edit-pencil"></i> Gerer les pages
+                <i class="iconoir-edit-pencil"></i> {{ _('Gerer les pages') }}
             </a>
         </div>
         <div class="p-2">
             <p class="text-light mb-0">
-                Creez des pages personnalisees (mentions legales, CGU, a propos, etc.) en Markdown.
-                Ces pages peuvent etre affichees dans le menu ou le footer du site.
+                {{ _('Creez des pages personnalisees (mentions legales, CGU, a propos, etc.) en Markdown.') }}
+                {{ _('Ces pages peuvent etre affichees dans le menu ou le footer du site.') }}
             </p>
         </div>
     </div>
@@ -47,11 +47,11 @@
     <!-- Backup Configuration -->
     <div class="card mb-2">
         <div class="card-header flex justify-between items-center">
-            <span><i class="iconoir-database-backup"></i> Sauvegardes automatiques</span>
+            <span><i class="iconoir-database-backup"></i> {{ _('Sauvegardes automatiques') }}</span>
             <label class="checkbox-label mb-0">
                 <input type="checkbox" name="ftp_enabled" id="ftp_enabled"
                        {{ 'checked' if settings.ftp_enabled }}>
-                <span>Activer</span>
+                <span>{{ _('Activer') }}</span>
             </label>
         </div>
 
@@ -59,13 +59,13 @@
             <!-- FTP Settings -->
             <div class="grid grid-cols-2 gap-md">
                 <div class="form-group">
-                    <label for="ftp_host" class="form-label">Serveur FTP</label>
+                    <label for="ftp_host" class="form-label">{{ _('Serveur FTP') }}</label>
                     <input type="text" id="ftp_host" name="ftp_host" class="form-input"
                            value="{{ settings.ftp_host or '' }}" placeholder="ftp.example.com">
                 </div>
 
                 <div class="form-group">
-                    <label for="ftp_port" class="form-label">Port</label>
+                    <label for="ftp_port" class="form-label">{{ _('Port') }}</label>
                     <input type="number" id="ftp_port" name="ftp_port" class="form-input"
                            value="{{ settings.ftp_port or 21 }}" min="1" max="65535">
                 </div>
@@ -73,23 +73,23 @@
 
             <div class="grid grid-cols-2 gap-md">
                 <div class="form-group">
-                    <label for="ftp_username" class="form-label">Nom d'utilisateur</label>
+                    <label for="ftp_username" class="form-label">{{ _("Nom d'utilisateur") }}</label>
                     <input type="text" id="ftp_username" name="ftp_username" class="form-input"
                            value="{{ settings.ftp_username or '' }}" autocomplete="off">
                 </div>
 
                 <div class="form-group">
-                    <label for="ftp_password" class="form-label">Mot de passe</label>
+                    <label for="ftp_password" class="form-label">{{ _('Mot de passe') }}</label>
                     <input type="password" id="ftp_password" name="ftp_password" class="form-input"
-                           placeholder="{{ 'Inchange' if settings.ftp_password_encrypted else 'Non defini' }}"
+                           placeholder="{{ _('Inchange') if settings.ftp_password_encrypted else _('Non defini') }}"
                            autocomplete="new-password">
-                    <small class="text-light">Laissez vide pour conserver l'actuel</small>
+                    <small class="text-light">{{ _("Laissez vide pour conserver l'actuel") }}</small>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-md">
                 <div class="form-group">
-                    <label for="ftp_path" class="form-label">Chemin distant</label>
+                    <label for="ftp_path" class="form-label">{{ _('Chemin distant') }}</label>
                     <input type="text" id="ftp_path" name="ftp_path" class="form-input"
                            value="{{ settings.ftp_path or '/backups' }}" placeholder="/backups">
                 </div>
@@ -97,15 +97,15 @@
                 <div class="form-group">
                     <label class="checkbox-label mt-2">
                         <input type="checkbox" name="ftp_use_tls" {{ 'checked' if settings.ftp_use_tls }}>
-                        <span>Utiliser FTPS (TLS)</span>
+                        <span>{{ _('Utiliser FTPS (TLS)') }}</span>
                     </label>
-                    <small class="text-light d-block">Recommande pour la securite</small>
+                    <small class="text-light d-block">{{ _('Recommande pour la securite') }}</small>
                 </div>
             </div>
 
             <div class="flex gap-md mb-2">
                 <button type="button" class="btn btn-secondary btn-small" id="test-ftp-btn">
-                    <i class="iconoir-server-connection"></i> Tester la connexion
+                    <i class="iconoir-server-connection"></i> {{ _('Tester la connexion') }}
                 </button>
                 <span id="ftp-test-result" class="text-light"></span>
             </div>
@@ -113,49 +113,49 @@
             <hr class="my-2">
 
             <!-- Backup Schedule -->
-            <h4 class="mb-1">Planification</h4>
+            <h4 class="mb-1">{{ _('Planification') }}</h4>
 
             <div class="grid grid-cols-3 gap-md">
                 <div class="form-group">
-                    <label for="backup_frequency" class="form-label">Frequence</label>
+                    <label for="backup_frequency" class="form-label">{{ _('Frequence') }}</label>
                     <select id="backup_frequency" name="backup_frequency" class="form-select">
-                        <option value="hourly" {{ 'selected' if settings.backup_frequency == 'hourly' }}>Toutes les heures</option>
-                        <option value="daily" {{ 'selected' if settings.backup_frequency == 'daily' }}>Quotidien</option>
-                        <option value="weekly" {{ 'selected' if settings.backup_frequency == 'weekly' }}>Hebdomadaire</option>
+                        <option value="hourly" {{ 'selected' if settings.backup_frequency == 'hourly' }}>{{ _('Toutes les heures') }}</option>
+                        <option value="daily" {{ 'selected' if settings.backup_frequency == 'daily' }}>{{ _('Quotidien') }}</option>
+                        <option value="weekly" {{ 'selected' if settings.backup_frequency == 'weekly' }}>{{ _('Hebdomadaire') }}</option>
                     </select>
                 </div>
 
                 <div class="form-group" id="hour-group">
-                    <label for="backup_hour" class="form-label">Heure (0-23)</label>
+                    <label for="backup_hour" class="form-label">{{ _('Heure (0-23)') }}</label>
                     <input type="number" id="backup_hour" name="backup_hour" class="form-input"
                            value="{{ settings.backup_hour or 3 }}" min="0" max="23">
                 </div>
 
                 <div class="form-group" id="day-group" style="display: none;">
-                    <label for="backup_day" class="form-label">Jour de la semaine</label>
+                    <label for="backup_day" class="form-label">{{ _('Jour de la semaine') }}</label>
                     <select id="backup_day" name="backup_day" class="form-select">
-                        <option value="0" {{ 'selected' if settings.backup_day == 0 }}>Lundi</option>
-                        <option value="1" {{ 'selected' if settings.backup_day == 1 }}>Mardi</option>
-                        <option value="2" {{ 'selected' if settings.backup_day == 2 }}>Mercredi</option>
-                        <option value="3" {{ 'selected' if settings.backup_day == 3 }}>Jeudi</option>
-                        <option value="4" {{ 'selected' if settings.backup_day == 4 }}>Vendredi</option>
-                        <option value="5" {{ 'selected' if settings.backup_day == 5 }}>Samedi</option>
-                        <option value="6" {{ 'selected' if settings.backup_day == 6 }}>Dimanche</option>
+                        <option value="0" {{ 'selected' if settings.backup_day == 0 }}>{{ _('Lundi') }}</option>
+                        <option value="1" {{ 'selected' if settings.backup_day == 1 }}>{{ _('Mardi') }}</option>
+                        <option value="2" {{ 'selected' if settings.backup_day == 2 }}>{{ _('Mercredi') }}</option>
+                        <option value="3" {{ 'selected' if settings.backup_day == 3 }}>{{ _('Jeudi') }}</option>
+                        <option value="4" {{ 'selected' if settings.backup_day == 4 }}>{{ _('Vendredi') }}</option>
+                        <option value="5" {{ 'selected' if settings.backup_day == 5 }}>{{ _('Samedi') }}</option>
+                        <option value="6" {{ 'selected' if settings.backup_day == 6 }}>{{ _('Dimanche') }}</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="backup_retention_days" class="form-label">Conservation (jours)</label>
+                <label for="backup_retention_days" class="form-label">{{ _('Conservation (jours)') }}</label>
                 <input type="number" id="backup_retention_days" name="backup_retention_days" class="form-input"
                        value="{{ settings.backup_retention_days or 30 }}" min="1" max="365" style="width: 150px;">
-                <small class="text-light">Les sauvegardes plus anciennes seront supprimees automatiquement</small>
+                <small class="text-light">{{ _('Les sauvegardes plus anciennes seront supprimees automatiquement') }}</small>
             </div>
 
             {% if next_backup %}
             <div class="alert alert-info">
                 <i class="iconoir-clock"></i>
-                Prochaine sauvegarde prevue : <strong>{{ next_backup|localtime }}</strong>
+                {{ _('Prochaine sauvegarde prevue :') }} <strong>{{ next_backup|localtime }}</strong>
             </div>
             {% endif %}
         </div>
@@ -165,24 +165,24 @@
     {% if settings.last_backup_at %}
     <div class="card mb-2">
         <div class="card-header">
-            <i class="iconoir-clock"></i> Derniere sauvegarde
+            <i class="iconoir-clock"></i> {{ _('Derniere sauvegarde') }}
         </div>
         <div class="p-2">
             <div class="grid grid-cols-3 gap-md">
                 <div>
-                    <span class="text-light">Date</span><br>
+                    <span class="text-light">{{ _('Date') }}</span><br>
                     <strong>{{ settings.last_backup_at|localtime }}</strong>
                 </div>
                 <div>
-                    <span class="text-light">Statut</span><br>
+                    <span class="text-light">{{ _('Statut') }}</span><br>
                     {% if settings.last_backup_status == 'success' %}
-                    <span class="badge badge-success">Succes</span>
+                    <span class="badge badge-success">{{ _('Succes') }}</span>
                     {% else %}
-                    <span class="badge badge-error">Echec</span>
+                    <span class="badge badge-error">{{ _('Echec') }}</span>
                     {% endif %}
                 </div>
                 <div>
-                    <span class="text-light">Taille</span><br>
+                    <span class="text-light">{{ _('Taille') }}</span><br>
                     <strong>
                         {% if settings.last_backup_size %}
                             {% if settings.last_backup_size > 1048576 %}
@@ -198,7 +198,7 @@
             </div>
             {% if settings.last_backup_message %}
             <div class="mt-1">
-                <span class="text-light">Message:</span>
+                <span class="text-light">{{ _('Message:') }}</span>
                 <code class="text-small">{{ settings.last_backup_message }}</code>
             </div>
             {% endif %}
@@ -209,28 +209,28 @@
     <!-- Manual Backup & History -->
     <div class="card mb-2">
         <div class="card-header">
-            <i class="iconoir-database-restore"></i> Actions manuelles
+            <i class="iconoir-database-restore"></i> {{ _('Actions manuelles') }}
         </div>
         <div class="p-2">
             <div class="alert alert-info mb-1">
                 <i class="iconoir-info-circle"></i>
-                Les sauvegardes incluent la <strong>base de donnees</strong> et les <strong>fichiers uploades</strong> (images, PDF des quiz).
+                {{ _('Les sauvegardes incluent la') }} <strong>{{ _('base de donnees') }}</strong> {{ _('et les') }} <strong>{{ _('fichiers uploades') }}</strong> {{ _('(images, PDF des quiz).') }}
             </div>
             <div class="flex gap-md items-center flex-wrap">
                 <button type="button" class="btn btn-primary" id="run-backup-btn">
-                    <i class="iconoir-download"></i> Lancer une sauvegarde maintenant
+                    <i class="iconoir-download"></i> {{ _('Lancer une sauvegarde maintenant') }}
                 </button>
                 <button type="button" class="btn btn-secondary" id="view-history-btn">
-                    <i class="iconoir-folder"></i> Voir l'historique
+                    <i class="iconoir-folder"></i> {{ _("Voir l'historique") }}
                 </button>
                 <span id="backup-result" class="text-light"></span>
             </div>
 
             <!-- Backup History (hidden by default) -->
             <div id="backup-history" style="display: none;" class="mt-2">
-                <h4>Historique des sauvegardes</h4>
+                <h4>{{ _('Historique des sauvegardes') }}</h4>
                 <div id="backup-history-content">
-                    <p class="text-light">Chargement...</p>
+                    <p class="text-light">{{ _('Chargement...') }}</p>
                 </div>
             </div>
         </div>
@@ -239,10 +239,10 @@
     <!-- Save Button -->
     <div class="flex gap-md">
         <button type="submit" class="btn btn-primary">
-            <i class="iconoir-floppy-disk"></i> Enregistrer les parametres
+            <i class="iconoir-floppy-disk"></i> {{ _('Enregistrer les parametres') }}
         </button>
         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-            <i class="iconoir-arrow-left"></i> Retour
+            <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
         </a>
     </div>
 </form>
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const result = document.getElementById('ftp-test-result');
 
         btn.disabled = true;
-        result.textContent = 'Test en cours...';
+        result.textContent = '{{ _("Test en cours...") }}';
         result.className = 'text-light';
 
         try {
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.className = 'text-error';
             }
         } catch (error) {
-            result.textContent = 'Erreur: ' + error.message;
+            result.textContent = '{{ _("Erreur:") }} ' + error.message;
             result.className = 'text-error';
         }
 
@@ -317,10 +317,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = this;
         const result = document.getElementById('backup-result');
 
-        if (!confirm('Lancer une sauvegarde maintenant ?')) return;
+        if (!confirm('{{ _("Lancer une sauvegarde maintenant ?") }}')) return;
 
         btn.disabled = true;
-        result.textContent = 'Sauvegarde en cours...';
+        result.textContent = '{{ _("Sauvegarde en cours...") }}';
         result.className = 'text-light';
 
         try {
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.className = 'text-error';
             }
         } catch (error) {
-            result.textContent = 'Erreur: ' + error.message;
+            result.textContent = '{{ _("Erreur:") }} ' + error.message;
             result.className = 'text-error';
         }
 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (historyDiv.style.display === 'none') {
             historyDiv.style.display = 'block';
-            contentDiv.innerHTML = '<p class="text-light">Chargement...</p>';
+            contentDiv.innerHTML = '<p class="text-light">{{ _("Chargement...") }}</p>';
 
             try {
                 const response = await fetch('{{ url_for("admin.backup_history") }}');
@@ -365,17 +365,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.error) {
                     contentDiv.innerHTML = '<p class="text-error">' + data.error + '</p>';
                 } else if (data.files.length === 0) {
-                    contentDiv.innerHTML = '<p class="text-light">Aucune sauvegarde trouvee</p>';
+                    contentDiv.innerHTML = '<p class="text-light">{{ _("Aucune sauvegarde trouvee") }}</p>';
                 } else {
-                    let html = '<div class="alert alert-warning mb-1"><i class="iconoir-warning-triangle"></i> <strong>Attention:</strong> La restauration remplacera toutes les donnees actuelles!</div>';
-                    html += '<table class="table table-small"><thead><tr><th>Fichier</th><th>Type</th><th>Taille</th><th>Date</th><th>Action</th></tr></thead><tbody>';
+                    let html = '<div class="alert alert-warning mb-1"><i class="iconoir-warning-triangle"></i> <strong>{{ _("Attention:") }}</strong> {{ _("La restauration remplacera toutes les donnees actuelles!") }}</div>';
+                    html += '<table class="table table-small"><thead><tr><th>{{ _("Fichier") }}</th><th>{{ _("Type") }}</th><th>{{ _("Taille") }}</th><th>{{ _("Date") }}</th><th>{{ _("Action") }}</th></tr></thead><tbody>';
                     data.files.forEach(file => {
                         const sizeKb = (file.size / 1024).toFixed(1);
                         const sizeMb = (file.size / 1048576).toFixed(2);
                         const sizeDisplay = file.size > 1048576 ? sizeMb + ' Mo' : sizeKb + ' Ko';
-                        const typeLabel = file.type === 'full' ? '<span class="badge badge-success" title="Base de donnees + images">Complet</span>' : '<span class="badge badge-warning" title="Base de donnees uniquement">BDD seule</span>';
+                        const typeLabel = file.type === 'full' ? '<span class="badge badge-success" title="{{ _("Base de donnees + images") }}">{{ _("Complet") }}</span>' : '<span class="badge badge-warning" title="{{ _("Base de donnees uniquement") }}">{{ _("BDD seule") }}</span>';
                         html += '<tr><td><code class="text-small">' + file.name + '</code></td><td>' + typeLabel + '</td><td>' + sizeDisplay + '</td><td>' + file.date + '</td>';
-                        html += '<td><button type="button" class="btn btn-error btn-small restore-btn" data-filename="' + file.name + '"><i class="iconoir-database-restore"></i> Restaurer</button></td></tr>';
+                        html += '<td><button type="button" class="btn btn-error btn-small restore-btn" data-filename="' + file.name + '"><i class="iconoir-database-restore"></i> {{ _("Restaurer") }}</button></td></tr>';
                     });
                     html += '</tbody></table>';
                     contentDiv.innerHTML = html;
@@ -384,11 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     contentDiv.querySelectorAll('.restore-btn').forEach(btn => {
                         btn.addEventListener('click', async function() {
                             const filename = this.dataset.filename;
-                            if (!confirm('ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par celles du backup "' + filename + '".\n\nCette action est IRREVERSIBLE.\n\nContinuer ?')) return;
-                            if (!confirm('Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce backup ?')) return;
+                            if (!confirm('{{ _("ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par celles du backup") }} "' + filename + '".\n\n{{ _("Cette action est IRREVERSIBLE.") }}\n\n{{ _("Continuer ?") }}')) return;
+                            if (!confirm('{{ _("Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce backup ?") }}')) return;
 
                             this.disabled = true;
-                            this.innerHTML = '<i class="iconoir-refresh"></i> Restauration...';
+                            this.innerHTML = '<i class="iconoir-refresh"></i> {{ _("Restauration...") }}';
 
                             try {
                                 const response = await fetch('{{ url_for("admin.restore_backup") }}', {
@@ -402,29 +402,29 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const result = await response.json();
 
                                 if (result.success) {
-                                    alert('Restauration reussie!\n\n' + result.message + '\n\nLa page va se recharger.');
+                                    alert('{{ _("Restauration reussie!") }}\n\n' + result.message + '\n\n{{ _("La page va se recharger.") }}');
                                     location.reload();
                                 } else {
-                                    alert('Erreur: ' + result.message);
+                                    alert('{{ _("Erreur:") }} ' + result.message);
                                     this.disabled = false;
-                                    this.innerHTML = '<i class="iconoir-database-restore"></i> Restaurer';
+                                    this.innerHTML = '<i class="iconoir-database-restore"></i> {{ _("Restaurer") }}';
                                 }
                             } catch (error) {
-                                alert('Erreur: ' + error.message);
+                                alert('{{ _("Erreur:") }} ' + error.message);
                                 this.disabled = false;
-                                this.innerHTML = '<i class="iconoir-database-restore"></i> Restaurer';
+                                this.innerHTML = '<i class="iconoir-database-restore"></i> {{ _("Restaurer") }}';
                             }
                         });
                     });
                 }
             } catch (error) {
-                contentDiv.innerHTML = '<p class="text-error">Erreur: ' + error.message + '</p>';
+                contentDiv.innerHTML = '<p class="text-error">{{ _("Erreur:") }} ' + error.message + '</p>';
             }
 
-            this.innerHTML = '<i class="iconoir-eye-closed"></i> Masquer l\'historique';
+            this.innerHTML = '<i class="iconoir-eye-closed"></i> {{ _("Masquer l\'historique") }}';
         } else {
             historyDiv.style.display = 'none';
-            this.innerHTML = '<i class="iconoir-folder"></i> Voir l\'historique';
+            this.innerHTML = '<i class="iconoir-folder"></i> {{ _("Voir l\'historique") }}';
         }
     });
 });

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Modifier' if page else 'Nouvelle' }} page - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Modifier') if page else _('Nouvelle') }} {{ _('page') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ 'Modifier la page' if page else 'Nouvelle page' }}</h1>
+<h1 class="mb-2">{{ _('Modifier la page') if page else _('Nouvelle page') }}</h1>
 
 <form method="POST">
     <div class="grid grid-cols-3 gap-lg">
@@ -11,29 +11,29 @@
         <div class="col-span-2">
             <div class="card mb-2">
                 <div class="card-header">
-                    <i class="iconoir-page"></i> Contenu
+                    <i class="iconoir-page"></i> {{ _('Contenu') }}
                 </div>
                 <div class="p-2">
                     <div class="form-group">
-                        <label for="title" class="form-label">Titre *</label>
+                        <label for="title" class="form-label">{{ _('Titre') }} *</label>
                         <input type="text" id="title" name="title" class="form-input"
                                value="{{ page.title if page else '' }}" required maxlength="200"
-                               placeholder="Ex: Mentions legales">
+                               placeholder="{{ _('Ex: Mentions legales') }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="slug" class="form-label">Slug (URL)</label>
+                        <label for="slug" class="form-label">{{ _('Slug (URL)') }}</label>
                         <div class="flex items-center gap-sm">
                             <span class="text-light">/page/</span>
                             <input type="text" id="slug" name="slug" class="form-input"
                                    value="{{ page.slug if page else '' }}" maxlength="200"
                                    placeholder="mentions-legales" pattern="[a-z0-9\-]+">
                         </div>
-                        <small class="text-light">Laissez vide pour generer automatiquement depuis le titre</small>
+                        <small class="text-light">{{ _('Laissez vide pour generer automatiquement depuis le titre') }}</small>
                     </div>
 
                     <div class="form-group mb-0">
-                        <label for="content" class="form-label">Contenu (Markdown)</label>
+                        <label for="content" class="form-label">{{ _('Contenu (Markdown)') }}</label>
                         <textarea id="content" name="content" class="form-textarea" rows="20"
                                   placeholder="# Titre
 
@@ -45,7 +45,7 @@ Votre contenu en **Markdown**...
 - Liste item 2
 
 [Lien](https://example.com)">{{ page.content if page else '' }}</textarea>
-                        <small class="text-light">Supporte le Markdown : titres (#), gras (**), italique (*), liens, listes, tableaux, code</small>
+                        <small class="text-light">{{ _('Supporte le Markdown : titres (#), gras (**), italique (*), liens, listes, tableaux, code') }}</small>
                     </div>
                 </div>
             </div>
@@ -55,38 +55,38 @@ Votre contenu en **Markdown**...
         <div>
             <div class="card mb-2">
                 <div class="card-header">
-                    <i class="iconoir-settings"></i> Options
+                    <i class="iconoir-settings"></i> {{ _('Options') }}
                 </div>
                 <div class="p-2">
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" name="is_published" {{ 'checked' if page and page.is_published }}>
-                            <span>Page publiee</span>
+                            <span>{{ _('Page publiee') }}</span>
                         </label>
-                        <small class="text-light d-block">Les pages non publiees ne sont pas visibles</small>
+                        <small class="text-light d-block">{{ _('Les pages non publiees ne sont pas visibles') }}</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="location" class="form-label">Afficher dans</label>
+                        <label for="location" class="form-label">{{ _('Afficher dans') }}</label>
                         <select id="location" name="location" class="form-select">
-                            <option value="footer" {{ 'selected' if not page or page.location == 'footer' }}>Footer uniquement</option>
-                            <option value="menu" {{ 'selected' if page and page.location == 'menu' }}>Menu uniquement</option>
-                            <option value="both" {{ 'selected' if page and page.location == 'both' }}>Menu et Footer</option>
-                            <option value="none" {{ 'selected' if page and page.location == 'none' }}>Aucun (accessible par URL)</option>
+                            <option value="footer" {{ 'selected' if not page or page.location == 'footer' }}>{{ _('Footer uniquement') }}</option>
+                            <option value="menu" {{ 'selected' if page and page.location == 'menu' }}>{{ _('Menu uniquement') }}</option>
+                            <option value="both" {{ 'selected' if page and page.location == 'both' }}>{{ _('Menu et Footer') }}</option>
+                            <option value="none" {{ 'selected' if page and page.location == 'none' }}>{{ _('Aucun (accessible par URL)') }}</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="display_order" class="form-label">Ordre d'affichage</label>
+                        <label for="display_order" class="form-label">{{ _('Ordre d\'affichage') }}</label>
                         <input type="number" id="display_order" name="display_order" class="form-input"
                                value="{{ page.display_order if page else 0 }}" min="0" max="999">
-                        <small class="text-light">Plus petit = affiche en premier</small>
+                        <small class="text-light">{{ _('Plus petit = affiche en premier') }}</small>
                     </div>
 
                     <div class="form-group mb-0">
                         <label class="checkbox-label">
                             <input type="checkbox" name="open_new_tab" {{ 'checked' if page and page.open_new_tab }}>
-                            <span>Ouvrir dans un nouvel onglet</span>
+                            <span>{{ _('Ouvrir dans un nouvel onglet') }}</span>
                         </label>
                     </div>
                 </div>
@@ -94,7 +94,7 @@ Votre contenu en **Markdown**...
 
             <div class="card">
                 <div class="card-header">
-                    <i class="iconoir-info-circle"></i> Aide Markdown
+                    <i class="iconoir-info-circle"></i> {{ _('Aide Markdown') }}
                 </div>
                 <div class="p-2">
                     <pre class="text-small" style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; overflow-x: auto;"># Titre 1
@@ -127,15 +127,15 @@ bloc de code
 
     <div class="flex gap-md mt-2">
         <button type="submit" class="btn btn-primary">
-            <i class="iconoir-floppy-disk"></i> {{ 'Enregistrer' if page else 'Creer la page' }}
+            <i class="iconoir-floppy-disk"></i> {{ _('Enregistrer') if page else _('Creer la page') }}
         </button>
         {% if page %}
         <a href="{{ url_for('admin.preview_page', identifier=page.get_url_identifier()) }}" class="btn btn-secondary" target="_blank">
-            <i class="iconoir-eye"></i> Apercu
+            <i class="iconoir-eye"></i> {{ _('Apercu') }}
         </a>
         {% endif %}
         <a href="{{ url_for('admin.pages') }}" class="btn btn-secondary">
-            <i class="iconoir-xmark"></i> Annuler
+            <i class="iconoir-xmark"></i> {{ _('Annuler') }}
         </a>
     </div>
 </form>

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Entretiens - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Entretiens') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div class="page-header-content">
-        <h1>Entretiens</h1>
-        <p class="text-light">Simulations conversationnelles</p>
+        <h1>{{ _('Entretiens') }}</h1>
+        <p class="text-light">{{ _('Simulations conversationnelles') }}</p>
     </div>
 </div>
 
@@ -21,23 +21,23 @@
             {% endif %}
 
             <div class="flex gap-sm mt-md flex-wrap">
-                <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} min</span>
-                <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} echanges max</span>
+                <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} {{ _('min') }}</span>
+                <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} {{ _('echanges max') }}</span>
                 {% if interview.require_file_upload %}
-                <span class="badge badge-warning"><i class="iconoir-submit-document"></i> {{ interview.file_upload_label or 'Fichier requis' }}</span>
+                <span class="badge badge-warning"><i class="iconoir-submit-document"></i> {{ interview.file_upload_label or _('Fichier requis') }}</span>
                 {% endif %}
             </div>
 
             {% if interview.student_context %}
             <div class="mt-md p-md" style="background: var(--bg-secondary); border-radius: 4px;">
-                <strong>Contexte:</strong>
+                <strong>{{ _('Contexte:') }}</strong>
                 <p class="text-light mt-sm">{{ interview.student_context }}</p>
             </div>
             {% endif %}
 
             {% if interview.student_objective %}
             <div class="mt-sm">
-                <strong>Objectif:</strong> {{ interview.student_objective }}
+                <strong>{{ _('Objectif:') }}</strong> {{ interview.student_objective }}
             </div>
             {% endif %}
 
@@ -46,23 +46,23 @@
                 {% if session %}
                     {% if session.status == 'completed' %}
                     <div class="flex gap-md items-center">
-                        <span class="badge badge-success">Complete - {{ "%.0f"|format(session.get_score_percentage()) }}%</span>
-                        <a href="{{ url_for('interview.result', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
-                            Voir les resultats
+                        <span class="badge badge-success">{{ _('Complete') }} - {{ "%.0f"|format(session.get_score_percentage()) }}%</span>
+                        <a href="{{ url_for('interview.result', identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
+                            {{ _('Voir les resultats') }}
                         </a>
                     </div>
                     {% elif session.status == 'in_progress' %}
-                    <a href="{{ url_for('interview.chat', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
-                        <i class="iconoir-play"></i> Reprendre
+                    <a href="{{ url_for('interview.chat', identifier=session.get_url_identifier()) }}" class="btn btn-primary">
+                        <i class="iconoir-play"></i> {{ _('Reprendre') }}
                     </a>
                     {% elif session.status == 'evaluating' %}
-                    <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
-                        <i class="iconoir-refresh rotating"></i> Evaluation en cours...
+                    <a href="{{ url_for('interview.evaluating', identifier=session.get_url_identifier()) }}" class="btn btn-secondary">
+                        <i class="iconoir-refresh rotating"></i> {{ _('Evaluation en cours...') }}
                     </a>
                     {% endif %}
                 {% else %}
                 <a href="{{ url_for('interview.start', identifier=interview.get_url_identifier()) }}" class="btn btn-primary">
-                    <i class="iconoir-play"></i> Commencer
+                    <i class="iconoir-play"></i> {{ _('Commencer') }}
                 </a>
                 {% endif %}
             </div>
@@ -73,8 +73,8 @@
 {% else %}
 <div class="empty-state">
     <i class="iconoir-chat-bubble-question"></i>
-    <h3>Aucun entretien disponible</h3>
-    <p>Revenez plus tard pour voir les entretiens disponibles.</p>
+    <h3>{{ _('Aucun entretien disponible') }}</h3>
+    <p>{{ _('Revenez plus tard pour voir les entretiens disponibles.') }}</p>
 </div>
 {% endif %}
 {% endblock %}

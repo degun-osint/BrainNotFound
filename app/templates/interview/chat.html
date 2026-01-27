@@ -202,11 +202,11 @@
 <div class="chat-container">
     <div class="chat-header">
         <div class="chat-header-info">
-            <h2>{{ interview.persona_name or 'Entretien' }}</h2>
+            <h2>{{ interview.persona_name or _('Entretien') }}</h2>
             <p>{{ interview.title }}</p>
         </div>
         <div class="progress-counter">
-            <span id="interaction-count">{{ session.interaction_count }}</span> / {{ interview.max_interactions }} echanges
+            <span id="interaction-count">{{ session.interaction_count }}</span> / {{ interview.max_interactions }} {{ _('echanges') }}
         </div>
     </div>
 
@@ -214,7 +214,7 @@
         {% if not messages and interview.student_starts %}
         <div class="empty-chat-hint" id="empty-chat-hint">
             <i class="iconoir-chat-bubble-question"></i>
-            <p>C'est a vous de commencer la conversation.</p>
+            <p>{{ _("C'est a vous de commencer la conversation.") }}</p>
             {% if interview.student_context %}
             <p class="text-light">{{ interview.student_context }}</p>
             {% endif %}
@@ -238,7 +238,7 @@
     <div class="chat-input-container">
         <form class="chat-input-form" id="chat-form" onsubmit="sendMessage(event)">
             <textarea class="chat-input" id="message-input" rows="1"
-                   placeholder="Ecrivez votre message... (Shift+Entree pour retour a la ligne)"
+                   placeholder="{{ _('Ecrivez votre message... (Shift+Entree pour retour a la ligne)') }}"
                    onkeydown="handleKeyDown(event)"></textarea>
             <button type="submit" class="chat-send-btn" id="send-btn">
                 <i class="iconoir-send"></i>
@@ -248,10 +248,10 @@
 
     <div class="chat-footer">
         <button type="button" class="btn btn-sm end-btn" onclick="endInterview()">
-            <i class="iconoir-xmark"></i> Terminer l'entretien
+            <i class="iconoir-xmark"></i> {{ _("Terminer l'entretien") }}
         </button>
         <span class="text-light">
-            <i class="iconoir-clock"></i> Max {{ interview.max_duration_minutes }} min
+            <i class="iconoir-clock"></i> {{ _('Max') }} {{ interview.max_duration_minutes }} {{ _('min') }}
         </span>
     </div>
 </div>
@@ -262,6 +262,16 @@
 <script>
 const sessionId = {{ session.id }};
 const maxInteractions = {{ interview.max_interactions }};
+const i18n = {
+    exchangeLimitReached: "{{ _("Limite d'echanges atteinte") }}",
+    interviewEnded: "{{ _('Entretien termine') }}",
+    error: "{{ _('Erreur') }}",
+    connectionError: "{{ _('Erreur de connexion') }}",
+    endInterviewConfirm: "{{ _("Terminer l'entretien ? Vous ne pourrez plus envoyer de messages.") }}",
+    interviewEndedTitle: "{{ _('Entretien termine') }}",
+    interviewEndedDefault: "{{ _("L'entretien est maintenant termine.") }}",
+    goToAnalysis: "{{ _("Passer a l'analyse et la correction") }}"
+};
 let socket;
 let isProcessing = false;
 
@@ -324,14 +334,14 @@ function initWebSocket() {
         document.getElementById('message-input').focus();
 
         if (data.interaction_count >= maxInteractions) {
-            disableInput('Limite d\'echanges atteinte');
+            disableInput(i18n.exchangeLimitReached);
         }
     });
 
     socket.on('interview_ended', function(data) {
         console.log('Interview ended:', data.reason);
         // Disable input
-        disableInput('Entretien termine');
+        disableInput(i18n.interviewEnded);
         // Show end message with button instead of immediate redirect
         showEndMessage(data.reason, data.message);
     });
@@ -341,7 +351,7 @@ function initWebSocket() {
         document.getElementById('typing-indicator').classList.remove('show');
         isProcessing = false;
         document.getElementById('send-btn').disabled = false;
-        alert('Erreur: ' + data.message);
+        alert(i18n.error + ': ' + data.message);
     });
 
     socket.on('disconnect', function() {
@@ -412,12 +422,12 @@ function disableInput(message) {
 }
 
 async function endInterview() {
-    if (!confirm('Terminer l\'entretien ? Vous ne pourrez plus envoyer de messages.')) {
+    if (!confirm(i18n.endInterviewConfirm)) {
         return;
     }
 
     try {
-        const response = await fetch('{{ url_for("interview.end_interview", session_identifier=session.get_url_identifier()) }}', {
+        const response = await fetch('{{ url_for("interview.end_interview", identifier=session.get_url_identifier()) }}', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token() }}'
@@ -428,10 +438,10 @@ async function endInterview() {
         if (data.success) {
             window.location.href = data.redirect;
         } else {
-            alert('Erreur: ' + data.error);
+            alert(i18n.error + ': ' + data.error);
         }
     } catch (error) {
-        alert('Erreur de connexion');
+        alert(i18n.connectionError);
     }
 }
 
@@ -461,10 +471,10 @@ function showEndMessage(reason, message) {
     endMsg.className = 'interview-ended-message';
     endMsg.innerHTML = `
         <div class="end-icon"><i class="iconoir-check-circle"></i></div>
-        <h3>Entretien termine</h3>
-        <p>${escapeHtml(message || 'L\'entretien est maintenant termine.')}</p>
-        <a href="{{ url_for('interview.evaluating', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
-            <i class="iconoir-arrow-right"></i> Passer a l'analyse et la correction
+        <h3>${i18n.interviewEndedTitle}</h3>
+        <p>${escapeHtml(message || i18n.interviewEndedDefault)}</p>
+        <a href="{{ url_for('interview.evaluating', identifier=session.get_url_identifier()) }}" class="btn btn-primary">
+            <i class="iconoir-arrow-right"></i> ${i18n.goToAnalysis}
         </a>
     `;
 

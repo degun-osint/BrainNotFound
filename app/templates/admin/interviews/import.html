@@ -1,44 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Importer un entretien - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Importer un entretien') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-2">
-    <h1 class="mb-0">Importer un entretien</h1>
+    <h1 class="mb-0">{{ _('Importer un entretien') }}</h1>
     <a href="{{ url_for('interview.admin_list') }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour
+        <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
     </a>
 </div>
 
 <div class="card" style="max-width: 600px;">
     <div class="card-header">
-        <span><i class="iconoir-upload"></i> Fichier JSON</span>
+        <span><i class="iconoir-upload"></i> {{ _('Fichier JSON') }}</span>
     </div>
     <div class="card-body">
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group">
-                <label class="form-label" for="file">Selectionnez un fichier d'export</label>
+                <label class="form-label" for="file">{{ _("Selectionnez un fichier d'export") }}</label>
                 <input type="file" id="file" name="file" class="form-input" accept=".json" required>
-                <small class="text-light">Fichier JSON exporte depuis un autre entretien</small>
+                <small class="text-light">{{ _('Fichier JSON exporte depuis un autre entretien') }}</small>
             </div>
 
             <div class="alert alert-info mb-1">
                 <i class="iconoir-info-circle"></i>
                 <div>
-                    <strong>A savoir</strong>
+                    <strong>{{ _('A savoir') }}</strong>
                     <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
-                        <li>L'entretien importe sera <strong>inactif</strong> par defaut</li>
-                        <li>Les groupes ne sont pas importes (vous devrez les assigner)</li>
-                        <li>Les dates de disponibilite ne sont pas importees</li>
-                        <li>Si le slug existe deja, un suffixe sera ajoute</li>
+                        <li>{{ _("L'entretien importe sera") }} <strong>{{ _('inactif') }}</strong> {{ _('par defaut') }}</li>
+                        <li>{{ _('Les groupes ne sont pas importes (vous devrez les assigner)') }}</li>
+                        <li>{{ _('Les dates de disponibilite ne sont pas importees') }}</li>
+                        <li>{{ _('Si le slug existe deja, un suffixe sera ajoute') }}</li>
                     </ul>
                 </div>
             </div>
 
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-upload"></i> Importer
+                <i class="iconoir-upload"></i> {{ _('Importer') }}
             </button>
         </form>
     </div>

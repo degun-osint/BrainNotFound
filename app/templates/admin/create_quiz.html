@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Créer un quiz - BrainNotFound{% endblock %}
+{% block title %}{{ _('Creer un quiz') }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Créer un nouveau quiz</h1>
+<h1 class="mb-2">{{ _('Creer un nouveau quiz') }}</h1>
 
 <div class="card">
-    <div class="card-header">Format Markdown</div>
+    <div class="card-header">{{ _('Format Markdown') }}</div>
     <div class="bg-gray rounded p-1 mb-1">
-        <p class="text-light text-sm mb-0">Exemple de format :</p>
+        <p class="text-light text-sm mb-0">{{ _('Exemple de format :') }}</p>
         <pre class="text-sm overflow-x-auto"># Titre du Quiz
 
 ## QCM - Quelle est la capitale de la France ? [2 points]
@@ -27,16 +27,16 @@ Une fonction récursive est une fonction qui s'appelle elle-même...</pre>
     </div>
 
     <!-- Image Upload Section -->
-    <div class="card-header mt-1">Images</div>
+    <div class="card-header mt-1">{{ _('Images') }}</div>
     <div class="bg-gray rounded p-1 mb-1">
         <p class="text-light text-sm mb-0">
-            Uploadez des images puis inserez le code Markdown genere dans votre quiz.
-            Syntaxe: <code>![description](nom_fichier.png)</code>
+            {{ _('Uploadez des images puis inserez le code Markdown genere dans votre quiz.') }}
+            {{ _('Syntaxe:') }} <code>![description](nom_fichier.png)</code>
         </p>
         <div class="flex items-center gap-md flex-wrap mt-1">
             <input type="file" id="image-upload" accept="image/*" class="hidden">
             <button type="button" class="btn btn-secondary" onclick="document.getElementById('image-upload').click()">
-                <i class="iconoir-media-image-plus"></i> Ajouter une image
+                <i class="iconoir-media-image-plus"></i> {{ _('Ajouter une image') }}
             </button>
             <span id="upload-status" class="text-light"></span>
         </div>
@@ -45,7 +45,7 @@ Une fonction récursive est une fonction qui s'appelle elle-même...</pre>
 
     <form method="POST">
         <div class="form-group">
-            <label class="form-label" for="markdown_content">Contenu Markdown</label>
+            <label class="form-label" for="markdown_content">{{ _('Contenu Markdown') }}</label>
             <textarea id="markdown_content" name="markdown_content" class="form-textarea"
                       style="min-height: 400px;" required>{% if markdown_content %}{{ markdown_content }}{% else %}# Mon Quiz
 
@@ -60,48 +60,48 @@ Réponse modèle ici...{% endif %}</textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <label class="form-label" for="time_limit_minutes">{{ _('Limite de temps (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <input type="number" id="time_limit_minutes" name="time_limit_minutes"
                        class="form-input input-sm" min="1" max="180"
                        placeholder="--">
-                <span class="text-light">minutes (laisser vide pour illimite)</span>
+                <span class="text-light">{{ _('minutes (laisser vide pour illimite)') }}</span>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <label class="form-label" for="slug">{{ _('Lien personnalise (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <span class="text-light">/quiz/</span>
                 <input type="text" id="slug" name="slug" class="form-input input-lg"
-                       placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+                       placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="{{ _('Lettres minuscules, chiffres et tirets uniquement') }}">
             </div>
             <small class="help-text">
-                Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.
+                {{ _('Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <label class="form-label">{{ _('Periode de disponibilite (optionnel)') }}</label>
             <div class="flex items-center gap-md flex-wrap">
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">Du</span>
+                    <span class="text-light">{{ _('Du') }}</span>
                     <input type="datetime-local" id="available_from" name="available_from"
                            class="form-input input-md">
                 </div>
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">au</span>
+                    <span class="text-light">{{ _('au') }}</span>
                     <input type="datetime-local" id="available_until" name="available_until"
                            class="form-input input-md">
                 </div>
             </div>
             <small class="help-text">
-                Laisser vide pour un quiz toujours disponible
+                {{ _('Laisser vide pour un quiz toujours disponible') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Groupes autorises (optionnel)</label>
+            <label class="form-label">{{ _('Groupes autorises (optionnel)') }}</label>
             {% set groups_by_tenant = {} %}
             {% set groups_no_tenant = [] %}
             {% for group in groups %}
@@ -123,7 +123,7 @@ Réponse modèle ici...{% endif %}</textarea>
                         <i class="iconoir-building"></i>
                         <strong>{{ data.tenant.name }}</strong>
                         <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
-                            Tout selectionner
+                            {{ _('Tout selectionner') }}
                         </button>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
@@ -142,7 +142,7 @@ Réponse modèle ici...{% endif %}</textarea>
                 <div class="tenant-group-section mb-1">
                     <div class="tenant-group-header">
                         <i class="iconoir-globe"></i>
-                        <strong>Sans tenant</strong>
+                        <strong>{{ _('Sans tenant') }}</strong>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
                         {% for group in groups_no_tenant %}
@@ -168,33 +168,33 @@ Réponse modèle ici...{% endif %}</textarea>
             </div>
             {% endif %}
             <small class="help-text">
-                Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs
+                {{ _("Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs") }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Severite de la correction IA</label>
+            <label class="form-label">{{ _('Severite de la correction IA') }}</label>
             <div class="flex gap-lg mt-1">
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="gentil">
-                    <span class="text-success">Gentil</span>
+                    <span class="text-success">{{ _('Gentil') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="modere" checked>
-                    <span>Modere</span>
+                    <span>{{ _('Modere') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="severe">
-                    <span class="text-error">Severe</span>
+                    <span class="text-error">{{ _('Severe') }}</span>
                 </label>
             </div>
             <small class="help-text">
-                Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision
+                {{ _('Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            <label class="form-label">{{ _('Humeur du correcteur (optionnel, plusieurs choix possibles)') }}</label>
             <div class="flex flex-wrap gap-md mt-1">
                 {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
                 <label class="check-item">
@@ -204,51 +204,50 @@ Réponse modèle ici...{% endif %}</textarea>
                 {% endfor %}
             </div>
             <small class="help-text">
-                Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.
+                {{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}
             </small>
         </div>
 
-        <div class="card-header mt-1">Options d'affichage</div>
+        <div class="card-header mt-1">{{ _("Options d'affichage") }}</div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="randomize_questions">
-                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+                <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
             </label>
             <small class="help-text">
-                Si active, les questions seront affichees dans un ordre different pour chaque etudiant
+                {{ _('Si active, les questions seront affichees dans un ordre different pour chaque etudiant') }}
             </small>
         </div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="randomize_options">
-                <span class="form-label mb-0">Ordre aleatoire des reponses QCM</span>
+                <span class="form-label mb-0">{{ _('Ordre aleatoire des reponses QCM') }}</span>
             </label>
             <small class="help-text">
-                Si active, les options de chaque QCM seront melangees pour chaque etudiant
+                {{ _('Si active, les options de chaque QCM seront melangees pour chaque etudiant') }}
             </small>
         </div>
 
-        <div class="card-header mt-1">Mode Examen (Anti-triche)</div>
+        <div class="card-header mt-1">{{ _('Mode Examen (Anti-triche)') }}</div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="one_question_per_page">
-                <span class="form-label mb-0">Une question par page</span>
+                <span class="form-label mb-0">{{ _('Une question par page') }}</span>
             </label>
             <small class="help-text">
-                Active le mode examen : navigation question par question, chronometrage individuel,
-                detection des changements de fenetre. Ideal pour les evaluations surveillees.
+                {{ _('Active le mode examen : navigation question par question, chronometrage individuel, detection des changements de fenetre. Ideal pour les evaluations surveillees.') }}
             </small>
         </div>
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Creer le quiz
+                <i class="iconoir-plus"></i> {{ _('Creer le quiz') }}
             </button>
             <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>
@@ -266,7 +265,7 @@ function toggleTenantGroups(btn, tenantId) {
         cb.checked = !allChecked;
     });
 
-    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+    btn.textContent = allChecked ? '{{ _("Tout selectionner") }}' : '{{ _("Tout deselectionner") }}';
 }
 
 document.getElementById('image-upload').addEventListener('change', async function(e) {
@@ -277,7 +276,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
     formData.append('image', file);
     formData.append('quiz_id', 'temp');
 
-    document.getElementById('upload-status').textContent = 'Upload en cours...';
+    document.getElementById('upload-status').textContent = '{{ _("Upload en cours...") }}';
 
     try {
         const response = await fetch('{{ url_for("admin.upload_image") }}', {
@@ -293,7 +292,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
             const pos = textarea.selectionStart;
             textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
 
-            document.getElementById('upload-status').textContent = 'Image ajoutee ! Code: ' + data.markdown;
+            document.getElementById('upload-status').textContent = '{{ _("Image ajoutee ! Code:") }} ' + data.markdown;
 
             // Show thumbnail preview
             const imgContainer = document.getElementById('uploaded-images');
@@ -313,11 +312,11 @@ document.getElementById('image-upload').addEventListener('change', async functio
             wrapper.appendChild(label);
             imgContainer.appendChild(wrapper);
         } else {
-            document.getElementById('upload-status').textContent = 'Erreur: ' + data.error;
+            document.getElementById('upload-status').textContent = '{{ _("Erreur:") }} ' + data.error;
             document.getElementById('upload-status').className = 'text-error';
         }
     } catch (err) {
-        document.getElementById('upload-status').textContent = 'Erreur de connexion';
+        document.getElementById('upload-status').textContent = '{{ _("Erreur de connexion") }}';
         document.getElementById('upload-status').className = 'text-error';
     }
 

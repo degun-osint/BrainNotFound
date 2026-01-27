@@ -1,28 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Admins de {{ tenant.name }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Admins de') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Administrateurs de l'organisation</h1>
+<h1 class="mb-2">{{ _('Administrateurs de l\'organisation') }}</h1>
 
 <div class="card mb-2">
     <div class="card-header">{{ tenant.name }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>Information :</strong> Les administrateurs d'une organisation peuvent gerer ses groupes,
-        creer des quiz et gerer les utilisateurs dans leur perimetre.
-        Les superadmins ont automatiquement acces a toutes les organisations.
+        <strong>{{ _('Information :') }}</strong> {{ _('Les administrateurs d\'une organisation peuvent gerer ses groupes, creer des quiz et gerer les utilisateurs dans leur perimetre. Les superadmins ont automatiquement acces a toutes les organisations.') }}
     </div>
 
     {% if admins %}
-    <h3 class="mb-1 px-2">Administrateurs actuels ({{ admins|length }})</h3>
+    <h3 class="mb-1 px-2">{{ _('Administrateurs actuels') }} ({{ admins|length }})</h3>
     <div class="p-2">
         <table class="table">
             <thead>
                 <tr>
-                    <th>Utilisateur</th>
-                    <th>Email</th>
-                    <th>Actions</th>
+                    <th>{{ _('Utilisateur') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,19 +28,19 @@
                 <tr>
                     <td>
                         <strong>{{ admin.full_name or admin.username }}</strong>
-                        {% if admin.is_superadmin %}<span class="badge badge-info">Superadmin</span>{% endif %}
+                        {% if admin.is_superadmin %}<span class="badge badge-info">{{ _('Superadmin') }}</span>{% endif %}
                     </td>
                     <td>{{ admin.email }}</td>
                     <td>
                         {% if not admin.is_superadmin %}
                         <form method="POST" action="{{ url_for('tenant.remove_admin', identifier=tenant.get_url_identifier(), user_identifier=admin.get_url_identifier()) }}"
-                              onsubmit="return confirm('Retirer {{ admin.username }} des administrateurs ?');" class="inline">
-                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="Retirer">
+                              onsubmit="return confirm('{{ _('Retirer') }} {{ admin.username }} {{ _('des administrateurs ?') }}');" class="inline">
+                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Retirer') }}">
                                 <i class="iconoir-user-minus"></i>
                             </button>
                         </form>
                         {% else %}
-                        <span class="text-light text-sm">Acces global</span>
+                        <span class="text-light text-sm">{{ _('Acces global') }}</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -52,26 +50,26 @@
     </div>
     {% else %}
     <p class="text-center text-light p-2">
-        Aucun administrateur specifique. Seuls les superadmins peuvent gerer cette organisation.
+        {{ _('Aucun administrateur specifique. Seuls les superadmins peuvent gerer cette organisation.') }}
     </p>
     {% endif %}
 </div>
 
 <div class="card mb-2">
-    <div class="card-header">Ajouter un administrateur</div>
+    <div class="card-header">{{ _('Ajouter un administrateur') }}</div>
     <form method="POST" action="{{ url_for('tenant.add_admin', identifier=tenant.get_url_identifier()) }}" class="p-2">
         <div class="form-group">
-            <label class="form-label">Rechercher un utilisateur</label>
+            <label class="form-label">{{ _('Rechercher un utilisateur') }}</label>
             {% if available_users %}
             <div class="searchable-select" id="user-select">
                 <input type="hidden" name="user_id" id="user_id" required>
                 <div class="searchable-select-trigger" id="user-trigger">
-                    <span id="user-label">Sélectionnez un utilisateur...</span>
+                    <span id="user-label">{{ _('Selectionnez un utilisateur...') }}</span>
                     <i class="iconoir-nav-arrow-down"></i>
                 </div>
                 <div class="searchable-select-dropdown" id="user-dropdown">
                     <div class="searchable-select-search">
-                        <input type="text" id="user-search" placeholder="Tapez pour filtrer..." autocomplete="off">
+                        <input type="text" id="user-search" placeholder="{{ _('Tapez pour filtrer...') }}" autocomplete="off">
                     </div>
                     <div class="searchable-select-options" id="user-options">
                         {% for user in available_users %}
@@ -83,12 +81,12 @@
                 </div>
             </div>
             {% else %}
-            <p class="text-light">Aucun utilisateur disponible à ajouter.</p>
+            <p class="text-light">{{ _('Aucun utilisateur disponible a ajouter.') }}</p>
             {% endif %}
         </div>
         {% if available_users %}
         <button type="submit" class="btn btn-primary">
-            <i class="iconoir-user-plus"></i> Ajouter comme admin
+            <i class="iconoir-user-plus"></i> {{ _('Ajouter comme admin') }}
         </button>
         {% endif %}
     </form>
@@ -96,7 +94,7 @@
 
 <div class="actions">
     <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour a l'organisation
+        <i class="iconoir-arrow-left"></i> {{ _('Retour a l\'organisation') }}
     </a>
 </div>
 {% endblock %}

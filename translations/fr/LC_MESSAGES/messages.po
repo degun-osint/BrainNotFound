@@ -1,0 +1,5705 @@
+# French translations for BrainNotFound.
+# Copyright (C) 2024 BrainNotFound
+# This file is distributed under the same license as the BrainNotFound
+# project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: BrainNotFound 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-27 15:45+0100\n"
+"PO-Revision-Date: 2024-01-27 00:00+0000\n"
+"Last-Translator: \n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/routes/admin.py:81 app/routes/interview.py:96
+#: app/routes/interview.py:376 app/routes/interview.py:441
+#: app/routes/interview.py:467 app/routes/interview.py:496
+#: app/routes/quiz.py:659 app/routes/quiz.py:694 app/routes/tenant.py:36
+#: app/routes/tenant.py:162 app/routes/tenant.py:362 app/routes/tenant.py:384
+#: app/routes/tenant.py:432
+msgid "Acces non autorise"
+msgstr ""
+
+#: app/routes/admin.py:91 app/routes/tenant.py:23
+msgid "Acces reserve aux super-administrateurs"
+msgstr ""
+
+#: app/routes/admin.py:161 app/routes/tenant.py:153 app/routes/tenant.py:192
+#: app/routes/tenant.py:246 app/routes/tenant.py:271 app/routes/tenant.py:302
+#: app/routes/tenant.py:330 app/routes/tenant.py:354 app/routes/tenant.py:376
+#: app/routes/tenant.py:424
+msgid "Tenant introuvable"
+msgstr ""
+
+#: app/routes/admin.py:166
+msgid "Acces non autorise a ce tenant"
+msgstr ""
+
+#: app/routes/admin.py:170
+#, python-format
+msgid "Contexte: %(name)s"
+msgstr ""
+
+#: app/routes/admin.py:182
+msgid "Contexte: Tous les tenants"
+msgstr ""
+
+#: app/routes/admin.py:512
+msgid "Vous devez assigner le quiz a au moins un groupe accessible"
+msgstr ""
+
+#: app/routes/admin.py:538
+msgid "Le contenu Markdown est requis"
+msgstr ""
+
+#: app/routes/admin.py:546
+msgid "Aucune question trouvee dans le Markdown"
+msgstr ""
+
+#: app/routes/admin.py:571 app/routes/admin.py:754
+#, python-format
+msgid "Le slug \"%(slug)s\" est deja utilise"
+msgstr ""
+
+#: app/routes/admin.py:623
+#, python-format
+msgid "Quiz \"%(title)s\" cree avec succes !"
+msgstr ""
+
+#: app/routes/admin.py:629
+msgid "Erreur lors de la creation du quiz. Verifiez le format Markdown."
+msgstr ""
+
+#: app/routes/admin.py:640 app/routes/admin.py:831 app/routes/admin.py:872
+#: app/routes/admin.py:1097 app/routes/admin.py:1128 app/routes/admin.py:1191
+#: app/routes/admin.py:1211 app/routes/admin.py:1270 app/routes/admin.py:1339
+#: app/routes/admin.py:2958 app/routes/admin.py:2972 app/routes/quiz.py:260
+#: app/routes/quiz.py:270 app/routes/quiz.py:566
+msgid "Quiz introuvable"
+msgstr ""
+
+#: app/routes/admin.py:649 app/routes/admin.py:840 app/routes/admin.py:883
+#: app/routes/admin.py:1104 app/routes/admin.py:1133 app/routes/admin.py:1196
+#: app/routes/admin.py:1222 app/routes/admin.py:1277 app/routes/admin.py:1346
+#: app/routes/admin.py:2713 app/routes/admin.py:2777 app/routes/admin.py:2896
+#: app/routes/admin.py:2967
+msgid "Vous n'avez pas acces a ce quiz"
+msgstr ""
+
+#: app/routes/admin.py:709
+msgid "Le quiz doit rester assigne a au moins un de vos groupes"
+msgstr ""
+
+#: app/routes/admin.py:813
+msgid "Quiz mis a jour avec succes !"
+msgstr ""
+
+#: app/routes/admin.py:819
+msgid "Erreur lors de la mise a jour. Verifiez le format Markdown."
+msgstr ""
+
+#: app/routes/admin.py:1062
+msgid "Test du quiz termine !"
+msgstr ""
+
+#: app/routes/admin.py:1118
+msgid "Quiz supprime avec succes"
+msgstr ""
+
+#: app/routes/admin.py:1182
+#, python-format
+msgid "Quiz duplique ! Le nouveau quiz \"%(title)s\" est desactive par defaut."
+msgstr ""
+
+#: app/routes/admin.py:1202
+#, python-format
+msgid "Quiz %(status)s"
+msgstr ""
+
+#: app/routes/admin.py:1321
+#, python-format
+msgid ""
+"Re-correction lancee pour %(count)s copie(s). Les notes seront mises a "
+"jour progressivement."
+msgstr ""
+
+#: app/routes/admin.py:1323
+msgid "Aucune question ouverte a re-corriger."
+msgstr ""
+
+#: app/routes/admin.py:1654
+msgid "Le nom du groupe est requis"
+msgstr ""
+
+#: app/routes/admin.py:1676
+#, python-format
+msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
+msgstr ""
+
+#: app/routes/admin.py:1687 app/routes/admin.py:1721 app/routes/admin.py:1736
+#: app/routes/admin.py:1756 app/routes/admin.py:1788 app/routes/admin.py:1885
+msgid "Groupe introuvable"
+msgstr ""
+
+#: app/routes/admin.py:1710
+msgid "Groupe mis a jour avec succes"
+msgstr ""
+
+#: app/routes/admin.py:1727
+#, python-format
+msgid "Groupe %(status)s"
+msgstr ""
+
+#: app/routes/admin.py:1741
+msgid "Impossible de supprimer un groupe qui contient des utilisateurs"
+msgstr ""
+
+#: app/routes/admin.py:1747
+msgid "Groupe supprime avec succes"
+msgstr ""
+
+#: app/routes/admin.py:1767 app/routes/admin.py:1795 app/routes/admin.py:1896
+#: app/routes/admin.py:2233 app/routes/admin.py:2645
+msgid "Vous n'avez pas acces a ce groupe"
+msgstr ""
+
+#: app/routes/admin.py:1911
+msgid "Le sujet et le message sont requis"
+msgstr ""
+
+#: app/routes/admin.py:1915
+msgid "Aucun utilisateur avec email dans ce groupe"
+msgstr ""
+
+#: app/routes/admin.py:1921
+#, python-format
+msgid "%(count)s email(s) envoye(s) avec succes"
+msgstr ""
+
+#: app/routes/admin.py:1923
+#, python-format
+msgid "%(count)s email(s) echoue(s)"
+msgstr ""
+
+#: app/routes/admin.py:2021 app/routes/admin.py:2330 app/routes/admin.py:2543
+#: app/routes/tenant.py:313 app/routes/tenant.py:335
+msgid "Utilisateur introuvable"
+msgstr ""
+
+#: app/routes/admin.py:2032 app/routes/admin.py:2341 app/routes/admin.py:2548
+#: app/routes/admin.py:2717 app/routes/admin.py:2781
+msgid "Vous n'avez pas acces a cet utilisateur"
+msgstr ""
+
+#: app/routes/admin.py:2124
+msgid "Nom d'utilisateur, email et mot de passe sont requis"
+msgstr ""
+
+#: app/routes/admin.py:2126 app/routes/admin.py:2435 app/routes/auth.py:130
+msgid "Ce nom d'utilisateur existe deja"
+msgstr ""
+
+#: app/routes/admin.py:2128 app/routes/admin.py:2437 app/routes/auth.py:132
+msgid "Cette adresse email est deja utilisee"
+msgstr ""
+
+#: app/routes/admin.py:2130
+msgid "Vous devez assigner au moins un groupe"
+msgstr ""
+
+#: app/routes/admin.py:2132
+msgid "Vous devez assigner au moins un tenant pour un admin de tenant"
+msgstr ""
+
+#: app/routes/admin.py:2170
+#, python-format
+msgid "%(role)s \"%(username)s\" cree avec succes"
+msgstr ""
+
+#: app/routes/admin.py:2214 app/routes/admin.py:2219 app/routes/admin.py:2834
+msgid "Aucun fichier selectionne"
+msgstr ""
+
+#: app/routes/admin.py:2226
+msgid "Veuillez selectionner un groupe par defaut"
+msgstr ""
+
+#: app/routes/admin.py:2238
+msgid "Groupe invalide"
+msgstr ""
+
+#: app/routes/admin.py:2304
+#, python-format
+msgid ""
+"%(count)s utilisateur(s) importe(s) avec succes dans le groupe "
+"\"%(group)s\""
+msgstr ""
+
+#: app/routes/admin.py:2306 app/routes/admin.py:2686
+#, python-format
+msgid "%(count)s utilisateur(s) ignore(s)"
+msgstr ""
+
+#: app/routes/admin.py:2311
+#, python-format
+msgid "... et %(count)s autre(s) erreur(s)"
+msgstr ""
+
+#: app/routes/admin.py:2317 app/routes/interview.py:1422
+#, python-format
+msgid "Erreur lors de l'import: %(error)s"
+msgstr ""
+
+#: app/routes/admin.py:2346
+msgid "Vous ne pouvez pas modifier un super-administrateur"
+msgstr ""
+
+#: app/routes/admin.py:2351
+msgid "Vous ne pouvez pas modifier votre propre compte ici"
+msgstr ""
+
+#: app/routes/admin.py:2402
+#, python-format
+msgid "Email de %(username)s verifie manuellement."
+msgstr ""
+
+#: app/routes/admin.py:2408
+#, python-format
+msgid "Email de verification renvoye a %(email)s."
+msgstr ""
+
+#: app/routes/admin.py:2410
+msgid "Erreur lors de l'envoi de l'email."
+msgstr ""
+
+#: app/routes/admin.py:2433
+msgid "Nom d'utilisateur et email sont requis"
+msgstr ""
+
+#: app/routes/admin.py:2528
+#, python-format
+msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
+msgstr ""
+
+#: app/routes/admin.py:2554
+msgid "Vous ne pouvez pas supprimer un super-administrateur"
+msgstr ""
+
+#: app/routes/admin.py:2557
+msgid "Vous ne pouvez pas supprimer un administrateur de groupe"
+msgstr ""
+
+#: app/routes/admin.py:2562
+msgid "Vous ne pouvez pas supprimer votre propre compte"
+msgstr ""
+
+#: app/routes/admin.py:2569
+#, python-format
+msgid "Utilisateur \"%(username)s\" supprime avec succes"
+msgstr ""
+
+#: app/routes/admin.py:2581 app/routes/admin.py:2631
+#: app/templates/admin/users.html:373 app/templates/admin/users.html:400
+msgid "Aucun utilisateur selectionne"
+msgstr ""
+
+#: app/routes/admin.py:2614
+#, python-format
+msgid "%(count)s utilisateur(s) supprime(s)"
+msgstr ""
+
+#: app/routes/admin.py:2616
+#, python-format
+msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
+msgstr ""
+
+#: app/routes/admin.py:2635
+msgid "Aucun groupe selectionne"
+msgstr ""
+
+#: app/routes/admin.py:2640
+msgid "Groupe non trouve"
+msgstr ""
+
+#: app/routes/admin.py:2684
+#, python-format
+msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
+msgstr ""
+
+#: app/routes/admin.py:2699 app/routes/admin.py:2768 app/routes/admin.py:2887
+#: app/routes/admin.py:2901
+msgid "Reponse introuvable"
+msgstr ""
+
+#: app/routes/admin.py:2751
+#, python-format
+msgid "Scores mis a jour pour %(name)s"
+msgstr ""
+
+#: app/routes/admin.py:2789
+#, python-format
+msgid ""
+"Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
+"quiz."
+msgstr ""
+
+#: app/routes/admin.py:2823
+msgid "Vous devez generer au moins une question"
+msgstr ""
+
+#: app/routes/admin.py:2828
+msgid "Veuillez selectionner un fichier"
+msgstr ""
+
+#: app/routes/admin.py:2838
+msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
+msgstr ""
+
+#: app/routes/admin.py:2847
+msgid ""
+"Le fichier ne contient pas assez de texte exploitable (minimum 100 "
+"caracteres)"
+msgstr ""
+
+#: app/routes/admin.py:2867
+#, python-format
+msgid "Erreur lors de la generation: %(error)s"
+msgstr ""
+
+#: app/routes/admin.py:2872
+#, python-format
+msgid "Erreur lors du traitement du fichier: %(error)s"
+msgstr ""
+
+#: app/routes/admin.py:3066
+msgid "Parametres sauvegardes avec succes"
+msgstr ""
+
+#: app/routes/admin.py:3228 app/routes/admin.py:3292
+#: app/routes/interview.py:609
+msgid "Le titre est requis"
+msgstr ""
+
+#: app/routes/admin.py:3238 app/routes/admin.py:3302
+msgid "Ce slug existe deja"
+msgstr ""
+
+#: app/routes/admin.py:3243 app/routes/admin.py:3307
+msgid "Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
+msgstr ""
+
+#: app/routes/admin.py:3258
+msgid "Page creee avec succes"
+msgstr ""
+
+#: app/routes/admin.py:3274 app/routes/admin.py:3335 app/routes/admin.py:3353
+msgid "Page introuvable"
+msgstr ""
+
+#: app/routes/admin.py:3320
+msgid "Page modifiee avec succes"
+msgstr ""
+
+#: app/routes/admin.py:3340
+msgid "Page supprimee avec succes"
+msgstr ""
+
+#: app/routes/auth.py:28
+msgid "Trop de tentatives. Veuillez reessayer dans quelques minutes."
+msgstr ""
+
+#: app/routes/auth.py:91
+msgid "Veuillez verifier votre adresse email avant de vous connecter."
+msgstr ""
+
+#: app/routes/auth.py:105
+msgid "Identifiants incorrects"
+msgstr ""
+
+#: app/routes/auth.py:126
+msgid "Tous les champs sont requis"
+msgstr ""
+
+#: app/routes/auth.py:128
+msgid "Les mots de passe ne correspondent pas"
+msgstr ""
+
+#: app/routes/auth.py:137 app/routes/auth.py:358
+msgid "Code de groupe invalide ou inactif"
+msgstr ""
+
+#: app/routes/auth.py:139 app/routes/auth.py:360
+msgid "Ce groupe a atteint sa limite de membres"
+msgstr ""
+
+#: app/routes/auth.py:163
+msgid "Erreur lors de l'envoi de l'email de verification. Veuillez reessayer."
+msgstr ""
+
+#: app/routes/auth.py:171
+msgid "Vous avez ete deconnecte."
+msgstr ""
+
+#: app/routes/auth.py:191
+msgid ""
+"Votre adresse email a ete verifiee ! Vous pouvez maintenant vous "
+"connecter."
+msgstr ""
+
+#: app/routes/auth.py:193
+msgid "Le lien de verification est invalide ou a expire."
+msgstr ""
+
+#: app/routes/auth.py:209 app/routes/auth.py:239
+msgid "Veuillez entrer votre adresse email."
+msgstr ""
+
+#: app/routes/auth.py:216
+msgid "Un nouvel email de verification a ete envoye."
+msgstr ""
+
+#: app/routes/auth.py:218
+msgid "Erreur lors de l'envoi de l'email. Veuillez reessayer."
+msgstr ""
+
+#: app/routes/auth.py:221
+msgid ""
+"Si cette adresse est associee a un compte non verifie, un email a ete "
+"envoye."
+msgstr ""
+
+#: app/routes/auth.py:248
+msgid ""
+"Si cette adresse est associee a un compte, un email de reinitialisation a"
+" ete envoye."
+msgstr ""
+
+#: app/routes/auth.py:264
+msgid "Le lien de reinitialisation est invalide ou a expire."
+msgstr ""
+
+#: app/routes/auth.py:272
+msgid "Veuillez entrer un mot de passe."
+msgstr ""
+
+#: app/routes/auth.py:274
+msgid "Les mots de passe ne correspondent pas."
+msgstr ""
+
+#: app/routes/auth.py:279
+msgid ""
+"Votre mot de passe a ete reinitialise ! Vous pouvez maintenant vous "
+"connecter."
+msgstr ""
+
+#: app/routes/auth.py:300
+msgid "Informations mises a jour."
+msgstr ""
+
+#: app/routes/auth.py:302
+msgid "Le prenom et le nom sont requis."
+msgstr ""
+
+#: app/routes/auth.py:310
+msgid "Mot de passe actuel incorrect."
+msgstr ""
+
+#: app/routes/auth.py:312
+msgid "Veuillez entrer un nouveau mot de passe."
+msgstr ""
+
+#: app/routes/auth.py:314
+msgid "Les nouveaux mots de passe ne correspondent pas."
+msgstr ""
+
+#: app/routes/auth.py:318
+msgid "Mot de passe modifie avec succes."
+msgstr ""
+
+#: app/routes/auth.py:325 app/routes/auth.py:484
+msgid "Mot de passe incorrect."
+msgstr ""
+
+#: app/routes/auth.py:327
+msgid "Veuillez entrer une adresse email."
+msgstr ""
+
+#: app/routes/auth.py:329
+msgid "Cette adresse email est deja utilisee."
+msgstr ""
+
+#: app/routes/auth.py:335
+msgid "Un email de verification a ete envoye a votre nouvelle adresse."
+msgstr ""
+
+#: app/routes/auth.py:338
+msgid "Erreur lors de l'envoi de l'email de verification."
+msgstr ""
+
+#: app/routes/auth.py:352
+msgid "Veuillez entrer un code de groupe"
+msgstr ""
+
+#: app/routes/auth.py:362
+msgid "Vous etes deja membre de ce groupe"
+msgstr ""
+
+#: app/routes/auth.py:366
+#, python-format
+msgid "Vous avez rejoint le groupe \"%(group_name)s\""
+msgstr ""
+
+#: app/routes/auth.py:489
+msgid "Veuillez taper SUPPRIMER pour confirmer."
+msgstr ""
+
+#: app/routes/auth.py:494
+msgid ""
+"Les comptes super-administrateurs ne peuvent pas etre supprimes via cette"
+" interface."
+msgstr ""
+
+#: app/routes/auth.py:528
+#, python-format
+msgid "Le compte \"%(username)s\" a ete supprime avec succes."
+msgstr ""
+
+#: app/routes/auth.py:536
+msgid "Une erreur est survenue lors de la suppression du compte."
+msgstr ""
+
+#: app/routes/interview.py:191 app/routes/interview.py:202
+#: app/routes/interview.py:718 app/routes/interview.py:756
+#: app/routes/interview.py:888 app/routes/interview.py:903
+#: app/routes/interview.py:957 app/routes/interview.py:998
+#: app/routes/interview.py:1040 app/routes/interview.py:1104
+#: app/routes/interview.py:1120 app/routes/interview.py:1149
+#: app/routes/interview.py:1252
+msgid "Entretien introuvable"
+msgstr ""
+
+#: app/routes/interview.py:213
+msgid "Cet entretien n'est pas disponible actuellement"
+msgstr ""
+
+#: app/routes/interview.py:218
+msgid "Vous n'avez pas acces a cet entretien"
+msgstr ""
+
+#: app/routes/interview.py:233
+msgid "Vous avez deja complete cet entretien"
+msgstr ""
+
+#: app/routes/interview.py:244
+msgid ""
+"Quota d'entretiens IA atteint pour ce mois. Contactez votre "
+"administrateur."
+msgstr ""
+
+#: app/routes/interview.py:253 app/routes/interview.py:1063
+msgid "Veuillez telecharger un fichier"
+msgstr ""
+
+#: app/routes/interview.py:260 app/routes/interview.py:1070
+msgid "Impossible de lire le contenu du fichier"
+msgstr ""
+
+#: app/routes/interview.py:264 app/routes/interview.py:1074
+msgid "Erreur lors de la lecture du fichier"
+msgstr ""
+
+#: app/routes/interview.py:367 app/routes/interview.py:433
+#: app/routes/interview.py:459 app/routes/interview.py:487
+msgid "Session introuvable"
+msgstr ""
+
+#: app/routes/interview.py:501
+msgid "Entretien non termine"
+msgstr ""
+
+#: app/routes/interview.py:523 app/routes/interview.py:1029
+msgid "Erreur lors de la generation du PDF"
+msgstr ""
+
+#: app/routes/interview.py:613
+msgid "Le prompt systeme est requis"
+msgstr ""
+
+#: app/routes/interview.py:622 app/routes/interview.py:806
+#: app/routes/tenant.py:93
+msgid "Ce slug est deja utilise"
+msgstr ""
+
+#: app/routes/interview.py:697
+msgid "Entretien cree avec succes"
+msgstr ""
+
+#: app/routes/interview.py:852
+msgid "Entretien mis a jour"
+msgstr ""
+
+#: app/routes/interview.py:892
+msgid "Entretien supprime"
+msgstr ""
+
+#: app/routes/interview.py:908 app/routes/interview.py:912
+#: app/routes/interview.py:962 app/routes/interview.py:966
+#: app/routes/interview.py:1003 app/routes/interview.py:1007
+#: app/routes/interview.py:1125 app/routes/interview.py:1129
+msgid "Session non trouvee"
+msgstr ""
+
+#: app/routes/interview.py:946
+msgid "Commentaire enregistre"
+msgstr ""
+
+#: app/routes/interview.py:987
+msgid ""
+"Re-evaluation lancee. Veuillez patienter quelques secondes puis "
+"rafraichir la page."
+msgstr ""
+
+#: app/routes/interview.py:1085 app/routes/interview.py:1093
+msgid "Session de test demarree"
+msgstr ""
+
+#: app/routes/interview.py:1108
+msgid "active"
+msgstr ""
+
+#: app/routes/interview.py:1108
+msgid "desactive"
+msgstr ""
+
+#: app/routes/interview.py:1109
+#, python-format
+msgid "Entretien %(status)s"
+msgstr ""
+
+#: app/routes/interview.py:1134
+msgid "Session supprimee"
+msgstr ""
+
+#: app/routes/interview.py:1328 app/routes/interview.py:1333
+msgid "Aucun fichier selectionne."
+msgstr ""
+
+#: app/routes/interview.py:1337
+msgid "Le fichier doit etre au format JSON."
+msgstr ""
+
+#: app/routes/interview.py:1346
+msgid "Format de fichier invalide."
+msgstr ""
+
+#: app/routes/interview.py:1413
+#, python-format
+msgid "Entretien \"%(title)s\" importe avec succes ! Il est inactif par defaut."
+msgstr ""
+
+#: app/routes/interview.py:1417
+msgid "Erreur de lecture du fichier JSON."
+msgstr ""
+
+#: app/routes/quiz.py:281 app/routes/quiz.py:574
+msgid "Ce quiz n'est plus disponible"
+msgstr ""
+
+#: app/routes/quiz.py:286
+msgid "Ce quiz n'est pas encore disponible"
+msgstr ""
+
+#: app/routes/quiz.py:290
+msgid "Ce quiz est ferme"
+msgstr ""
+
+#: app/routes/quiz.py:295 app/routes/quiz.py:578
+msgid "Ce quiz n'est pas disponible pour vos groupes"
+msgstr ""
+
+#: app/routes/quiz.py:305 app/routes/quiz.py:587
+msgid "Vous avez deja repondu a ce quiz"
+msgstr ""
+
+#: app/routes/quiz.py:533
+msgid "Quiz soumis avec succes !"
+msgstr ""
+
+#: app/routes/quiz.py:648 app/routes/quiz.py:683
+msgid "Resultat introuvable"
+msgstr ""
+
+#: app/routes/tenant.py:45
+msgid "Le slug est requis"
+msgstr ""
+
+#: app/routes/tenant.py:47
+msgid "Le slug doit faire entre 3 et 50 caracteres"
+msgstr ""
+
+#: app/routes/tenant.py:49
+msgid ""
+"Le slug doit commencer par une lettre et ne contenir que des lettres "
+"minuscules, chiffres et tirets"
+msgstr ""
+
+#: app/routes/tenant.py:51
+msgid "Le slug ne peut pas contenir deux tirets consecutifs"
+msgstr ""
+
+#: app/routes/tenant.py:84 app/routes/tenant.py:398
+msgid "Le nom est requis"
+msgstr ""
+
+#: app/routes/tenant.py:113
+msgid "Format de date invalide"
+msgstr ""
+
+#: app/routes/tenant.py:140
+#, python-format
+msgid "Tenant \"%(name)s\" cree avec succes"
+msgstr ""
+
+#: app/routes/tenant.py:227
+msgid "Format de date d'expiration invalide"
+msgstr ""
+
+#: app/routes/tenant.py:233
+msgid "Tenant mis a jour"
+msgstr ""
+
+#: app/routes/tenant.py:251
+msgid "Impossible de supprimer un tenant qui contient des groupes"
+msgstr ""
+
+#: app/routes/tenant.py:258
+#, python-format
+msgid "Tenant \"%(name)s\" supprime"
+msgstr ""
+
+#: app/routes/tenant.py:308
+msgid "Utilisateur non specifie"
+msgstr ""
+
+#: app/routes/tenant.py:319
+#, python-format
+msgid "%(username)s est maintenant admin du tenant"
+msgstr ""
+
+#: app/routes/tenant.py:341
+#, python-format
+msgid "%(username)s n'est plus admin du tenant"
+msgstr ""
+
+#: app/routes/tenant.py:389
+#, python-format
+msgid "Limite de groupes atteinte (%(max)s)"
+msgstr ""
+
+#: app/routes/tenant.py:411
+#, python-format
+msgid "Groupe \"%(name)s\" cree avec succes"
+msgstr ""
+
+#: app/templates/base.html:86 app/templates/base.html:154
+msgid "Theme"
+msgstr ""
+
+#: app/templates/base.html:91
+msgid "Langue"
+msgstr ""
+
+#: app/templates/base.html:106
+msgid "Deconnexion"
+msgstr ""
+
+#: app/templates/landing.html:8 private.example/landing.html:8
+#: private.example/landing.html:16
+msgid "Evaluation intelligente avec IA"
+msgstr ""
+
+#: app/templates/landing.html:9
+msgid ""
+"Plateforme d evaluation intelligente : quiz en Markdown, entretiens IA, "
+"correction automatisee. Open-source."
+msgstr ""
+
+#: app/templates/landing.html:14 private.example/landing.html:24
+msgid "Evaluation intelligente"
+msgstr ""
+
+#: app/templates/landing.html:15 private.example/landing.html:25
+msgid "Quiz en Markdown, entretiens IA, correction par Claude."
+msgstr ""
+
+#: app/templates/landing.html:29
+msgid "Plateforme d evaluation intelligente"
+msgstr ""
+
+#: app/templates/auth/login.html:31 app/templates/auth/register.html:60
+#: app/templates/landing.html:31 private.example/landing.html:50
+#: private.example/landing.html:61
+msgid "Se connecter"
+msgstr ""
+
+#: app/templates/landing.html:32 private.example/landing.html:51
+#: private.example/landing.html:62
+msgid "Creer un compte"
+msgstr ""
+
+#: app/templates/landing.html:42
+msgid "Pour personnaliser cette page, copiez"
+msgstr ""
+
+#: app/templates/landing.html:42
+msgid "vers"
+msgstr ""
+
+#: app/templates/landing.html:54
+msgid "Plateforme d evaluation intelligente avec correction IA"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:3
+#: app/templates/admin/class_analysis.html:186
+#: app/templates/admin/quiz_results.html:10
+msgid "Analyse de classe"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:192
+#: app/templates/admin/class_analysis.html:474
+#: app/templates/admin/class_analysis.html:479
+msgid "Lancer l'analyse IA"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:196
+msgid "Relancer l'analyse"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:205
+msgid "Etudiants"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:209
+#: app/templates/admin/interviews/view.html:37
+msgid "Duree moyenne"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:213
+#: app/templates/admin/interviews/view.html:33
+msgid "Score moyen"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:219
+#: app/templates/admin/response_analysis.html:253
+msgid "Pertes de focus"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:225
+msgid "Avec focus issues"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:234
+#: app/templates/admin/response_analysis.html:263
+msgid "Analyse pedagogique IA"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:247
+msgid "Points forts de la classe"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:259
+msgid "Notions a revoir en cours"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:263
+msgid "reussite"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:269
+msgid "Erreurs frequentes:"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:279
+msgid "Etudiants a accompagner"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:299
+msgid "Observations comportementales"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:310
+msgid "Explications possibles:"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:320
+msgid "Recommandations"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:341
+msgid ""
+"Cliquez sur \"Lancer l'analyse IA\" pour obtenir une analyse pedagogique "
+"de la classe."
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:349
+msgid "Statistiques par question"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:356
+#: app/templates/admin/settings.html:371 app/templates/quiz/dashboard.html:200
+msgid "Type"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:357
+#: app/templates/admin/response_analysis.html:324
+#: app/templates/admin/response_analysis.html:346
+#: app/templates/quiz/take_exam.html:467 app/templates/quiz/take_exam.html:545
+msgid "Question"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:358
+#: app/templates/admin/interviews/view.html:134
+#: app/templates/interview/result_pdf.html:181
+msgid "Points"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:359
+msgid "Temps moy"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:360
+msgid "Ecart-type"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:361
+msgid "Score moy"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:362
+#: app/templates/admin/class_analysis.html:402
+#: app/templates/admin/quiz_results.html:74
+#: app/templates/admin/response_analysis.html:348
+msgid "Focus"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:396
+msgid "Comparaison des etudiants"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:399
+#: app/templates/admin/interviews/session.html:133
+#: app/templates/admin/interviews/view.html:180
+msgid "Etudiant"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:400
+#: app/templates/admin/edit_response.html:88
+#: app/templates/admin/interviews/session.html:98
+#: app/templates/admin/interviews/view.html:184
+#: app/templates/admin/quiz_results.html:70
+#: app/templates/admin/response_analysis.html:247
+#: app/templates/admin/response_analysis.html:349
+#: app/templates/admin/user_grades.html:47
+#: app/templates/interview/result_pdf.html:177
+#: app/templates/quiz/dashboard.html:202
+msgid "Score"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:401
+#: app/templates/admin/interviews/session.html:102
+#: app/templates/admin/interviews/view.html:182
+#: app/templates/admin/user_grades.html:50
+msgid "Duree"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:403
+msgid "Temps par question (vert=rapide, rouge=lent)"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:431
+#: app/templates/admin/response_analysis.html:370
+msgid "moy:"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:442
+#: app/templates/admin/response_analysis.html:452
+msgid "Retour aux resultats"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:456
+#: app/templates/admin/response_analysis.html:469
+msgid "Analyse en cours..."
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:472
+#: app/templates/admin/create_quiz.html:315
+#: app/templates/admin/edit_quiz.html:323
+#: app/templates/admin/interviews/wizard.html:863
+#: app/templates/admin/response_analysis.html:486
+#: app/templates/admin/settings.html:308 app/templates/admin/settings.html:345
+#: app/templates/admin/settings.html:408 app/templates/admin/settings.html:413
+#: app/templates/admin/settings.html:421
+msgid "Erreur:"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:472
+#: app/templates/admin/response_analysis.html:486
+msgid "Erreur inconnue"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:477
+#: app/templates/admin/create_quiz.html:319
+#: app/templates/admin/edit_quiz.html:327
+#: app/templates/admin/response_analysis.html:491
+#: app/templates/interview/chat.html:269
+msgid "Erreur de connexion"
+msgstr ""
+
+#: app/templates/admin/create_group.html:3
+msgid "Créer un groupe - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/create_group.html:6
+msgid "Créer un nouveau groupe"
+msgstr ""
+
+#: app/templates/admin/create_group.html:9
+#: app/templates/admin/edit_group.html:9
+#: app/templates/admin/tenants/create_group.html:9
+msgid "Informations du groupe"
+msgstr ""
+
+#: app/templates/admin/create_group.html:12
+#: app/templates/admin/tenants/admins.html:12
+#: app/templates/admin/tenants/create.html:12
+#: app/templates/admin/tenants/create_group.html:12
+msgid "Information :"
+msgstr ""
+
+#: app/templates/admin/create_group.html:12
+msgid "Un code unique sera généré automatiquement pour ce groupe."
+msgstr ""
+
+#: app/templates/admin/create_group.html:13
+msgid ""
+"Les étudiants devront entrer ce code lors de l'inscription pour rejoindre"
+" le groupe."
+msgstr ""
+
+#: app/templates/admin/create_group.html:19
+#: app/templates/admin/edit_group.html:24
+#: app/templates/admin/interviews/wizard.html:262
+#: app/templates/quiz/list.html:88
+msgid "Organisation"
+msgstr ""
+
+#: app/templates/admin/create_group.html:29
+#: app/templates/admin/edit_group.html:34 app/templates/admin/users.html:23
+#: app/templates/quiz/list.html:39
+msgid "Rechercher une organisation..."
+msgstr ""
+
+#: app/templates/admin/create_group.html:44
+#: app/templates/admin/edit_group.html:49
+#: app/templates/admin/tenants/create_group.html:17
+msgid "Nom du groupe"
+msgstr ""
+
+#: app/templates/admin/create_group.html:46
+#: app/templates/admin/tenants/create_group.html:19
+msgid "Ex: Master 2024-2025, Licence Info L3, Promo 2024..."
+msgstr ""
+
+#: app/templates/admin/create_group.html:50
+#: app/templates/admin/edit_group.html:55
+#: app/templates/admin/interviews/wizard.html:248
+#: app/templates/admin/interviews/wizard.html:748
+#: app/templates/admin/tenants/create.html:32
+#: app/templates/admin/tenants/create_group.html:23
+#: app/templates/admin/tenants/edit.html:25
+msgid "Description"
+msgstr ""
+
+#: app/templates/admin/create_group.html:52
+#: app/templates/admin/tenants/create_group.html:25
+msgid "Description optionnelle du groupe..."
+msgstr ""
+
+#: app/templates/admin/create_group.html:56
+#: app/templates/admin/edit_group.html:60
+#: app/templates/admin/tenants/create_group.html:29
+msgid "Nombre maximum de membres"
+msgstr ""
+
+#: app/templates/admin/create_group.html:59
+#: app/templates/admin/edit_group.html:63
+#: app/templates/admin/tenants/create.html:52
+#: app/templates/admin/tenants/create_group.html:32
+msgid "0 = illimite"
+msgstr ""
+
+#: app/templates/admin/create_group.html:64
+#: app/templates/admin/tenants/create_group.html:37
+msgid "Creer le groupe"
+msgstr ""
+
+#: app/templates/admin/create_group.html:67
+#: app/templates/admin/create_quiz.html:250
+#: app/templates/admin/create_user.html:164
+#: app/templates/admin/edit_group.html:71
+#: app/templates/admin/edit_page.html:138
+#: app/templates/admin/edit_quiz.html:253
+#: app/templates/admin/edit_response.html:115
+#: app/templates/admin/edit_user.html:236
+#: app/templates/admin/email_group.html:58
+#: app/templates/admin/generate_quiz.html:86
+#: app/templates/admin/generate_quiz_preview.html:132
+#: app/templates/admin/import_users.html:59
+#: app/templates/admin/tenants/create.html:127
+#: app/templates/admin/tenants/create_group.html:40
+#: app/templates/admin/tenants/edit.html:170
+#: app/templates/auth/profile.html:230 app/templates/quiz/take.html:82
+msgid "Annuler"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:3
+msgid "Creer un quiz"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:6
+msgid "Creer un nouveau quiz"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:9
+msgid "Format Markdown"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:11
+msgid "Exemple de format :"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:30
+#: app/templates/admin/edit_quiz.html:24
+msgid "Images"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:33
+#: app/templates/admin/edit_quiz.html:27
+msgid "Uploadez des images puis inserez le code Markdown genere dans votre quiz."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:34
+#: app/templates/admin/edit_quiz.html:28
+msgid "Syntaxe:"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:39
+#: app/templates/admin/edit_quiz.html:33
+msgid "Ajouter une image"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:48
+#: app/templates/admin/edit_quiz.html:42
+msgid "Contenu Markdown"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:63
+#: app/templates/admin/edit_quiz.html:47
+#: app/templates/admin/generate_quiz_preview.html:21
+msgid "Limite de temps (optionnel)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:68
+#: app/templates/admin/edit_quiz.html:52
+#: app/templates/admin/generate_quiz_preview.html:25
+msgid "minutes (laisser vide pour illimite)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:73
+#: app/templates/admin/edit_quiz.html:57
+#: app/templates/admin/generate_quiz_preview.html:30
+msgid "Lien personnalise (optionnel)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:77
+#: app/templates/admin/edit_quiz.html:62
+#: app/templates/admin/generate_quiz_preview.html:34
+#: app/templates/admin/interviews/wizard.html:259
+msgid "Lettres minuscules, chiffres et tirets uniquement"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:80
+#: app/templates/admin/generate_quiz_preview.html:37
+msgid ""
+"Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID"
+" numerique."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:85
+#: app/templates/admin/edit_quiz.html:68
+#: app/templates/admin/generate_quiz_preview.html:42
+msgid "Periode de disponibilite (optionnel)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:88
+#: app/templates/admin/edit_quiz.html:71
+#: app/templates/admin/generate_quiz_preview.html:45
+#: app/templates/admin/interviews/view.html:106
+#: app/templates/admin/quizzes.html:80
+msgid "Du"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:93
+#: app/templates/admin/edit_quiz.html:77
+#: app/templates/admin/generate_quiz_preview.html:50
+#: app/templates/admin/interviews/view.html:107
+#: app/templates/admin/quizzes.html:83
+msgid "au"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:99
+#: app/templates/admin/edit_quiz.html:83
+#: app/templates/admin/generate_quiz_preview.html:56
+msgid "Laisser vide pour un quiz toujours disponible"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:104
+#: app/templates/admin/edit_quiz.html:87
+#: app/templates/admin/generate_quiz_preview.html:61
+msgid "Groupes autorises (optionnel)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:126
+#: app/templates/admin/create_quiz.html:268
+#: app/templates/admin/create_user.html:106
+#: app/templates/admin/create_user.html:204
+#: app/templates/admin/edit_quiz.html:110
+#: app/templates/admin/edit_quiz.html:278
+#: app/templates/admin/edit_user.html:157
+#: app/templates/admin/edit_user.html:289
+msgid "Tout selectionner"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:145
+#: app/templates/admin/edit_quiz.html:129
+msgid "Sans tenant"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:171
+#: app/templates/admin/edit_quiz.html:154
+#: app/templates/admin/generate_quiz_preview.html:71
+msgid ""
+"Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les "
+"utilisateurs"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:176
+#: app/templates/admin/edit_quiz.html:158
+#: app/templates/admin/generate_quiz_preview.html:76
+msgid "Severite de la correction IA"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:180
+#: app/templates/admin/edit_quiz.html:162
+#: app/templates/admin/generate_quiz_preview.html:80
+msgid "Gentil"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:184
+#: app/templates/admin/edit_quiz.html:166
+#: app/templates/admin/generate_quiz.html:60
+#: app/templates/admin/generate_quiz_preview.html:84
+msgid "Modere"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:188
+#: app/templates/admin/edit_quiz.html:170
+#: app/templates/admin/generate_quiz_preview.html:88
+msgid "Severe"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:192
+#: app/templates/admin/edit_quiz.html:173
+#: app/templates/admin/generate_quiz_preview.html:92
+msgid ""
+"Gentil = valorise les efforts, Modere = equilibre, Severe = exige "
+"precision"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:197
+#: app/templates/admin/edit_quiz.html:177
+#: app/templates/admin/generate_quiz_preview.html:97
+msgid "Humeur du correcteur (optionnel, plusieurs choix possibles)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:207
+#: app/templates/admin/edit_quiz.html:187
+#: app/templates/admin/generate_quiz_preview.html:107
+msgid "Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:211
+#: app/templates/admin/edit_quiz.html:190
+msgid "Options d'affichage"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:216
+#: app/templates/admin/edit_quiz.html:195
+#: app/templates/admin/generate_quiz_preview.html:114
+msgid "Ordre aleatoire des questions"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:219
+#: app/templates/admin/edit_quiz.html:197
+#: app/templates/admin/generate_quiz_preview.html:117
+msgid ""
+"Si active, les questions seront affichees dans un ordre different pour "
+"chaque etudiant"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:226
+#: app/templates/admin/edit_quiz.html:203
+msgid "Ordre aleatoire des reponses QCM"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:229
+#: app/templates/admin/edit_quiz.html:205
+msgid "Si active, les options de chaque QCM seront melangees pour chaque etudiant"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:233
+#: app/templates/admin/edit_quiz.html:208
+msgid "Mode Examen (Anti-triche)"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:238
+#: app/templates/admin/edit_quiz.html:213
+msgid "Une question par page"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:241
+#: app/templates/admin/edit_quiz.html:216
+msgid ""
+"Active le mode examen : navigation question par question, chronometrage "
+"individuel, detection des changements de fenetre. Ideal pour les "
+"evaluations surveillees."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:247
+#: app/templates/admin/generate_quiz_preview.html:123
+msgid "Creer le quiz"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:268
+#: app/templates/admin/create_user.html:204
+#: app/templates/admin/edit_quiz.html:278
+#: app/templates/admin/edit_user.html:289
+msgid "Tout deselectionner"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:279
+#: app/templates/admin/edit_quiz.html:289
+msgid "Upload en cours..."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:295
+#: app/templates/admin/edit_quiz.html:304
+msgid "Image ajoutee ! Code:"
+msgstr ""
+
+#: app/templates/admin/create_user.html:3
+msgid "Creer un utilisateur - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/create_user.html:6
+msgid "Creer un utilisateur"
+msgstr ""
+
+#: app/templates/admin/create_user.html:12
+#: app/templates/admin/edit_user.html:12 app/templates/auth/profile.html:18
+#: app/templates/auth/register.html:14
+msgid "Prenom"
+msgstr ""
+
+#: app/templates/admin/create_user.html:16
+#: app/templates/admin/edit_user.html:17
+#: app/templates/admin/interviews/wizard.html:743
+#: app/templates/auth/profile.html:23 app/templates/auth/register.html:18
+msgid "Nom"
+msgstr ""
+
+#: app/templates/admin/create_user.html:22
+#: app/templates/admin/edit_user.html:24 app/templates/admin/settings.html:76
+#: app/templates/auth/login.html:22 app/templates/auth/profile.html:29
+#: app/templates/auth/register.html:24
+msgid "Nom d'utilisateur"
+msgstr ""
+
+#: app/templates/admin/create_user.html:27
+#: app/templates/admin/edit_user.html:30
+#: app/templates/admin/group_users.html:32
+#: app/templates/admin/tenants/admins.html:22
+#: app/templates/admin/users.html:183 app/templates/auth/register.html:29
+msgid "Email"
+msgstr ""
+
+#: app/templates/admin/create_user.html:32 app/templates/admin/settings.html:82
+#: app/templates/auth/login.html:27 app/templates/auth/profile.html:80
+#: app/templates/auth/profile.html:218 app/templates/auth/register.html:47
+msgid "Mot de passe"
+msgstr ""
+
+#: app/templates/admin/create_user.html:38
+#: app/templates/admin/edit_user.html:73 app/templates/admin/users.html:188
+msgid "Role"
+msgstr ""
+
+#: app/templates/admin/create_user.html:42
+#: app/templates/admin/edit_user.html:127
+#: app/templates/admin/tenants/admins.html:21 app/templates/admin/users.html:60
+#: app/templates/admin/users.html:69 app/templates/admin/users.html:100
+#: app/templates/admin/users.html:250
+msgid "Utilisateur"
+msgstr ""
+
+#: app/templates/admin/create_user.html:46
+#: app/templates/admin/edit_user.html:88
+msgid "Administrateur de groupe"
+msgstr ""
+
+#: app/templates/admin/create_user.html:50
+#: app/templates/admin/edit_user.html:83
+msgid "Administrateur d'organisation"
+msgstr ""
+
+#: app/templates/admin/create_user.html:54
+#: app/templates/admin/edit_user.html:78
+msgid "Super-administrateur"
+msgstr ""
+
+#: app/templates/admin/create_user.html:58
+msgid ""
+"Super-admin: acces total. Admin organisation: gere une ou plusieurs "
+"organisations. Admin groupe: gere ses groupes assignes."
+msgstr ""
+
+#: app/templates/admin/create_user.html:64
+#: app/templates/admin/edit_user.html:98
+msgid "Organisations a administrer"
+msgstr ""
+
+#: app/templates/admin/create_user.html:77
+#: app/templates/admin/edit_user.html:112
+msgid "Selectionnez les organisations que cet administrateur pourra gerer."
+msgstr ""
+
+#: app/templates/admin/create_user.html:84
+#: app/templates/admin/dashboard.html:33 app/templates/admin/dashboard.html:173
+#: app/templates/admin/edit_user.html:135
+#: app/templates/admin/interviews/wizard.html:277
+#: app/templates/admin/tenants/list.html:38
+#: app/templates/admin/tenants/list.html:45
+#: app/templates/admin/tenants/view.html:11
+#: app/templates/admin/tenants/view.html:122
+msgid "Groupes"
+msgstr ""
+
+#: app/templates/admin/create_user.html:125
+#: app/templates/admin/edit_user.html:183
+msgid "Sans organisation"
+msgstr ""
+
+#: app/templates/admin/create_user.html:149
+#: app/templates/admin/edit_user.html:221
+msgid "Aucun groupe disponible"
+msgstr ""
+
+#: app/templates/admin/create_user.html:154
+#: app/templates/admin/edit_user.html:226
+msgid "Selectionnez un ou plusieurs groupes pour l'utilisateur."
+msgstr ""
+
+#: app/templates/admin/create_user.html:155
+#: app/templates/admin/edit_user.html:227
+msgid ""
+"Les super-administrateurs et admins d'organisation n'ont pas besoin de "
+"groupes."
+msgstr ""
+
+#: app/templates/admin/create_user.html:161
+msgid "Creer l'utilisateur"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:3
+msgid "Dashboard Admin - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:6
+msgid "Dashboard Administrateur"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:12
+msgid "Configuration par defaut detectee"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:25
+msgid "Quiz créés"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:29 app/templates/admin/dashboard.html:165
+#: app/templates/admin/interviews/list.html:3
+#: app/templates/admin/interviews/list.html:7
+#: app/templates/interview/list.html:3 app/templates/interview/list.html:8
+#: app/templates/quiz/dashboard.html:24 app/templates/quiz/dashboard.html:194
+msgid "Entretiens"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:37 app/templates/admin/group_users.html:3
+#: app/templates/admin/groups.html:67
+#: app/templates/admin/tenants/groups.html:42
+#: app/templates/admin/tenants/list.html:36
+#: app/templates/admin/tenants/view.html:19
+msgid "Utilisateurs"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:41
+msgid "Réponses soumises"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:48
+msgid "correction(s) en attente ou en cours"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:55
+msgid "Entretiens recents"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:56 app/templates/admin/dashboard.html:93
+msgid "Voir tout"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:65
+msgid "a passe"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:77
+#: app/templates/admin/interviews/session.html:113
+#: app/templates/admin/interviews/view.html:219
+#: app/templates/quiz/dashboard.html:239
+msgid "En cours"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:79
+#: app/templates/admin/interviews/session.html:115
+#: app/templates/admin/interviews/view.html:221
+#: app/templates/quiz/dashboard.html:241
+msgid "Evaluation"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:92
+msgid "Mes Groupes"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:101
+msgid "Copier le code"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:106
+#: app/templates/admin/edit_group.html:63 app/templates/admin/groups.html:46
+#: app/templates/admin/tenants/groups.html:24
+#: app/templates/admin/tenants/view.html:136
+msgid "membre(s)"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:117 app/templates/quiz/dashboard.html:112
+msgid "Activite recente"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:126
+msgid "a soumis"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:147
+msgid "Actions rapides"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:153
+msgid "Voir les Quiz"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:157
+msgid "Nouveau Quiz"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:161
+msgid "Generator IA"
+msgstr ""
+
+#: app/templates/admin/dashboard.html:169
+msgid "Nouvel Entretien"
+msgstr ""
+
+#: app/templates/admin/edit_group.html:3 app/templates/admin/edit_page.html:3
+#: app/templates/admin/edit_quiz.html:3 app/templates/admin/edit_user.html:3
+#: app/templates/admin/groups.html:70
+#: app/templates/admin/interviews/list.html:121
+#: app/templates/admin/interviews/view.html:13
+#: app/templates/admin/interviews/wizard.html:3
+#: app/templates/admin/interviews/wizard.html:171
+#: app/templates/admin/pages.html:65 app/templates/admin/preview_quiz.html:18
+#: app/templates/admin/quizzes.html:114 app/templates/admin/tenants/edit.html:3
+#: app/templates/admin/tenants/groups.html:45
+#: app/templates/admin/tenants/list.html:51
+#: app/templates/admin/tenants/quizzes.html:48
+#: app/templates/admin/tenants/view.html:72
+#: app/templates/admin/tenants/view.html:144 app/templates/admin/users.html:270
+msgid "Modifier"
+msgstr ""
+
+#: app/templates/admin/edit_group.html:6
+msgid "Modifier le groupe"
+msgstr ""
+
+#: app/templates/admin/edit_group.html:12
+msgid "Code du groupe :"
+msgstr ""
+
+#: app/templates/admin/edit_group.html:17
+msgid "Le code ne peut pas être modifié pour des raisons de sécurité."
+msgstr ""
+
+#: app/templates/admin/edit_group.html:63
+msgid "Actuellement :"
+msgstr ""
+
+#: app/templates/admin/edit_group.html:68
+#: app/templates/admin/edit_page.html:130
+#: app/templates/admin/edit_quiz.html:250
+#: app/templates/admin/edit_response.html:112
+#: app/templates/admin/edit_user.html:233
+#: app/templates/admin/interviews/session.html:270
+#: app/templates/admin/interviews/wizard.html:568
+#: app/templates/admin/tenants/edit.html:167 app/templates/auth/profile.html:34
+msgid "Enregistrer"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:3
+msgid "Nouvelle"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:3
+msgid "page"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:6
+msgid "Modifier la page"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:6 app/templates/admin/pages.html:9
+msgid "Nouvelle page"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:14
+msgid "Contenu"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:18
+#: app/templates/admin/interviews/wizard.html:241
+#: app/templates/admin/pages.html:18 app/templates/quiz/dashboard.html:201
+msgid "Titre"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:21
+msgid "Ex: Mentions legales"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:25
+#: app/templates/admin/interviews/wizard.html:255
+#: app/templates/admin/tenants/create.html:24
+#: app/templates/admin/tenants/edit.html:19
+msgid "Slug (URL)"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:32
+msgid "Laissez vide pour generer automatiquement depuis le titre"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:36
+msgid "Contenu (Markdown)"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:48
+msgid ""
+"Supporte le Markdown : titres (#), gras (**), italique (*), liens, "
+"listes, tableaux, code"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:58
+msgid "Options"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:64
+msgid "Page publiee"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:66
+msgid "Les pages non publiees ne sont pas visibles"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:70
+msgid "Afficher dans"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:72
+msgid "Footer uniquement"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:73
+msgid "Menu uniquement"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:74
+msgid "Menu et Footer"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:75
+msgid "Aucun (accessible par URL)"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:80
+msgid "Ordre d'affichage"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:83
+msgid "Plus petit = affiche en premier"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:89
+msgid "Ouvrir dans un nouvel onglet"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:97
+msgid "Aide Markdown"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:130
+msgid "Creer la page"
+msgstr ""
+
+#: app/templates/admin/edit_page.html:134 app/templates/admin/pages.html:61
+msgid "Apercu"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:6
+#: app/templates/admin/preview_quiz.html:125
+msgid "Modifier le quiz"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:10
+msgid "Lien de partage"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:13
+msgid "Copier dans le presse-papier"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:14
+#: app/templates/admin/generate_quiz_preview.html:129
+msgid "Copier"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:16
+msgid "Voir le quiz"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:17
+msgid "Preview"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:64
+msgid "Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:221
+msgid "Administration"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:224
+msgid "Auteur du quiz"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:228
+msgid "Selectionner un auteur"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:233
+msgid "Rechercher un utilisateur..."
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:244
+msgid "L'auteur affiche sur le dashboard et dans les stats"
+msgstr ""
+
+#: app/templates/admin/edit_quiz.html:265
+msgid "Lien copie !"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:3
+#: app/templates/admin/edit_response.html:6
+msgid "Modifier les scores"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:9
+#: app/templates/admin/interviews/session.html:128
+#: app/templates/admin/interviews/wizard.html:204
+#: app/templates/admin/tenants/view.html:65
+msgid "Informations"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:12
+msgid "Etudiant:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:15
+msgid "Quiz:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:18
+msgid "Score actuel:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:22
+msgid "Soumis le:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:29
+msgid "Reponses et scores"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:37
+msgid "OUVERTE"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:39
+msgid "pt"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:47
+msgid "Options selectionnees:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:57
+msgid "Aucune selection"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:60
+msgid "Reponses correctes:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:68
+msgid "Reponse de l'etudiant:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:69
+msgid "(Aucune reponse)"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:73
+msgid "Reponse attendue:"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:79
+msgid "Feedback IA (modifiable)"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:102 app/templates/quiz/result.html:45
+msgid "Commentaire du correcteur"
+msgstr ""
+
+#: app/templates/admin/edit_response.html:105
+msgid "Ajoutez un commentaire pour l'etudiant (optionnel)..."
+msgstr ""
+
+#: app/templates/admin/edit_response.html:106
+msgid "Ce commentaire sera visible par l'etudiant sur sa copie."
+msgstr ""
+
+#: app/templates/admin/edit_user.html:6
+msgid "Modifier l'utilisateur"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:36 app/templates/auth/profile.html:51
+msgid "Verifie"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:40 app/templates/auth/profile.html:55
+msgid "Non verifie"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:49 app/templates/admin/users.html:220
+msgid "Email non verifie"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:53
+msgid "Verifier manuellement"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:56
+msgid "Renvoyer email"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:60
+msgid ""
+"Verifier manuellement permet a l'utilisateur de se connecter sans cliquer"
+" sur le lien email."
+msgstr ""
+
+#: app/templates/admin/edit_user.html:66 app/templates/auth/profile.html:90
+#: app/templates/auth/reset_password.html:9
+#: app/templates/auth/reset_password.html:17
+msgid "Nouveau mot de passe"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:68
+msgid "Laisser vide pour ne pas modifier"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:92
+msgid ""
+"Super-admin: acces total. Admin organisation: gere ses organisations "
+"assignees. Admin groupe: gere ses groupes assignes."
+msgstr ""
+
+#: app/templates/admin/edit_user.html:118
+msgid "Role actuel"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:121 app/templates/admin/users.html:60
+#: app/templates/admin/users.html:66 app/templates/admin/users.html:100
+#: app/templates/admin/users.html:244
+msgid "Super-Admin"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:123 app/templates/admin/users.html:60
+#: app/templates/admin/users.html:67 app/templates/admin/users.html:100
+#: app/templates/admin/users.html:246
+msgid "Admin organisation"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:125 app/templates/admin/users.html:60
+#: app/templates/admin/users.html:68 app/templates/admin/users.html:100
+#: app/templates/admin/users.html:248
+msgid "Admin groupe"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:130
+msgid "Seuls les super-administrateurs peuvent modifier les roles."
+msgstr ""
+
+#: app/templates/admin/edit_user.html:170
+#: app/templates/admin/edit_user.html:195
+#: app/templates/admin/edit_user.html:215 app/templates/admin/users.html:231
+msgid "admin"
+msgstr ""
+
+#: app/templates/admin/edit_user.html:170
+#: app/templates/admin/edit_user.html:195
+#: app/templates/admin/edit_user.html:215
+msgid "membre"
+msgstr ""
+
+#: app/templates/admin/email_group.html:3
+msgid "Email au groupe"
+msgstr ""
+
+#: app/templates/admin/email_group.html:6 app/templates/admin/groups.html:61
+#: app/templates/admin/tenants/groups.html:36
+msgid "Envoyer un email"
+msgstr ""
+
+#: app/templates/admin/email_group.html:10
+#: app/templates/admin/interviews/list.html:61
+#: app/templates/admin/quizzes.html:60 app/templates/admin/users.html:98
+msgid "Groupe:"
+msgstr ""
+
+#: app/templates/admin/email_group.html:14
+msgid "destinataire(s) avec email"
+msgstr ""
+
+#: app/templates/admin/email_group.html:22
+msgid "et"
+msgstr ""
+
+#: app/templates/admin/email_group.html:22
+msgid "autre(s)"
+msgstr ""
+
+#: app/templates/admin/email_group.html:26
+msgid "Aucun utilisateur avec email dans ce groupe."
+msgstr ""
+
+#: app/templates/admin/email_group.html:35
+msgid "Composer le message"
+msgstr ""
+
+#: app/templates/admin/email_group.html:38
+msgid "Sujet"
+msgstr ""
+
+#: app/templates/admin/email_group.html:40
+msgid "Sujet de l'email"
+msgstr ""
+
+#: app/templates/admin/email_group.html:43
+msgid "Message"
+msgstr ""
+
+#: app/templates/admin/email_group.html:45
+msgid "Votre message..."
+msgstr ""
+
+#: app/templates/admin/email_group.html:47
+msgid "Variables disponibles:"
+msgstr ""
+
+#: app/templates/admin/email_group.html:54
+msgid "Envoyer cet email a"
+msgstr ""
+
+#: app/templates/admin/email_group.html:54
+msgid "destinataire(s) ?"
+msgstr ""
+
+#: app/templates/admin/email_group.html:55
+msgid "Envoyer"
+msgstr ""
+
+#: app/templates/admin/email_group.html:65
+#: app/templates/admin/interviews/import.html:9
+#: app/templates/admin/interviews/session.html:83
+#: app/templates/admin/interviews/view.html:16
+#: app/templates/admin/settings.html:245 app/templates/interview/start.html:95
+msgid "Retour"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:3
+msgid "Generer un quiz - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:6 app/templates/admin/quizzes.html:9
+msgid "Generer un quiz par IA"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:9
+msgid "Comment ca marche"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:12
+msgid "Uploadez un fichier de cours (PDF, DOCX, ou Markdown)"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:13
+msgid "Definissez le nombre de questions souhaitees"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:14
+msgid "L'IA analyse le contenu et genere des questions pertinentes"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:15
+msgid "Verifiez et ajustez le quiz genere avant de le publier"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:21
+msgid "Titre du quiz"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:23
+msgid "Ex: Quiz - Chapitre 3 : Les fonctions"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:27
+msgid "Fichier de cours"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:31
+msgid "Formats acceptes: PDF, DOCX, Markdown (.md), Texte (.txt) - Max 16 Mo"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:37
+msgid "Questions QCM"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:40
+msgid "0 a 20 questions"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:44
+msgid "Questions ouvertes"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:47
+msgid "0 a 10 questions"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:52
+msgid "Niveau de difficulte"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:56
+msgid "Facile"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:64
+msgid "Difficile"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:68
+msgid ""
+"Facile = comprehension de base, Modere = application, Difficile = analyse"
+" et synthese"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:73
+msgid "Precisions pour le generateur (optionnel)"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:75
+msgid ""
+"Ex: Concentre-toi sur le chapitre 3, evite les questions sur les dates, "
+"inclus des questions pratiques sur le code..."
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:77
+msgid ""
+"Donnez des indications supplementaires pour guider la generation des "
+"questions"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:83
+msgid "Generer le quiz"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:95
+#: app/templates/admin/interviews/wizard.html:578
+msgid "Generation en cours..."
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:97
+msgid "L'IA analyse votre document et genere les questions."
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:98
+msgid "Cela peut prendre 10 a 30 secondes selon la taille du fichier."
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:114
+msgid "Vous devez generer au moins une question (QCM ou ouverte)"
+msgstr ""
+
+#: app/templates/admin/generate_quiz.html:121
+msgid "Generation..."
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:3
+msgid "Quiz genere"
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:6
+msgid "Quiz genere :"
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:9
+msgid "Quiz genere avec succes !"
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:9
+msgid "Verifiez et modifiez le contenu si necessaire avant de creer le quiz."
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:13
+msgid "Contenu genere (modifiable)"
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:126
+msgid "Regenerer"
+msgstr ""
+
+#: app/templates/admin/generate_quiz_preview.html:140
+msgid "Markdown copie dans le presse-papiers !"
+msgstr ""
+
+#: app/templates/admin/group_users.html:6
+msgid "Utilisateurs du groupe :"
+msgstr ""
+
+#: app/templates/admin/group_users.html:13 app/templates/admin/groups.html:45
+#: app/templates/admin/tenants/groups.html:23
+#: app/templates/admin/tenants/view.html:135
+msgid "Code:"
+msgstr ""
+
+#: app/templates/admin/group_users.html:18
+msgid "Utilisateur(s)"
+msgstr ""
+
+#: app/templates/admin/group_users.html:24 app/templates/admin/users.html:10
+msgid "Liste des utilisateurs"
+msgstr ""
+
+#: app/templates/admin/group_users.html:30 app/templates/admin/users.html:171
+msgid "Nom complet"
+msgstr ""
+
+#: app/templates/admin/group_users.html:31 app/templates/admin/users.html:177
+msgid "Identifiant"
+msgstr ""
+
+#: app/templates/admin/group_users.html:33
+msgid "Inscrit le"
+msgstr ""
+
+#: app/templates/admin/group_users.html:34
+msgid "Quiz complétés"
+msgstr ""
+
+#: app/templates/admin/group_users.html:55
+msgid "Aucun utilisateur dans ce groupe."
+msgstr ""
+
+#: app/templates/admin/group_users.html:62
+msgid "Retour aux groupes"
+msgstr ""
+
+#: app/templates/admin/groups.html:3
+msgid "Gestion des groupes - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/groups.html:6
+msgid "Gestion des groupes"
+msgstr ""
+
+#: app/templates/admin/groups.html:10
+msgid "Liste des groupes"
+msgstr ""
+
+#: app/templates/admin/groups.html:12 app/templates/admin/groups.html:23
+#: app/templates/admin/tenants/groups.html:11
+msgid "Creer un nouveau groupe"
+msgstr ""
+
+#: app/templates/admin/groups.html:13 app/templates/admin/groups.html:19
+#: app/templates/admin/groups.html:24
+#: app/templates/admin/tenants/groups.html:12
+#: app/templates/admin/tenants/list.html:12 app/templates/admin/users.html:88
+msgid "Nouveau"
+msgstr ""
+
+#: app/templates/admin/groups.html:18
+#: app/templates/admin/tenants/create_group.html:6
+msgid "Creer un groupe dans"
+msgstr ""
+
+#: app/templates/admin/groups.html:47 app/templates/admin/settings.html:376
+#: app/templates/admin/tenants/groups.html:25
+msgid "Complet"
+msgstr ""
+
+#: app/templates/admin/groups.html:48 app/templates/admin/quizzes.html:76
+#: app/templates/admin/tenants/groups.html:26
+#: app/templates/admin/tenants/list.html:26
+#: app/templates/admin/tenants/quizzes.html:21
+msgid "Cree le"
+msgstr ""
+
+#: app/templates/admin/groups.html:50
+#: app/templates/admin/interviews/list.html:85
+#: app/templates/admin/interviews/view.html:61
+#: app/templates/admin/interviews/wizard.html:455
+#: app/templates/admin/quizzes.html:87
+#: app/templates/admin/tenants/groups.html:28
+#: app/templates/admin/tenants/list.html:28
+#: app/templates/admin/tenants/quizzes.html:25
+#: app/templates/admin/tenants/view.html:80
+#: app/templates/admin/tenants/view.html:137
+msgid "Actif"
+msgstr ""
+
+#: app/templates/admin/groups.html:50
+#: app/templates/admin/interviews/list.html:86
+#: app/templates/admin/interviews/view.html:66
+#: app/templates/admin/quizzes.html:87
+#: app/templates/admin/tenants/groups.html:28
+#: app/templates/admin/tenants/list.html:28
+#: app/templates/admin/tenants/quizzes.html:25
+#: app/templates/admin/tenants/view.html:80
+#: app/templates/admin/tenants/view.html:137
+msgid "Inactif"
+msgstr ""
+
+#: app/templates/admin/groups.html:64
+msgid "Exporter résultats CSV"
+msgstr ""
+
+#: app/templates/admin/groups.html:74
+#: app/templates/admin/interviews/list.html:126
+#: app/templates/admin/quizzes.html:125
+#: app/templates/admin/tenants/groups.html:49
+msgid "Desactiver"
+msgstr ""
+
+#: app/templates/admin/groups.html:74
+#: app/templates/admin/interviews/list.html:126
+#: app/templates/admin/quizzes.html:125 app/templates/admin/settings.html:54
+#: app/templates/admin/tenants/groups.html:49
+msgid "Activer"
+msgstr ""
+
+#: app/templates/admin/groups.html:79
+#: app/templates/admin/tenants/groups.html:54
+msgid "ce groupe"
+msgstr ""
+
+#: app/templates/admin/groups.html:80
+#: app/templates/admin/interviews/list.html:133
+#: app/templates/admin/interviews/view.html:234
+#: app/templates/admin/pages.html:71 app/templates/admin/quiz_results.html:164
+#: app/templates/admin/quizzes.html:132
+#: app/templates/admin/tenants/groups.html:55
+#: app/templates/admin/tenants/list.html:57
+#: app/templates/admin/user_grades.html:92 app/templates/admin/users.html:145
+#: app/templates/admin/users.html:275
+msgid "Supprimer"
+msgstr ""
+
+#: app/templates/admin/groups.html:90
+msgid "Aucun groupe disponible."
+msgstr ""
+
+#: app/templates/admin/groups.html:92 app/templates/admin/groups.html:96
+#: app/templates/admin/tenants/groups.html:65
+msgid "Creez votre premier groupe"
+msgstr ""
+
+#: app/templates/admin/groups.html:105
+#: app/templates/admin/preview_quiz.html:131
+#: app/templates/admin/quiz_results.html:183
+#: app/templates/admin/tenants/list.html:75
+#: app/templates/admin/tenants/view.html:166
+msgid "Retour au dashboard"
+msgstr ""
+
+#: app/templates/admin/import_users.html:3
+msgid "Importer des utilisateurs - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/import_users.html:6
+msgid "Importer des utilisateurs"
+msgstr ""
+
+#: app/templates/admin/import_users.html:9
+msgid "Format du fichier CSV"
+msgstr ""
+
+#: app/templates/admin/import_users.html:11
+msgid "Le fichier CSV doit utiliser le"
+msgstr ""
+
+#: app/templates/admin/import_users.html:11
+msgid "point-virgule (;)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:11
+msgid "comme separateur et contenir les colonnes suivantes :"
+msgstr ""
+
+#: app/templates/admin/import_users.html:13
+#: app/templates/admin/import_users.html:14
+#: app/templates/admin/import_users.html:15
+#: app/templates/admin/import_users.html:16
+#: app/templates/admin/import_users.html:17
+msgid "ou"
+msgstr ""
+
+#: app/templates/admin/import_users.html:13
+msgid "Identifiant de connexion (optionnel si email present)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:14
+msgid "Adresse email (optionnel si username present)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:15
+msgid "Prenom (optionnel)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:16
+msgid "Nom de famille (optionnel)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:17
+msgid "Mot de passe (optionnel si mot de passe par defaut defini)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:20
+msgid "Exemple :"
+msgstr ""
+
+#: app/templates/admin/import_users.html:29 app/templates/admin/users.html:85
+msgid "Import"
+msgstr ""
+
+#: app/templates/admin/import_users.html:32
+msgid "Fichier CSV"
+msgstr ""
+
+#: app/templates/admin/import_users.html:37
+msgid "Groupe de destination"
+msgstr ""
+
+#: app/templates/admin/import_users.html:39
+msgid "Selectionnez un groupe"
+msgstr ""
+
+#: app/templates/admin/import_users.html:44
+msgid "Tous les utilisateurs importes seront ajoutes a ce groupe."
+msgstr ""
+
+#: app/templates/admin/import_users.html:48
+msgid "Mot de passe par defaut (optionnel)"
+msgstr ""
+
+#: app/templates/admin/import_users.html:50
+msgid "Utilise si le CSV ne contient pas de colonne password"
+msgstr ""
+
+#: app/templates/admin/import_users.html:51
+msgid "Ce mot de passe sera utilise pour les lignes sans mot de passe defini."
+msgstr ""
+
+#: app/templates/admin/import_users.html:56
+#: app/templates/admin/interviews/import.html:41
+#: app/templates/admin/interviews/list.html:10
+msgid "Importer"
+msgstr ""
+
+#: app/templates/admin/pages.html:3 app/templates/admin/pages.html:7
+#: app/templates/admin/settings.html:34
+msgid "Pages personnalisees"
+msgstr ""
+
+#: app/templates/admin/pages.html:19 app/templates/admin/tenants/list.html:23
+msgid "Slug"
+msgstr ""
+
+#: app/templates/admin/pages.html:20
+msgid "Emplacement"
+msgstr ""
+
+#: app/templates/admin/pages.html:21
+msgid "Ordre"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:120
+#: app/templates/admin/interviews/view.html:57
+#: app/templates/admin/interviews/view.html:185
+#: app/templates/admin/interviews/wizard.html:452
+#: app/templates/admin/pages.html:22 app/templates/admin/settings.html:177
+#: app/templates/admin/user_grades.html:51
+msgid "Statut"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:186
+#: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:76
+#: app/templates/admin/tenants/admins.html:23
+#: app/templates/admin/users.html:195
+msgid "Actions"
+msgstr ""
+
+#: app/templates/admin/pages.html:37 app/templates/admin/pages.html:41
+msgid "Menu"
+msgstr ""
+
+#: app/templates/admin/pages.html:39 app/templates/admin/pages.html:42
+msgid "Footer"
+msgstr ""
+
+#: app/templates/admin/pages.html:44 app/templates/admin/user_grades.html:13
+msgid "Aucun"
+msgstr ""
+
+#: app/templates/admin/pages.html:47
+msgid "Ouvre dans un nouvel onglet"
+msgstr ""
+
+#: app/templates/admin/pages.html:53
+msgid "Publiee"
+msgstr ""
+
+#: app/templates/admin/pages.html:55
+msgid "Brouillon"
+msgstr ""
+
+#: app/templates/admin/pages.html:70
+msgid "Supprimer cette page ?"
+msgstr ""
+
+#: app/templates/admin/pages.html:84
+msgid "Aucune page personnalisee pour le moment."
+msgstr ""
+
+#: app/templates/admin/pages.html:87
+msgid "Creer votre premiere page"
+msgstr ""
+
+#: app/templates/admin/pages.html:95
+msgid "Retour aux parametres"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:3
+msgid "Preview:"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:8
+msgid "Mode Preview"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:10
+msgid ""
+"Visualisation du quiz comme un etudiant le verra (avec les reponses "
+"correctes visibles)"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:15
+msgid "Tester le quiz"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:21
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:29
+msgid "Vous avez déjà testé ce quiz."
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:30
+msgid "Voir les résultats"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:31
+msgid "ou cliquez sur \"Tester le quiz\" pour recommencer."
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:40 app/templates/quiz/take.html:22
+msgid "Temps limite :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:40
+#: app/templates/interview/result.html:157
+#: app/templates/interview/result_pdf.html:168
+#: app/templates/quiz/result.html:34 app/templates/quiz/take.html:22
+#: app/templates/quiz/take_exam.html:428
+msgid "minutes"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:51
+msgid "Informations du quiz :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:53
+msgid "Questions :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:54
+msgid "Points total :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:56
+msgid "Ordre aleatoire des questions active"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:59
+msgid "Disponibilite :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:60
+msgid "du"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:61
+msgid "jusqu'au"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:65
+#: app/templates/admin/preview_quiz.html:67
+msgid "Groupes :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:67
+msgid "Tous les utilisateurs"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:69
+msgid "Severite correction :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:69
+msgid "modere"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:77 app/templates/quiz/take.html:38
+#: app/templates/quiz/take_exam.html:500
+msgid "point(s)"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:94 app/templates/quiz/result.html:94
+msgid "Correct"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:102 app/templates/quiz/take.html:61
+#: app/templates/quiz/take_exam.html:523
+msgid "Plusieurs reponses possibles"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:107
+msgid "Zone de reponse de l'etudiant..."
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:111 app/templates/quiz/result.html:107
+msgid "Reponse attendue :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:116
+msgid "Attention :"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:116
+msgid "Pas de reponse attendue definie - l'IA notera sans reference"
+msgstr ""
+
+#: app/templates/admin/preview_quiz.html:128
+#: app/templates/interview/list.html:51
+msgid "Voir les resultats"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:115
+#: app/templates/admin/quiz_results.html:3 app/templates/admin/quizzes.html:111
+#: app/templates/admin/tenants/quizzes.html:45
+#: app/templates/interview/result.html:3
+msgid "Resultats"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:7 app/templates/quiz/result.html:18
+msgid "Resultats :"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:16
+msgid "Filtrer par groupe"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:27
+#: app/templates/admin/interviews/list.html:35
+#: app/templates/admin/interviews/list.html:98
+#: app/templates/admin/quiz_results.html:20 app/templates/admin/quizzes.html:26
+#: app/templates/admin/quizzes.html:34 app/templates/admin/quizzes.html:99
+#: app/templates/admin/users.html:38 app/templates/admin/users.html:46
+#: app/templates/quiz/list.html:56 app/templates/quiz/list.html:64
+msgid "Tous les groupes"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:29
+msgid "Reinitialiser le filtre"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:39
+msgid "Soumissions des étudiants"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:47
+msgid "soumission(s)"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:52
+msgid ""
+"Re-corriger toutes les questions ouvertes ? Les notes actuelles seront "
+"recalculées."
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:53
+msgid "Re-corriger les questions ouvertes"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:54
+msgid "Re-corriger"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:170
+#: app/templates/admin/quiz_results.html:57
+msgid "Telecharger les resultats"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:68
+msgid "Étudiant"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:69 app/templates/admin/users.html:187
+#: app/templates/quiz/list.html:90
+msgid "Groupe"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:71
+#: app/templates/admin/user_grades.html:48
+msgid "Pourcentage"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:72
+msgid "Durée"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:73
+msgid "Moy/Q"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:75
+msgid "Date de soumission"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:132
+msgid "perte(s) de focus"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:137
+msgid "action(s) bloquee(s)/detectee(s)"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:148
+#: app/templates/admin/user_grades.html:77
+msgid "En retard"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:153
+#: app/templates/admin/response_analysis.html:455
+#: app/templates/admin/user_grades.html:84
+msgid "Voir les reponses"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:156
+#: app/templates/admin/response_analysis.html:232
+msgid "Analyse detaillee"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:159
+#: app/templates/admin/user_grades.html:87
+msgid "Editer les notes"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:163
+#: app/templates/admin/user_grades.html:91
+msgid "cette reponse (l'utilisateur pourra repasser le quiz)"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:176
+msgid "Aucune soumission pour ce quiz."
+msgstr ""
+
+#: app/templates/admin/quizzes.html:3 app/templates/admin/quizzes.html:7
+#: app/templates/admin/tenants/list.html:37
+#: app/templates/admin/tenants/view.html:15
+#: app/templates/admin/user_grades.html:46 app/templates/quiz/dashboard.html:20
+#: app/templates/quiz/dashboard.html:193 app/templates/quiz/dashboard.html:210
+msgid "Quiz"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:10
+msgid "Generator"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:13
+msgid "Nouveau quiz"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:20 app/templates/quiz/list.html:3
+msgid "Mes Quiz"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:20 app/templates/admin/tenants/edit.html:46
+#: app/templates/admin/tenants/list.html:25
+#: app/templates/admin/tenants/quizzes.html:10 app/templates/quiz/list.html:80
+#: app/templates/quiz/list.html:91 app/templates/quiz/list.html:200
+msgid "quiz"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:32
+#: app/templates/admin/quizzes.html:31 app/templates/admin/users.html:43
+#: app/templates/admin/users.html:122 app/templates/quiz/list.html:61
+msgid "Rechercher un groupe..."
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:45
+#: app/templates/admin/quizzes.html:44 app/templates/admin/users.html:73
+msgid "Rechercher..."
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:47
+#: app/templates/admin/quizzes.html:46 app/templates/admin/users.html:75
+msgid "Rechercher"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:51
+#: app/templates/admin/quizzes.html:50 app/templates/admin/users.html:79
+#: app/templates/quiz/list.html:74
+msgid "Effacer filtres"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:63
+#: app/templates/admin/quizzes.html:62 app/templates/admin/users.html:102
+msgid "Recherche:"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:64
+#: app/templates/admin/quizzes.html:63 app/templates/admin/users.html:103
+msgid "resultat(s)"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:75
+#: app/templates/admin/tenants/quizzes.html:20
+#: app/templates/quiz/dashboard.html:46 app/templates/quiz/list.html:110
+msgid "questions"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:77
+#: app/templates/admin/tenants/quizzes.html:22
+msgid "par"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:91
+#: app/templates/admin/interviews/view.html:115
+#: app/templates/admin/quizzes.html:92
+#: app/templates/admin/tenants/quizzes.html:30
+msgid "Groupes:"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:108
+#: app/templates/admin/quizzes.html:104
+#: app/templates/admin/tenants/quizzes.html:38
+msgid "Copier le lien"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:108
+#: app/templates/admin/tenants/quizzes.html:42
+msgid "Previsualiser"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:119
+msgid "Dupliquer"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:130
+msgid "ce quiz"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:145
+#: app/templates/admin/quizzes.html:144 app/templates/admin/users.html:292
+msgid "Page precedente"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:161
+#: app/templates/admin/quizzes.html:160 app/templates/admin/users.html:308
+msgid "Page suivante"
+msgstr ""
+
+#: app/templates/admin/quizzes.html:170
+msgid "Aucun quiz trouve."
+msgstr ""
+
+#: app/templates/admin/quizzes.html:170
+msgid "Creez votre premier quiz"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:3
+msgid "Analyse"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:239
+msgid "Duree totale"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:243
+msgid "Temps moyen / question"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:266
+#: app/templates/admin/response_analysis.html:488
+#: app/templates/admin/response_analysis.html:493
+msgid "Lancer l'analyse"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:278
+msgid "RAS"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:278
+msgid "Attention faible"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:278
+msgid "Attention moderee"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:278
+msgid "Attention requise"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:280
+msgid "Confiance:"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:288
+msgid "Points forts"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:300
+msgid "Axes d'amelioration"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:319
+msgid "Indicateurs comportementaux"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:334
+msgid "Cliquez sur \"Lancer l'analyse\" pour obtenir un bilan pedagogique."
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:342
+msgid "Temps par question"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:347
+msgid "Temps"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:392
+msgid "Journal des evenements de surveillance"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:393
+msgid "evenement(s)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:403
+msgid "BLOQUE"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:405
+msgid "DETECTE"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:407
+msgid "SECU"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:413
+msgid "Clic droit bloque"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:415
+msgid "Touche F12 bloquee (DevTools)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:417
+msgid "Raccourci DevTools bloque (Ctrl+Shift+I)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:419
+msgid "Raccourci Console bloque (Ctrl+Shift+J)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:421
+msgid "Raccourci Inspecteur bloque (Ctrl+Shift+C)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:423
+msgid "Affichage source bloque (Ctrl+U)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:425
+msgid "Sauvegarde page bloquee (Ctrl+S)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:427
+msgid "Impression bloquee (Ctrl+P)"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:429
+msgid "Copie de question bloquee"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:431
+msgid "Collage detecte"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:431
+msgid "car."
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:433
+msgid "Ouverture DevTools detectee"
+msgstr ""
+
+#: app/templates/admin/response_analysis.html:435
+msgid "Capture d'ecran detectee"
+msgstr ""
+
+#: app/templates/admin/settings.html:3 app/templates/admin/settings.html:6
+msgid "Parametres du site"
+msgstr ""
+
+#: app/templates/admin/settings.html:12
+msgid "Identite du site"
+msgstr ""
+
+#: app/templates/admin/settings.html:16
+msgid "Nom du site"
+msgstr ""
+
+#: app/templates/admin/settings.html:19
+msgid "Affiche dans la barre de navigation et les titres de page"
+msgstr ""
+
+#: app/templates/admin/settings.html:23
+msgid "Email de contact"
+msgstr ""
+
+#: app/templates/admin/settings.html:26
+msgid "Email affiche pour le support et les notifications"
+msgstr ""
+
+#: app/templates/admin/settings.html:36
+msgid "Gerer les pages"
+msgstr ""
+
+#: app/templates/admin/settings.html:41
+msgid ""
+"Creez des pages personnalisees (mentions legales, CGU, a propos, etc.) en"
+" Markdown."
+msgstr ""
+
+#: app/templates/admin/settings.html:42
+msgid "Ces pages peuvent etre affichees dans le menu ou le footer du site."
+msgstr ""
+
+#: app/templates/admin/settings.html:50
+msgid "Sauvegardes automatiques"
+msgstr ""
+
+#: app/templates/admin/settings.html:62
+msgid "Serveur FTP"
+msgstr ""
+
+#: app/templates/admin/settings.html:68
+msgid "Port"
+msgstr ""
+
+#: app/templates/admin/settings.html:84
+msgid "Inchange"
+msgstr ""
+
+#: app/templates/admin/settings.html:84
+msgid "Non defini"
+msgstr ""
+
+#: app/templates/admin/settings.html:86
+msgid "Laissez vide pour conserver l'actuel"
+msgstr ""
+
+#: app/templates/admin/settings.html:92
+msgid "Chemin distant"
+msgstr ""
+
+#: app/templates/admin/settings.html:100
+msgid "Utiliser FTPS (TLS)"
+msgstr ""
+
+#: app/templates/admin/settings.html:102
+msgid "Recommande pour la securite"
+msgstr ""
+
+#: app/templates/admin/settings.html:108
+msgid "Tester la connexion"
+msgstr ""
+
+#: app/templates/admin/settings.html:116
+msgid "Planification"
+msgstr ""
+
+#: app/templates/admin/settings.html:120
+msgid "Frequence"
+msgstr ""
+
+#: app/templates/admin/settings.html:122
+msgid "Toutes les heures"
+msgstr ""
+
+#: app/templates/admin/settings.html:123
+msgid "Quotidien"
+msgstr ""
+
+#: app/templates/admin/settings.html:124
+msgid "Hebdomadaire"
+msgstr ""
+
+#: app/templates/admin/settings.html:129
+msgid "Heure (0-23)"
+msgstr ""
+
+#: app/templates/admin/settings.html:135
+msgid "Jour de la semaine"
+msgstr ""
+
+#: app/templates/admin/settings.html:137
+msgid "Lundi"
+msgstr ""
+
+#: app/templates/admin/settings.html:138
+msgid "Mardi"
+msgstr ""
+
+#: app/templates/admin/settings.html:139
+msgid "Mercredi"
+msgstr ""
+
+#: app/templates/admin/settings.html:140
+msgid "Jeudi"
+msgstr ""
+
+#: app/templates/admin/settings.html:141
+msgid "Vendredi"
+msgstr ""
+
+#: app/templates/admin/settings.html:142
+msgid "Samedi"
+msgstr ""
+
+#: app/templates/admin/settings.html:143
+msgid "Dimanche"
+msgstr ""
+
+#: app/templates/admin/settings.html:149
+msgid "Conservation (jours)"
+msgstr ""
+
+#: app/templates/admin/settings.html:152
+msgid "Les sauvegardes plus anciennes seront supprimees automatiquement"
+msgstr ""
+
+#: app/templates/admin/settings.html:158
+msgid "Prochaine sauvegarde prevue :"
+msgstr ""
+
+#: app/templates/admin/settings.html:168
+msgid "Derniere sauvegarde"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:181
+#: app/templates/admin/settings.html:173 app/templates/admin/settings.html:371
+#: app/templates/admin/user_grades.html:49
+#: app/templates/quiz/dashboard.html:203
+msgid "Date"
+msgstr ""
+
+#: app/templates/admin/settings.html:179
+msgid "Succes"
+msgstr ""
+
+#: app/templates/admin/settings.html:181
+msgid "Echec"
+msgstr ""
+
+#: app/templates/admin/settings.html:185 app/templates/admin/settings.html:371
+msgid "Taille"
+msgstr ""
+
+#: app/templates/admin/settings.html:201
+msgid "Message:"
+msgstr ""
+
+#: app/templates/admin/settings.html:212
+msgid "Actions manuelles"
+msgstr ""
+
+#: app/templates/admin/settings.html:217
+msgid "Les sauvegardes incluent la"
+msgstr ""
+
+#: app/templates/admin/settings.html:217
+msgid "base de donnees"
+msgstr ""
+
+#: app/templates/admin/settings.html:217
+msgid "et les"
+msgstr ""
+
+#: app/templates/admin/settings.html:217
+msgid "fichiers uploades"
+msgstr ""
+
+#: app/templates/admin/settings.html:217
+msgid "(images, PDF des quiz)."
+msgstr ""
+
+#: app/templates/admin/settings.html:221
+msgid "Lancer une sauvegarde maintenant"
+msgstr ""
+
+#: app/templates/admin/settings.html:224 app/templates/admin/settings.html:427
+msgid "Voir l'historique"
+msgstr ""
+
+#: app/templates/admin/settings.html:231
+msgid "Historique des sauvegardes"
+msgstr ""
+
+#: app/templates/admin/settings.html:233 app/templates/admin/settings.html:359
+msgid "Chargement..."
+msgstr ""
+
+#: app/templates/admin/settings.html:242
+msgid "Enregistrer les parametres"
+msgstr ""
+
+#: app/templates/admin/settings.html:288
+msgid "Test en cours..."
+msgstr ""
+
+#: app/templates/admin/settings.html:320
+msgid "Lancer une sauvegarde maintenant ?"
+msgstr ""
+
+#: app/templates/admin/settings.html:323
+msgid "Sauvegarde en cours..."
+msgstr ""
+
+#: app/templates/admin/settings.html:368
+msgid "Aucune sauvegarde trouvee"
+msgstr ""
+
+#: app/templates/admin/settings.html:370
+msgid "Attention:"
+msgstr ""
+
+#: app/templates/admin/settings.html:370
+msgid "La restauration remplacera toutes les donnees actuelles!"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:165
+#: app/templates/admin/settings.html:371
+msgid "Fichier"
+msgstr ""
+
+#: app/templates/admin/settings.html:371
+#: app/templates/admin/user_grades.html:52
+#: app/templates/quiz/dashboard.html:204
+msgid "Action"
+msgstr ""
+
+#: app/templates/admin/settings.html:376
+msgid "Base de donnees + images"
+msgstr ""
+
+#: app/templates/admin/settings.html:376
+msgid "Base de donnees uniquement"
+msgstr ""
+
+#: app/templates/admin/settings.html:376
+msgid "BDD seule"
+msgstr ""
+
+#: app/templates/admin/settings.html:378 app/templates/admin/settings.html:410
+#: app/templates/admin/settings.html:415
+msgid "Restaurer"
+msgstr ""
+
+#: app/templates/admin/settings.html:387
+msgid ""
+"ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par "
+"celles du backup"
+msgstr ""
+
+#: app/templates/admin/settings.html:387
+msgid "Cette action est IRREVERSIBLE."
+msgstr ""
+
+#: app/templates/admin/settings.html:387
+msgid "Continuer ?"
+msgstr ""
+
+#: app/templates/admin/settings.html:388
+msgid ""
+"Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce "
+"backup ?"
+msgstr ""
+
+#: app/templates/admin/settings.html:391
+msgid "Restauration..."
+msgstr ""
+
+#: app/templates/admin/settings.html:405
+msgid "Restauration reussie!"
+msgstr ""
+
+#: app/templates/admin/settings.html:405
+msgid "La page va se recharger."
+msgstr ""
+
+#: app/templates/admin/settings.html:424
+msgid "Masquer l'historique"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:3
+#: app/templates/admin/user_grades.html:6
+msgid "Notes de"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:11
+msgid "Identifiant :"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:12
+msgid "Email :"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:13
+msgid "Groupe :"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:14
+msgid "Inscrit le :"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:17
+msgid "Retour aux utilisateurs"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:26
+msgid "Quiz completes"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:30
+msgid "Points totaux"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:34 app/templates/quiz/dashboard.html:16
+msgid "Moyenne generale"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:39
+msgid "Historique des quiz"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:79
+msgid "A temps"
+msgstr ""
+
+#: app/templates/admin/user_grades.html:106
+msgid "Cet utilisateur n'a pas encore complete de quiz."
+msgstr ""
+
+#: app/templates/admin/users.html:3
+msgid "Utilisateurs - BrainNotFound"
+msgstr ""
+
+#: app/templates/admin/users.html:6
+msgid "Gestion des utilisateurs"
+msgstr ""
+
+#: app/templates/admin/users.html:18 app/templates/admin/users.html:26
+#: app/templates/quiz/list.html:34 app/templates/quiz/list.html:42
+msgid "Toutes les organisations"
+msgstr ""
+
+#: app/templates/admin/users.html:60 app/templates/admin/users.html:65
+msgid "Tous les rôles"
+msgstr ""
+
+#: app/templates/admin/users.html:84
+msgid "Importer depuis CSV"
+msgstr ""
+
+#: app/templates/admin/users.html:87
+msgid "Creer un nouvel utilisateur"
+msgstr ""
+
+#: app/templates/admin/users.html:96
+msgid "Organisation:"
+msgstr ""
+
+#: app/templates/admin/users.html:100
+msgid "Rôle:"
+msgstr ""
+
+#: app/templates/admin/users.html:111
+msgid "selectionne(s)"
+msgstr ""
+
+#: app/templates/admin/users.html:117
+msgid "Choisir un groupe"
+msgstr ""
+
+#: app/templates/admin/users.html:134
+msgid "Ajouter au groupe"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:104 app/templates/admin/users.html:135
+msgid "Ajouter"
+msgstr ""
+
+#: app/templates/admin/users.html:137
+msgid "Retirer du groupe"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:37
+#: app/templates/admin/tenants/admins.html:38
+#: app/templates/admin/users.html:138
+msgid "Retirer"
+msgstr ""
+
+#: app/templates/admin/users.html:140
+msgid "Remplacer les groupes"
+msgstr ""
+
+#: app/templates/admin/users.html:141
+msgid "Remplacer"
+msgstr ""
+
+#: app/templates/admin/users.html:147
+msgid "Annuler la selection"
+msgstr ""
+
+#: app/templates/admin/users.html:191 app/templates/auth/profile.html:154
+msgid "Derniere connexion"
+msgstr ""
+
+#: app/templates/admin/users.html:236
+msgid "autres"
+msgstr ""
+
+#: app/templates/admin/users.html:255
+msgid "IP:"
+msgstr ""
+
+#: app/templates/admin/users.html:255
+msgid "Inconnue"
+msgstr ""
+
+#: app/templates/admin/users.html:259
+msgid "Jamais"
+msgstr ""
+
+#: app/templates/admin/users.html:265
+msgid "Notes"
+msgstr ""
+
+#: app/templates/admin/users.html:274
+msgid "cet utilisateur et toutes ses donnees"
+msgstr ""
+
+#: app/templates/admin/users.html:280
+msgid "vous"
+msgstr ""
+
+#: app/templates/admin/users.html:377
+msgid "Voulez-vous vraiment supprimer"
+msgstr ""
+
+#: app/templates/admin/users.html:377
+msgid "utilisateur(s) ? Cette action est irreversible."
+msgstr ""
+
+#: app/templates/admin/users.html:405
+msgid "Veuillez choisir un groupe"
+msgstr ""
+
+#: app/templates/admin/users.html:410
+msgid "ajouter au"
+msgstr ""
+
+#: app/templates/admin/users.html:411
+msgid "retirer du"
+msgstr ""
+
+#: app/templates/admin/users.html:412
+msgid "deplacer vers le"
+msgstr ""
+
+#: app/templates/admin/users.html:413
+msgid "modifier pour le"
+msgstr ""
+
+#: app/templates/admin/users.html:417
+msgid "Voulez-vous"
+msgstr ""
+
+#: app/templates/admin/users.html:417
+msgid "groupe"
+msgstr ""
+
+#: app/templates/admin/users.html:417
+msgid "pour"
+msgstr ""
+
+#: app/templates/admin/users.html:417
+msgid "utilisateur(s) ?"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:3
+#: app/templates/admin/interviews/import.html:7
+msgid "Importer un entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:15
+msgid "Fichier JSON"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:22
+msgid "Selectionnez un fichier d'export"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:24
+msgid "Fichier JSON exporte depuis un autre entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:30
+msgid "A savoir"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:32
+msgid "L'entretien importe sera"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:32
+msgid "inactif"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:32
+msgid "par defaut"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:33
+msgid "Les groupes ne sont pas importes (vous devrez les assigner)"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:34
+msgid "Les dates de disponibilite ne sont pas importees"
+msgstr ""
+
+#: app/templates/admin/interviews/import.html:35
+msgid "Si le slug existe deja, un suffixe sera ajoute"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:13
+msgid "Nouvel entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:21
+msgid "Mes Entretiens"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:21
+msgid "entretien(s)"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:78
+msgid "Personnage non defini"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:79
+msgid "session(s)"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:80
+#: app/templates/interview/list.html:25 app/templates/interview/start.html:165
+msgid "echanges max"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:85
+#: app/templates/admin/interviews/view.html:63
+msgid "Programme"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:103
+#: app/templates/admin/interviews/view.html:98
+#: app/templates/interview/list.html:27
+msgid "Fichier requis"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:112
+#: app/templates/admin/interviews/view.html:10
+msgid "Tester"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:118
+msgid "Exporter JSON"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:131
+msgid "cet entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:171
+msgid "Aucun entretien trouve."
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:171
+#: app/templates/admin/interviews/list.html:179
+msgid "Creez votre premier entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/list.html:179
+msgid "Aucun entretien cree."
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:3
+#: app/templates/admin/interviews/session.html:65
+msgid "Session de"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:71
+msgid "Export PDF"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:75
+msgid "Relancer l'evaluation ? Les scores actuels seront supprimes."
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:77
+msgid "Relancer l'evaluation IA"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:78
+msgid "Re-evaluer"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:106
+#: app/templates/admin/interviews/view.html:183
+#: app/templates/interview/result_pdf.html:185
+msgid "Echanges"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:111
+#: app/templates/admin/interviews/view.html:217
+#: app/templates/interview/list.html:49
+msgid "Complete"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:142
+msgid "Debut"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:147
+msgid "Fin"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:153
+msgid "Raison de fin"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:155
+msgid "L'etudiant a termine"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:156
+msgid "Conclusion naturelle"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:157
+msgid "Limite atteinte"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:158
+msgid "Temps ecoule"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:171
+msgid "Mode"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:172
+msgid "TEST"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:182
+#: app/templates/quiz/grading.html:189
+msgid "Score:"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:204
+msgid "Evaluation non disponible"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:214
+msgid "Synthese de l'IA"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:226
+msgid "Fichier fourni:"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:237
+msgid "Transcription"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:247
+#: app/templates/admin/interviews/view.html:50
+#: app/templates/interview/result.html:211
+#: app/templates/interview/result_pdf.html:235
+msgid "Personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:261
+msgid "Commentaire administrateur"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:267
+msgid "Ajouter un commentaire..."
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:25
+msgid "Sessions totales"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:29
+msgid "Completees"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:45
+msgid "Details"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:72
+msgid "URL"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:77
+#: app/templates/admin/interviews/wizard.html:442
+msgid "Max interactions"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:81
+msgid "Duree max"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:85
+msgid "Qui commence"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:86
+#: app/templates/admin/interviews/wizard.html:483
+msgid "L'etudiant"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:86
+msgid "Le personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:89
+msgid "Fin par etudiant"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:90
+#: app/templates/admin/interviews/view.html:94
+msgid "Oui"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:90
+#: app/templates/admin/interviews/view.html:94
+msgid "Non"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:93
+msgid "Fin auto IA"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:104
+msgid "Disponibilite"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:127
+#: app/templates/admin/interviews/wizard.html:399
+msgid "Criteres d'evaluation"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:133
+#: app/templates/interview/evaluating.html:94
+msgid "Critere"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:152
+msgid "Total"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:159
+msgid "Aucun critere defini"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:168
+msgid "Sessions"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:228
+msgid "Voir la session"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:232
+msgid "cette session"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:246
+msgid "Aucune session pour le moment"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:3
+#: app/templates/admin/interviews/wizard.html:171
+msgid "Creer"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:3
+#: app/templates/admin/interviews/wizard.html:171
+msgid "un entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:172
+msgid "Assistant de creation de personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:181
+msgid "Mode de creation"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:187
+msgid "Coller un prompt"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:188
+msgid ""
+"J'ai deja un prompt pret, je veux juste le coller et configurer les "
+"parametres."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:192
+msgid "Creation assistee"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:193
+msgid ""
+"Je veux utiliser l'assistant pour definir le personnage et generer le "
+"prompt automatiquement."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:208
+msgid "Identite"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:212
+msgid "Scenario"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:216
+msgid "Psychologie"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:220
+msgid "Criteres"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:224
+msgid "Prompt"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:237
+msgid "Informations de base"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:244
+msgid "Ex: Entretien RPS - Collegue en difficulte"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:250
+msgid "Description visible par les etudiants"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:258
+msgid "ex: rps-collegue"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:264
+msgid "Aucune"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:289
+msgid "Aucun groupe = accessible a tous"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:294
+msgid "Disponible a partir de"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:299
+msgid "Disponible jusqu'au"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:312
+msgid "Identite du personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:317
+msgid "Nom du personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:320
+msgid "Ex: Marie Dupont"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:323
+msgid "Role / Fonction"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:326
+msgid "Ex: Collegue developpeur"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:331
+msgid "Contexte professionnel"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:333
+msgid ""
+"Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres "
+"impliquee..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:343
+msgid "Situation et scenario"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:347
+msgid "Ce que l'etudiant sait au depart"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:349
+msgid ""
+"Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante "
+"depuis quelques semaines..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:353
+msgid "Objectif de l'etudiant"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:355
+msgid ""
+"Ex: Engager une conversation bienveillante pour comprendre la situation "
+"et proposer de l'aide"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:365
+msgid "Psychologie du personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:369
+msgid "Traits de personnalite"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:371
+msgid ""
+"Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, "
+"s'ouvre progressivement si elle se sent en confiance..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:375
+msgid "Ce que le personnage sait / pense"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:377
+msgid ""
+"Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a "
+"peur de passer pour faible..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:381
+msgid "Objectifs caches du personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:383
+msgid ""
+"Ex: Elle aimerait en parler mais attend qu'on lui tende la main de "
+"maniere bienveillante..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:387
+msgid "Comportements declencheurs"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:389
+msgid ""
+"Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on "
+"reformule ses emotions, devient defensive si on minimise..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:405
+msgid ""
+"Les criteres ne peuvent plus etre modifies car des etudiants ont deja "
+"passe cet entretien."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:409
+msgid "Templates:"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:426
+msgid "Ajouter un critere"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:437
+msgid "Parametres et generation"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:447
+msgid "Duree max (min)"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:463
+msgid "L'etudiant peut terminer"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:467
+msgid "L'IA peut terminer"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:475
+msgid "Qui commence la conversation ?"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:479
+msgid "Le personnage (bot)"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:486
+msgid "Si le bot commence, il utilisera le message d'ouverture ci-dessous"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:497
+msgid "Demander un fichier au debut"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:499
+msgid "Ex: CV pour simulation d'entretien d'embauche"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:505
+msgid "Label du fichier"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:507
+msgid "Votre CV"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:508
+msgid "Ex: Votre CV, Votre dossier"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:512
+msgid "Instructions pour l'etudiant"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:514
+msgid ""
+"Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise"
+" comme base pour l'entretien."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:517
+msgid "Injection dans le prompt"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:519
+msgid "Ex: Voici le CV du candidat que tu vas interviewer:"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:523
+msgid "Base tes questions sur ce CV."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:523
+msgid "Voici le document fourni par l'etudiant:"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:527
+msgid "Utilise ces informations dans tes reponses et questions."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:528
+#, python-brace-format
+msgid "Utilisez {file_content} comme placeholder pour le contenu du fichier"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:536
+msgid "Generer le prompt"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:539
+msgid "Generer message d'ouverture"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:544
+msgid "Message d'ouverture (optionnel)"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:546
+msgid "Premier message du personnage pour demarrer la conversation..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:550
+msgid "Prompt systeme"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:552
+msgid "Cliquez sur 'Generer le prompt' ou ecrivez manuellement..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:553
+msgid "Ce prompt definit le comportement de l'IA pendant l'entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:562
+#: app/templates/quiz/take_exam.html:552
+msgid "Precedent"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:565
+#: app/templates/quiz/take_exam.html:556
+msgid "Suivant"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:568
+msgid "Creer l'entretien"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:653
+msgid "Generation automatique du prompt..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:755
+msgid "Points max"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:760
+msgid "Indices d'evaluation (pour l'IA)"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:763
+msgid "Ex: Chercher reformulations, questions ouvertes..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:781
+msgid "Remplacer les criteres actuels ?"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:820
+msgid "Erreur generation:"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:824
+#: app/templates/admin/interviews/wizard.html:867
+msgid "Erreur de connexion:"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:830
+msgid "Generation du prompt en cours..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:834
+msgid "Erreur lors de la generation du prompt"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:841
+msgid "Generez d'abord le prompt systeme"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:845
+msgid "Generation du message d'ouverture..."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:3
+msgid "Admins de"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:6
+#: app/templates/admin/tenants/view.html:101
+msgid "Administrateurs de l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:12
+msgid ""
+"Les administrateurs d'une organisation peuvent gerer ses groupes, creer "
+"des quiz et gerer les utilisateurs dans leur perimetre. Les superadmins "
+"ont automatiquement acces a toutes les organisations."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:16
+msgid "Administrateurs actuels"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:31
+msgid "Superadmin"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:37
+msgid "des administrateurs ?"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:43
+msgid "Acces global"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:53
+msgid ""
+"Aucun administrateur specifique. Seuls les superadmins peuvent gerer "
+"cette organisation."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:59
+msgid "Ajouter un administrateur"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:62
+msgid "Rechercher un utilisateur"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:67
+msgid "Selectionnez un utilisateur..."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:72
+msgid "Tapez pour filtrer..."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:84
+msgid "Aucun utilisateur disponible a ajouter."
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:89
+msgid "Ajouter comme admin"
+msgstr ""
+
+#: app/templates/admin/tenants/admins.html:97
+#: app/templates/admin/tenants/groups.html:72
+msgid "Retour a l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:3
+msgid "Creer une Organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:6
+#: app/templates/admin/tenants/list.html:11
+msgid "Creer une nouvelle organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:9
+msgid "Informations de l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:12
+msgid ""
+"Une organisation represente une entite cliente (ecole, universite, "
+"entreprise)."
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:13
+msgid ""
+"Vous pouvez definir des limites d'utilisation et assigner des "
+"administrateurs dedies."
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:19
+#: app/templates/admin/tenants/edit.html:13
+msgid "Nom de l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:21
+msgid "Ex: Universite de Paris, Ecole ABC..."
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:26
+msgid "auto-genere"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:27
+msgid "Laissez vide pour generer automatiquement"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:34
+msgid "Description optionnelle de l'organisation..."
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:39
+#: app/templates/admin/tenants/edit.html:31
+msgid "Nom du contact"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:44
+#: app/templates/admin/tenants/edit.html:36
+msgid "Email du contact"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:50
+#: app/templates/admin/tenants/edit.html:42
+msgid "Limites fixes"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:52
+#: app/templates/admin/tenants/edit.html:44
+#: app/templates/admin/tenants/edit.html:137
+msgid "Note :"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:57
+#: app/templates/admin/tenants/edit.html:52
+msgid "Max utilisateurs"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:62
+#: app/templates/admin/tenants/edit.html:57
+msgid "Max quiz"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:67
+#: app/templates/admin/tenants/edit.html:62
+msgid "Max groupes"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:73
+#: app/templates/admin/tenants/edit.html:68
+msgid "Limites mensuelles IA"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:76
+#: app/templates/admin/tenants/edit.html:79
+msgid "Corrections IA / mois"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:81
+#: app/templates/admin/tenants/edit.html:84
+msgid "Generations quiz / mois"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:86
+#: app/templates/admin/tenants/edit.html:89
+msgid "Analyses classe / mois"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:91
+#: app/templates/admin/tenants/edit.html:94
+msgid "Entretiens IA / mois"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:97
+#: app/templates/admin/tenants/edit.html:100
+msgid "Abonnement"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:99
+#: app/templates/admin/tenants/edit.html:103
+msgid "Date d'expiration"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:102
+#: app/templates/admin/tenants/edit.html:107
+msgid "Laisser vide pour un abonnement sans expiration"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:105
+#: app/templates/admin/tenants/edit.html:135
+msgid "Alertes quota"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:110
+#: app/templates/admin/tenants/edit.html:146
+msgid "Activer les alertes quota"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:112
+#: app/templates/admin/tenants/edit.html:148
+msgid "Envoie un email quand un quota est presque atteint"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:115
+#: app/templates/admin/tenants/edit.html:151
+msgid "Seuil d'alerte (%)"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:118
+#: app/templates/admin/tenants/edit.html:154
+#, python-format
+msgid "Alerte quand il reste X% du quota"
+msgstr ""
+
+#: app/templates/admin/tenants/create.html:124
+msgid "Creer l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/create_group.html:3
+#: app/templates/admin/tenants/view.html:154
+msgid "Creer un groupe"
+msgstr ""
+
+#: app/templates/admin/tenants/create_group.html:12
+msgid ""
+"Un code unique sera genere automatiquement pour ce groupe. Les etudiants "
+"devront entrer ce code lors de l'inscription pour rejoindre le groupe."
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:6
+msgid "Modifier l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:21
+msgid "Le slug ne peut pas etre modifie"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:44
+msgid "0 = illimite. Utilisation actuelle :"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:45
+msgid "utilisateurs"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:47
+msgid "groupes"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:70
+msgid "Usage ce mois :"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:71
+msgid "corrections"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:72
+msgid "generations"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:73
+msgid "analyses"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:74
+msgid "entretiens"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:113
+msgid "Expire depuis"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:113
+#: app/templates/admin/tenants/edit.html:117
+#: app/templates/admin/tenants/edit.html:119
+#: app/templates/admin/tenants/view.html:45
+msgid "jour(s)"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:115
+msgid "Expire aujourd'hui"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:117
+#: app/templates/admin/tenants/edit.html:119
+msgid "Expire dans"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:122
+#: app/templates/admin/tenants/view.html:58
+msgid "Sans expiration"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:130
+msgid "Organisation active"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:132
+msgid "Desactiver une organisation empeche l'acces a ses groupes et quiz"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:137
+msgid "L'email d'alerte est envoye a l'adresse de contact ci-dessus."
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:139
+msgid "Derniere alerte :"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:158
+msgid "Notes internes"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:160
+msgid "Notes (visibles uniquement par les superadmins)"
+msgstr ""
+
+#: app/templates/admin/tenants/edit.html:162
+msgid "Notes de facturation, contacts, remarques..."
+msgstr ""
+
+#: app/templates/admin/tenants/groups.html:3
+msgid "Groupes de"
+msgstr ""
+
+#: app/templates/admin/tenants/groups.html:6
+msgid "Groupes de l'organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/groups.html:10
+#: app/templates/admin/tenants/list.html:24
+msgid "groupe(s)"
+msgstr ""
+
+#: app/templates/admin/tenants/groups.html:39
+msgid "Exporter resultats CSV"
+msgstr ""
+
+#: app/templates/admin/tenants/groups.html:65
+#: app/templates/admin/tenants/view.html:154
+msgid "Aucun groupe dans cette organisation."
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:3
+#: app/templates/admin/tenants/list.html:6
+msgid "Gestion des Organisations"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:10
+msgid "Liste des organisations"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:35
+msgid "Limites"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:36
+#: app/templates/admin/tenants/list.html:37
+#: app/templates/admin/tenants/list.html:38
+msgid "illimite"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:42
+msgid "Voir details"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:48
+msgid "Admins"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:56
+msgid "cette organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:68
+msgid "Aucune organisation creee."
+msgstr ""
+
+#: app/templates/admin/tenants/list.html:68
+msgid "Creez votre premiere organisation"
+msgstr ""
+
+#: app/templates/admin/tenants/quizzes.html:3
+msgid "Quiz de"
+msgstr ""
+
+#: app/templates/admin/tenants/quizzes.html:6
+msgid "Quiz du tenant"
+msgstr ""
+
+#: app/templates/admin/tenants/quizzes.html:57
+msgid "Aucun quiz dans ce tenant."
+msgstr ""
+
+#: app/templates/admin/tenants/quizzes.html:64
+msgid "Retour au tenant"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:23
+msgid "Administrateurs"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:30
+msgid "Corrections IA (mois)"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:34
+msgid "Generations quiz (mois)"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:38
+msgid "Analyses classe (mois)"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:44
+#: app/templates/admin/tenants/view.html:47
+msgid "Expire"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:45
+msgid "depuis"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:48
+msgid "aujourd'hui"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:51
+#: app/templates/admin/tenants/view.html:54
+msgid "avant expiration"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:69
+msgid "Gerer admins"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:79
+msgid "Slug:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:80
+msgid "Statut:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:82
+msgid "Contact:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:85
+msgid "Email:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:87
+msgid "Cree le:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:91
+msgid "Description:"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:124
+msgid "Nouveau groupe"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:141
+msgid "Membres"
+msgstr ""
+
+#: app/templates/admin/tenants/view.html:162
+msgid "Retour aux organisations"
+msgstr ""
+
+#: app/templates/auth/forgot_password.html:3
+#: app/templates/auth/forgot_password.html:9
+msgid "Mot de passe oublie"
+msgstr ""
+
+#: app/templates/auth/forgot_password.html:12
+msgid "Entrez votre adresse email pour recevoir un lien de reinitialisation."
+msgstr ""
+
+#: app/templates/auth/forgot_password.html:17
+#: app/templates/auth/profile.html:42
+#: app/templates/auth/resend_verification.html:17
+msgid "Adresse email"
+msgstr ""
+
+#: app/templates/auth/forgot_password.html:22
+msgid "Envoyer le lien"
+msgstr ""
+
+#: app/templates/auth/forgot_password.html:27
+#: app/templates/auth/resend_verification.html:28
+#: app/templates/auth/reset_password.html:32
+#: app/templates/auth/verification_sent.html:33
+msgid "Retour a la connexion"
+msgstr ""
+
+#: app/templates/auth/login.html:3 app/templates/auth/login.html:9
+msgid "Connexion"
+msgstr ""
+
+#: app/templates/auth/login.html:13
+msgid "Votre compte n'est pas encore verifie."
+msgstr ""
+
+#: app/templates/auth/login.html:15
+#: app/templates/auth/resend_verification.html:3
+msgid "Renvoyer l'email de verification"
+msgstr ""
+
+#: app/templates/auth/login.html:35
+msgid "Mot de passe oublie ?"
+msgstr ""
+
+#: app/templates/auth/login.html:39
+msgid "Pas encore de compte ?"
+msgstr ""
+
+#: app/templates/auth/login.html:39 app/templates/auth/register.html:56
+msgid "S'inscrire"
+msgstr ""
+
+#: app/templates/auth/profile.html:3 app/templates/auth/profile.html:7
+#: app/templates/quiz/dashboard.html:177
+msgid "Mon profil"
+msgstr ""
+
+#: app/templates/auth/profile.html:11
+msgid "Informations personnelles"
+msgstr ""
+
+#: app/templates/auth/profile.html:31
+msgid "Le nom d'utilisateur ne peut pas etre modifie"
+msgstr ""
+
+#: app/templates/auth/profile.html:46
+msgid "Email actuel"
+msgstr ""
+
+#: app/templates/auth/profile.html:63
+msgid "Nouvelle adresse email"
+msgstr ""
+
+#: app/templates/auth/profile.html:65
+msgid "nouvelle@email.com"
+msgstr ""
+
+#: app/templates/auth/profile.html:68
+msgid "Mot de passe (pour confirmer)"
+msgstr ""
+
+#: app/templates/auth/profile.html:72
+msgid "Changer l'email"
+msgstr ""
+
+#: app/templates/auth/profile.html:86
+msgid "Mot de passe actuel"
+msgstr ""
+
+#: app/templates/auth/profile.html:94
+msgid "Confirmer le nouveau mot de passe"
+msgstr ""
+
+#: app/templates/auth/profile.html:98
+msgid "Changer le mot de passe"
+msgstr ""
+
+#: app/templates/auth/profile.html:106
+msgid "Mes groupes"
+msgstr ""
+
+#: app/templates/auth/profile.html:116
+msgid "Admin"
+msgstr ""
+
+#: app/templates/auth/profile.html:118
+msgid "Membre"
+msgstr ""
+
+#: app/templates/auth/profile.html:124
+msgid "Vous n'appartenez a aucun groupe."
+msgstr ""
+
+#: app/templates/auth/profile.html:129 app/templates/quiz/dashboard.html:141
+msgid "Rejoindre un groupe"
+msgstr ""
+
+#: app/templates/auth/profile.html:132 app/templates/auth/register.html:37
+msgid "Code de groupe"
+msgstr ""
+
+#: app/templates/auth/profile.html:134
+msgid "Ex: ABC12DEF"
+msgstr ""
+
+#: app/templates/auth/profile.html:137
+msgid "Rejoindre"
+msgstr ""
+
+#: app/templates/auth/profile.html:145
+msgid "Activite du compte"
+msgstr ""
+
+#: app/templates/auth/profile.html:150
+msgid "Compte cree le"
+msgstr ""
+
+#: app/templates/auth/profile.html:158
+msgid "Adresse IP"
+msgstr ""
+
+#: app/templates/auth/profile.html:167
+msgid "Donnees personnelles (RGPD)"
+msgstr ""
+
+#: app/templates/auth/profile.html:173
+msgid "Exporter mes donnees"
+msgstr ""
+
+#: app/templates/auth/profile.html:175
+msgid "Telechargez une copie de toutes vos donnees personnelles au format JSON."
+msgstr ""
+
+#: app/templates/auth/profile.html:178
+msgid "Telecharger mes donnees"
+msgstr ""
+
+#: app/templates/auth/profile.html:184 app/templates/auth/profile.html:189
+#: app/templates/auth/profile.html:201
+msgid "Supprimer mon compte"
+msgstr ""
+
+#: app/templates/auth/profile.html:186
+msgid ""
+"Supprimez definitivement votre compte et toutes vos donnees. Cette action"
+" est irreversible."
+msgstr ""
+
+#: app/templates/auth/profile.html:208 app/templates/quiz/take_exam.html:576
+msgid "Attention !"
+msgstr ""
+
+#: app/templates/auth/profile.html:208
+msgid ""
+"Cette action est irreversible. Toutes vos donnees seront definitivement "
+"supprimees :"
+msgstr ""
+
+#: app/templates/auth/profile.html:210
+msgid "Votre profil et informations personnelles"
+msgstr ""
+
+#: app/templates/auth/profile.html:211
+msgid "Vos reponses aux quiz et scores"
+msgstr ""
+
+#: app/templates/auth/profile.html:212
+msgid "Vos sessions d'entretiens"
+msgstr ""
+
+#: app/templates/auth/profile.html:213
+msgid "Vos appartenances aux groupes"
+msgstr ""
+
+#: app/templates/auth/profile.html:220
+msgid "Entrez votre mot de passe"
+msgstr ""
+
+#: app/templates/auth/profile.html:224
+msgid "Tapez"
+msgstr ""
+
+#: app/templates/auth/profile.html:224 app/templates/auth/profile.html:226
+msgid "SUPPRIMER"
+msgstr ""
+
+#: app/templates/auth/profile.html:224
+msgid "pour confirmer"
+msgstr ""
+
+#: app/templates/auth/profile.html:232
+msgid "Supprimer definitivement"
+msgstr ""
+
+#: app/templates/auth/register.html:3 app/templates/auth/register.html:9
+msgid "Inscription"
+msgstr ""
+
+#: app/templates/auth/register.html:32
+msgid "Un email de verification sera envoye a cette adresse"
+msgstr ""
+
+#: app/templates/auth/register.html:39
+msgid "Entrez le code fourni par votre enseignant"
+msgstr ""
+
+#: app/templates/auth/register.html:42
+msgid "Le code de groupe vous a ete fourni par votre enseignant/administrateur"
+msgstr ""
+
+#: app/templates/auth/register.html:52
+#: app/templates/auth/reset_password.html:22
+msgid "Confirmer le mot de passe"
+msgstr ""
+
+#: app/templates/auth/register.html:60
+msgid "Deja inscrit ?"
+msgstr ""
+
+#: app/templates/auth/resend_verification.html:9
+#: app/templates/auth/resend_verification.html:23
+#: app/templates/auth/verification_sent.html:28
+msgid "Renvoyer l'email"
+msgstr ""
+
+#: app/templates/auth/resend_verification.html:12
+msgid "Entrez votre adresse email pour recevoir un nouveau lien de verification."
+msgstr ""
+
+#: app/templates/auth/reset_password.html:3
+msgid "Reinitialiser le mot de passe"
+msgstr ""
+
+#: app/templates/auth/reset_password.html:12
+msgid "Choisissez un nouveau mot de passe pour votre compte."
+msgstr ""
+
+#: app/templates/auth/reset_password.html:27
+msgid "Reinitialiser"
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:3
+#: app/templates/auth/verification_sent.html:9
+msgid "Verifiez votre email"
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:16
+msgid "Un email de verification a ete envoye a"
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:17
+msgid "votre adresse email"
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:21
+msgid "Cliquez sur le lien dans l'email pour activer votre compte."
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:22
+msgid "Le lien est valide pendant 24 heures."
+msgstr ""
+
+#: app/templates/auth/verification_sent.html:26
+msgid "Vous n'avez pas recu l'email ?"
+msgstr ""
+
+#: app/templates/interview/chat.html:205
+#: app/templates/interview/result.html:149
+#: app/templates/quiz/dashboard.html:229
+msgid "Entretien"
+msgstr ""
+
+#: app/templates/interview/chat.html:209
+#: app/templates/interview/result.html:159
+msgid "echanges"
+msgstr ""
+
+#: app/templates/interview/chat.html:217
+msgid "C'est a vous de commencer la conversation."
+msgstr ""
+
+#: app/templates/interview/chat.html:241
+msgid "Ecrivez votre message... (Shift+Entree pour retour a la ligne)"
+msgstr ""
+
+#: app/templates/interview/chat.html:251
+msgid "Terminer l'entretien"
+msgstr ""
+
+#: app/templates/interview/chat.html:254
+msgid "Max"
+msgstr ""
+
+#: app/templates/interview/chat.html:254 app/templates/interview/list.html:24
+msgid "min"
+msgstr ""
+
+#: app/templates/interview/chat.html:266
+msgid "Limite d'echanges atteinte"
+msgstr ""
+
+#: app/templates/interview/chat.html:267 app/templates/interview/chat.html:271
+msgid "Entretien termine"
+msgstr ""
+
+#: app/templates/interview/chat.html:268
+#: app/templates/interview/evaluating.html:97
+msgid "Erreur"
+msgstr ""
+
+#: app/templates/interview/chat.html:270
+msgid "Terminer l'entretien ? Vous ne pourrez plus envoyer de messages."
+msgstr ""
+
+#: app/templates/interview/chat.html:272
+msgid "L'entretien est maintenant termine."
+msgstr ""
+
+#: app/templates/interview/chat.html:273
+msgid "Passer a l'analyse et la correction"
+msgstr ""
+
+#: app/templates/interview/evaluating.html:3
+#: app/templates/interview/evaluating.html:65
+msgid "Evaluation en cours"
+msgstr ""
+
+#: app/templates/interview/evaluating.html:66
+msgid "Analyse de votre entretien..."
+msgstr ""
+
+#: app/templates/interview/evaluating.html:79
+msgid "Preparation de l'evaluation..."
+msgstr ""
+
+#: app/templates/interview/evaluating.html:93
+msgid "Evaluation des criteres..."
+msgstr ""
+
+#: app/templates/interview/evaluating.html:95
+msgid "evalue..."
+msgstr ""
+
+#: app/templates/interview/evaluating.html:96
+msgid "Evaluation terminee !"
+msgstr ""
+
+#: app/templates/interview/list.html:9
+msgid "Simulations conversationnelles"
+msgstr ""
+
+#: app/templates/interview/list.html:33
+msgid "Contexte:"
+msgstr ""
+
+#: app/templates/interview/list.html:40
+msgid "Objectif:"
+msgstr ""
+
+#: app/templates/interview/list.html:56
+msgid "Reprendre"
+msgstr ""
+
+#: app/templates/interview/list.html:60
+msgid "Evaluation en cours..."
+msgstr ""
+
+#: app/templates/interview/list.html:65 app/templates/quiz/list.html:135
+msgid "Commencer"
+msgstr ""
+
+#: app/templates/interview/list.html:76
+msgid "Aucun entretien disponible"
+msgstr ""
+
+#: app/templates/interview/list.html:77
+msgid "Revenez plus tard pour voir les entretiens disponibles."
+msgstr ""
+
+#: app/templates/interview/result.html:134
+msgid "Resultats de l'entretien"
+msgstr ""
+
+#: app/templates/interview/result.html:139
+msgid "Telecharger PDF"
+msgstr ""
+
+#: app/templates/interview/result.html:142
+msgid "Retour aux entretiens"
+msgstr ""
+
+#: app/templates/interview/result.html:164
+msgid "Evaluation par critere"
+msgstr ""
+
+#: app/templates/interview/result.html:187
+#: app/templates/interview/result_pdf.html:195
+msgid "Synthese"
+msgstr ""
+
+#: app/templates/interview/result.html:195
+msgid "Commentaire du formateur"
+msgstr ""
+
+#: app/templates/interview/result.html:203
+msgid "Voir la transcription complete"
+msgstr ""
+
+#: app/templates/interview/result.html:211
+msgid "Vous"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:5
+msgid "Resultat Entretien"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:166
+msgid "Candidat:"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:167
+msgid "Date:"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:168
+msgid "Duree:"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:170
+msgid "Personnage:"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:189
+msgid "Minutes"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:200
+msgid "Detail des scores"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:220
+msgid "Document fourni"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:221
+msgid "Fichier:"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:227
+msgid "Transcription de l'entretien"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:245
+msgid "Commentaire de l'evaluateur"
+msgstr ""
+
+#: app/templates/interview/result_pdf.html:250
+msgid "Document genere le"
+msgstr ""
+
+#: app/templates/interview/start.html:93
+msgid "Mode test"
+msgstr ""
+
+#: app/templates/interview/start.html:109
+msgid "Contexte"
+msgstr ""
+
+#: app/templates/interview/start.html:116
+msgid "Votre objectif"
+msgstr ""
+
+#: app/templates/interview/start.html:123
+msgid "Document requis"
+msgstr ""
+
+#: app/templates/interview/start.html:136
+msgid "Cliquez pour telecharger"
+msgstr ""
+
+#: app/templates/interview/start.html:137
+msgid "ou glissez-deposez votre fichier ici"
+msgstr ""
+
+#: app/templates/interview/start.html:138
+msgid "Formats acceptes: PDF, DOC, DOCX, TXT"
+msgstr ""
+
+#: app/templates/interview/start.html:147
+msgid "Fichier selectionne"
+msgstr ""
+
+#: app/templates/interview/start.html:156
+msgid "Commencer l'entretien"
+msgstr ""
+
+#: app/templates/interview/start.html:164
+msgid "min max"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:3 app/templates/quiz/dashboard.html:6
+msgid "Mon Tableau de Bord"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:12
+msgid "Evaluations"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:35 app/templates/quiz/list.html:105
+msgid "A faire"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:86
+msgid "Progression"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:146
+msgid "Code (ex: ABC12DEF)"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:164
+msgid "Acces rapide"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:169 app/templates/quiz/list.html:17
+#: app/templates/quiz/list.html:22
+msgid "Tous les quiz"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:173
+msgid "Tous les entretiens"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:186
+msgid "Historique complet"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:190
+msgid "Toutes mes evaluations"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:192
+msgid "Tout"
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:270
+msgid "Vous n'avez pas encore complete d'evaluation."
+msgstr ""
+
+#: app/templates/quiz/dashboard.html:272
+msgid "Voir les quiz disponibles"
+msgstr ""
+
+#: app/templates/quiz/grading.html:3 app/templates/quiz/grading.html:8
+msgid "Correction en cours"
+msgstr ""
+
+#: app/templates/quiz/grading.html:10
+msgid "L'IA analyse vos reponses. Veuillez patienter..."
+msgstr ""
+
+#: app/templates/quiz/grading.html:28
+msgid "Preparation..."
+msgstr ""
+
+#: app/templates/quiz/grading.html:141
+msgid "Correction demarree..."
+msgstr ""
+
+#: app/templates/quiz/grading.html:157
+msgid "Correction de :"
+msgstr ""
+
+#: app/templates/quiz/grading.html:188
+msgid "Correction terminee !"
+msgstr ""
+
+#: app/templates/quiz/grading.html:193
+msgid "Redirection vers les resultats..."
+msgstr ""
+
+#: app/templates/quiz/grading.html:207
+msgid "Erreur lors de la correction"
+msgstr ""
+
+#: app/templates/quiz/grading.html:212
+msgid "Une erreur est survenue"
+msgstr ""
+
+#: app/templates/quiz/list.html:6
+msgid "Quiz disponibles"
+msgstr ""
+
+#: app/templates/quiz/list.html:10
+msgid "Mes quiz"
+msgstr ""
+
+#: app/templates/quiz/list.html:23
+msgid "Non repondus"
+msgstr ""
+
+#: app/templates/quiz/list.html:24
+msgid "Repondus"
+msgstr ""
+
+#: app/templates/quiz/list.html:103
+msgid "Repondu"
+msgstr ""
+
+#: app/templates/quiz/list.html:115 app/templates/quiz/result.html:79
+msgid "points"
+msgstr ""
+
+#: app/templates/quiz/list.html:131
+msgid "Voir"
+msgstr ""
+
+#: app/templates/quiz/list.html:145
+msgid "Aucun quiz disponible avec les filtres selectionnes."
+msgstr ""
+
+#: app/templates/quiz/list.html:146
+msgid "Reinitialiser les filtres"
+msgstr ""
+
+#: app/templates/quiz/list.html:148
+msgid "Aucun quiz disponible pour le moment."
+msgstr ""
+
+#: app/templates/quiz/result.html:3
+msgid "Resultat"
+msgstr ""
+
+#: app/templates/quiz/result.html:9
+msgid "Resultat de test"
+msgstr ""
+
+#: app/templates/quiz/result.html:10
+msgid "Ceci est un test admin - non comptabilise dans les statistiques."
+msgstr ""
+
+#: app/templates/quiz/result.html:13 app/templates/quiz/take.html:13
+#: app/templates/quiz/take_exam.html:459
+msgid "Retour preview"
+msgstr ""
+
+#: app/templates/quiz/result.html:24
+msgid "Soit"
+msgstr ""
+
+#: app/templates/quiz/result.html:24
+msgid "de reussite"
+msgstr ""
+
+#: app/templates/quiz/result.html:27
+msgid "Soumis le"
+msgstr ""
+
+#: app/templates/quiz/result.html:29
+msgid "Soumission en retard"
+msgstr ""
+
+#: app/templates/quiz/result.html:34
+msgid "Duree :"
+msgstr ""
+
+#: app/templates/quiz/result.html:36
+msgid "minutes allouees"
+msgstr ""
+
+#: app/templates/quiz/result.html:54
+msgid ""
+"Les questions etaient affichees dans un ordre aleatoire pendant l'examen."
+" Ci-dessous, elles sont presentees dans l'ordre original du quiz."
+msgstr ""
+
+#: app/templates/quiz/result.html:58
+msgid "Details des reponses"
+msgstr ""
+
+#: app/templates/quiz/result.html:101
+msgid "Votre reponse :"
+msgstr ""
+
+#: app/templates/quiz/result.html:102
+msgid "Aucune reponse"
+msgstr ""
+
+#: app/templates/quiz/result.html:114
+msgid "Correction :"
+msgstr ""
+
+#: app/templates/quiz/result.html:124
+msgid "Retour aux quiz"
+msgstr ""
+
+#: app/templates/quiz/take.html:9 app/templates/quiz/take_exam.html:455
+msgid "Mode Test"
+msgstr ""
+
+#: app/templates/quiz/take.html:10 app/templates/quiz/take_exam.html:456
+msgid ""
+"Vous testez ce quiz en tant qu'admin. Les resultats seront marques comme "
+"test."
+msgstr ""
+
+#: app/templates/quiz/take.html:23
+msgid "Temps restant :"
+msgstr ""
+
+#: app/templates/quiz/take.html:67 app/templates/quiz/take_exam.html:529
+msgid "Votre reponse..."
+msgstr ""
+
+#: app/templates/quiz/take.html:80
+msgid "Soumettre le quiz"
+msgstr ""
+
+#: app/templates/quiz/take.html:88
+msgid "Etes-vous sur de vouloir soumettre votre quiz ?"
+msgstr ""
+
+#: app/templates/quiz/take.html:88
+msgid "Confirmation"
+msgstr ""
+
+#: app/templates/quiz/take.html:129 app/templates/quiz/take_exam.html:1001
+msgid "Temps ecoule !"
+msgstr ""
+
+#: app/templates/quiz/take.html:129
+msgid ""
+"Vous pouvez encore soumettre votre quiz (la soumission sera marquee en "
+"retard)."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:3
+msgid "Mode Examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:400
+msgid "Mode examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:405
+msgid "Questions"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:410
+msgid "Temps limite"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:415
+msgid "Points total"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:421
+msgid "Avertissements importants"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:423
+msgid "Ne quittez pas cette fenetre"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:423
+msgid ""
+"pendant l'examen. Tout changement d'onglet ou de fenetre sera detecte et "
+"enregistre."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:424
+msgid "Le temps passe sur chaque question est mesure et enregistre."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:425
+msgid "Le copier-coller, le clic droit et les outils de developpement sont"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:425
+msgid "desactives"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:426
+msgid "Toute tentative de contournement sera enregistree et signalee."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:428
+msgid "Vous disposez de"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:428
+msgid ""
+"pour completer l'examen. Le temps commence des que vous cliquez sur "
+"\"Commencer\"."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:430
+msgid "Une fois l'examen commence, il ne peut pas etre mis en pause."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:435
+msgid "Deroulement de l'examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:437
+msgid "Les questions sont presentees une par une"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:438
+msgid ""
+"Vous pouvez naviguer entre les questions avec les boutons ou les points "
+"de navigation"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:439
+msgid "Vos reponses sont sauvegardees automatiquement"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:440
+msgid "Cliquez sur \"Terminer l'examen\" a la derniere question pour soumettre"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:446
+msgid "Commencer l'examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:472
+msgid "Sorties:"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:478
+msgid "Temps total:"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:483
+msgid "Cette question:"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:498
+msgid "QCM"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:498
+msgid "Question ouverte"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:531
+msgid "caracteres"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:560
+msgid "Terminer l'examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:577
+msgid "Vous avez quitte la fenetre de l'examen."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:578
+msgid "Cet evenement a ete enregistre."
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:579
+msgid "J'ai compris"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:887
+msgid "Action non autorisee pendant l'examen"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1051
+msgid "Onglet masque (changement d'onglet ou fenetre minimisee)"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1060
+msgid "Fenetre a perdu le focus (clic exterieur ou Alt+Tab)"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1191
+msgid "Etes-vous sur de vouloir soumettre votre examen ?"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1193
+msgid "Attention ! Les questions suivantes ne sont pas repondues :"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1194
+msgid "Voulez-vous quand meme soumettre ?"
+msgstr ""
+
+#: app/templates/quiz/take_exam.html:1197
+msgid "Confirmation de soumission"
+msgstr ""
+
+#: private.example/landing.html:9
+msgid ""
+"Plateforme d evaluation intelligente : quiz en Markdown, entretiens IA, "
+"correction automatisee par Claude. Open-source et auto-hebergeable."
+msgstr ""
+
+#: private.example/landing.html:10
+msgid ""
+"evaluation, quiz, IA, education, correction automatique, Claude, "
+"enseignement, examen"
+msgstr ""
+
+#: private.example/landing.html:17
+msgid "Quiz en Markdown, entretiens IA, correction par Claude. Open-source."
+msgstr ""
+
+#: private.example/landing.html:43 private.example/landing.html:58
+msgid "Fonctionnalites"
+msgstr ""
+
+#: private.example/landing.html:44 private.example/landing.html:59
+msgid "Tarifs"
+msgstr ""
+
+#: private.example/landing.html:45 private.example/landing.html:60
+msgid "Documentation"
+msgstr ""
+
+#: private.example/landing.html:424
+msgid "Plateforme d evaluation intelligente avec correction IA pour l education"
+msgstr ""
+
+# French is the source language, so most msgstr are empty (use msgid as-is)
+# Only override if a different French variant is needed
+#~ msgid "Theme"
+#~ msgstr ""
+
+#~ msgid "Langue"
+#~ msgstr ""
+
+#~ msgid "Deconnexion"
+#~ msgstr ""
+
+#~ msgid "Connexion"
+#~ msgstr ""
+
+#~ msgid "Se connecter"
+#~ msgstr ""
+
+#~ msgid "Inscription"
+#~ msgstr ""
+
+#~ msgid "Creer un compte"
+#~ msgstr ""
+
+#~ msgid "Identifiants incorrects"
+#~ msgstr ""
+
+#~ msgid "Tous les champs sont requis"
+#~ msgstr ""
+
+#~ msgid "Les mots de passe ne correspondent pas"
+#~ msgstr ""
+
+#~ msgid "Quiz introuvable"
+#~ msgstr ""
+
+#~ msgid "Entretien introuvable"
+#~ msgstr ""
+
+#~ msgid "Acces non autorise"
+#~ msgstr ""
+
+#~ msgid "active"
+#~ msgstr ""
+
+#~ msgid "desactive"
+#~ msgstr ""
+

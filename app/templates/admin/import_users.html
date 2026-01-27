@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Importer des utilisateurs - BrainNotFound{% endblock %}
+{% block title %}{{ _('Importer des utilisateurs - BrainNotFound') }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Importer des utilisateurs</h1>
+<h1 class="mb-2">{{ _('Importer des utilisateurs') }}</h1>
 
 <div class="card mb-2">
-    <div class="card-header">Format du fichier CSV</div>
+    <div class="card-header">{{ _('Format du fichier CSV') }}</div>
     <div class="p-1">
-        <p class="mb-1">Le fichier CSV doit utiliser le <strong>point-virgule (;)</strong> comme separateur et contenir les colonnes suivantes :</p>
+        <p class="mb-1">{{ _('Le fichier CSV doit utiliser le') }} <strong>{{ _('point-virgule (;)') }}</strong> {{ _('comme separateur et contenir les colonnes suivantes :') }}</p>
         <ul class="info-list mb-1">
-            <li><strong>username</strong> ou <strong>identifiant</strong> - Identifiant de connexion (optionnel si email present)</li>
-            <li><strong>email</strong> ou <strong>mail</strong> - Adresse email (optionnel si username present)</li>
-            <li><strong>prenom</strong> ou <strong>first_name</strong> - Prenom (optionnel)</li>
-            <li><strong>nom</strong> ou <strong>last_name</strong> - Nom de famille (optionnel)</li>
-            <li><strong>password</strong> ou <strong>mot_de_passe</strong> - Mot de passe (optionnel si mot de passe par defaut defini)</li>
+            <li><strong>username</strong> {{ _('ou') }} <strong>identifiant</strong> - {{ _('Identifiant de connexion (optionnel si email present)') }}</li>
+            <li><strong>email</strong> {{ _('ou') }} <strong>mail</strong> - {{ _('Adresse email (optionnel si username present)') }}</li>
+            <li><strong>prenom</strong> {{ _('ou') }} <strong>first_name</strong> - {{ _('Prenom (optionnel)') }}</li>
+            <li><strong>nom</strong> {{ _('ou') }} <strong>last_name</strong> - {{ _('Nom de famille (optionnel)') }}</li>
+            <li><strong>password</strong> {{ _('ou') }} <strong>mot_de_passe</strong> - {{ _('Mot de passe (optionnel si mot de passe par defaut defini)') }}</li>
         </ul>
         <div class="info-box bg-gray text-sm">
-            <strong>Exemple :</strong><br>
+            <strong>{{ _('Exemple :') }}</strong><br>
             <code>username;email;prenom;nom;password</code><br>
             <code>jdupont;jean.dupont@email.fr;Jean;Dupont;MonMotDePasse123</code><br>
             <code>mmartin;marie.martin@email.fr;Marie;Martin;AutrePassword456</code>
@@ -26,37 +26,37 @@
 </div>
 
 <form method="POST" enctype="multipart/form-data" class="card">
-    <div class="card-header">Import</div>
+    <div class="card-header">{{ _('Import') }}</div>
 
     <div class="form-group">
-        <label class="form-label" for="csv_file">Fichier CSV <span class="text-error">*</span></label>
+        <label class="form-label" for="csv_file">{{ _('Fichier CSV') }} <span class="text-error">*</span></label>
         <input type="file" id="csv_file" name="csv_file" class="form-input" accept=".csv,.txt" required>
     </div>
 
     <div class="form-group">
-        <label class="form-label" for="default_group">Groupe de destination <span class="text-error">*</span></label>
+        <label class="form-label" for="default_group">{{ _('Groupe de destination') }} <span class="text-error">*</span></label>
         <select id="default_group" name="default_group" class="form-select" required>
-            <option value="">-- Selectionnez un groupe --</option>
+            <option value="">-- {{ _('Selectionnez un groupe') }} --</option>
             {% for group in groups %}
             <option value="{{ group.id }}">{{ group.name }}</option>
             {% endfor %}
         </select>
-        <small class="text-light">Tous les utilisateurs importes seront ajoutes a ce groupe.</small>
+        <small class="text-light">{{ _('Tous les utilisateurs importes seront ajoutes a ce groupe.') }}</small>
     </div>
 
     <div class="form-group">
-        <label class="form-label" for="default_password">Mot de passe par defaut (optionnel)</label>
+        <label class="form-label" for="default_password">{{ _('Mot de passe par defaut (optionnel)') }}</label>
         <input type="text" id="default_password" name="default_password" class="form-input"
-               placeholder="Utilise si le CSV ne contient pas de colonne password">
-        <small class="text-light">Ce mot de passe sera utilise pour les lignes sans mot de passe defini.</small>
+               placeholder="{{ _('Utilise si le CSV ne contient pas de colonne password') }}">
+        <small class="text-light">{{ _('Ce mot de passe sera utilise pour les lignes sans mot de passe defini.') }}</small>
     </div>
 
     <div class="actions">
         <button type="submit" class="btn btn-primary">
-            <i class="iconoir-upload"></i> Importer
+            <i class="iconoir-upload"></i> {{ _('Importer') }}
         </button>
         <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
-            <i class="iconoir-xmark"></i> Annuler
+            <i class="iconoir-xmark"></i> {{ _('Annuler') }}
         </a>
     </div>
 </form>

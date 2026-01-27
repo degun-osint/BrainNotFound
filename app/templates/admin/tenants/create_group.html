@@ -1,44 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Creer un groupe - {{ tenant.name }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Creer un groupe') }} - {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Creer un groupe dans {{ tenant.name }}</h1>
+<h1 class="mb-2">{{ _('Creer un groupe dans') }} {{ tenant.name }}</h1>
 
 <div class="card">
-    <div class="card-header">Informations du groupe</div>
+    <div class="card-header">{{ _('Informations du groupe') }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>Information :</strong> Un code unique sera genere automatiquement pour ce groupe.
-        Les etudiants devront entrer ce code lors de l'inscription pour rejoindre le groupe.
+        <strong>{{ _('Information :') }}</strong> {{ _('Un code unique sera genere automatiquement pour ce groupe. Les etudiants devront entrer ce code lors de l\'inscription pour rejoindre le groupe.') }}
     </div>
 
     <form method="POST">
         <div class="form-group">
-            <label class="form-label" for="name">Nom du groupe *</label>
+            <label class="form-label" for="name">{{ _('Nom du groupe') }} *</label>
             <input type="text" id="name" name="name" class="form-input"
-                   placeholder="Ex: Master 2024-2025, Licence Info L3, Promo 2024..." required autofocus>
+                   placeholder="{{ _('Ex: Master 2024-2025, Licence Info L3, Promo 2024...') }}" required autofocus>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="description">Description</label>
+            <label class="form-label" for="description">{{ _('Description') }}</label>
             <textarea id="description" name="description" class="form-textarea form-textarea-short"
-                      placeholder="Description optionnelle du groupe..."></textarea>
+                      placeholder="{{ _('Description optionnelle du groupe...') }}"></textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="max_members">Nombre maximum de membres</label>
+            <label class="form-label" for="max_members">{{ _('Nombre maximum de membres') }}</label>
             <input type="number" id="max_members" name="max_members" class="form-input"
                    value="0" min="0" style="max-width: 150px;">
-            <small class="text-light">0 = illimite</small>
+            <small class="text-light">{{ _('0 = illimite') }}</small>
         </div>
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Creer le groupe
+                <i class="iconoir-plus"></i> {{ _('Creer le groupe') }}
             </button>
             <a href="{{ url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>

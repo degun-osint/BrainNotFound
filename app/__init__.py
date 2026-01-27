@@ -1,12 +1,13 @@
-from flask import Flask, url_for, request, abort
+from flask import Flask, url_for, request, abort, session, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_babel import Babel, get_locale as babel_get_locale
 from jinja2 import ChoiceLoader, FileSystemLoader
 from markupsafe import Markup
 from config import Config
@@ -24,6 +25,24 @@ limiter = Limiter(
     storage_uri="memory://",
     default_limits=["200 per day", "50 per hour"]
 )
+babel = Babel()
+
+
+def get_locale():
+    """Select the best language for the user."""
+    # 1. Check user preference (if authenticated)
+    if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+        if hasattr(current_user, 'language_preference') and current_user.language_preference:
+            return current_user.language_preference
+
+    # 2. Check session
+    if 'language' in session:
+        return session['language']
+
+    # 3. Check Accept-Language header
+    return request.accept_languages.best_match(
+        current_app.config.get('LANGUAGES', ['fr', 'en'])
+    ) or 'fr'
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -48,6 +67,7 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
+    babel.init_app(app, locale_selector=get_locale)
     # WebSocket CORS: Use ALLOWED_HOSTS or restrict to same origin
     allowed_origins = app.config.get('ALLOWED_HOSTS', [])
     if allowed_origins:
@@ -193,7 +213,8 @@ def create_app(config_class=Config):
             'site_title': site_title,
             'contact_email': contact_email,
             'menu_pages': menu_pages,
-            'footer_pages': footer_pages
+            'footer_pages': footer_pages,
+            'get_locale': get_locale
         }
 
     # Initialize backup scheduler (only in main process, not in reloader)

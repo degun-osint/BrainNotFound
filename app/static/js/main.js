@@ -487,7 +487,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize searchable selects
     SearchableSelect.init();
+
+    // Initialize mobile menu
+    initMobileMenu();
 });
+
+// ============================================
+// Mobile Menu
+// ============================================
+function initMobileMenu() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    if (!navToggle || !navMenu) return;
+
+    // Toggle main menu
+    navToggle.addEventListener('click', function() {
+        navToggle.classList.toggle('active');
+        navMenu.classList.toggle('active');
+    });
+
+    // Handle dropdowns in mobile
+    const dropdowns = navMenu.querySelectorAll('.nav-dropdown, .tenant-dropdown');
+    dropdowns.forEach(function(dropdown) {
+        const btn = dropdown.querySelector('.nav-dropdown-btn, .tenant-dropdown-btn');
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                // Only handle in mobile view
+                if (window.innerWidth <= 1300) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropdown.classList.toggle('active');
+                }
+            });
+        }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
+    });
+
+    // Close menu on window resize to desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 1300) {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+            dropdowns.forEach(function(d) { d.classList.remove('active'); });
+        }
+    });
+}
 
 // ============================================
 // Form validation for quiz submission

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Analyse de classe - {{ quiz.title }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Analyse de classe') }} - {{ quiz.title }} - BrainNotFound{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -183,17 +183,17 @@
 {% block content %}
 <div class="analysis-header">
     <div>
-        <h1 class="mb-0">Analyse de classe</h1>
+        <h1 class="mb-0">{{ _('Analyse de classe') }}</h1>
         <span class="text-light">{{ quiz.title }}</span>
     </div>
     <div class="flex gap-sm">
         {% if not quiz.class_analysis_result %}
         <button type="button" class="btn btn-primary" id="analyze-btn" onclick="runClassAnalysis()">
-            <i class="iconoir-sparks"></i> Lancer l'analyse IA
+            <i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}
         </button>
         {% else %}
         <button type="button" class="btn btn-secondary" id="analyze-btn" onclick="runClassAnalysis()">
-            <i class="iconoir-refresh-double"></i> Relancer l'analyse
+            <i class="iconoir-refresh-double"></i> {{ _('Relancer l\'analyse') }}
         </button>
         {% endif %}
     </div>
@@ -202,27 +202,27 @@
 <!-- Global Stats -->
 <div class="stats-overview">
     <div class="stat-box">
-        <h3>Etudiants</h3>
+        <h3>{{ _('Etudiants') }}</h3>
         <div class="value">{{ stats.global_stats.student_count }}</div>
     </div>
     <div class="stat-box">
-        <h3>Duree moyenne</h3>
+        <h3>{{ _('Duree moyenne') }}</h3>
         <div class="value">{{ stats.global_stats.avg_duration }} min</div>
     </div>
     <div class="stat-box">
-        <h3>Score moyen</h3>
+        <h3>{{ _('Score moyen') }}</h3>
         <div class="value {% if stats.global_stats.avg_score >= 70 %}success{% elif stats.global_stats.avg_score >= 50 %}warning{% else %}danger{% endif %}">
             {{ stats.global_stats.avg_score }}%
         </div>
     </div>
     <div class="stat-box">
-        <h3>Pertes de focus</h3>
+        <h3>{{ _('Pertes de focus') }}</h3>
         <div class="value {% if stats.global_stats.total_focus_events == 0 %}success{% elif stats.global_stats.total_focus_events < 10 %}warning{% else %}danger{% endif %}">
             {{ stats.global_stats.total_focus_events }}
         </div>
     </div>
     <div class="stat-box">
-        <h3>Avec focus issues</h3>
+        <h3>{{ _('Avec focus issues') }}</h3>
         <div class="value {% if stats.global_stats.students_with_focus_issues == 0 %}success{% else %}warning{% endif %}">
             {{ stats.global_stats.students_with_focus_issues }}
         </div>
@@ -231,7 +231,7 @@
 
 <!-- AI Analysis Result -->
 <div class="card mb-2">
-    <div class="card-header"><i class="iconoir-sparks"></i> Analyse pedagogique IA</div>
+    <div class="card-header"><i class="iconoir-sparks"></i> {{ _('Analyse pedagogique IA') }}</div>
 
     <div id="analysis-container">
         {% if quiz.class_analysis_result %}
@@ -244,7 +244,7 @@
                 <!-- Class Strengths -->
                 {% if result.class_strengths %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-check-circle" style="color: var(--accent-success);"></i> Points forts de la classe</h4>
+                    <h4 class="mb-1"><i class="iconoir-check-circle" style="color: var(--accent-success);"></i> {{ _('Points forts de la classe') }}</h4>
                     <div class="flex flex-wrap gap-sm">
                         {% for strength in result.class_strengths %}
                         <span class="badge badge-success">{{ strength.topic }} ({{ strength.success_rate }}%)</span>
@@ -256,17 +256,17 @@
                 <!-- Concepts to Review -->
                 {% if result.concepts_to_review %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-book" style="color: var(--accent-warning);"></i> Notions a revoir en cours</h4>
+                    <h4 class="mb-1"><i class="iconoir-book" style="color: var(--accent-warning);"></i> {{ _('Notions a revoir en cours') }}</h4>
                     {% for concept in result.concepts_to_review %}
                     <div class="question-concern" style="background: rgba(139, 105, 20, 0.05);">
                         <strong>{{ concept.topic }}</strong>
-                        <span class="badge badge-warning ml-1">{{ concept.success_rate }}% reussite</span>
+                        <span class="badge badge-warning ml-1">{{ concept.success_rate }}% {{ _('reussite') }}</span>
                         {% if concept.questions_concerned %}
                         <small class="text-light ml-1">(Q{{ concept.questions_concerned|join(', Q') }})</small>
                         {% endif %}
                         <p class="mt-1 mb-1" style="font-size: 0.9rem;">{{ concept.teaching_suggestion }}</p>
                         {% if concept.common_errors %}
-                        <small class="text-light">Erreurs frequentes: {{ concept.common_errors|join(', ') }}</small>
+                        <small class="text-light">{{ _('Erreurs frequentes:') }} {{ concept.common_errors|join(', ') }}</small>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -276,7 +276,7 @@
                 <!-- Students Needing Support -->
                 {% if result.students_needing_support %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-user" style="color: var(--primary);"></i> Etudiants a accompagner</h4>
+                    <h4 class="mb-1"><i class="iconoir-user" style="color: var(--primary);"></i> {{ _('Etudiants a accompagner') }}</h4>
                     {% for student in result.students_needing_support %}
                     <div class="question-concern" style="background: rgba(59, 130, 246, 0.05); border-left-color: var(--primary);">
                         <strong>{{ student.name }}</strong>
@@ -296,7 +296,7 @@
                 <!-- Behavioral Observations -->
                 {% if result.behavioral_observations %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-eye-solid" style="color: var(--text-light);"></i> Observations comportementales</h4>
+                    <h4 class="mb-1"><i class="iconoir-eye-solid" style="color: var(--text-light);"></i> {{ _('Observations comportementales') }}</h4>
                     {% for obs in result.behavioral_observations %}
                     <div class="question-concern" style="background: {% if obs.level == 'attention' %}rgba(139, 105, 20, 0.1){% else %}var(--gray-50){% endif %}; border-left-color: {% if obs.level == 'attention' %}var(--accent-warning){% else %}var(--gray-300){% endif %};">
                         <strong>{{ obs.type }}</strong>
@@ -307,7 +307,7 @@
                         {% endif %}
                         <p class="mt-1 mb-1" style="font-size: 0.9rem;">{{ obs.description }}</p>
                         {% if obs.possible_explanations %}
-                        <small class="text-light"><i class="iconoir-info-circle"></i> Explications possibles: {{ obs.possible_explanations|join(', ') }}</small>
+                        <small class="text-light"><i class="iconoir-info-circle"></i> {{ _('Explications possibles:') }} {{ obs.possible_explanations|join(', ') }}</small>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -317,7 +317,7 @@
                 <!-- Recommendations -->
                 {% if result.recommendations %}
                 <div class="mb-1">
-                    <h4 class="mb-1"><i class="iconoir-task-list"></i> Recommandations</h4>
+                    <h4 class="mb-1"><i class="iconoir-task-list"></i> {{ _('Recommandations') }}</h4>
                     {% for rec in result.recommendations %}
                     {% if rec is mapping %}
                     <div class="question-concern" style="background: var(--gray-50); border-left-color: {% if rec.priority == 'high' %}var(--accent-error){% elif rec.priority == 'medium' %}var(--accent-warning){% else %}var(--gray-300){% endif %};">
@@ -338,7 +338,7 @@
             </div>
         {% else %}
             <p class="text-center text-light p-2">
-                Cliquez sur "Lancer l'analyse IA" pour obtenir une analyse pedagogique de la classe.
+                {{ _('Cliquez sur "Lancer l\'analyse IA" pour obtenir une analyse pedagogique de la classe.') }}
             </p>
         {% endif %}
     </div>
@@ -346,20 +346,20 @@
 
 <!-- Question Stats -->
 <div class="card mb-2">
-    <div class="card-header">Statistiques par question</div>
+    <div class="card-header">{{ _('Statistiques par question') }}</div>
 
     <div class="overflow-x-auto">
         <table class="question-stats-table">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Type</th>
-                    <th>Question</th>
-                    <th>Points</th>
-                    <th>Temps moy</th>
-                    <th>Ecart-type</th>
-                    <th>Score moy</th>
-                    <th>Focus</th>
+                    <th>{{ _('Type') }}</th>
+                    <th>{{ _('Question') }}</th>
+                    <th>{{ _('Points') }}</th>
+                    <th>{{ _('Temps moy') }}</th>
+                    <th>{{ _('Ecart-type') }}</th>
+                    <th>{{ _('Score moy') }}</th>
+                    <th>{{ _('Focus') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -393,14 +393,14 @@
 
 <!-- Student Comparison -->
 <div class="card mb-2">
-    <div class="card-header">Comparaison des etudiants</div>
+    <div class="card-header">{{ _('Comparaison des etudiants') }}</div>
 
     <div class="student-row header">
-        <span>Etudiant</span>
-        <span>Score</span>
-        <span>Duree</span>
-        <span>Focus</span>
-        <span>Temps par question (vert=rapide, rouge=lent)</span>
+        <span>{{ _('Etudiant') }}</span>
+        <span>{{ _('Score') }}</span>
+        <span>{{ _('Duree') }}</span>
+        <span>{{ _('Focus') }}</span>
+        <span>{{ _('Temps par question (vert=rapide, rouge=lent)') }}</span>
     </div>
 
     {% for student in stats.students %}
@@ -428,7 +428,7 @@
                 {% set std_time = q_stat.std_time or 10 %}
                 {% set deviation = (ans.time_spent - avg_time) %}
                 <span class="time-cell {% if deviation < -std_time %}fast{% elif deviation > std_time %}slow{% else %}normal{% endif %}"
-                      title="Q{{ ans.question_number }}: {{ ans.time_spent }}s (moy: {{ avg_time }}s)">
+                      title="Q{{ ans.question_number }}: {{ ans.time_spent }}s ({{ _('moy:') }} {{ avg_time }}s)">
                     {{ ans.time_spent }}
                 </span>
             {% endfor %}
@@ -439,7 +439,7 @@
 
 <div class="mt-2 flex gap-md">
     <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour aux resultats
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux resultats') }}
     </a>
 </div>
 {% endblock %}
@@ -453,7 +453,7 @@ async function runClassAnalysis() {
     const container = document.getElementById('analysis-container');
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> Analyse en cours...';
+    btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> {{ _('Analyse en cours...') }}';
 
     try {
         const response = await fetch('/admin/quiz/' + quizId + '/analyze-class', {
@@ -469,14 +469,14 @@ async function runClassAnalysis() {
         if (data.success) {
             location.reload();
         } else {
-            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            alert('{{ _('Erreur:') }} ' + (data.error || '{{ _('Erreur inconnue') }}'));
             btn.disabled = false;
-            btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse IA';
+            btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}';
         }
     } catch (err) {
-        alert('Erreur de connexion');
+        alert('{{ _('Erreur de connexion') }}');
         btn.disabled = false;
-        btn.innerHTML = '<i class="iconoir-sparks"></i> Lancer l\'analyse IA';
+        btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}';
     }
 }
 </script>

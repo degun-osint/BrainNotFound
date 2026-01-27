@@ -55,3 +55,9 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@localhost')
+
+    # Internationalization
+    LANGUAGES = ['fr', 'en']
+    BABEL_DEFAULT_LOCALE = 'fr'
+    BABEL_DEFAULT_TIMEZONE = 'Europe/Paris'
+    BABEL_TRANSLATION_DIRECTORIES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'translations')

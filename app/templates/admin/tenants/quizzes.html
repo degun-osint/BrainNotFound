@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Quiz de {{ tenant.name }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Quiz de') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Quiz du tenant</h1>
+<h1 class="mb-2">{{ _('Quiz du tenant') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
-        <span>{{ tenant.name }} - {{ quizzes|length }} quiz</span>
+        <span>{{ tenant.name }} - {{ quizzes|length }} {{ _('quiz') }}</span>
     </div>
 
     {% if quizzes %}
@@ -17,17 +17,17 @@
                 <div class="quiz-info">
                     <h3>{{ quiz.title }}</h3>
                     <div class="quiz-meta">
-                        {{ quiz.questions.count() }} questions -
-                        Cree le {{ quiz.created_at.strftime('%d/%m/%Y') }}
-                        {% if quiz.created_by %} par <strong>{{ quiz.created_by.username }}</strong>{% endif %}
+                        {{ quiz.questions.count() }} {{ _('questions') }} -
+                        {{ _('Cree le') }} {{ quiz.created_at.strftime('%d/%m/%Y') }}
+                        {% if quiz.created_by %} {{ _('par') }} <strong>{{ quiz.created_by.username }}</strong>{% endif %}
                         {% if quiz.time_limit_minutes %} - <span class="text-warning">{{ quiz.time_limit_minutes }} min</span>{% endif %} -
                         <span class="{{ 'text-success' if quiz.is_active else 'text-error' }}">
-                            {{ 'Actif' if quiz.is_active else 'Inactif' }}
+                            {{ _('Actif') if quiz.is_active else _('Inactif') }}
                         </span>
                     </div>
                     {% if quiz.groups.count() > 0 %}
                     <div class="quiz-groups text-sm mt-0">
-                        <span class="text-light">Groupes:</span>
+                        <span class="text-light">{{ _('Groupes:') }}</span>
                         {% for group in quiz.groups %}
                         <span class="tag">{{ group.name }}</span>
                         {% endfor %}
@@ -35,17 +35,17 @@
                     {% endif %}
                 </div>
                 <div class="quiz-actions">
-                    <button type="button" class="btn btn-secondary btn-small btn-icon" data-tooltip="Copier le lien"
+                    <button type="button" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Copier le lien') }}"
                             onclick="copyLink('{{ request.host_url }}quiz/{{ quiz.get_url_identifier() }}', this)">
                         <i class="iconoir-link"></i>
                     </button>
-                    <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Previsualiser">
+                    <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Previsualiser') }}">
                         <i class="iconoir-eye"></i>
                     </a>
-                    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Resultats">
+                    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Resultats') }}">
                         <i class="iconoir-stats-report"></i>
                     </a>
-                    <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="Modifier">
+                    <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
                 </div>
@@ -54,14 +54,14 @@
         </div>
     {% else %}
         <p class="text-center text-light p-2">
-            Aucun quiz dans ce tenant.
+            {{ _('Aucun quiz dans ce tenant.') }}
         </p>
     {% endif %}
 </div>
 
 <div class="mt-2">
     <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> Retour au tenant
+        <i class="iconoir-arrow-left"></i> {{ _('Retour au tenant') }}
     </a>
 </div>
 {% endblock %}

@@ -22,6 +22,7 @@ BrainNotFound est une application web open-source qui permet aux enseignants de 
 | Groupes | Organisez vos étudiants par classe ou projet |
 | Temporisation | Définissez des limites de temps et périodes de disponibilité |
 | Analytics | Suivez les résultats et exportez les données |
+| Multilingue | Interface et feedback IA en français et anglais |
 
 ## Versions disponibles
 
@@ -46,6 +47,7 @@ BrainNotFound est une application web open-source qui permet aux enseignants de 
 1. [Premiers pas](getting-started) : Configurez votre première classe
 2. [Syntaxe des quiz](quiz-syntax) : Apprenez à créer des quiz en Markdown
 3. [Administration](admin-guide) : Gérez vos utilisateurs et groupes
+4. [Internationalisation](i18n) : Changez la langue de l'interface
 
 ## Besoin d'aide ?
 

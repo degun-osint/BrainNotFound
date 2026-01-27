@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if edit_mode %}Modifier{% else %}Creer{% endif %} un entretien - {{ site_title }}{% endblock %}
+{% block title %}{% if edit_mode %}{{ _('Modifier') }}{% else %}{{ _('Creer') }}{% endif %} {{ _('un entretien') }} - {{ site_title }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -168,8 +168,8 @@
 {% block content %}
 <div class="page-header">
     <div class="page-header-content">
-        <h1>{% if edit_mode %}Modifier{% else %}Creer{% endif %} un entretien</h1>
-        <p class="text-light">Assistant de creation de personnage</p>
+        <h1>{% if edit_mode %}{{ _('Modifier') }}{% else %}{{ _('Creer') }}{% endif %} {{ _('un entretien') }}</h1>
+        <p class="text-light">{{ _('Assistant de creation de personnage') }}</p>
     </div>
 </div>
 
@@ -178,19 +178,19 @@
     <div id="mode-selection" class="{% if edit_mode %}hidden{% endif %}">
         <div class="card mb-2">
             <div class="card-header">
-                <h3>Mode de creation</h3>
+                <h3>{{ _('Mode de creation') }}</h3>
             </div>
             <div class="card-body">
                 <div class="grid grid-cols-2 gap-lg">
                     <button type="button" class="mode-card" onclick="selectMode('direct')">
                         <i class="iconoir-paste-clipboard" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h4>Coller un prompt</h4>
-                        <p class="text-light">J'ai deja un prompt pret, je veux juste le coller et configurer les parametres.</p>
+                        <h4>{{ _('Coller un prompt') }}</h4>
+                        <p class="text-light">{{ _("J'ai deja un prompt pret, je veux juste le coller et configurer les parametres.") }}</p>
                     </button>
                     <button type="button" class="mode-card" onclick="selectMode('wizard')">
                         <i class="iconoir-sparks" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h4>Creation assistee</h4>
-                        <p class="text-light">Je veux utiliser l'assistant pour definir le personnage et generer le prompt automatiquement.</p>
+                        <h4>{{ _('Creation assistee') }}</h4>
+                        <p class="text-light">{{ _("Je veux utiliser l'assistant pour definir le personnage et generer le prompt automatiquement.") }}</p>
                     </button>
                 </div>
             </div>
@@ -201,27 +201,27 @@
     <ul class="wizard-steps" id="wizard-steps-bar">
         <li class="wizard-step active" data-step="1">
             <span class="step-number">1</span>
-            <div class="step-title">Informations</div>
+            <div class="step-title">{{ _('Informations') }}</div>
         </li>
         <li class="wizard-step wizard-mode-only" data-step="2">
             <span class="step-number">2</span>
-            <div class="step-title">Identite</div>
+            <div class="step-title">{{ _('Identite') }}</div>
         </li>
         <li class="wizard-step wizard-mode-only" data-step="3">
             <span class="step-number">3</span>
-            <div class="step-title">Scenario</div>
+            <div class="step-title">{{ _('Scenario') }}</div>
         </li>
         <li class="wizard-step wizard-mode-only" data-step="4">
             <span class="step-number">4</span>
-            <div class="step-title">Psychologie</div>
+            <div class="step-title">{{ _('Psychologie') }}</div>
         </li>
         <li class="wizard-step" data-step="5">
             <span class="step-number"><span class="step-number-text-5">5</span></span>
-            <div class="step-title">Criteres</div>
+            <div class="step-title">{{ _('Criteres') }}</div>
         </li>
         <li class="wizard-step" data-step="6">
             <span class="step-number"><span class="step-number-text-6">6</span></span>
-            <div class="step-title">Prompt</div>
+            <div class="step-title">{{ _('Prompt') }}</div>
         </li>
     </ul>
 
@@ -234,34 +234,34 @@
             <div class="wizard-panel active" data-panel="1">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Informations de base</h3>
+                        <h3>{{ _('Informations de base') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">Titre *</label>
+                            <label class="form-label">{{ _('Titre') }} *</label>
                             <input type="text" name="title" class="form-input" required
                                    value="{% if interview %}{{ interview.title }}{% endif %}"
-                                   placeholder="Ex: Entretien RPS - Collegue en difficulte">
+                                   placeholder="{{ _('Ex: Entretien RPS - Collegue en difficulte') }}">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ _('Description') }}</label>
                             <textarea name="description" class="form-textarea" rows="2"
-                                      placeholder="Description visible par les etudiants">{% if interview %}{{ interview.description }}{% endif %}</textarea>
+                                      placeholder="{{ _('Description visible par les etudiants') }}">{% if interview %}{{ interview.description }}{% endif %}</textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-md">
                             <div class="form-group">
-                                <label class="form-label">Slug (URL)</label>
+                                <label class="form-label">{{ _('Slug (URL)') }}</label>
                                 <input type="text" name="slug" class="form-input"
                                        value="{% if interview %}{{ interview.slug }}{% endif %}"
-                                       placeholder="ex: rps-collegue" pattern="[a-z0-9\-]+">
-                                <small class="text-light">Lettres minuscules, chiffres et tirets uniquement</small>
+                                       placeholder="{{ _('ex: rps-collegue') }}" pattern="[a-z0-9\-]+">
+                                <small class="text-light">{{ _('Lettres minuscules, chiffres et tirets uniquement') }}</small>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Organisation</label>
+                                <label class="form-label">{{ _('Organisation') }}</label>
                                 <select name="tenant_id" class="form-select">
-                                    <option value="">Aucune</option>
+                                    <option value="">{{ _('Aucune') }}</option>
                                     {% for tenant_id, data in groups_by_tenant.items() %}
                                     {% if data.tenant %}
                                     <option value="{{ data.tenant.id }}" {% if interview and interview.tenant_id == data.tenant.id %}selected{% endif %}>
@@ -274,7 +274,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Groupes</label>
+                            <label class="form-label">{{ _('Groupes') }}</label>
                             <div class="flex flex-wrap gap-sm">
                                 {% for tenant_id, data in groups_by_tenant.items() %}
                                 {% for group in data.groups %}
@@ -286,17 +286,17 @@
                                 {% endfor %}
                                 {% endfor %}
                             </div>
-                            <small class="text-light">Aucun groupe = accessible a tous</small>
+                            <small class="text-light">{{ _('Aucun groupe = accessible a tous') }}</small>
                         </div>
 
                         <div class="grid grid-cols-2 gap-md">
                             <div class="form-group">
-                                <label class="form-label">Disponible a partir de</label>
+                                <label class="form-label">{{ _('Disponible a partir de') }}</label>
                                 <input type="datetime-local" name="available_from" class="form-input"
                                        value="{% if interview and interview.available_from %}{{ interview.available_from.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Disponible jusqu'au</label>
+                                <label class="form-label">{{ _("Disponible jusqu'au") }}</label>
                                 <input type="datetime-local" name="available_until" class="form-input"
                                        value="{% if interview and interview.available_until %}{{ interview.available_until.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
                             </div>
@@ -309,28 +309,28 @@
             <div class="wizard-panel" data-panel="2">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Identite du personnage</h3>
+                        <h3>{{ _('Identite du personnage') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="grid grid-cols-2 gap-md">
                             <div class="form-group">
-                                <label class="form-label">Nom du personnage</label>
+                                <label class="form-label">{{ _('Nom du personnage') }}</label>
                                 <input type="text" name="persona_name" class="form-input"
                                        value="{% if interview %}{{ interview.persona_name }}{% endif %}"
-                                       placeholder="Ex: Marie Dupont">
+                                       placeholder="{{ _('Ex: Marie Dupont') }}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Role / Fonction</label>
+                                <label class="form-label">{{ _('Role / Fonction') }}</label>
                                 <input type="text" name="persona_role" class="form-input"
                                        value="{% if interview %}{{ interview.persona_role }}{% endif %}"
-                                       placeholder="Ex: Collegue developpeur">
+                                       placeholder="{{ _('Ex: Collegue developpeur') }}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Contexte professionnel</label>
+                            <label class="form-label">{{ _('Contexte professionnel') }}</label>
                             <textarea name="persona_context" class="form-textarea" rows="3"
-                                      placeholder="Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres impliquee...">{% if interview %}{{ interview.persona_context }}{% endif %}</textarea>
+                                      placeholder="{{ _('Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres impliquee...') }}">{% if interview %}{{ interview.persona_context }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -340,19 +340,19 @@
             <div class="wizard-panel" data-panel="3">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Situation et scenario</h3>
+                        <h3>{{ _('Situation et scenario') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">Ce que l'etudiant sait au depart</label>
+                            <label class="form-label">{{ _("Ce que l'etudiant sait au depart") }}</label>
                             <textarea name="student_context" class="form-textarea" rows="3"
-                                      placeholder="Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...">{% if interview %}{{ interview.student_context }}{% endif %}</textarea>
+                                      placeholder="{{ _('Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...') }}">{% if interview %}{{ interview.student_context }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Objectif de l'etudiant</label>
+                            <label class="form-label">{{ _("Objectif de l'etudiant") }}</label>
                             <textarea name="student_objective" class="form-textarea" rows="2"
-                                      placeholder="Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide">{% if interview %}{{ interview.student_objective }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide") }}">{% if interview %}{{ interview.student_objective }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -362,31 +362,31 @@
             <div class="wizard-panel" data-panel="4">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Psychologie du personnage</h3>
+                        <h3>{{ _('Psychologie du personnage') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">Traits de personnalite</label>
+                            <label class="form-label">{{ _('Traits de personnalite') }}</label>
                             <textarea name="persona_personality" class="form-textarea" rows="3"
-                                      placeholder="Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, s'ouvre progressivement si elle se sent en confiance...">{% if interview %}{{ interview.persona_personality }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, s'ouvre progressivement si elle se sent en confiance...") }}">{% if interview %}{{ interview.persona_personality }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Ce que le personnage sait / pense</label>
+                            <label class="form-label">{{ _('Ce que le personnage sait / pense') }}</label>
                             <textarea name="persona_knowledge" class="form-textarea" rows="3"
-                                      placeholder="Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a peur de passer pour faible...">{% if interview %}{{ interview.persona_knowledge }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a peur de passer pour faible...") }}">{% if interview %}{{ interview.persona_knowledge }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Objectifs caches du personnage</label>
+                            <label class="form-label">{{ _('Objectifs caches du personnage') }}</label>
                             <textarea name="persona_objectives" class="form-textarea" rows="2"
-                                      placeholder="Ex: Elle aimerait en parler mais attend qu'on lui tende la main de maniere bienveillante...">{% if interview %}{{ interview.persona_objectives }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Elle aimerait en parler mais attend qu'on lui tende la main de maniere bienveillante...") }}">{% if interview %}{{ interview.persona_objectives }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Comportements declencheurs</label>
+                            <label class="form-label">{{ _('Comportements declencheurs') }}</label>
                             <textarea name="persona_triggers" class="form-textarea" rows="3"
-                                      placeholder="Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on reformule ses emotions, devient defensive si on minimise...">{% if interview %}{{ interview.persona_triggers }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on reformule ses emotions, devient defensive si on minimise...") }}">{% if interview %}{{ interview.persona_triggers }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -396,17 +396,17 @@
             <div class="wizard-panel" data-panel="5">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Criteres d'evaluation</h3>
+                        <h3>{{ _("Criteres d'evaluation") }}</h3>
                     </div>
                     <div class="card-body">
                         {% if has_results %}
                         <div class="alert alert-warning mb-md">
                             <i class="iconoir-lock"></i>
-                            <span>Les criteres ne peuvent plus etre modifies car des etudiants ont deja passe cet entretien.</span>
+                            <span>{{ _('Les criteres ne peuvent plus etre modifies car des etudiants ont deja passe cet entretien.') }}</span>
                         </div>
                         {% else %}
                         <div class="template-buttons">
-                            <span class="text-light">Templates:</span>
+                            <span class="text-light">{{ _('Templates:') }}</span>
                             {% for key, template in criteria_templates.items() %}
                             {% if key != 'custom' %}
                             <button type="button" class="btn btn-sm" onclick="loadTemplate('{{ key }}')">
@@ -423,7 +423,7 @@
 
                         {% if not has_results %}
                         <button type="button" class="btn btn-secondary mt-md" onclick="addCriterion()">
-                            <i class="iconoir-plus"></i> Ajouter un critere
+                            <i class="iconoir-plus"></i> {{ _('Ajouter un critere') }}
                         </button>
                         {% endif %}
                     </div>
@@ -434,25 +434,25 @@
             <div class="wizard-panel" data-panel="6">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Parametres et generation</h3>
+                        <h3>{{ _('Parametres et generation') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="grid grid-cols-3 gap-md">
                             <div class="form-group">
-                                <label class="form-label">Max interactions</label>
+                                <label class="form-label">{{ _('Max interactions') }}</label>
                                 <input type="number" name="max_interactions" class="form-input" min="5" max="100"
                                        value="{% if interview %}{{ interview.max_interactions }}{% else %}30{% endif %}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Duree max (min)</label>
+                                <label class="form-label">{{ _('Duree max (min)') }}</label>
                                 <input type="number" name="max_duration_minutes" class="form-input" min="5" max="120"
                                        value="{% if interview %}{{ interview.max_duration_minutes }}{% else %}30{% endif %}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Statut</label>
+                                <label class="form-label">{{ _('Statut') }}</label>
                                 <label class="check-item">
                                     <input type="checkbox" name="is_active" {% if not interview or interview.is_active %}checked{% endif %}>
-                                    <span>Actif</span>
+                                    <span>{{ _('Actif') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -460,11 +460,11 @@
                         <div class="flex gap-md">
                             <label class="check-item">
                                 <input type="checkbox" name="allow_student_end" {% if not interview or interview.allow_student_end %}checked{% endif %}>
-                                <span>L'etudiant peut terminer</span>
+                                <span>{{ _("L'etudiant peut terminer") }}</span>
                             </label>
                             <label class="check-item">
                                 <input type="checkbox" name="ai_can_end" {% if not interview or interview.ai_can_end %}checked{% endif %}>
-                                <span>L'IA peut terminer</span>
+                                <span>{{ _("L'IA peut terminer") }}</span>
                             </label>
                         </div>
 
@@ -472,18 +472,18 @@
 
                         <!-- Who starts the conversation -->
                         <div class="form-group">
-                            <label class="form-label">Qui commence la conversation ?</label>
+                            <label class="form-label">{{ _('Qui commence la conversation ?') }}</label>
                             <div class="flex gap-lg">
                                 <label class="check-item">
                                     <input type="radio" name="student_starts" value="0" {% if not interview or not interview.student_starts %}checked{% endif %}>
-                                    <span>Le personnage (bot)</span>
+                                    <span>{{ _('Le personnage (bot)') }}</span>
                                 </label>
                                 <label class="check-item">
                                     <input type="radio" name="student_starts" value="1" {% if interview and interview.student_starts %}checked{% endif %}>
-                                    <span>L'etudiant</span>
+                                    <span>{{ _("L'etudiant") }}</span>
                                 </label>
                             </div>
-                            <small class="text-light">Si le bot commence, il utilisera le message d'ouverture ci-dessous</small>
+                            <small class="text-light">{{ _("Si le bot commence, il utilisera le message d'ouverture ci-dessous") }}</small>
                         </div>
 
                         <hr class="my-lg">
@@ -494,38 +494,38 @@
                                 <input type="checkbox" name="require_file_upload" id="require_file_upload"
                                        onchange="toggleFileUploadOptions()"
                                        {% if interview and interview.require_file_upload %}checked{% endif %}>
-                                <span>Demander un fichier au debut</span>
+                                <span>{{ _('Demander un fichier au debut') }}</span>
                             </label>
-                            <small class="text-light">Ex: CV pour simulation d'entretien d'embauche</small>
+                            <small class="text-light">{{ _("Ex: CV pour simulation d'entretien d'embauche") }}</small>
                         </div>
 
                         <div id="file-upload-options" style="display: {% if interview and interview.require_file_upload %}block{% else %}none{% endif %}; margin-left: 1.5rem; margin-top: 1rem;">
                             <div class="grid grid-cols-2 gap-md">
                                 <div class="form-group">
-                                    <label class="form-label">Label du fichier</label>
+                                    <label class="form-label">{{ _('Label du fichier') }}</label>
                                     <input type="text" name="file_upload_label" class="form-input"
-                                           value="{% if interview and interview.file_upload_label %}{{ interview.file_upload_label }}{% else %}Votre CV{% endif %}"
-                                           placeholder="Ex: Votre CV, Votre dossier">
+                                           value="{% if interview and interview.file_upload_label %}{{ interview.file_upload_label }}{% else %}{{ _('Votre CV') }}{% endif %}"
+                                           placeholder="{{ _('Ex: Votre CV, Votre dossier') }}">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Instructions pour l'etudiant</label>
+                                <label class="form-label">{{ _("Instructions pour l'etudiant") }}</label>
                                 <textarea name="file_upload_description" class="form-textarea" rows="2"
-                                          placeholder="Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.">{% if interview %}{{ interview.file_upload_description }}{% endif %}</textarea>
+                                          placeholder="{{ _("Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.") }}">{% if interview %}{{ interview.file_upload_description }}{% endif %}</textarea>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Injection dans le prompt</label>
+                                <label class="form-label">{{ _('Injection dans le prompt') }}</label>
                                 <textarea name="file_upload_prompt_injection" class="form-textarea" rows="3"
-                                          placeholder="Ex: Voici le CV du candidat que tu vas interviewer:
+                                          placeholder="{{ _('Ex: Voici le CV du candidat que tu vas interviewer:') }}
 
 {file_content}
 
-Base tes questions sur ce CV.">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}Voici le document fourni par l'etudiant:
+{{ _('Base tes questions sur ce CV.') }}">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}{{ _("Voici le document fourni par l'etudiant:") }}
 
 {file_content}
 
-Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
-                                <small class="text-light">Utilisez {file_content} comme placeholder pour le contenu du fichier</small>
+{{ _('Utilise ces informations dans tes reponses et questions.') }}{% endif %}</textarea>
+                                <small class="text-light">{{ _('Utilisez {file_content} comme placeholder pour le contenu du fichier') }}</small>
                             </div>
                         </div>
 
@@ -533,24 +533,24 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
 
                         <div class="flex gap-md mb-md wizard-mode-only" id="generation-buttons">
                             <button type="button" class="btn btn-primary" onclick="generatePrompt()">
-                                <i class="iconoir-sparks"></i> Generer le prompt
+                                <i class="iconoir-sparks"></i> {{ _('Generer le prompt') }}
                             </button>
                             <button type="button" class="btn btn-secondary" onclick="generateOpening()">
-                                <i class="iconoir-chat-bubble"></i> Generer message d'ouverture
+                                <i class="iconoir-chat-bubble"></i> {{ _("Generer message d'ouverture") }}
                             </button>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Message d'ouverture (optionnel)</label>
+                            <label class="form-label">{{ _("Message d'ouverture (optionnel)") }}</label>
                             <textarea name="opening_message" id="opening_message" class="form-textarea" rows="3"
-                                      placeholder="Premier message du personnage pour demarrer la conversation...">{% if interview %}{{ interview.opening_message }}{% endif %}</textarea>
+                                      placeholder="{{ _('Premier message du personnage pour demarrer la conversation...') }}">{% if interview %}{{ interview.opening_message }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Prompt systeme *</label>
+                            <label class="form-label">{{ _('Prompt systeme') }} *</label>
                             <textarea name="system_prompt" id="system_prompt" class="form-textarea" rows="15" required
-                                      placeholder="Cliquez sur 'Generer le prompt' ou ecrivez manuellement...">{% if interview %}{{ interview.system_prompt }}{% endif %}</textarea>
-                            <small class="text-light">Ce prompt definit le comportement de l'IA pendant l'entretien</small>
+                                      placeholder="{{ _("Cliquez sur 'Generer le prompt' ou ecrivez manuellement...") }}">{% if interview %}{{ interview.system_prompt }}{% endif %}</textarea>
+                            <small class="text-light">{{ _("Ce prompt definit le comportement de l'IA pendant l'entretien") }}</small>
                         </div>
                     </div>
                 </div>
@@ -559,13 +559,13 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
 
         <div class="wizard-nav">
             <button type="button" class="btn btn-secondary" id="prev-btn" onclick="prevStep()" style="visibility: hidden;">
-                <i class="iconoir-arrow-left"></i> Precedent
+                <i class="iconoir-arrow-left"></i> {{ _('Precedent') }}
             </button>
             <button type="button" class="btn btn-primary" id="next-btn" onclick="nextStep()">
-                Suivant <i class="iconoir-arrow-right"></i>
+                {{ _('Suivant') }} <i class="iconoir-arrow-right"></i>
             </button>
             <button type="submit" class="btn btn-success" id="submit-btn" style="display: none;">
-                <i class="iconoir-check"></i> {% if edit_mode %}Enregistrer{% else %}Creer l'entretien{% endif %}
+                <i class="iconoir-check"></i> {% if edit_mode %}{{ _('Enregistrer') }}{% else %}{{ _("Creer l'entretien") }}{% endif %}
             </button>
         </div>
     </form>
@@ -575,7 +575,7 @@ Utilise ces informations dans tes reponses et questions.{% endif %}</textarea>
 <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner">
         <i class="iconoir-refresh rotating" style="font-size: 2rem;"></i>
-        <p id="loading-text">Generation en cours...</p>
+        <p id="loading-text">{{ _('Generation en cours...') }}</p>
     </div>
 </div>
 {% endblock %}
@@ -650,7 +650,7 @@ async function autoGeneratePrompt() {
     const promptField = document.getElementById('system_prompt');
     if (promptField.value.trim()) return;
 
-    showLoading('Generation automatique du prompt...');
+    showLoading('{{ _("Generation automatique du prompt...") }}');
     await generatePromptInternal();
     hideLoading();
 }
@@ -740,27 +740,27 @@ function renderCriteria() {
             ${deleteBtn}
             <div class="grid grid-cols-3 gap-md">
                 <div class="form-group">
-                    <label class="form-label">Nom</label>
+                    <label class="form-label">{{ _('Nom') }}</label>
                     <input type="text" class="form-input" value="${escapeHtml(c.name)}"
                            onchange="updateCriterion(${index}, 'name', this.value)" ${readonly}>
                 </div>
                 <div class="form-group col-span-2">
-                    <label class="form-label">Description</label>
+                    <label class="form-label">{{ _('Description') }}</label>
                     <input type="text" class="form-input" value="${escapeHtml(c.description)}"
                            onchange="updateCriterion(${index}, 'description', this.value)" ${readonly}>
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-md">
                 <div class="form-group">
-                    <label class="form-label">Points max</label>
+                    <label class="form-label">{{ _('Points max') }}</label>
                     <input type="number" class="form-input" value="${c.max_points}" min="1" max="20" step="0.5"
                            onchange="updateCriterion(${index}, 'max_points', this.value)" ${readonly}>
                 </div>
                 <div class="form-group col-span-2">
-                    <label class="form-label">Indices d'evaluation (pour l'IA)</label>
+                    <label class="form-label">{{ _("Indices d'evaluation (pour l'IA)") }}</label>
                     <input type="text" class="form-input" value="${escapeHtml(c.hints || '')}"
                            onchange="updateCriterion(${index}, 'hints', this.value)"
-                           placeholder="Ex: Chercher reformulations, questions ouvertes..." ${readonly}>
+                           placeholder="{{ _('Ex: Chercher reformulations, questions ouvertes...') }}" ${readonly}>
                 </div>
             </div>
         `;
@@ -778,7 +778,7 @@ function loadTemplate(key) {
     if (hasResults) return;
     const template = criteriaTemplates[key];
     if (template && template.criteria) {
-        if (criteria.length > 0 && !confirm('Remplacer les criteres actuels ?')) {
+        if (criteria.length > 0 && !confirm('{{ _("Remplacer les criteres actuels ?") }}')) {
             return;
         }
         criteria = JSON.parse(JSON.stringify(template.criteria));
@@ -817,32 +817,32 @@ async function generatePromptInternal() {
             document.getElementById('system_prompt').value = result.system_prompt;
             return true;
         } else {
-            console.error('Erreur generation:', result.error);
+            console.error('{{ _("Erreur generation:") }}', result.error);
             return false;
         }
     } catch (error) {
-        console.error('Erreur de connexion:', error.message);
+        console.error('{{ _("Erreur de connexion:") }}', error.message);
         return false;
     }
 }
 
 async function generatePrompt() {
-    showLoading('Generation du prompt en cours...');
+    showLoading('{{ _("Generation du prompt en cours...") }}');
     const success = await generatePromptInternal();
     hideLoading();
     if (!success) {
-        alert('Erreur lors de la generation du prompt');
+        alert('{{ _("Erreur lors de la generation du prompt") }}');
     }
 }
 
 async function generateOpening() {
     const systemPrompt = document.getElementById('system_prompt').value;
     if (!systemPrompt) {
-        alert('Generez d\'abord le prompt systeme');
+        alert("{{ _("Generez d'abord le prompt systeme") }}");
         return;
     }
 
-    showLoading('Generation du message d\'ouverture...');
+    showLoading("{{ _("Generation du message d'ouverture...") }}");
 
     try {
         const response = await fetch('{{ url_for("interview.generate_opening") }}', {
@@ -860,11 +860,11 @@ async function generateOpening() {
         if (result.success) {
             document.getElementById('opening_message').value = result.opening_message;
         } else {
-            alert('Erreur: ' + result.error);
+            alert('{{ _("Erreur:") }} ' + result.error);
         }
     } catch (error) {
         hideLoading();
-        alert('Erreur de connexion: ' + error.message);
+        alert('{{ _("Erreur de connexion:") }} ' + error.message);
     }
 }
 

@@ -1,22 +1,63 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ get_locale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrainNotFound</title>
+
+    <!-- SEO Meta -->
+    <title>{{ site_title }} - {{ _('Evaluation intelligente avec IA') }}</title>
+    <meta name="description" content="{{ _('Plateforme d evaluation intelligente : quiz en Markdown, entretiens IA, correction automatisee. Open-source.') }}">
+    <link rel="canonical" href="{{ request.url }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ site_title }} - {{ _('Evaluation intelligente') }}">
+    <meta property="og:description" content="{{ _('Quiz en Markdown, entretiens IA, correction par Claude.') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:locale" content="{{ get_locale() }}_{{ 'FR' if get_locale() == 'fr' else 'US' }}">
+
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="fr" href="{{ url_for('auth.index', _external=True) }}?lang=fr">
+    <link rel="alternate" hreflang="en" href="{{ url_for('auth.index', _external=True) }}?lang=en">
+    <link rel="alternate" hreflang="x-default" href="{{ url_for('auth.index', _external=True) }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container" style="text-align: center; padding: 4rem 1rem;">
-        <h1>>_ BrainNotFound</h1>
-        <p class="text-light">Plateforme d'evaluation intelligente</p>
+        <h1>>_ {{ site_title }}</h1>
+        <p class="text-light">{{ _('Plateforme d evaluation intelligente') }}</p>
         <div style="margin-top: 2rem;">
-            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Se connecter</a>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Creer un compte</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">{{ _('Se connecter') }}</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">{{ _('Creer un compte') }}</a>
         </div>
+
+        <!-- Language selector -->
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('auth.set_language', lang='fr') }}" class="{% if get_locale() == 'fr' %}text-primary{% else %}text-light{% endif %}" style="margin-right: 1rem;">FR</a>
+            <a href="{{ url_for('auth.set_language', lang='en') }}" class="{% if get_locale() == 'en' %}text-primary{% else %}text-light{% endif %}">EN</a>
+        </div>
+
         <p class="text-sm text-light" style="margin-top: 3rem;">
-            Pour personnaliser cette page, copiez <code>private.example/</code> vers <code>private/</code>
+            {{ _('Pour personnaliser cette page, copiez') }} <code>private.example/</code> {{ _('vers') }} <code>private/</code>
         </p>
     </div>
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "{{ site_title }}",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "{{ _('Plateforme d evaluation intelligente avec correction IA') }}",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+        }
+    }
+    </script>
 </body>
 </html>

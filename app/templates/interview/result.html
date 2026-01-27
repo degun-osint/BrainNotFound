@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Resultats - {{ interview.title }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Resultats') }} - {{ interview.title }} - {{ site_title }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -131,22 +131,22 @@
 {% block content %}
 <div class="page-header">
     <div class="page-header-content">
-        <h1>Resultats de l'entretien</h1>
+        <h1>{{ _("Resultats de l'entretien") }}</h1>
         <p class="text-light">{{ interview.title }}</p>
     </div>
     <div class="page-header-actions">
-        <a href="{{ url_for('interview.result_pdf', session_identifier=session.get_url_identifier()) }}" class="btn btn-primary">
-            <i class="iconoir-download"></i> Telecharger PDF
+        <a href="{{ url_for('interview.result_pdf', identifier=session.get_url_identifier()) }}" class="btn btn-primary">
+            <i class="iconoir-download"></i> {{ _('Telecharger PDF') }}
         </a>
         <a href="{{ url_for('interview.interview_list') }}" class="btn">
-            <i class="iconoir-arrow-left"></i> Retour aux entretiens
+            <i class="iconoir-arrow-left"></i> {{ _('Retour aux entretiens') }}
         </a>
     </div>
 </div>
 
 <!-- Score header -->
 <div class="result-header">
-    <h2>{{ interview.persona_name or 'Entretien' }}</h2>
+    <h2>{{ interview.persona_name or _('Entretien') }}</h2>
     <div class="score-display">
         {{ "%.1f"|format(session.total_score) }} / {{ "%.1f"|format(session.max_score) }}
     </div>
@@ -154,14 +154,14 @@
         {{ "%.0f"|format(session.get_score_percentage()) }}%
     </div>
     <div class="mt-md text-light">
-        <i class="iconoir-clock"></i> {{ session.get_duration_minutes() }} minutes
+        <i class="iconoir-clock"></i> {{ session.get_duration_minutes() }} {{ _('minutes') }}
         &bull;
-        <i class="iconoir-chat-bubble"></i> {{ session.interaction_count }} echanges
+        <i class="iconoir-chat-bubble"></i> {{ session.interaction_count }} {{ _('echanges') }}
     </div>
 </div>
 
 <!-- Criteria scores -->
-<h3>Evaluation par critere</h3>
+<h3>{{ _('Evaluation par critere') }}</h3>
 <div class="criteria-grid">
     {% for score in session.scores %}
     {% set percentage = score.get_percentage() %}
@@ -184,7 +184,7 @@
 <!-- AI Summary -->
 {% if session.ai_summary %}
 <div class="summary-card">
-    <h3><i class="iconoir-sparks"></i> Synthese</h3>
+    <h3><i class="iconoir-sparks"></i> {{ _('Synthese') }}</h3>
     <p>{{ session.ai_summary }}</p>
 </div>
 {% endif %}
@@ -192,7 +192,7 @@
 <!-- Admin comment -->
 {% if session.admin_comment %}
 <div class="summary-card">
-    <h3><i class="iconoir-message"></i> Commentaire du formateur</h3>
+    <h3><i class="iconoir-message"></i> {{ _('Commentaire du formateur') }}</h3>
     <p>{{ session.admin_comment }}</p>
 </div>
 {% endif %}
@@ -200,7 +200,7 @@
 <!-- Transcript -->
 <div class="transcript-toggle" onclick="toggleTranscript()">
     <i class="iconoir-chat-lines" id="transcript-icon"></i>
-    <span>Voir la transcription complete</span>
+    <span>{{ _('Voir la transcription complete') }}</span>
     <i class="iconoir-nav-arrow-down" style="margin-left: auto;"></i>
 </div>
 
@@ -208,7 +208,7 @@
     {% for message in session.messages %}
     <div class="transcript-message {{ message.role }}">
         <div class="transcript-role">
-            {% if message.role == 'user' %}Vous{% else %}{{ interview.persona_name or 'Personnage' }}{% endif %}
+            {% if message.role == 'user' %}{{ _('Vous') }}{% else %}{{ interview.persona_name or _('Personnage') }}{% endif %}
             - {{ message.created_at|localtime_short }}
         </div>
         <div class="transcript-message-content" data-raw="{{ message.content | e }}"></div>

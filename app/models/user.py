@@ -43,6 +43,9 @@ class User(UIDMixin, UserMixin, db.Model):
     last_login = db.Column(db.DateTime, nullable=True)
     last_login_ip = db.Column(db.String(45), nullable=True)  # IPv6 can be up to 45 chars
 
+    # Language preference for i18n
+    language_preference = db.Column(db.String(5), nullable=True, default=None)
+
     # Relationships
     group = db.relationship('Group', back_populates='users', foreign_keys=[group_id])  # Legacy
     responses = db.relationship('QuizResponse', back_populates='user', lazy='dynamic',
@@ -92,6 +95,21 @@ class User(UIDMixin, UserMixin, db.Model):
             user_groups.c.role == 'admin'
         )
 
+    def get_accessible_groups(self):
+        """Get all groups this admin can manage (for tenant admins includes tenant groups)."""
+        from app.models.group import Group
+        if self.is_superadmin:
+            return Group.query.filter_by(is_active=True)
+        if self.is_tenant_admin:
+            # Tenant admins can access all groups in their tenants
+            tenant_ids = [t.id for t in self.admin_tenants]
+            return Group.query.filter(
+                Group.is_active == True,
+                Group.tenant_id.in_(tenant_ids)
+            )
+        # Group admins can only access their direct admin groups
+        return self.get_admin_groups().filter(Group.is_active == True)
+
     def is_admin_of_tenant(self, tenant_id):
         """Check if user is admin of a specific tenant."""
         if self.is_superadmin:
@@ -118,9 +136,16 @@ class User(UIDMixin, UserMixin, db.Model):
         return self.groups
 
     def is_admin_of_group(self, group_id):
-        """Check if user is admin of a specific group."""
+        """Check if user is admin of a specific group (includes tenant admins)."""
         if self.is_superadmin:
             return True
+        # Tenant admin can access groups in their tenants
+        if self.is_tenant_admin:
+            from app.models.group import Group
+            group = Group.query.get(group_id)
+            if group and group.tenant_id:
+                return self.is_admin_of_tenant(group.tenant_id)
+        # Direct group admin
         return self.get_admin_groups().filter_by(id=group_id).first() is not None
 
     def is_member_of_group(self, group_id):

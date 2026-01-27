@@ -6,11 +6,11 @@
 {% if is_test %}
 <div class="preview-banner mb-2 flex justify-between items-center">
     <div>
-        <h3><i class="iconoir-flask"></i> Mode Test</h3>
-        <p class="text-sm" style="opacity: 0.9;">Vous testez ce quiz en tant qu'admin. Les résultats seront marqués comme test.</p>
+        <h3><i class="iconoir-flask"></i> {{ _('Mode Test') }}</h3>
+        <p class="text-sm" style="opacity: 0.9;">{{ _('Vous testez ce quiz en tant qu\'admin. Les resultats seront marques comme test.') }}</p>
     </div>
     <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-small btn-ghost">
-        <i class="iconoir-arrow-left"></i> Retour preview
+        <i class="iconoir-arrow-left"></i> {{ _('Retour preview') }}
     </a>
 </div>
 {% endif %}
@@ -19,8 +19,8 @@
 
 {% if time_limit_minutes %}
 <div id="timer-banner" class="alert alert-info" style="position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center;">
-    <span><strong>Temps limite :</strong> {{ time_limit_minutes }} minutes</span>
-    <span><strong>Temps restant :</strong> <span id="timer-display">--:--</span></span>
+    <span><strong>{{ _('Temps limite :') }}</strong> {{ time_limit_minutes }} {{ _('minutes') }}</span>
+    <span><strong>{{ _('Temps restant :') }}</strong> <span id="timer-display">--:--</span></span>
 </div>
 {% endif %}
 
@@ -35,7 +35,7 @@
     <div class="question">
         <div class="question-header">
             <span class="question-type">{{ question.question_type|upper }}</span>
-            <span class="question-points">{{ question.points }} point(s)</span>
+            <span class="question-points">{{ question.points }} {{ _('point(s)') }}</span>
         </div>
 
         <div class="question-text">{{ question.question_text|render_quiz_images(quiz.id) }}</div>
@@ -58,13 +58,13 @@
             </ul>
             {% if question.allow_multiple %}
             <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem;">
-                <em>Plusieurs reponses possibles</em>
+                <em>{{ _('Plusieurs reponses possibles') }}</em>
             </p>
             {% endif %}
         {% else %}
             <div class="form-group" style="margin-top: 1rem;">
                 <textarea name="question_{{ question.id }}" class="form-textarea"
-                          placeholder="Votre réponse..." required></textarea>
+                          placeholder="{{ _('Votre reponse...') }}" required></textarea>
             </div>
         {% endif %}
     </div>
@@ -77,15 +77,15 @@
 
     <div style="display: flex; gap: 1rem; margin-top: 2rem;">
         <button type="button" class="btn btn-primary" id="submitQuizBtn">
-            Soumettre le quiz
+            {{ _('Soumettre le quiz') }}
         </button>
-        <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary">Annuler</a>
+        <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary">{{ _('Annuler') }}</a>
     </div>
 </form>
 
 <script>
 document.getElementById('submitQuizBtn').addEventListener('click', function() {
-    Modal.confirm('Etes-vous sur de vouloir soumettre votre quiz ?', 'Confirmation').then(function(confirmed) {
+    Modal.confirm('{{ _('Etes-vous sur de vouloir soumettre votre quiz ?') }}', '{{ _('Confirmation') }}').then(function(confirmed) {
         if (confirmed) {
             document.getElementById('quizForm').submit();
         }
@@ -126,7 +126,7 @@ document.getElementById('submitQuizBtn').addEventListener('click', function() {
         // Time expired
         else if (remainingSeconds <= 0 && !timeExpired) {
             timeExpired = true;
-            timerBanner.innerHTML = '<strong>Temps ecoule !</strong> Vous pouvez encore soumettre votre quiz (la soumission sera marquee en retard).';
+            timerBanner.innerHTML = '<strong>{{ _('Temps ecoule !') }}</strong> {{ _('Vous pouvez encore soumettre votre quiz (la soumission sera marquee en retard).') }}';
             timerBanner.className = 'alert alert-error';
             timerBanner.style.position = 'sticky';
             timerBanner.style.top = '0';

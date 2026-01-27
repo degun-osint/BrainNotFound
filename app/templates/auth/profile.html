@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Mon profil - BrainNotFound{% endblock %}
+{% block title %}{{ _('Mon profil') }} - BrainNotFound{% endblock %}
 
 {% block content %}
 <div class="container" style="max-width: 800px; margin: 2rem auto;">
-    <h1 class="mb-2"><i class="iconoir-user"></i> Mon profil</h1>
+    <h1 class="mb-2"><i class="iconoir-user"></i> {{ _('Mon profil') }}</h1>
 
     <div class="card mb-2">
         <div class="card-header">
-            <h3><i class="iconoir-user-circle"></i> Informations personnelles</h3>
+            <h3><i class="iconoir-user-circle"></i> {{ _('Informations personnelles') }}</h3>
         </div>
         <div class="card-body">
             <form method="POST">
                 <input type="hidden" name="action" value="update_info">
                 <div style="display: flex; gap: 1rem;">
                     <div class="form-group" style="flex: 1;">
-                        <label class="form-label" for="first_name">Prenom</label>
+                        <label class="form-label" for="first_name">{{ _('Prenom') }}</label>
                         <input type="text" id="first_name" name="first_name" class="form-input"
                                value="{{ current_user.first_name or '' }}" required>
                     </div>
                     <div class="form-group" style="flex: 1;">
-                        <label class="form-label" for="last_name">Nom</label>
+                        <label class="form-label" for="last_name">{{ _('Nom') }}</label>
                         <input type="text" id="last_name" name="last_name" class="form-input"
                                value="{{ current_user.last_name or '' }}" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nom d'utilisateur</label>
+                    <label class="form-label">{{ _('Nom d\'utilisateur') }}</label>
                     <input type="text" class="form-input" value="{{ current_user.username }}" disabled>
-                    <small style="color: var(--text-light);">Le nom d'utilisateur ne peut pas etre modifie</small>
+                    <small style="color: var(--text-light);">{{ _('Le nom d\'utilisateur ne peut pas etre modifie') }}</small>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="iconoir-check"></i> Enregistrer
+                    <i class="iconoir-check"></i> {{ _('Enregistrer') }}
                 </button>
             </form>
         </div>
@@ -39,20 +39,20 @@
 
     <div class="card mb-2">
         <div class="card-header">
-            <h3><i class="iconoir-mail"></i> Adresse email</h3>
+            <h3><i class="iconoir-mail"></i> {{ _('Adresse email') }}</h3>
         </div>
         <div class="card-body">
             <div class="form-group">
-                <label class="form-label">Email actuel</label>
+                <label class="form-label">{{ _('Email actuel') }}</label>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <input type="email" class="form-input" value="{{ current_user.email }}" disabled style="flex: 1;">
                     {% if current_user.email_verified %}
                     <span class="badge badge-success" style="white-space: nowrap;">
-                        <i class="iconoir-check-circle"></i> Verifie
+                        <i class="iconoir-check-circle"></i> {{ _('Verifie') }}
                     </span>
                     {% else %}
                     <span class="badge badge-warning" style="white-space: nowrap;">
-                        <i class="iconoir-warning-circle"></i> Non verifie
+                        <i class="iconoir-warning-circle"></i> {{ _('Non verifie') }}
                     </span>
                     {% endif %}
                 </div>
@@ -60,16 +60,16 @@
             <form method="POST">
                 <input type="hidden" name="action" value="change_email">
                 <div class="form-group">
-                    <label class="form-label" for="new_email">Nouvelle adresse email</label>
+                    <label class="form-label" for="new_email">{{ _('Nouvelle adresse email') }}</label>
                     <input type="email" id="new_email" name="new_email" class="form-input"
-                           placeholder="nouvelle@email.com">
+                           placeholder="{{ _('nouvelle@email.com') }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="email_password">Mot de passe (pour confirmer)</label>
+                    <label class="form-label" for="email_password">{{ _('Mot de passe (pour confirmer)') }}</label>
                     <input type="password" id="email_password" name="email_password" class="form-input">
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="iconoir-mail"></i> Changer l'email
+                    <i class="iconoir-mail"></i> {{ _('Changer l\'email') }}
                 </button>
             </form>
         </div>
@@ -77,25 +77,25 @@
 
     <div class="card mb-2">
         <div class="card-header">
-            <h3><i class="iconoir-lock"></i> Mot de passe</h3>
+            <h3><i class="iconoir-lock"></i> {{ _('Mot de passe') }}</h3>
         </div>
         <div class="card-body">
             <form method="POST">
                 <input type="hidden" name="action" value="change_password">
                 <div class="form-group">
-                    <label class="form-label" for="current_password">Mot de passe actuel</label>
+                    <label class="form-label" for="current_password">{{ _('Mot de passe actuel') }}</label>
                     <input type="password" id="current_password" name="current_password" class="form-input">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="new_password">Nouveau mot de passe</label>
+                    <label class="form-label" for="new_password">{{ _('Nouveau mot de passe') }}</label>
                     <input type="password" id="new_password" name="new_password" class="form-input">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="confirm_password">Confirmer le nouveau mot de passe</label>
+                    <label class="form-label" for="confirm_password">{{ _('Confirmer le nouveau mot de passe') }}</label>
                     <input type="password" id="confirm_password" name="confirm_password" class="form-input">
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="iconoir-lock"></i> Changer le mot de passe
+                    <i class="iconoir-lock"></i> {{ _('Changer le mot de passe') }}
                 </button>
             </form>
         </div>
@@ -103,7 +103,7 @@
 
     <div class="card mb-2">
         <div class="card-header">
-            <h3><i class="iconoir-group"></i> Mes groupes</h3>
+            <h3><i class="iconoir-group"></i> {{ _('Mes groupes') }}</h3>
         </div>
         <div class="card-body">
             {% if current_user.groups.count() > 0 %}
@@ -113,28 +113,28 @@
                     <strong>{{ group.name }}</strong>
                     {% set role = current_user.get_role_in_group(group.id) %}
                     {% if role == 'admin' %}
-                    <span class="badge badge-primary">Admin</span>
+                    <span class="badge badge-primary">{{ _('Admin') }}</span>
                     {% else %}
-                    <span class="badge badge-secondary">Membre</span>
+                    <span class="badge badge-secondary">{{ _('Membre') }}</span>
                     {% endif %}
                 </li>
                 {% endfor %}
             </ul>
             {% else %}
-            <p class="text-light mb-1">Vous n'appartenez a aucun groupe.</p>
+            <p class="text-light mb-1">{{ _('Vous n\'appartenez a aucun groupe.') }}</p>
             {% endif %}
 
             <hr style="margin: 1rem 0; border-color: var(--border);">
 
-            <h4 style="margin-bottom: 0.75rem;"><i class="iconoir-plus"></i> Rejoindre un groupe</h4>
+            <h4 style="margin-bottom: 0.75rem;"><i class="iconoir-plus"></i> {{ _('Rejoindre un groupe') }}</h4>
             <form method="POST" action="{{ url_for('auth.join_group') }}" style="display: flex; gap: 0.5rem; align-items: flex-end;">
                 <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                    <label class="form-label" for="join_code">Code de groupe</label>
+                    <label class="form-label" for="join_code">{{ _('Code de groupe') }}</label>
                     <input type="text" id="join_code" name="join_code" class="form-input"
-                           placeholder="Ex: ABC12DEF" style="text-transform: uppercase;">
+                           placeholder="{{ _('Ex: ABC12DEF') }}" style="text-transform: uppercase;">
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="iconoir-plus"></i> Rejoindre
+                    <i class="iconoir-plus"></i> {{ _('Rejoindre') }}
                 </button>
             </form>
         </div>
@@ -142,20 +142,20 @@
 
     <div class="card mb-2">
         <div class="card-header">
-            <h3><i class="iconoir-clock"></i> Activite du compte</h3>
+            <h3><i class="iconoir-clock"></i> {{ _('Activite du compte') }}</h3>
         </div>
         <div class="card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                 <div>
-                    <label class="form-label text-light" style="font-size: 0.85rem;">Compte cree le</label>
+                    <label class="form-label text-light" style="font-size: 0.85rem;">{{ _('Compte cree le') }}</label>
                     <p style="margin: 0;">{{ current_user.created_at|localtime if current_user.created_at else '-' }}</p>
                 </div>
                 <div>
-                    <label class="form-label text-light" style="font-size: 0.85rem;">Derniere connexion</label>
+                    <label class="form-label text-light" style="font-size: 0.85rem;">{{ _('Derniere connexion') }}</label>
                     <p style="margin: 0;">{{ current_user.last_login|localtime if current_user.last_login else '-' }}</p>
                 </div>
                 <div>
-                    <label class="form-label text-light" style="font-size: 0.85rem;">Adresse IP</label>
+                    <label class="form-label text-light" style="font-size: 0.85rem;">{{ _('Adresse IP') }}</label>
                     <p style="margin: 0; font-family: var(--font-mono); font-size: 0.9rem;">{{ current_user.last_login_ip or '-' }}</p>
                 </div>
             </div>
@@ -164,29 +164,29 @@
 
     <div class="card">
         <div class="card-header">
-            <h3><i class="iconoir-shield-check"></i> Donnees personnelles (RGPD)</h3>
+            <h3><i class="iconoir-shield-check"></i> {{ _('Donnees personnelles (RGPD)') }}</h3>
         </div>
         <div class="card-body">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <!-- Export Data -->
                 <div>
-                    <h4 style="margin-bottom: 0.5rem;"><i class="iconoir-download"></i> Exporter mes donnees</h4>
+                    <h4 style="margin-bottom: 0.5rem;"><i class="iconoir-download"></i> {{ _('Exporter mes donnees') }}</h4>
                     <p class="text-light" style="font-size: 0.9rem; margin-bottom: 1rem;">
-                        Telechargez une copie de toutes vos donnees personnelles au format JSON.
+                        {{ _('Telechargez une copie de toutes vos donnees personnelles au format JSON.') }}
                     </p>
                     <a href="{{ url_for('auth.export_data') }}" class="btn btn-secondary">
-                        <i class="iconoir-download"></i> Telecharger mes donnees
+                        <i class="iconoir-download"></i> {{ _('Telecharger mes donnees') }}
                     </a>
                 </div>
 
                 <!-- Delete Account -->
                 <div>
-                    <h4 style="margin-bottom: 0.5rem; color: var(--error);"><i class="iconoir-trash"></i> Supprimer mon compte</h4>
+                    <h4 style="margin-bottom: 0.5rem; color: var(--error);"><i class="iconoir-trash"></i> {{ _('Supprimer mon compte') }}</h4>
                     <p class="text-light" style="font-size: 0.9rem; margin-bottom: 1rem;">
-                        Supprimez definitivement votre compte et toutes vos donnees. Cette action est irreversible.
+                        {{ _('Supprimez definitivement votre compte et toutes vos donnees. Cette action est irreversible.') }}
                     </p>
                     <button type="button" class="btn btn-error" onclick="showDeleteAccountModal()">
-                        <i class="iconoir-trash"></i> Supprimer mon compte
+                        <i class="iconoir-trash"></i> {{ _('Supprimer mon compte') }}
                     </button>
                 </div>
             </div>
@@ -198,38 +198,38 @@
 <div id="delete-account-modal" class="modal-overlay modal-danger">
     <div class="modal">
         <div class="modal-header">
-            <h3 class="modal-title" style="color: var(--error);"><i class="iconoir-warning-triangle"></i> Supprimer mon compte</h3>
+            <h3 class="modal-title" style="color: var(--error);"><i class="iconoir-warning-triangle"></i> {{ _('Supprimer mon compte') }}</h3>
             <button type="button" class="modal-close" onclick="hideDeleteAccountModal()">&times;</button>
         </div>
         <form method="POST" action="{{ url_for('auth.delete_account') }}">
             <div class="modal-body">
                 <div class="alert alert-error" style="margin-bottom: 1rem;">
                     <i class="iconoir-warning-circle"></i>
-                    <strong>Attention !</strong> Cette action est irreversible. Toutes vos donnees seront definitivement supprimees :
+                    <strong>{{ _('Attention !') }}</strong> {{ _('Cette action est irreversible. Toutes vos donnees seront definitivement supprimees :') }}
                     <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
-                        <li>Votre profil et informations personnelles</li>
-                        <li>Vos reponses aux quiz et scores</li>
-                        <li>Vos sessions d'entretiens</li>
-                        <li>Vos appartenances aux groupes</li>
+                        <li>{{ _('Votre profil et informations personnelles') }}</li>
+                        <li>{{ _('Vos reponses aux quiz et scores') }}</li>
+                        <li>{{ _('Vos sessions d\'entretiens') }}</li>
+                        <li>{{ _('Vos appartenances aux groupes') }}</li>
                     </ul>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="delete_password">Mot de passe</label>
+                    <label class="form-label" for="delete_password">{{ _('Mot de passe') }}</label>
                     <input type="password" id="delete_password" name="password" class="form-input" required
-                           placeholder="Entrez votre mot de passe">
+                           placeholder="{{ _('Entrez votre mot de passe') }}">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="confirm_text">Tapez <strong>SUPPRIMER</strong> pour confirmer</label>
+                    <label class="form-label" for="confirm_text">{{ _('Tapez') }} <strong>{{ _('SUPPRIMER') }}</strong> {{ _('pour confirmer') }}</label>
                     <input type="text" id="confirm_text" name="confirm_text" class="form-input" required
-                           placeholder="SUPPRIMER" autocomplete="off">
+                           placeholder="{{ _('SUPPRIMER') }}" autocomplete="off">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="hideDeleteAccountModal()">Annuler</button>
+                <button type="button" class="btn btn-secondary" onclick="hideDeleteAccountModal()">{{ _('Annuler') }}</button>
                 <button type="submit" class="btn btn-error">
-                    <i class="iconoir-trash"></i> Supprimer definitivement
+                    <i class="iconoir-trash"></i> {{ _('Supprimer definitivement') }}
                 </button>
             </div>
         </form>

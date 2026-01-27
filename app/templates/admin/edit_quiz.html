@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 
-{% block title %}Modifier {{ quiz.title }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Modifier') }} {{ quiz.title }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Modifier le quiz</h1>
+<h1 class="mb-2">{{ _('Modifier le quiz') }}</h1>
 
 <!-- Quiz Link Section -->
 <div class="card mb-1">
-    <div class="card-header">Lien de partage</div>
+    <div class="card-header">{{ _('Lien de partage') }}</div>
     <div class="share-box">
         <code id="quiz-link" class="share-link">{{ request.host_url }}quiz/{{ quiz.slug or quiz.id }}</code>
-        <button type="button" class="btn btn-secondary btn-small" onclick="copyQuizLink()" data-tooltip="Copier dans le presse-papier">
-            <i class="iconoir-copy"></i> Copier
+        <button type="button" class="btn btn-secondary btn-small" onclick="copyQuizLink()" data-tooltip="{{ _('Copier dans le presse-papier') }}">
+            <i class="iconoir-copy"></i> {{ _('Copier') }}
         </button>
-        <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="Voir le quiz">
-            <i class="iconoir-eye"></i> Preview
+        <a href="{{ url_for('admin.preview_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small" data-tooltip="{{ _('Voir le quiz') }}">
+            <i class="iconoir-eye"></i> {{ _('Preview') }}
         </a>
     </div>
 </div>
 
 <div class="card">
     <!-- Image Upload Section -->
-    <div class="card-header">Images</div>
+    <div class="card-header">{{ _('Images') }}</div>
     <div class="bg-gray rounded p-1 mb-1">
         <p class="text-light text-sm mb-0">
-            Uploadez des images puis inserez le code Markdown genere dans votre quiz.
-            Syntaxe: <code>![description](nom_fichier.png)</code>
+            {{ _('Uploadez des images puis inserez le code Markdown genere dans votre quiz.') }}
+            {{ _('Syntaxe:') }} <code>![description](nom_fichier.png)</code>
         </p>
         <div class="flex items-center gap-md flex-wrap mt-1">
             <input type="file" id="image-upload" accept="image/*" class="hidden">
             <button type="button" class="btn btn-secondary" onclick="document.getElementById('image-upload').click()">
-                <i class="iconoir-media-image-plus"></i> Ajouter une image
+                <i class="iconoir-media-image-plus"></i> {{ _('Ajouter une image') }}
             </button>
             <span id="upload-status" class="text-light"></span>
         </div>
@@ -39,52 +39,52 @@
 
     <form method="POST">
         <div class="form-group">
-            <label class="form-label" for="markdown_content">Contenu Markdown</label>
+            <label class="form-label" for="markdown_content">{{ _('Contenu Markdown') }}</label>
             <textarea id="markdown_content" name="markdown_content" class="form-textarea" required>{{ quiz.markdown_content }}</textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="time_limit_minutes">Limite de temps (optionnel)</label>
+            <label class="form-label" for="time_limit_minutes">{{ _('Limite de temps (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <input type="number" id="time_limit_minutes" name="time_limit_minutes"
                        class="form-input input-sm" min="1" max="180"
                        value="{{ quiz.time_limit_minutes or '' }}" placeholder="--">
-                <span class="text-light">minutes (laisser vide pour illimite)</span>
+                <span class="text-light">{{ _('minutes (laisser vide pour illimite)') }}</span>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="slug">Lien personnalise (optionnel)</label>
+            <label class="form-label" for="slug">{{ _('Lien personnalise (optionnel)') }}</label>
             <div class="flex items-center gap-sm">
                 <span class="text-light">/quiz/</span>
                 <input type="text" id="slug" name="slug" class="form-input input-lg"
                        value="{{ quiz.slug or '' }}" placeholder="mon-quiz"
-                       pattern="[a-z0-9\-]+" title="Lettres minuscules, chiffres et tirets uniquement">
+                       pattern="[a-z0-9\-]+" title="{{ _('Lettres minuscules, chiffres et tirets uniquement') }}">
             </div>
-            <small class="help-text">Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID ({{ quiz.id }}).</small>
+            <small class="help-text">{{ _('Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID') }} ({{ quiz.id }}).</small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Periode de disponibilite (optionnel)</label>
+            <label class="form-label">{{ _('Periode de disponibilite (optionnel)') }}</label>
             <div class="flex items-center gap-md flex-wrap">
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">Du</span>
+                    <span class="text-light">{{ _('Du') }}</span>
                     <input type="datetime-local" id="available_from" name="available_from"
                            class="form-input input-md"
                            value="{{ quiz.available_from.strftime('%Y-%m-%dT%H:%M') if quiz.available_from else '' }}">
                 </div>
                 <div class="flex items-center gap-sm">
-                    <span class="text-light">au</span>
+                    <span class="text-light">{{ _('au') }}</span>
                     <input type="datetime-local" id="available_until" name="available_until"
                            class="form-input input-md"
                            value="{{ quiz.available_until.strftime('%Y-%m-%dT%H:%M') if quiz.available_until else '' }}">
                 </div>
             </div>
-            <small class="help-text">Laisser vide pour un quiz toujours disponible</small>
+            <small class="help-text">{{ _('Laisser vide pour un quiz toujours disponible') }}</small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Groupes autorises (optionnel)</label>
+            <label class="form-label">{{ _('Groupes autorises (optionnel)') }}</label>
             {% set quiz_group_ids = quiz.groups.all()|map(attribute='id')|list %}
             {% set groups_by_tenant = {} %}
             {% set groups_no_tenant = [] %}
@@ -107,7 +107,7 @@
                         <i class="iconoir-building"></i>
                         <strong>{{ data.tenant.name }}</strong>
                         <button type="button" class="btn btn-xs btn-secondary ml-auto" onclick="toggleTenantGroups(this, {{ tenant_id }})">
-                            Tout selectionner
+                            {{ _('Tout selectionner') }}
                         </button>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
@@ -126,7 +126,7 @@
                 <div class="tenant-group-section mb-1">
                     <div class="tenant-group-header">
                         <i class="iconoir-globe"></i>
-                        <strong>Sans tenant</strong>
+                        <strong>{{ _('Sans tenant') }}</strong>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
                         {% for group in groups_no_tenant %}
@@ -151,30 +151,30 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <small class="help-text">Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs</small>
+            <small class="help-text">{{ _('Si aucun groupe n\'est selectionne, le quiz sera disponible pour tous les utilisateurs') }}</small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Severite de la correction IA</label>
+            <label class="form-label">{{ _('Severite de la correction IA') }}</label>
             <div class="flex gap-lg mt-1">
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="gentil" {{ 'checked' if quiz.grading_severity == 'gentil' else '' }}>
-                    <span class="text-success">Gentil</span>
+                    <span class="text-success">{{ _('Gentil') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="modere" {{ 'checked' if quiz.grading_severity == 'modere' or not quiz.grading_severity else '' }}>
-                    <span>Modere</span>
+                    <span>{{ _('Modere') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="grading_severity" value="severe" {{ 'checked' if quiz.grading_severity == 'severe' else '' }}>
-                    <span class="text-error">Severe</span>
+                    <span class="text-error">{{ _('Severe') }}</span>
                 </label>
             </div>
-            <small class="help-text">Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision</small>
+            <small class="help-text">{{ _('Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision') }}</small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Humeur du correcteur (optionnel, plusieurs choix possibles)</label>
+            <label class="form-label">{{ _('Humeur du correcteur (optionnel, plusieurs choix possibles)') }}</label>
             {% set quiz_moods = quiz.grading_mood or [] %}
             <div class="flex flex-wrap gap-md mt-1">
                 {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
@@ -184,54 +184,53 @@
                 </label>
                 {% endfor %}
             </div>
-            <small class="help-text">Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.</small>
+            <small class="help-text">{{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}</small>
         </div>
 
-        <div class="card-header mt-1">Options d'affichage</div>
+        <div class="card-header mt-1">{{ _('Options d\'affichage') }}</div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="randomize_questions" {{ 'checked' if quiz.randomize_questions else '' }}>
-                <span class="form-label mb-0">Ordre aleatoire des questions</span>
+                <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
             </label>
-            <small class="help-text">Si active, les questions seront affichees dans un ordre different pour chaque etudiant</small>
+            <small class="help-text">{{ _('Si active, les questions seront affichees dans un ordre different pour chaque etudiant') }}</small>
         </div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="randomize_options" {{ 'checked' if quiz.randomize_options else '' }}>
-                <span class="form-label mb-0">Ordre aleatoire des reponses QCM</span>
+                <span class="form-label mb-0">{{ _('Ordre aleatoire des reponses QCM') }}</span>
             </label>
-            <small class="help-text">Si active, les options de chaque QCM seront melangees pour chaque etudiant</small>
+            <small class="help-text">{{ _('Si active, les options de chaque QCM seront melangees pour chaque etudiant') }}</small>
         </div>
 
-        <div class="card-header mt-1">Mode Examen (Anti-triche)</div>
+        <div class="card-header mt-1">{{ _('Mode Examen (Anti-triche)') }}</div>
 
         <div class="form-group">
             <label class="flex items-center gap-sm cursor-pointer">
                 <input type="checkbox" name="one_question_per_page" {{ 'checked' if quiz.one_question_per_page else '' }}>
-                <span class="form-label mb-0">Une question par page</span>
+                <span class="form-label mb-0">{{ _('Une question par page') }}</span>
             </label>
             <small class="help-text">
-                Active le mode examen : navigation question par question, chronometrage individuel,
-                detection des changements de fenetre. Ideal pour les evaluations surveillees.
+                {{ _('Active le mode examen : navigation question par question, chronometrage individuel, detection des changements de fenetre. Ideal pour les evaluations surveillees.') }}
             </small>
         </div>
 
         {% if admin_users %}
-        <div class="card-header mt-1">Administration</div>
+        <div class="card-header mt-1">{{ _('Administration') }}</div>
 
         <div class="form-group">
-            <label class="form-label">Auteur du quiz</label>
+            <label class="form-label">{{ _('Auteur du quiz') }}</label>
             <div class="searchable-select" style="max-width: 350px;">
                 <input type="hidden" name="created_by_id" value="{{ quiz.created_by_id or '' }}">
                 <div class="searchable-select-trigger">
-                    <span>{% if quiz.created_by %}{{ quiz.created_by.full_name }} ({{ quiz.created_by.username }}){% else %}Selectionner un auteur{% endif %}</span>
+                    <span>{% if quiz.created_by %}{{ quiz.created_by.full_name }} ({{ quiz.created_by.username }}){% else %}{{ _('Selectionner un auteur') }}{% endif %}</span>
                     <i class="iconoir-nav-arrow-down"></i>
                 </div>
                 <div class="searchable-select-dropdown">
                     <div class="searchable-select-search">
-                        <input type="text" placeholder="Rechercher un utilisateur...">
+                        <input type="text" placeholder="{{ _('Rechercher un utilisateur...') }}">
                     </div>
                     <div class="searchable-select-options">
                         {% for user in admin_users %}
@@ -242,16 +241,16 @@
                     </div>
                 </div>
             </div>
-            <small class="help-text">L'auteur affiche sur le dashboard et dans les stats</small>
+            <small class="help-text">{{ _('L\'auteur affiche sur le dashboard et dans les stats') }}</small>
         </div>
         {% endif %}
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-check"></i> Enregistrer
+                <i class="iconoir-check"></i> {{ _('Enregistrer') }}
             </button>
             <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>
@@ -263,7 +262,7 @@
 function copyQuizLink() {
     const link = document.getElementById('quiz-link').textContent.trim();
     navigator.clipboard.writeText(link).then(function() {
-        alert('Lien copie !');
+        alert('{{ _('Lien copie !') }}');
     });
 }
 
@@ -276,7 +275,7 @@ function toggleTenantGroups(btn, tenantId) {
         cb.checked = !allChecked;
     });
 
-    btn.textContent = allChecked ? 'Tout selectionner' : 'Tout deselectionner';
+    btn.textContent = allChecked ? '{{ _('Tout selectionner') }}' : '{{ _('Tout deselectionner') }}';
 }
 
 document.getElementById('image-upload').addEventListener('change', async function(e) {
@@ -287,7 +286,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
     formData.append('image', file);
     formData.append('quiz_id', '{{ quiz.id }}');
 
-    document.getElementById('upload-status').textContent = 'Upload en cours...';
+    document.getElementById('upload-status').textContent = '{{ _('Upload en cours...') }}';
 
     try {
         const response = await fetch('{{ url_for("admin.upload_image") }}', {
@@ -302,7 +301,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
             const pos = textarea.selectionStart;
             textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
 
-            document.getElementById('upload-status').textContent = 'Image ajoutee ! Code: ' + data.markdown;
+            document.getElementById('upload-status').textContent = '{{ _('Image ajoutee ! Code:') }} ' + data.markdown;
 
             const imgContainer = document.getElementById('uploaded-images');
             const wrapper = document.createElement('div');
@@ -321,11 +320,11 @@ document.getElementById('image-upload').addEventListener('change', async functio
             wrapper.appendChild(label);
             imgContainer.appendChild(wrapper);
         } else {
-            document.getElementById('upload-status').textContent = 'Erreur: ' + data.error;
+            document.getElementById('upload-status').textContent = '{{ _('Erreur:') }} ' + data.error;
             document.getElementById('upload-status').className = 'text-error';
         }
     } catch (err) {
-        document.getElementById('upload-status').textContent = 'Erreur de connexion';
+        document.getElementById('upload-status').textContent = '{{ _('Erreur de connexion') }}';
         document.getElementById('upload-status').className = 'text-error';
     }
 

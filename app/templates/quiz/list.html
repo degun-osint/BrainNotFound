@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Mes Quiz - BrainNotFound{% endblock %}
+{% block title %}{{ _('Mes Quiz') }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Quiz disponibles</h1>
+<h1 class="mb-2">{{ _('Quiz disponibles') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
-        <span>Mes quiz</span>
+        <span>{{ _('Mes quiz') }}</span>
         <div class="flex gap-sm items-center flex-wrap">
             <form method="GET" class="flex gap-sm items-center">
                 <!-- Filtre par statut (client-side) -->
                 <div class="searchable-select" id="status-filter-container">
                     <div class="searchable-select-trigger" id="status-filter-trigger">
                         <i class="iconoir-filter"></i>
-                        <span id="status-filter-label">Tous les quiz</span>
+                        <span id="status-filter-label">{{ _('Tous les quiz') }}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option selected" data-value="all">Tous les quiz</div>
-                            <div class="searchable-select-option" data-value="pending">Non repondus</div>
-                            <div class="searchable-select-option" data-value="completed">Repondus</div>
+                            <div class="searchable-select-option selected" data-value="all">{{ _('Tous les quiz') }}</div>
+                            <div class="searchable-select-option" data-value="pending">{{ _('Non repondus') }}</div>
+                            <div class="searchable-select-option" data-value="completed">{{ _('Repondus') }}</div>
                         </div>
                     </div>
                 </div>
@@ -31,15 +31,15 @@
                     <input type="hidden" name="tenant" id="tenant-input" value="{{ filter_tenant_id or 0 }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-building"></i>
-                        <span>{% if filter_tenant_id %}{% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}Toutes les organisations{% endif %}</span>
+                        <span>{% if filter_tenant_id %}{% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}{{ _('Toutes les organisations') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="Rechercher une organisation...">
+                            <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
                         </div>
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">Toutes les organisations</div>
+                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">{{ _('Toutes les organisations') }}</div>
                             {% for tenant in user_tenants %}
                             <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
                             {% endfor %}
@@ -53,15 +53,15 @@
                     <input type="hidden" name="group" id="group-input" value="{{ filter_group_id or 0 }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-group"></i>
-                        <span>{% if filter_group_id %}{% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}Tous les groupes{% endif %}</span>
+                        <span>{% if filter_group_id %}{% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}{{ _('Tous les groupes') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="Rechercher un groupe...">
+                            <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
                         </div>
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">Tous les groupes</div>
+                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">{{ _('Tous les groupes') }}</div>
                             {% for group in user_groups %}
                             <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">{{ group.name }}</div>
                             {% endfor %}
@@ -71,13 +71,13 @@
                 {% endif %}
 
                 {% if filter_group_id or filter_tenant_id %}
-                <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="Effacer filtres">
+                <a href="{{ url_for('quiz.quiz_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
                     <i class="iconoir-xmark"></i>
                 </a>
                 {% endif %}
             </form>
             <span id="quiz-count" class="font-mono text-sm text-light">
-                {{ quizzes|length }} quiz
+                {{ quizzes|length }} {{ _('quiz') }}
             </span>
         </div>
     </div>
@@ -85,10 +85,10 @@
     {% if filter_group_id or filter_tenant_id %}
     <div class="search-results-info">
         <span class="text-light">
-            {% if filter_tenant_id %}Organisation: {% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% endif %}
+            {% if filter_tenant_id %}{{ _('Organisation') }}: {% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% endif %}
             {% if filter_tenant_id and filter_group_id %} - {% endif %}
-            {% if filter_group_id %}Groupe: {% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% endif %}
-            - {{ quizzes|length }} quiz
+            {% if filter_group_id %}{{ _('Groupe') }}: {% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% endif %}
+            - {{ quizzes|length }} {{ _('quiz') }}
         </span>
     </div>
     {% endif %}
@@ -100,19 +100,19 @@
             <div class="quiz-info">
                 <h3>
                     {% if quiz.id in user_responses %}
-                    <span class="quiz-status completed">Repondu</span>
+                    <span class="quiz-status completed">{{ _('Repondu') }}</span>
                     {% else %}
-                    <span class="quiz-status pending">A faire</span>
+                    <span class="quiz-status pending">{{ _('A faire') }}</span>
                     {% endif %}
                     {{ quiz.title }}
                 </h3>
                 <div class="quiz-meta">
-                    {{ quiz.questions.count() }} questions -
+                    {{ quiz.questions.count() }} {{ _('questions') }} -
                     {% set total_points = namespace(value=0) %}
                     {% for q in quiz.questions %}
                         {% set total_points.value = total_points.value + q.points %}
                     {% endfor %}
-                    {{ total_points.value }} points
+                    {{ total_points.value }} {{ _('points') }}
                     {% if quiz.time_limit_minutes %}
                     - {{ quiz.time_limit_minutes }} min
                     {% endif %}
@@ -128,11 +128,11 @@
                         {{ "%.1f"|format(response.total_score) }}/{{ "%.1f"|format(response.max_score) }}
                     </span>
                     <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-primary btn-small">
-                        <i class="iconoir-eye"></i> Voir
+                        <i class="iconoir-eye"></i> {{ _('Voir') }}
                     </a>
                 {% else %}
                     <a href="{{ url_for('quiz.take', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary btn-small">
-                        <i class="iconoir-play"></i> Commencer
+                        <i class="iconoir-play"></i> {{ _('Commencer') }}
                     </a>
                 {% endif %}
             </div>
@@ -142,10 +142,10 @@
     {% else %}
     <p class="text-center text-light p-2">
         {% if filter_group_id or filter_tenant_id %}
-        Aucun quiz disponible avec les filtres selectionnes.
-        <a href="{{ url_for('quiz.quiz_list') }}">Reinitialiser les filtres</a>
+        {{ _('Aucun quiz disponible avec les filtres selectionnes.') }}
+        <a href="{{ url_for('quiz.quiz_list') }}">{{ _('Reinitialiser les filtres') }}</a>
         {% else %}
-        Aucun quiz disponible pour le moment.
+        {{ _('Aucun quiz disponible pour le moment.') }}
         {% endif %}
     </p>
     {% endif %}
@@ -197,7 +197,7 @@ function filterQuizzes(filter) {
         }
     });
 
-    document.getElementById('quiz-count').textContent = visibleCount + ' quiz';
+    document.getElementById('quiz-count').textContent = visibleCount + ' {{ _('quiz') }}';
 }
 
 // Close dropdown on outside click

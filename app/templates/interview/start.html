@@ -90,9 +90,9 @@
 <div class="start-container">
     {% if is_test %}
     <div class="flex justify-between items-center mb-1">
-        <span class="badge badge-warning"><i class="iconoir-flask"></i> Mode test</span>
+        <span class="badge badge-warning"><i class="iconoir-flask"></i> {{ _('Mode test') }}</span>
         <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small">
-            <i class="iconoir-arrow-left"></i> Retour
+            <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
         </a>
     </div>
     {% endif %}
@@ -106,21 +106,21 @@
 
     {% if interview.student_context %}
     <div class="context-box">
-        <h4>Contexte</h4>
+        <h4>{{ _('Contexte') }}</h4>
         <p>{{ interview.student_context }}</p>
     </div>
     {% endif %}
 
     {% if interview.student_objective %}
     <div class="context-box">
-        <h4>Votre objectif</h4>
+        <h4>{{ _('Votre objectif') }}</h4>
         <p>{{ interview.student_objective }}</p>
     </div>
     {% endif %}
 
     <div class="card">
         <div class="card-header">
-            <h3>{{ interview.file_upload_label or 'Document requis' }}</h3>
+            <h3>{{ interview.file_upload_label or _('Document requis') }}</h3>
         </div>
         <div class="card-body">
             {% if interview.file_upload_description %}
@@ -133,9 +133,9 @@
 
                 <div class="file-upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
                     <i class="iconoir-cloud-upload"></i>
-                    <p><strong>Cliquez pour telecharger</strong></p>
-                    <p class="hint">ou glissez-deposez votre fichier ici</p>
-                    <p class="hint">Formats acceptes: PDF, DOC, DOCX, TXT</p>
+                    <p><strong>{{ _('Cliquez pour telecharger') }}</strong></p>
+                    <p class="hint">{{ _('ou glissez-deposez votre fichier ici') }}</p>
+                    <p class="hint">{{ _('Formats acceptes: PDF, DOC, DOCX, TXT') }}</p>
                 </div>
 
                 <input type="file" name="file" id="file-input" class="file-input"
@@ -144,7 +144,7 @@
                 <div class="selected-file" id="selected-file">
                     <span class="file-name">
                         <i class="iconoir-check-circle"></i>
-                        <span id="file-name-text">Fichier selectionne</span>
+                        <span id="file-name-text">{{ _('Fichier selectionne') }}</span>
                     </span>
                     <button type="button" class="btn btn-sm" onclick="clearFile()">
                         <i class="iconoir-xmark"></i>
@@ -153,7 +153,7 @@
 
                 <div class="mt-lg">
                     <button type="submit" class="btn btn-primary btn-lg" id="start-btn" disabled>
-                        <i class="iconoir-play"></i> Commencer l'entretien
+                        <i class="iconoir-play"></i> {{ _("Commencer l'entretien") }}
                     </button>
                 </div>
             </form>
@@ -161,8 +161,8 @@
     </div>
 
     <div class="mt-lg text-center">
-        <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} min max</span>
-        <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} echanges max</span>
+        <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} {{ _('min max') }}</span>
+        <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} {{ _('echanges max') }}</span>
     </div>
 </div>
 {% endblock %}

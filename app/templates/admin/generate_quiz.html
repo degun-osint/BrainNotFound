@@ -1,89 +1,89 @@
 {% extends "base.html" %}
 
-{% block title %}Generer un quiz - BrainNotFound{% endblock %}
+{% block title %}{{ _('Generer un quiz - BrainNotFound') }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Generer un quiz par IA</h1>
+<h1 class="mb-2">{{ _('Generer un quiz par IA') }}</h1>
 
 <div class="card">
-    <div class="card-header">Comment ca marche</div>
+    <div class="card-header">{{ _('Comment ca marche') }}</div>
     <div class="bg-gray rounded p-1 mb-2">
         <ol class="instructions-list">
-            <li>Uploadez un fichier de cours (PDF, DOCX, ou Markdown)</li>
-            <li>Definissez le nombre de questions souhaitees</li>
-            <li>L'IA analyse le contenu et genere des questions pertinentes</li>
-            <li>Verifiez et ajustez le quiz genere avant de le publier</li>
+            <li>{{ _('Uploadez un fichier de cours (PDF, DOCX, ou Markdown)') }}</li>
+            <li>{{ _('Definissez le nombre de questions souhaitees') }}</li>
+            <li>{{ _("L'IA analyse le contenu et genere des questions pertinentes") }}</li>
+            <li>{{ _('Verifiez et ajustez le quiz genere avant de le publier') }}</li>
         </ol>
     </div>
 
     <form method="POST" enctype="multipart/form-data" id="generate-form">
         <div class="form-group">
-            <label class="form-label" for="title">Titre du quiz</label>
+            <label class="form-label" for="title">{{ _('Titre du quiz') }}</label>
             <input type="text" id="title" name="title" class="form-input"
-                   placeholder="Ex: Quiz - Chapitre 3 : Les fonctions" required>
+                   placeholder="{{ _('Ex: Quiz - Chapitre 3 : Les fonctions') }}" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="course_file">Fichier de cours</label>
+            <label class="form-label" for="course_file">{{ _('Fichier de cours') }}</label>
             <input type="file" id="course_file" name="course_file"
                    accept=".pdf,.docx,.md,.txt" class="form-input" required>
             <small class="help-text">
-                Formats acceptes: PDF, DOCX, Markdown (.md), Texte (.txt) - Max 16 Mo
+                {{ _('Formats acceptes: PDF, DOCX, Markdown (.md), Texte (.txt) - Max 16 Mo') }}
             </small>
         </div>
 
         <div class="grid-2 gap-lg">
             <div class="form-group">
-                <label class="form-label" for="num_mcq">Questions QCM</label>
+                <label class="form-label" for="num_mcq">{{ _('Questions QCM') }}</label>
                 <input type="number" id="num_mcq" name="num_mcq" class="form-input"
                        value="5" min="0" max="20">
-                <small class="text-light">0 a 20 questions</small>
+                <small class="text-light">{{ _('0 a 20 questions') }}</small>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="num_open">Questions ouvertes</label>
+                <label class="form-label" for="num_open">{{ _('Questions ouvertes') }}</label>
                 <input type="number" id="num_open" name="num_open" class="form-input"
                        value="2" min="0" max="10">
-                <small class="text-light">0 a 10 questions</small>
+                <small class="text-light">{{ _('0 a 10 questions') }}</small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Niveau de difficulte</label>
+            <label class="form-label">{{ _('Niveau de difficulte') }}</label>
             <div class="flex gap-lg mt-1">
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="difficulty" value="facile">
-                    <span class="text-success">Facile</span>
+                    <span class="text-success">{{ _('Facile') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="difficulty" value="modere" checked>
-                    <span>Modere</span>
+                    <span>{{ _('Modere') }}</span>
                 </label>
                 <label class="flex items-center gap-sm cursor-pointer">
                     <input type="radio" name="difficulty" value="difficile">
-                    <span class="text-error">Difficile</span>
+                    <span class="text-error">{{ _('Difficile') }}</span>
                 </label>
             </div>
             <small class="help-text">
-                Facile = comprehension de base, Modere = application, Difficile = analyse et synthese
+                {{ _('Facile = comprehension de base, Modere = application, Difficile = analyse et synthese') }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="instructions">Precisions pour le generateur (optionnel)</label>
+            <label class="form-label" for="instructions">{{ _('Precisions pour le generateur (optionnel)') }}</label>
             <textarea id="instructions" name="instructions" class="form-textarea form-textarea-short"
-                      placeholder="Ex: Concentre-toi sur le chapitre 3, evite les questions sur les dates, inclus des questions pratiques sur le code..."></textarea>
+                      placeholder="{{ _('Ex: Concentre-toi sur le chapitre 3, evite les questions sur les dates, inclus des questions pratiques sur le code...') }}"></textarea>
             <small class="help-text">
-                Donnez des indications supplementaires pour guider la generation des questions
+                {{ _('Donnez des indications supplementaires pour guider la generation des questions') }}
             </small>
         </div>
 
         <div class="actions mt-2">
             <button type="submit" class="btn btn-primary" id="generate-btn">
-                <i class="iconoir-sparks"></i> Generer le quiz
+                <i class="iconoir-sparks"></i> {{ _('Generer le quiz') }}
             </button>
             <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>
@@ -92,10 +92,10 @@
 <!-- Loading indicator -->
 <div id="loading-overlay" class="loading-overlay">
     <div class="loading-content">
-        <div class="loading-title">Generation en cours...</div>
+        <div class="loading-title">{{ _('Generation en cours...') }}</div>
         <p class="loading-text">
-            L'IA analyse votre document et genere les questions.
-            Cela peut prendre 10 a 30 secondes selon la taille du fichier.
+            {{ _("L'IA analyse votre document et genere les questions.") }}
+            {{ _('Cela peut prendre 10 a 30 secondes selon la taille du fichier.') }}
         </p>
         <div class="spinner"></div>
     </div>
@@ -111,14 +111,14 @@ document.getElementById('generate-form').addEventListener('submit', function(e) 
 
     if (numMcq + numOpen === 0) {
         e.preventDefault();
-        alert('Vous devez generer au moins une question (QCM ou ouverte)');
+        alert('{{ _("Vous devez generer au moins une question (QCM ou ouverte)") }}');
         return;
     }
 
     // Show loading overlay
     document.getElementById('loading-overlay').classList.add('active');
     document.getElementById('generate-btn').disabled = true;
-    document.getElementById('generate-btn').textContent = 'Generation...';
+    document.getElementById('generate-btn').textContent = '{{ _("Generation...") }}';
 });
 </script>
 {% endblock %}

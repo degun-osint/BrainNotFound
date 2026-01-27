@@ -4,6 +4,7 @@ Interview routes - Admin and student routes for conversational AI interviews.
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_required, current_user
+from flask_babel import lazy_gettext as _l
 from datetime import datetime
 import json
 import re
@@ -15,8 +16,27 @@ from app.models.interview import (
 from app.models.group import Group
 from app.models.tenant import Tenant
 from app.utils.claude_interviewer import ClaudeInterviewer, get_criteria_templates
+import unicodedata
 
 interview_bp = Blueprint('interview', __name__)
+
+
+def sanitize_filename(text):
+    """Sanitize text for use in HTTP Content-Disposition filename header.
+
+    Removes or replaces non-ASCII characters to avoid encoding issues.
+    """
+    # Normalize unicode (decompose accented characters)
+    text = unicodedata.normalize('NFKD', text)
+    # Encode to ASCII, ignoring non-encodable characters
+    text = text.encode('ascii', 'ignore').decode('ascii')
+    # Replace common problematic characters
+    text = text.replace('/', '-').replace('\\', '-').replace('"', '')
+    # Remove any remaining non-safe characters
+    text = re.sub(r'[^\w\s\-\.]', '', text)
+    # Replace multiple spaces/dashes with single
+    text = re.sub(r'[\s\-]+', '_', text)
+    return text.strip('_')
 
 
 # ============================================================================
@@ -73,7 +93,7 @@ def admin_required(f):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         if not current_user.is_any_admin:
-            flash('Acces non autorise', 'error')
+            flash(_l('Acces non autorise'), 'error')
             return redirect(url_for('quiz.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -83,8 +103,8 @@ def get_admin_groups():
     """Get groups accessible to current admin."""
     if current_user.is_admin:  # Superadmin
         return Group.query.order_by(Group.name).all()
-    # Tenant/Group admin - get their admin groups
-    return current_user.get_admin_groups()
+    # Tenant/Group admin - get their accessible groups
+    return current_user.get_accessible_groups()
 
 
 def get_groups_by_tenant():
@@ -168,7 +188,7 @@ def interview_by_slug(identifier):
     """Access an interview by uid, slug, or ID."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
     return redirect(url_for('interview.start', identifier=interview.get_url_identifier()))
 
@@ -179,7 +199,7 @@ def start(identifier):
     """Start or resume an interview session."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -190,12 +210,12 @@ def start(identifier):
 
     # Check availability
     if not interview.is_open():
-        flash('Cet entretien n\'est pas disponible actuellement', 'error')
+        flash(_l("Cet entretien n'est pas disponible actuellement"), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Check group access
     if not interview.is_available_for_user(current_user):
-        flash('Vous n\'avez pas acces a cet entretien', 'error')
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Check for existing session
@@ -210,7 +230,7 @@ def start(identifier):
             return redirect(url_for('interview.chat', identifier=existing_session.get_url_identifier()))
         elif existing_session.status == InterviewSession.STATUS_COMPLETED:
             # Already completed
-            flash('Vous avez deja complete cet entretien', 'info')
+            flash(_l('Vous avez deja complete cet entretien'), 'info')
             return redirect(url_for('interview.result', identifier=existing_session.get_url_identifier()))
         elif existing_session.status == InterviewSession.STATUS_EVALUATING:
             # Still evaluating
@@ -221,7 +241,7 @@ def start(identifier):
         from app.models import Tenant
         tenant = Tenant.query.get(interview.tenant_id)
         if tenant and not tenant.can_use_interview():
-            flash('Quota d\'entretiens IA atteint pour ce mois. Contactez votre administrateur.', 'error')
+            flash(_l("Quota d'entretiens IA atteint pour ce mois. Contactez votre administrateur."), 'error')
             return redirect(url_for('interview.interview_list'))
 
     # If file upload is required, show start page first
@@ -230,18 +250,18 @@ def start(identifier):
             # Handle file upload
             uploaded_file = request.files.get('file')
             if not uploaded_file or uploaded_file.filename == '':
-                flash('Veuillez telecharger un fichier', 'error')
+                flash(_l('Veuillez telecharger un fichier'), 'error')
                 return render_template('interview/start.html', interview=interview)
 
             # Extract file content
             try:
                 file_content = extract_file_content(uploaded_file)
                 if not file_content:
-                    flash('Impossible de lire le contenu du fichier', 'error')
+                    flash(_l('Impossible de lire le contenu du fichier'), 'error')
                     return render_template('interview/start.html', interview=interview)
             except Exception as e:
                 current_app.logger.error(f"File extraction error: {str(e)}")
-                flash('Erreur lors de la lecture du fichier', 'error')
+                flash(_l('Erreur lors de la lecture du fichier'), 'error')
                 return render_template('interview/start.html', interview=interview)
 
             # Create session with file
@@ -344,7 +364,7 @@ def chat(identifier):
     """Chat interface for an interview session."""
     session = InterviewSession.get_by_identifier(identifier)
     if not session:
-        flash('Session introuvable', 'error')
+        flash(_l('Session introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -353,7 +373,7 @@ def chat(identifier):
 
     # Verify ownership
     if session.user_id != current_user.id and not current_user.is_any_admin:
-        flash('Acces non autorise', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Check session status
@@ -410,7 +430,7 @@ def evaluating(identifier):
     """Show evaluation progress page."""
     session = InterviewSession.get_by_identifier(identifier)
     if not session:
-        flash('Session introuvable', 'error')
+        flash(_l('Session introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -418,7 +438,7 @@ def evaluating(identifier):
         return redirect(url_for('interview.evaluating', identifier=session.get_url_identifier()), code=301)
 
     if session.user_id != current_user.id and not current_user.is_any_admin:
-        flash('Acces non autorise', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     if session.status == InterviewSession.STATUS_COMPLETED:
@@ -436,7 +456,7 @@ def result(identifier):
     """Show interview results."""
     session = InterviewSession.get_by_identifier(identifier)
     if not session:
-        flash('Session introuvable', 'error')
+        flash(_l('Session introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -444,7 +464,7 @@ def result(identifier):
         return redirect(url_for('interview.result', identifier=session.get_url_identifier()), code=301)
 
     if session.user_id != current_user.id and not current_user.is_any_admin:
-        flash('Acces non autorise', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Make sure session is complete
@@ -464,7 +484,7 @@ def result_pdf(identifier):
     """Export interview results as PDF for student."""
     session = InterviewSession.get_by_identifier(identifier)
     if not session:
-        flash('Session introuvable', 'error')
+        flash(_l('Session introuvable'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -473,12 +493,12 @@ def result_pdf(identifier):
 
     # Check access
     if session.user_id != current_user.id and not current_user.is_any_admin:
-        flash('Acces non autorise', 'error')
+        flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('interview.interview_list'))
 
     # Make sure session is complete
     if session.status != InterviewSession.STATUS_COMPLETED:
-        flash('Entretien non termine', 'error')
+        flash(_l('Entretien non termine'), 'error')
         return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
 
     interview = session.interview
@@ -489,7 +509,8 @@ def result_pdf(identifier):
         from flask import Response
 
         pdf_data = generate_interview_pdf(session, interview)
-        filename = f"entretien_{interview.title[:30]}_{session.started_at.strftime('%Y%m%d')}.pdf"
+        safe_title = sanitize_filename(interview.title[:30])
+        filename = f"entretien_{safe_title}_{session.started_at.strftime('%Y%m%d')}.pdf"
 
         return Response(
             pdf_data,
@@ -499,7 +520,7 @@ def result_pdf(identifier):
 
     except Exception as e:
         current_app.logger.error(f"PDF generation error: {e}")
-        flash('Erreur lors de la generation du PDF', 'error')
+        flash(_l('Erreur lors de la generation du PDF'), 'error')
         return redirect(url_for('interview.result', identifier=session.get_url_identifier()))
 
 
@@ -522,8 +543,8 @@ def admin_list():
     if current_user.is_admin:  # Superadmin
         query = Interview.query
     else:
-        # Get accessible group IDs
-        admin_groups = current_user.get_admin_groups()
+        # Get accessible group IDs (includes tenant admin groups)
+        admin_groups = current_user.get_accessible_groups()
         admin_group_ids = [g.id for g in admin_groups]
 
         # Interviews created by user OR assigned to their groups
@@ -585,11 +606,11 @@ def admin_create():
         system_prompt = data.get('system_prompt', '').strip()
 
         if not title:
-            flash('Le titre est requis', 'error')
+            flash(_l('Le titre est requis'), 'error')
             return redirect(url_for('interview.admin_create'))
 
         if not system_prompt:
-            flash('Le prompt systeme est requis', 'error')
+            flash(_l('Le prompt systeme est requis'), 'error')
             return redirect(url_for('interview.admin_create'))
 
         # Parse slug
@@ -598,7 +619,7 @@ def admin_create():
             slug = re.sub(r'[^a-z0-9-]', '', slug.lower())
             # Check uniqueness
             if Interview.query.filter_by(slug=slug).first():
-                flash('Ce slug est deja utilise', 'error')
+                flash(_l('Ce slug est deja utilise'), 'error')
                 return redirect(url_for('interview.admin_create'))
 
         # Parse dates
@@ -673,7 +694,7 @@ def admin_create():
             pass
 
         db.session.commit()
-        flash('Entretien cree avec succes', 'success')
+        flash(_l('Entretien cree avec succes'), 'success')
         return redirect(url_for('interview.admin_list'))
 
     # GET request - show wizard
@@ -694,7 +715,7 @@ def admin_view(identifier):
     """View interview details and sessions."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -732,7 +753,7 @@ def admin_edit(identifier):
     """Edit an interview."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -782,7 +803,7 @@ def admin_edit(identifier):
             new_slug = re.sub(r'[^a-z0-9-]', '', new_slug.lower())
             existing = Interview.query.filter_by(slug=new_slug).first()
             if existing and existing.id != interview.id:
-                flash('Ce slug est deja utilise', 'error')
+                flash(_l('Ce slug est deja utilise'), 'error')
                 return redirect(url_for('interview.admin_edit', identifier=interview.get_url_identifier()))
         interview.slug = new_slug
 
@@ -828,7 +849,7 @@ def admin_edit(identifier):
                 pass
 
         db.session.commit()
-        flash('Entretien mis a jour', 'success')
+        flash(_l('Entretien mis a jour'), 'success')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     # GET request
@@ -864,11 +885,11 @@ def admin_delete(identifier):
     """Delete an interview."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
     db.session.delete(interview)
     db.session.commit()
-    flash('Entretien supprime', 'success')
+    flash(_l('Entretien supprime'), 'success')
     return redirect(url_for('interview.admin_list'))
 
 
@@ -879,16 +900,16 @@ def admin_session(identifier, session_identifier):
     """View a specific session transcript."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
     if not session:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     if session.interview_id != interview.id:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -922,7 +943,48 @@ def admin_add_comment(identifier, session_identifier):
     session.admin_comment = comment
     db.session.commit()
 
-    flash('Commentaire enregistre', 'success')
+    flash(_l('Commentaire enregistre'), 'success')
+    return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))
+
+
+@interview_bp.route('/admin/interviews/<identifier>/session/<session_identifier>/reevaluate', methods=['POST'])
+@login_required
+@admin_required
+def admin_reevaluate_session(identifier, session_identifier):
+    """Re-run evaluation for a session (in case of error or bug)."""
+    interview = Interview.get_by_identifier(identifier)
+    if not interview:
+        flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    session = InterviewSession.get_by_identifier(session_identifier)
+    if not session:
+        flash(_l('Session non trouvee'), 'error')
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    if session.interview_id != interview.id:
+        flash(_l('Session non trouvee'), 'error')
+        return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
+
+    # Delete existing scores
+    CriterionScore.query.filter_by(session_id=session.id).delete()
+
+    # Reset session evaluation fields
+    session.status = InterviewSession.STATUS_EVALUATING
+    session.total_score = 0
+    session.ai_summary = None
+    db.session.commit()
+
+    # Run evaluation asynchronously
+    from app.utils.interview_tasks import evaluate_interview_async
+    from app import socketio
+    socketio.start_background_task(
+        evaluate_interview_async,
+        current_app._get_current_object(),
+        session.id
+    )
+
+    flash(_l('Re-evaluation lancee. Veuillez patienter quelques secondes puis rafraichir la page.'), 'info')
     return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))
 
 
@@ -933,16 +995,16 @@ def admin_session_pdf(identifier, session_identifier):
     """Export session results as PDF."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
     if not session:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     if session.interview_id != interview.id:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     interview = session.interview
@@ -953,7 +1015,8 @@ def admin_session_pdf(identifier, session_identifier):
         from flask import Response
 
         pdf_data = generate_interview_pdf(session, interview)
-        filename = f"entretien_{session.user.username}_{session.started_at.strftime('%Y%m%d')}.pdf"
+        safe_username = sanitize_filename(session.user.username)
+        filename = f"entretien_{safe_username}_{session.started_at.strftime('%Y%m%d')}.pdf"
 
         return Response(
             pdf_data,
@@ -963,7 +1026,7 @@ def admin_session_pdf(identifier, session_identifier):
 
     except Exception as e:
         current_app.logger.error(f"PDF generation error: {e}")
-        flash('Erreur lors de la generation du PDF', 'error')
+        flash(_l('Erreur lors de la generation du PDF'), 'error')
         return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))
 
 
@@ -974,7 +1037,7 @@ def admin_test(identifier):
     """Start a test session for admin preview."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -997,18 +1060,18 @@ def admin_test(identifier):
             # Handle file upload
             uploaded_file = request.files.get('file')
             if not uploaded_file or uploaded_file.filename == '':
-                flash('Veuillez telecharger un fichier', 'error')
+                flash(_l('Veuillez telecharger un fichier'), 'error')
                 return render_template('interview/start.html', interview=interview, is_test=True)
 
             # Extract file content
             try:
                 file_content = extract_file_content(uploaded_file)
                 if not file_content:
-                    flash('Impossible de lire le contenu du fichier', 'error')
+                    flash(_l('Impossible de lire le contenu du fichier'), 'error')
                     return render_template('interview/start.html', interview=interview, is_test=True)
             except Exception as e:
                 current_app.logger.error(f"File extraction error: {str(e)}")
-                flash('Erreur lors de la lecture du fichier', 'error')
+                flash(_l('Erreur lors de la lecture du fichier'), 'error')
                 return render_template('interview/start.html', interview=interview, is_test=True)
 
             # Create test session with file
@@ -1019,7 +1082,7 @@ def admin_test(identifier):
                 file_content=file_content,
                 is_test=True
             )
-            flash('Session de test demarree', 'info')
+            flash(_l('Session de test demarree'), 'info')
             return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
         # GET - show start page for file upload
@@ -1027,7 +1090,7 @@ def admin_test(identifier):
 
     # No file required - create test session directly
     session = create_interview_session(interview=interview, user=current_user, is_test=True)
-    flash('Session de test demarree', 'info')
+    flash(_l('Session de test demarree'), 'info')
     return redirect(url_for('interview.chat', identifier=session.get_url_identifier()))
 
 
@@ -1038,11 +1101,12 @@ def admin_toggle(identifier):
     """Toggle interview active status."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
     interview.is_active = not interview.is_active
     db.session.commit()
-    flash(f'Entretien {"active" if interview.is_active else "desactive"}', 'success')
+    status = _l('active') if interview.is_active else _l('desactive')
+    flash(_l('Entretien %(status)s', status=status), 'success')
     return redirect(url_for('interview.admin_list'))
 
 
@@ -1053,21 +1117,21 @@ def admin_delete_session(identifier, session_identifier):
     """Delete a session."""
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
     if not session:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     if session.interview_id != interview.id:
-        flash('Session non trouvee', 'error')
+        flash(_l('Session non trouvee'), 'error')
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
     db.session.delete(session)
     db.session.commit()
-    flash('Session supprimee', 'success')
+    flash(_l('Session supprimee'), 'success')
     return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()))
 
 
@@ -1082,7 +1146,7 @@ def admin_export(identifier):
 
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
     sessions = interview.sessions.filter(InterviewSession.is_test == False).all()
 
@@ -1185,7 +1249,7 @@ def admin_export_json(identifier):
 
     interview = Interview.get_by_identifier(identifier)
     if not interview:
-        flash('Entretien introuvable', 'error')
+        flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Build export data
@@ -1261,16 +1325,16 @@ def admin_import():
 
     # Handle POST - file upload
     if 'file' not in request.files:
-        flash('Aucun fichier selectionne.', 'error')
+        flash(_l('Aucun fichier selectionne.'), 'error')
         return redirect(url_for('interview.admin_import'))
 
     file = request.files['file']
     if file.filename == '':
-        flash('Aucun fichier selectionne.', 'error')
+        flash(_l('Aucun fichier selectionne.'), 'error')
         return redirect(url_for('interview.admin_import'))
 
     if not file.filename.endswith('.json'):
-        flash('Le fichier doit etre au format JSON.', 'error')
+        flash(_l('Le fichier doit etre au format JSON.'), 'error')
         return redirect(url_for('interview.admin_import'))
 
     try:
@@ -1279,7 +1343,7 @@ def admin_import():
 
         # Validate format
         if data.get('export_type') != 'interview':
-            flash('Format de fichier invalide.', 'error')
+            flash(_l('Format de fichier invalide.'), 'error')
             return redirect(url_for('interview.admin_import'))
 
         # Check if slug already exists
@@ -1346,14 +1410,14 @@ def admin_import():
 
         db.session.commit()
 
-        flash(f'Entretien "{interview.title}" importe avec succes ! Il est inactif par defaut.', 'success')
+        flash(_l('Entretien "%(title)s" importe avec succes ! Il est inactif par defaut.', title=interview.title), 'success')
         return redirect(url_for('interview.admin_edit', identifier=interview.get_url_identifier()))
 
     except json.JSONDecodeError:
-        flash('Erreur de lecture du fichier JSON.', 'error')
+        flash(_l('Erreur de lecture du fichier JSON.'), 'error')
         return redirect(url_for('interview.admin_import'))
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Import error: {str(e)}")
-        flash(f'Erreur lors de l\'import: {str(e)}', 'error')
+        flash(_l("Erreur lors de l'import: %(error)s", error=str(e)), 'error')
         return redirect(url_for('interview.admin_import'))

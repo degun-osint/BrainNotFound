@@ -1,10 +1,34 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ get_locale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="BrainNotFound - Plateforme d'évaluation intelligente avec correction IA pour l'éducation">
-    <title>BrainNotFound - Évaluation intelligente avec IA</title>
+
+    <!-- SEO Meta -->
+    <title>{{ site_title }} - {{ _('Evaluation intelligente avec IA') }}</title>
+    <meta name="description" content="{{ _('Plateforme d evaluation intelligente : quiz en Markdown, entretiens IA, correction automatisee par Claude. Open-source et auto-hebergeable.') }}">
+    <meta name="keywords" content="{{ _('evaluation, quiz, IA, education, correction automatique, Claude, enseignement, examen') }}">
+    <link rel="canonical" href="{{ request.url }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site_title }}">
+    <meta property="og:title" content="{{ site_title }} - {{ _('Evaluation intelligente avec IA') }}">
+    <meta property="og:description" content="{{ _('Quiz en Markdown, entretiens IA, correction par Claude. Open-source.') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:locale" content="{{ get_locale() }}_{{ 'FR' if get_locale() == 'fr' else 'US' }}">
+    <meta property="og:locale:alternate" content="{{ 'en_US' if get_locale() == 'fr' else 'fr_FR' }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ site_title }} - {{ _('Evaluation intelligente') }}">
+    <meta name="twitter:description" content="{{ _('Quiz en Markdown, entretiens IA, correction par Claude.') }}">
+
+    <!-- Hreflang for multilingual SEO -->
+    <link rel="alternate" hreflang="fr" href="{{ url_for('auth.index', _external=True) }}?lang=fr">
+    <link rel="alternate" hreflang="en" href="{{ url_for('auth.index', _external=True) }}?lang=en">
+    <link rel="alternate" hreflang="x-default" href="{{ url_for('auth.index', _external=True) }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
 </head>
@@ -16,22 +40,30 @@
                 <span class="logo-prefix">&gt;_</span> BrainNotFound
             </a>
             <div class="landing-nav-links">
-                <a href="#features" class="landing-nav-link">Fonctionnalités</a>
-                <a href="#pricing" class="landing-nav-link">Tarifs</a>
-                <a href="{{ url_for('docs.index') }}" class="landing-nav-link">Documentation</a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-small">Se connecter</a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-white btn-small">Créer un compte</a>
+                <a href="#features" class="landing-nav-link">{{ _('Fonctionnalites') }}</a>
+                <a href="#pricing" class="landing-nav-link">{{ _('Tarifs') }}</a>
+                <a href="{{ url_for('docs.index') }}" class="landing-nav-link">{{ _('Documentation') }}</a>
+                <div class="lang-toggle-nav">
+                    <a href="{{ url_for('auth.set_language', lang='fr') }}" class="{% if get_locale() == 'fr' %}active{% endif %}">FR</a>
+                    <a href="{{ url_for('auth.set_language', lang='en') }}" class="{% if get_locale() == 'en' %}active{% endif %}">EN</a>
+                </div>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-small">{{ _('Se connecter') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-white btn-small">{{ _('Creer un compte') }}</a>
             </div>
             <button class="landing-mobile-toggle" onclick="toggleMobileMenu()">
                 <i class="iconoir-menu"></i>
             </button>
         </div>
         <div class="landing-mobile-menu" id="mobile-menu">
-            <a href="#features">Fonctionnalités</a>
-            <a href="#pricing">Tarifs</a>
-            <a href="{{ url_for('docs.index') }}">Documentation</a>
-            <a href="{{ url_for('auth.login') }}">Se connecter</a>
-            <a href="{{ url_for('auth.register') }}">Créer un compte</a>
+            <a href="#features">{{ _('Fonctionnalites') }}</a>
+            <a href="#pricing">{{ _('Tarifs') }}</a>
+            <a href="{{ url_for('docs.index') }}">{{ _('Documentation') }}</a>
+            <a href="{{ url_for('auth.login') }}">{{ _('Se connecter') }}</a>
+            <a href="{{ url_for('auth.register') }}">{{ _('Creer un compte') }}</a>
+            <div class="mobile-lang-switch">
+                <a href="{{ url_for('auth.set_language', lang='fr') }}" class="{% if get_locale() == 'fr' %}active{% endif %}">FR</a> |
+                <a href="{{ url_for('auth.set_language', lang='en') }}" class="{% if get_locale() == 'en' %}active{% endif %}">EN</a>
+            </div>
         </div>
     </nav>
 
@@ -379,6 +411,31 @@ est immutable. Les listes utilisent [] et les tuples ().</code></pre>
                 }
             });
         });
+    </script>
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "{{ site_title }}",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "{{ _('Plateforme d evaluation intelligente avec correction IA pour l education') }}",
+        "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "0",
+            "highPrice": "499",
+            "priceCurrency": "EUR",
+            "offerCount": "5"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Manufacture Francaise d'Osint",
+            "url": "https://manufacture-osint.fr"
+        },
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html"
+    }
     </script>
 </body>
 </html>

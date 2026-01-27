@@ -1,130 +1,130 @@
 {% extends "base.html" %}
 
-{% block title %}Creer une Organisation - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Creer une Organisation') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Creer une nouvelle organisation</h1>
+<h1 class="mb-2">{{ _('Creer une nouvelle organisation') }}</h1>
 
 <div class="card">
-    <div class="card-header">Informations de l'organisation</div>
+    <div class="card-header">{{ _("Informations de l'organisation") }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>Information :</strong> Une organisation represente une entite cliente (ecole, universite, entreprise).
-        Vous pouvez definir des limites d'utilisation et assigner des administrateurs dedies.
+        <strong>{{ _('Information :') }}</strong> {{ _('Une organisation represente une entite cliente (ecole, universite, entreprise).') }}
+        {{ _("Vous pouvez definir des limites d'utilisation et assigner des administrateurs dedies.") }}
     </div>
 
     <form method="POST">
         <div class="form-row">
             <div class="form-group flex-1">
-                <label class="form-label" for="name">Nom de l'organisation *</label>
+                <label class="form-label" for="name">{{ _("Nom de l'organisation") }} *</label>
                 <input type="text" id="name" name="name" class="form-input"
-                       placeholder="Ex: Universite de Paris, Ecole ABC..." required autofocus>
+                       placeholder="{{ _('Ex: Universite de Paris, Ecole ABC...') }}" required autofocus>
             </div>
             <div class="form-group" style="width: 200px;">
-                <label class="form-label" for="slug">Slug (URL)</label>
+                <label class="form-label" for="slug">{{ _('Slug (URL)') }}</label>
                 <input type="text" id="slug" name="slug" class="form-input font-mono"
-                       placeholder="auto-genere" pattern="[a-z][-a-z0-9]*[a-z0-9]">
-                <small class="text-light">Laissez vide pour generer automatiquement</small>
+                       placeholder="{{ _('auto-genere') }}" pattern="[a-z][-a-z0-9]*[a-z0-9]">
+                <small class="text-light">{{ _('Laissez vide pour generer automatiquement') }}</small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="description">Description</label>
+            <label class="form-label" for="description">{{ _('Description') }}</label>
             <textarea id="description" name="description" class="form-textarea form-textarea-short"
-                      placeholder="Description optionnelle de l'organisation..."></textarea>
+                      placeholder="{{ _("Description optionnelle de l'organisation...") }}"></textarea>
         </div>
 
         <div class="form-row">
             <div class="form-group flex-1">
-                <label class="form-label" for="contact_name">Nom du contact</label>
+                <label class="form-label" for="contact_name">{{ _('Nom du contact') }}</label>
                 <input type="text" id="contact_name" name="contact_name" class="form-input"
                        placeholder="Jean Dupont">
             </div>
             <div class="form-group flex-1">
-                <label class="form-label" for="contact_email">Email du contact</label>
+                <label class="form-label" for="contact_email">{{ _('Email du contact') }}</label>
                 <input type="email" id="contact_email" name="contact_email" class="form-input"
                        placeholder="contact@organisation.fr">
             </div>
         </div>
 
-        <h3 class="mt-2 mb-1">Limites fixes</h3>
+        <h3 class="mt-2 mb-1">{{ _('Limites fixes') }}</h3>
         <div class="info-box bg-gray mb-2">
-            <strong>Note :</strong> 0 = illimite
+            <strong>{{ _('Note :') }}</strong> {{ _('0 = illimite') }}
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="max_users">Max utilisateurs</label>
+                <label class="form-label" for="max_users">{{ _('Max utilisateurs') }}</label>
                 <input type="number" id="max_users" name="max_users" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="max_quizzes">Max quiz</label>
+                <label class="form-label" for="max_quizzes">{{ _('Max quiz') }}</label>
                 <input type="number" id="max_quizzes" name="max_quizzes" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="max_groups">Max groupes</label>
+                <label class="form-label" for="max_groups">{{ _('Max groupes') }}</label>
                 <input type="number" id="max_groups" name="max_groups" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
         </div>
 
-        <h3 class="mt-2 mb-1">Limites mensuelles IA</h3>
+        <h3 class="mt-2 mb-1">{{ _('Limites mensuelles IA') }}</h3>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="monthly_ai_corrections">Corrections IA / mois</label>
+                <label class="form-label" for="monthly_ai_corrections">{{ _('Corrections IA / mois') }}</label>
                 <input type="number" id="monthly_ai_corrections" name="monthly_ai_corrections" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="monthly_quiz_generations">Generations quiz / mois</label>
+                <label class="form-label" for="monthly_quiz_generations">{{ _('Generations quiz / mois') }}</label>
                 <input type="number" id="monthly_quiz_generations" name="monthly_quiz_generations" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="monthly_class_analyses">Analyses classe / mois</label>
+                <label class="form-label" for="monthly_class_analyses">{{ _('Analyses classe / mois') }}</label>
                 <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="monthly_interviews">Entretiens IA / mois</label>
+                <label class="form-label" for="monthly_interviews">{{ _('Entretiens IA / mois') }}</label>
                 <input type="number" id="monthly_interviews" name="monthly_interviews" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
         </div>
 
-        <h3 class="mt-2 mb-1">Abonnement</h3>
+        <h3 class="mt-2 mb-1">{{ _('Abonnement') }}</h3>
         <div class="form-group">
-            <label class="form-label" for="subscription_expires_at">Date d'expiration</label>
+            <label class="form-label" for="subscription_expires_at">{{ _("Date d'expiration") }}</label>
             <input type="date" id="subscription_expires_at" name="subscription_expires_at" class="form-input"
                    style="width: 200px;">
-            <small class="text-light">Laisser vide pour un abonnement sans expiration</small>
+            <small class="text-light">{{ _('Laisser vide pour un abonnement sans expiration') }}</small>
         </div>
 
-        <h3 class="mt-2 mb-1">Alertes quota</h3>
+        <h3 class="mt-2 mb-1">{{ _('Alertes quota') }}</h3>
         <div class="form-row">
             <div class="form-group">
                 <label class="form-checkbox">
                     <input type="checkbox" name="quota_alert_enabled">
-                    <span>Activer les alertes quota</span>
+                    <span>{{ _('Activer les alertes quota') }}</span>
                 </label>
-                <small class="text-light">Envoie un email quand un quota est presque atteint</small>
+                <small class="text-light">{{ _('Envoie un email quand un quota est presque atteint') }}</small>
             </div>
             <div class="form-group">
-                <label class="form-label" for="quota_alert_threshold">Seuil d'alerte (%)</label>
+                <label class="form-label" for="quota_alert_threshold">{{ _("Seuil d'alerte (%%)") }}</label>
                 <input type="number" id="quota_alert_threshold" name="quota_alert_threshold" class="form-input"
                        value="10" min="1" max="50" style="width: 100px;">
-                <small class="text-light">Alerte quand il reste X% du quota</small>
+                <small class="text-light">{{ _('Alerte quand il reste X%% du quota') }}</small>
             </div>
         </div>
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> Creer l'organisation
+                <i class="iconoir-plus"></i> {{ _("Creer l'organisation") }}
             </button>
             <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> Annuler
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
             </a>
         </div>
     </form>

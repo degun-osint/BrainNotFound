@@ -1,63 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %}Inscription - BrainNotFound{% endblock %}
+{% block title %}{{ _('Inscription') }} - BrainNotFound{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <h1 class="auth-title">BrainNotFound</h1>
-        <h2 class="text-center mb-2">Inscription</h2>
+        <h2 class="text-center mb-2">{{ _('Inscription') }}</h2>
 
         <form method="POST">
             <div style="display: flex; gap: 1rem;">
                 <div class="form-group" style="flex: 1;">
-                    <label class="form-label" for="first_name">Prenom</label>
+                    <label class="form-label" for="first_name">{{ _('Prenom') }}</label>
                     <input type="text" id="first_name" name="first_name" class="form-input" required autofocus>
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label class="form-label" for="last_name">Nom</label>
+                    <label class="form-label" for="last_name">{{ _('Nom') }}</label>
                     <input type="text" id="last_name" name="last_name" class="form-input" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="username">Nom d'utilisateur</label>
+                <label class="form-label" for="username">{{ _('Nom d\'utilisateur') }}</label>
                 <input type="text" id="username" name="username" class="form-input" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="email">Email</label>
+                <label class="form-label" for="email">{{ _('Email') }}</label>
                 <input type="email" id="email" name="email" class="form-input" required>
                 <small style="color: var(--text-light); font-size: 0.875rem;">
-                    Un email de verification sera envoye a cette adresse
+                    {{ _('Un email de verification sera envoye a cette adresse') }}
                 </small>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="join_code">Code de groupe</label>
+                <label class="form-label" for="join_code">{{ _('Code de groupe') }}</label>
                 <input type="text" id="join_code" name="join_code" class="form-input"
-                       placeholder="Entrez le code fourni par votre enseignant"
+                       placeholder="{{ _('Entrez le code fourni par votre enseignant') }}"
                        style="text-transform: uppercase;" required>
                 <small style="color: var(--text-light); font-size: 0.875rem;">
-                    Le code de groupe vous a été fourni par votre enseignant/administrateur
+                    {{ _('Le code de groupe vous a ete fourni par votre enseignant/administrateur') }}
                 </small>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Mot de passe</label>
+                <label class="form-label" for="password">{{ _('Mot de passe') }}</label>
                 <input type="password" id="password" name="password" class="form-input" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password_confirm">Confirmer le mot de passe</label>
+                <label class="form-label" for="password_confirm">{{ _('Confirmer le mot de passe') }}</label>
                 <input type="password" id="password_confirm" name="password_confirm" class="form-input" required>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">S'inscrire</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">{{ _('S\'inscrire') }}</button>
         </form>
 
         <div class="auth-link">
-            Déjà inscrit ? <a href="{{ url_for('auth.login') }}">Se connecter</a>
+            {{ _('Deja inscrit ?') }} <a href="{{ url_for('auth.login') }}">{{ _('Se connecter') }}</a>
         </div>
     </div>
 </div>

@@ -1,32 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Modifier les scores - {{ user.full_name }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Modifier les scores') }} - {{ user.full_name }} - BrainNotFound{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">Modifier les scores</h1>
+<h1 class="mb-2">{{ _('Modifier les scores') }}</h1>
 
 <div class="card mb-2">
-    <div class="card-header">Informations</div>
+    <div class="card-header">{{ _('Informations') }}</div>
     <div class="info-grid">
         <div>
-            <strong>Etudiant:</strong> {{ user.full_name }} ({{ user.username }})
+            <strong>{{ _('Etudiant:') }}</strong> {{ user.full_name }} ({{ user.username }})
         </div>
         <div>
-            <strong>Quiz:</strong> {{ quiz.title }}
+            <strong>{{ _('Quiz:') }}</strong> {{ quiz.title }}
         </div>
         <div>
-            <strong>Score actuel:</strong> {{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}
+            <strong>{{ _('Score actuel:') }}</strong> {{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}
             ({{ "%.1f"|format((response.total_score / response.max_score * 100) if response.max_score > 0 else 0) }}%)
         </div>
         <div>
-            <strong>Soumis le:</strong> {{ response.submitted_at|localtime }}
+            <strong>{{ _('Soumis le:') }}</strong> {{ response.submitted_at|localtime }}
         </div>
     </div>
 </div>
 
 <form method="POST">
     <div class="card">
-        <div class="card-header">Reponses et scores</div>
+        <div class="card-header">{{ _('Reponses et scores') }}</div>
 
         {% for answer in answers %}
         <div class="answer-section {{ 'first' if loop.first else '' }} {{ 'last' if loop.last else '' }}">
@@ -34,9 +34,9 @@
                 <div class="answer-content">
                     <div class="mb-1">
                         <span class="question-badge">
-                            Q{{ loop.index }} - {{ 'QCM' if answer.question.question_type == 'mcq' else 'OUVERTE' }}
+                            Q{{ loop.index }} - {{ 'QCM' if answer.question.question_type == 'mcq' else _('OUVERTE') }}
                         </span>
-                        <span class="text-light ml-1">{{ answer.max_score }} pt{{ 's' if answer.max_score > 1 else '' }}</span>
+                        <span class="text-light ml-1">{{ answer.max_score }} {{ _('pt') }}{{ 's' if answer.max_score > 1 else '' }}</span>
                     </div>
                     <div class="font-medium mb-1">
                         {{ answer.question.question_text|truncate(200) }}
@@ -44,7 +44,7 @@
 
                     {% if answer.question.question_type == 'mcq' %}
                         <div class="answer-box">
-                            <strong>Options selectionnees:</strong>
+                            <strong>{{ _('Options selectionnees:') }}</strong>
                             {% if answer.selected_options %}
                                 {% for idx in answer.selected_options %}
                                     {% if idx < answer.question.options|length %}
@@ -54,10 +54,10 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                <em class="text-light">Aucune selection</em>
+                                <em class="text-light">{{ _('Aucune selection') }}</em>
                             {% endif %}
                             <div class="text-light mt-1">
-                                <strong>Reponses correctes:</strong>
+                                <strong>{{ _('Reponses correctes:') }}</strong>
                                 {% for idx in answer.question.correct_answers %}
                                     {{ answer.question.options[idx] }}{% if not loop.last %}, {% endif %}
                                 {% endfor %}
@@ -65,18 +65,18 @@
                         </div>
                     {% else %}
                         <div class="answer-box">
-                            <strong>Reponse de l'etudiant:</strong>
-                            <div class="whitespace-pre mt-1">{{ answer.answer_text or '(Aucune reponse)' }}</div>
+                            <strong>{{ _("Reponse de l'etudiant:") }}</strong>
+                            <div class="whitespace-pre mt-1">{{ answer.answer_text or _('(Aucune reponse)') }}</div>
                         </div>
                         {% if answer.question.expected_answer %}
                         <div class="expected-answer mt-1">
-                            <strong>Reponse attendue:</strong>
+                            <strong>{{ _('Reponse attendue:') }}</strong>
                             <div class="whitespace-pre mt-1">{{ answer.question.expected_answer }}</div>
                         </div>
                         {% endif %}
                         {% if answer.ai_feedback %}
                         <div class="mt-1">
-                            <label class="form-label" for="feedback_{{ answer.id }}">Feedback IA (modifiable)</label>
+                            <label class="form-label" for="feedback_{{ answer.id }}">{{ _('Feedback IA (modifiable)') }}</label>
                             <textarea id="feedback_{{ answer.id }}" name="feedback_{{ answer.id }}"
                                       class="form-textarea form-textarea-short">{{ answer.ai_feedback }}</textarea>
                         </div>
@@ -85,7 +85,7 @@
                 </div>
 
                 <div class="score-input">
-                    <label class="form-label" for="score_{{ answer.id }}">Score</label>
+                    <label class="form-label" for="score_{{ answer.id }}">{{ _('Score') }}</label>
                     <div class="flex items-center gap-sm">
                         <input type="number" id="score_{{ answer.id }}" name="score_{{ answer.id }}"
                                class="form-input input-score" step="0.5" min="0" max="{{ answer.max_score }}"
@@ -99,20 +99,20 @@
     </div>
 
     <div class="card mt-2">
-        <div class="card-header">Commentaire du correcteur</div>
+        <div class="card-header">{{ _('Commentaire du correcteur') }}</div>
         <div class="form-group mb-0 p-1">
             <textarea name="admin_comment" class="form-textarea" rows="3"
-                      placeholder="Ajoutez un commentaire pour l'etudiant (optionnel)...">{{ response.admin_comment or '' }}</textarea>
-            <small class="text-light">Ce commentaire sera visible par l'etudiant sur sa copie.</small>
+                      placeholder="{{ _('Ajoutez un commentaire pour l\'etudiant (optionnel)...') }}">{{ response.admin_comment or '' }}</textarea>
+            <small class="text-light">{{ _("Ce commentaire sera visible par l'etudiant sur sa copie.") }}</small>
         </div>
     </div>
 
     <div class="actions">
         <button type="submit" class="btn btn-primary">
-            <i class="iconoir-check"></i> Enregistrer
+            <i class="iconoir-check"></i> {{ _('Enregistrer') }}
         </button>
         <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
-            <i class="iconoir-xmark"></i> Annuler
+            <i class="iconoir-xmark"></i> {{ _('Annuler') }}
         </a>
     </div>
 </form>

@@ -27,6 +27,10 @@ Flask-Mail==0.10.0
 # Rate limiting
 Flask-Limiter==4.1.1
 
+# Internationalization
+Flask-Babel==4.0.0
+polib==1.2.0
+
 # Scheduled tasks (backups)
 APScheduler==3.10.4
 
