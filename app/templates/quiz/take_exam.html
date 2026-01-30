@@ -884,7 +884,7 @@
         const toast = document.createElement('div');
         toast.id = 'security-toast';
         toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent-warning);color:white;padding:0.75rem 1rem;border-radius:4px;font-size:0.9rem;z-index:9999;animation:fadeIn 0.3s ease;';
-        toast.textContent = '{{ _('Action non autorisee pendant l\'examen') }}';
+        toast.textContent = {{ _("Action non autorisee pendant l'examen")|tojson }};
         document.body.appendChild(toast);
 
         setTimeout(() => toast.remove(), 2000);
@@ -998,7 +998,7 @@
 
         globalTimerInterval = setInterval(() => {
             if (globalRemainingSeconds <= 0) {
-                globalTimerDisplay.textContent = '{{ _('Temps ecoule !') }}';
+                globalTimerDisplay.textContent = {{ _('Temps ecoule !')|tojson }};
                 globalTimer.classList.add('danger');
                 clearInterval(globalTimerInterval);
                 return;
@@ -1048,7 +1048,7 @@
         // Tab visibility change (switch tab, minimize window)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                handleFocusLoss('tab_hidden', '{{ _('Onglet masque (changement d\'onglet ou fenetre minimisee)') }}');
+                handleFocusLoss('tab_hidden', {{ _("Onglet masque (changement d'onglet ou fenetre minimisee)")|tojson }});
             }
         });
 
@@ -1057,7 +1057,7 @@
         window.addEventListener('blur', () => {
             setTimeout(() => {
                 if (!document.hidden) {
-                    handleFocusLoss('window_blur', '{{ _('Fenetre a perdu le focus (clic exterieur ou Alt+Tab)') }}');
+                    handleFocusLoss('window_blur', {{ _("Fenetre a perdu le focus (clic exterieur ou Alt+Tab)")|tojson }});
                 }
             }, 100);
         });
@@ -1188,13 +1188,13 @@
                 }
             });
 
-            let message = '{{ _('Etes-vous sur de vouloir soumettre votre examen ?') }}';
+            let message = {{ _('Etes-vous sur de vouloir soumettre votre examen ?')|tojson }};
             if (unanswered.length > 0) {
-                message = '{{ _('Attention ! Les questions suivantes ne sont pas repondues :') }} ' +
-                    unanswered.join(', ') + '.\n\n{{ _('Voulez-vous quand meme soumettre ?') }}';
+                message = {{ _('Attention ! Les questions suivantes ne sont pas repondues :')|tojson }} + ' ' +
+                    unanswered.join(', ') + '.\n\n' + {{ _('Voulez-vous quand meme soumettre ?')|tojson }};
             }
 
-            Modal.confirm(message, '{{ _('Confirmation de soumission') }}').then(function(confirmed) {
+            Modal.confirm(message, {{ _('Confirmation de soumission')|tojson }}).then(function(confirmed) {
                 if (confirmed) {
                     // Fill hidden fields
                     document.getElementById('timing-data').value = JSON.stringify(questionTimes);

@@ -246,8 +246,8 @@ class Tenant(db.Model):
         """Vérifie si on peut utiliser une correction IA."""
         if not self.is_subscription_active():
             return False
-        if self.monthly_ai_corrections <= 0:
-            return True  # 0 = illimité
+        if self.monthly_ai_corrections is None or self.monthly_ai_corrections <= 0:
+            return True  # None ou 0 = illimité
         self._check_reset_usage()
         return self.used_ai_corrections < self.monthly_ai_corrections
 
@@ -255,8 +255,8 @@ class Tenant(db.Model):
         """Vérifie si on peut générer un quiz."""
         if not self.is_subscription_active():
             return False
-        if self.monthly_quiz_generations <= 0:
-            return True
+        if self.monthly_quiz_generations is None or self.monthly_quiz_generations <= 0:
+            return True  # None ou 0 = illimité
         self._check_reset_usage()
         return self.used_quiz_generations < self.monthly_quiz_generations
 
@@ -264,8 +264,8 @@ class Tenant(db.Model):
         """Vérifie si on peut faire une analyse de classe."""
         if not self.is_subscription_active():
             return False
-        if self.monthly_class_analyses <= 0:
-            return True
+        if self.monthly_class_analyses is None or self.monthly_class_analyses <= 0:
+            return True  # None ou 0 = illimité
         self._check_reset_usage()
         return self.used_class_analyses < self.monthly_class_analyses
 
@@ -294,8 +294,8 @@ class Tenant(db.Model):
         """Vérifie si on peut faire un entretien IA."""
         if not self.is_subscription_active():
             return False
-        if self.monthly_interviews <= 0:
-            return True  # 0 = illimité
+        if self.monthly_interviews is None or self.monthly_interviews <= 0:
+            return True  # None ou 0 = illimité
         self._check_reset_usage()
         return self.used_interviews < self.monthly_interviews
 
