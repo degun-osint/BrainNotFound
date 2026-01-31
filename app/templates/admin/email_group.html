@@ -51,7 +51,8 @@
 
     <div class="actions">
         <button type="submit" class="btn btn-primary"
-                onclick="return confirm('{{ _('Envoyer cet email a') }} {{ users|length }} {{ _('destinataire(s) ?') }}');">
+                data-confirm="{{ _('Envoyer cet email a') }} {{ users|length }} {{ _('destinataire(s) ?') }}"
+                onclick="return confirm(this.dataset.confirm);">
             <i class="iconoir-send"></i> {{ _('Envoyer') }} ({{ users|length }})
         </button>
         <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">

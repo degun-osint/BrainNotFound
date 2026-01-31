@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const result = document.getElementById('ftp-test-result');
 
         btn.disabled = true;
-        result.textContent = '{{ _("Test en cours...") }}';
+        result.textContent = {{ _("Test en cours...")|tojson }};
         result.className = 'text-light';
 
         try {
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.className = 'text-error';
             }
         } catch (error) {
-            result.textContent = '{{ _("Erreur:") }} ' + error.message;
+            result.textContent = {{ _("Erreur:")|tojson }} + ' ' + error.message;
             result.className = 'text-error';
         }
 
@@ -317,10 +317,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = this;
         const result = document.getElementById('backup-result');
 
-        if (!confirm('{{ _("Lancer une sauvegarde maintenant ?") }}')) return;
+        if (!confirm({{ _("Lancer une sauvegarde maintenant ?")|tojson }})) return;
 
         btn.disabled = true;
-        result.textContent = '{{ _("Sauvegarde en cours...") }}';
+        result.textContent = {{ _("Sauvegarde en cours...")|tojson }};
         result.className = 'text-light';
 
         try {
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.className = 'text-error';
             }
         } catch (error) {
-            result.textContent = '{{ _("Erreur:") }} ' + error.message;
+            result.textContent = {{ _("Erreur:")|tojson }} + ' ' + error.message;
             result.className = 'text-error';
         }
 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (historyDiv.style.display === 'none') {
             historyDiv.style.display = 'block';
-            contentDiv.innerHTML = '<p class="text-light">{{ _("Chargement...") }}</p>';
+            contentDiv.innerHTML = '<p class="text-light">' + {{ _("Chargement...")|tojson }} + '</p>';
 
             try {
                 const response = await fetch('{{ url_for("admin.backup_history") }}');
@@ -365,17 +365,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.error) {
                     contentDiv.innerHTML = '<p class="text-error">' + data.error + '</p>';
                 } else if (data.files.length === 0) {
-                    contentDiv.innerHTML = '<p class="text-light">{{ _("Aucune sauvegarde trouvee") }}</p>';
+                    contentDiv.innerHTML = '<p class="text-light">' + {{ _("Aucune sauvegarde trouvee")|tojson }} + '</p>';
                 } else {
-                    let html = '<div class="alert alert-warning mb-1"><i class="iconoir-warning-triangle"></i> <strong>{{ _("Attention:") }}</strong> {{ _("La restauration remplacera toutes les donnees actuelles!") }}</div>';
-                    html += '<table class="table table-small"><thead><tr><th>{{ _("Fichier") }}</th><th>{{ _("Type") }}</th><th>{{ _("Taille") }}</th><th>{{ _("Date") }}</th><th>{{ _("Action") }}</th></tr></thead><tbody>';
+                    let html = '<div class="alert alert-warning mb-1"><i class="iconoir-warning-triangle"></i> <strong>' + {{ _("Attention:")|tojson }} + '</strong> ' + {{ _("La restauration remplacera toutes les donnees actuelles!")|tojson }} + '</div>';
+                    html += '<table class="table table-small"><thead><tr><th>' + {{ _("Fichier")|tojson }} + '</th><th>' + {{ _("Type")|tojson }} + '</th><th>' + {{ _("Taille")|tojson }} + '</th><th>' + {{ _("Date")|tojson }} + '</th><th>' + {{ _("Action")|tojson }} + '</th></tr></thead><tbody>';
                     data.files.forEach(file => {
                         const sizeKb = (file.size / 1024).toFixed(1);
                         const sizeMb = (file.size / 1048576).toFixed(2);
                         const sizeDisplay = file.size > 1048576 ? sizeMb + ' Mo' : sizeKb + ' Ko';
-                        const typeLabel = file.type === 'full' ? '<span class="badge badge-success" title="{{ _("Base de donnees + images") }}">{{ _("Complet") }}</span>' : '<span class="badge badge-warning" title="{{ _("Base de donnees uniquement") }}">{{ _("BDD seule") }}</span>';
+                        const typeLabel = file.type === 'full' ? '<span class="badge badge-success" title="' + {{ _("Base de donnees + images")|tojson }} + '">' + {{ _("Complet")|tojson }} + '</span>' : '<span class="badge badge-warning" title="' + {{ _("Base de donnees uniquement")|tojson }} + '">' + {{ _("BDD seule")|tojson }} + '</span>';
                         html += '<tr><td><code class="text-small">' + file.name + '</code></td><td>' + typeLabel + '</td><td>' + sizeDisplay + '</td><td>' + file.date + '</td>';
-                        html += '<td><button type="button" class="btn btn-error btn-small restore-btn" data-filename="' + file.name + '"><i class="iconoir-database-restore"></i> {{ _("Restaurer") }}</button></td></tr>';
+                        html += '<td><button type="button" class="btn btn-error btn-small restore-btn" data-filename="' + file.name + '"><i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }} + '</button></td></tr>';
                     });
                     html += '</tbody></table>';
                     contentDiv.innerHTML = html;
@@ -384,11 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     contentDiv.querySelectorAll('.restore-btn').forEach(btn => {
                         btn.addEventListener('click', async function() {
                             const filename = this.dataset.filename;
-                            if (!confirm('{{ _("ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par celles du backup") }} "' + filename + '".\n\n{{ _("Cette action est IRREVERSIBLE.") }}\n\n{{ _("Continuer ?") }}')) return;
-                            if (!confirm('{{ _("Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce backup ?") }}')) return;
+                            if (!confirm({{ _("ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par celles du backup")|tojson }} + ' "' + filename + '".\n\n' + {{ _("Cette action est IRREVERSIBLE.")|tojson }} + '\n\n' + {{ _("Continuer ?")|tojson }})) return;
+                            if (!confirm({{ _("Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce backup ?")|tojson }})) return;
 
                             this.disabled = true;
-                            this.innerHTML = '<i class="iconoir-refresh"></i> {{ _("Restauration...") }}';
+                            this.innerHTML = '<i class="iconoir-refresh"></i> ' + {{ _("Restauration...")|tojson }};
 
                             try {
                                 const response = await fetch('{{ url_for("admin.restore_backup") }}', {
@@ -402,29 +402,29 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const result = await response.json();
 
                                 if (result.success) {
-                                    alert('{{ _("Restauration reussie!") }}\n\n' + result.message + '\n\n{{ _("La page va se recharger.") }}');
+                                    alert({{ _("Restauration reussie!")|tojson }} + '\n\n' + result.message + '\n\n' + {{ _("La page va se recharger.")|tojson }});
                                     location.reload();
                                 } else {
-                                    alert('{{ _("Erreur:") }} ' + result.message);
+                                    alert({{ _("Erreur:")|tojson }} + ' ' + result.message);
                                     this.disabled = false;
-                                    this.innerHTML = '<i class="iconoir-database-restore"></i> {{ _("Restaurer") }}';
+                                    this.innerHTML = '<i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }};
                                 }
                             } catch (error) {
-                                alert('{{ _("Erreur:") }} ' + error.message);
+                                alert({{ _("Erreur:")|tojson }} + ' ' + error.message);
                                 this.disabled = false;
-                                this.innerHTML = '<i class="iconoir-database-restore"></i> {{ _("Restaurer") }}';
+                                this.innerHTML = '<i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }};
                             }
                         });
                     });
                 }
             } catch (error) {
-                contentDiv.innerHTML = '<p class="text-error">{{ _("Erreur:") }} ' + error.message + '</p>';
+                contentDiv.innerHTML = '<p class="text-error">' + {{ _("Erreur:")|tojson }} + ' ' + error.message + '</p>';
             }
 
-            this.innerHTML = '<i class="iconoir-eye-closed"></i> {{ _("Masquer l\'historique") }}';
+            this.innerHTML = '<i class="iconoir-eye-closed"></i> ' + {{ _("Masquer l'historique")|tojson }};
         } else {
             historyDiv.style.display = 'none';
-            this.innerHTML = '<i class="iconoir-folder"></i> {{ _("Voir l\'historique") }}';
+            this.innerHTML = '<i class="iconoir-folder"></i> ' + {{ _("Voir l'historique")|tojson }};
         }
     });
 });

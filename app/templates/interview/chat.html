@@ -263,14 +263,14 @@
 const sessionId = {{ session.id }};
 const maxInteractions = {{ interview.max_interactions }};
 const i18n = {
-    exchangeLimitReached: "{{ _("Limite d'echanges atteinte") }}",
-    interviewEnded: "{{ _('Entretien termine') }}",
-    error: "{{ _('Erreur') }}",
-    connectionError: "{{ _('Erreur de connexion') }}",
-    endInterviewConfirm: "{{ _("Terminer l'entretien ? Vous ne pourrez plus envoyer de messages.") }}",
-    interviewEndedTitle: "{{ _('Entretien termine') }}",
-    interviewEndedDefault: "{{ _("L'entretien est maintenant termine.") }}",
-    goToAnalysis: "{{ _("Passer a l'analyse et la correction") }}"
+    exchangeLimitReached: {{ _("Limite d'echanges atteinte")|tojson }},
+    interviewEnded: {{ _('Entretien termine')|tojson }},
+    error: {{ _('Erreur')|tojson }},
+    connectionError: {{ _('Erreur de connexion')|tojson }},
+    endInterviewConfirm: {{ _("Terminer l'entretien ? Vous ne pourrez plus envoyer de messages.")|tojson }},
+    interviewEndedTitle: {{ _('Entretien termine')|tojson }},
+    interviewEndedDefault: {{ _("L'entretien est maintenant termine.")|tojson }},
+    goToAnalysis: {{ _("Passer a l'analyse et la correction")|tojson }}
 };
 let socket;
 let isProcessing = false;

@@ -483,14 +483,14 @@ async function runAnalysis() {
             // Reload page to show results
             location.reload();
         } else {
-            alert('{{ _('Erreur:') }} ' + (data.error || '{{ _('Erreur inconnue') }}'));
+            alert({{ _('Erreur:')|tojson }} + ' ' + (data.error || {{ _('Erreur inconnue')|tojson }}));
             btn.disabled = false;
-            btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse') }}';
+            btn.innerHTML = '<i class="iconoir-sparks"></i> ' + {{ _("Lancer l'analyse")|tojson }};
         }
     } catch (err) {
-        alert('{{ _('Erreur de connexion') }}');
+        alert({{ _('Erreur de connexion')|tojson }});
         btn.disabled = false;
-        btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse') }}';
+        btn.innerHTML = '<i class="iconoir-sparks"></i> ' + {{ _("Lancer l'analyse")|tojson }};
     }
 }
 </script>

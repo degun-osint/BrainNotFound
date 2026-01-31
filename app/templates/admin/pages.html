@@ -67,7 +67,8 @@
                         </a>
                         <form action="{{ url_for('admin.delete_page', identifier=page.get_url_identifier()) }}"
                               method="POST" style="display: inline;"
-                              onsubmit="return confirm('{{ _('Supprimer cette page ?') }}')">
+                              data-confirm="{{ _('Supprimer cette page ?') }}"
+                              onsubmit="return confirm(this.dataset.confirm)">
                             <button type="submit" class="btn btn-error btn-small" title="{{ _('Supprimer') }}">
                                 <i class="iconoir-trash"></i>
                             </button>

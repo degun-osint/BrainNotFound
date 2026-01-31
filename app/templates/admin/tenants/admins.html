@@ -34,7 +34,8 @@
                     <td>
                         {% if not admin.is_superadmin %}
                         <form method="POST" action="{{ url_for('tenant.remove_admin', identifier=tenant.get_url_identifier(), user_identifier=admin.get_url_identifier()) }}"
-                              onsubmit="return confirm('{{ _('Retirer') }} {{ admin.username }} {{ _('des administrateurs ?') }}');" class="inline">
+                              data-confirm="{{ _('Retirer') }} {{ admin.username }} {{ _('des administrateurs ?') }}"
+                              onsubmit="return confirm(this.dataset.confirm);" class="inline">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Retirer') }}">
                                 <i class="iconoir-user-minus"></i>
                             </button>

@@ -85,7 +85,7 @@
 
 <script>
 document.getElementById('submitQuizBtn').addEventListener('click', function() {
-    Modal.confirm('{{ _('Etes-vous sur de vouloir soumettre votre quiz ?') }}', '{{ _('Confirmation') }}').then(function(confirmed) {
+    Modal.confirm({{ _('Etes-vous sur de vouloir soumettre votre quiz ?')|tojson }}, {{ _('Confirmation')|tojson }}).then(function(confirmed) {
         if (confirmed) {
             document.getElementById('quizForm').submit();
         }

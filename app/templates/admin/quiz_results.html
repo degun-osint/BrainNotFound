@@ -49,7 +49,8 @@
         {% if responses %}
         <div class="flex gap-sm">
             <form method="POST" action="{{ url_for('admin.regrade_quiz', identifier=quiz.get_url_identifier()) }}" class="inline"
-                  onsubmit="return confirm('{{ _("Re-corriger toutes les questions ouvertes ? Les notes actuelles seront recalculées.") }}');">
+                  data-confirm="{{ _("Re-corriger toutes les questions ouvertes ? Les notes actuelles seront recalculees.") }}"
+                  onsubmit="return confirm(this.dataset.confirm);">
                 <button type="submit" class="btn btn-warning btn-small" data-tooltip="{{ _('Re-corriger les questions ouvertes') }}">
                     <i class="iconoir-refresh-double"></i> {{ _('Re-corriger') }}
                 </button>

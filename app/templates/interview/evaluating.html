@@ -90,11 +90,11 @@
 const sessionId = {{ session.id }};
 const totalCriteria = {{ session.interview.criteria|length }};
 const i18n = {
-    evaluatingCriteria: "{{ _('Evaluation des criteres...') }}",
-    criterionEvaluated: "{{ _('Critere') }}",
-    evaluated: "{{ _('evalue...') }}",
-    evaluationCompleted: "{{ _('Evaluation terminee !') }}",
-    error: "{{ _('Erreur') }}"
+    evaluatingCriteria: {{ _('Evaluation des criteres...')|tojson }},
+    criterionEvaluated: {{ _('Critere')|tojson }},
+    evaluated: {{ _('evalue...')|tojson }},
+    evaluationCompleted: {{ _('Evaluation terminee !')|tojson }},
+    error: {{ _('Erreur')|tojson }}
 };
 let socket;
 

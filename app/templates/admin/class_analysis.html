@@ -469,14 +469,14 @@ async function runClassAnalysis() {
         if (data.success) {
             location.reload();
         } else {
-            alert('{{ _('Erreur:') }} ' + (data.error || '{{ _('Erreur inconnue') }}'));
+            alert({{ _('Erreur:')|tojson }} + ' ' + (data.error || {{ _('Erreur inconnue')|tojson }}));
             btn.disabled = false;
-            btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}';
+            btn.innerHTML = '<i class="iconoir-sparks"></i> ' + {{ _("Lancer l'analyse IA")|tojson }};
         }
     } catch (err) {
-        alert('{{ _('Erreur de connexion') }}');
+        alert({{ _('Erreur de connexion')|tojson }});
         btn.disabled = false;
-        btn.innerHTML = '<i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}';
+        btn.innerHTML = '<i class="iconoir-sparks"></i> ' + {{ _("Lancer l'analyse IA")|tojson }};
     }
 }
 </script>

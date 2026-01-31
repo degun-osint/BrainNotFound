@@ -397,24 +397,24 @@ function bulkChangeGroup(action) {
     const groupId = document.getElementById('bulk-group-id').value;
 
     if (selected.length === 0) {
-        Toast.warning('{{ _("Aucun utilisateur selectionne") }}');
+        Toast.warning({{ _("Aucun utilisateur selectionne")|tojson }});
         return;
     }
 
     if (!groupId) {
-        Toast.warning('{{ _("Veuillez choisir un groupe") }}');
+        Toast.warning({{ _("Veuillez choisir un groupe")|tojson }});
         return;
     }
 
     const actionText = {
-        'add': '{{ _("ajouter au") }}',
-        'remove': '{{ _("retirer du") }}',
-        'replace': '{{ _("deplacer vers le") }}'
-    }[action] || '{{ _("modifier pour le") }}';
+        'add': {{ _("ajouter au")|tojson }},
+        'remove': {{ _("retirer du")|tojson }},
+        'replace': {{ _("deplacer vers le")|tojson }}
+    }[action] || {{ _("modifier pour le")|tojson }};
 
     const groupName = document.querySelector('#bulk-group-select .searchable-select-trigger span').textContent;
 
-    Modal.confirm('{{ _("Voulez-vous") }} ' + actionText + ' {{ _("groupe") }} "' + groupName + '" {{ _("pour") }} ' + selected.length + ' {{ _("utilisateur(s) ?") }}')
+    Modal.confirm({{ _("Voulez-vous")|tojson }} + ' ' + actionText + ' ' + {{ _("groupe")|tojson }} + ' "' + groupName + '" ' + {{ _("pour")|tojson }} + ' ' + selected.length + ' ' + {{ _("utilisateur(s) ?")|tojson }})
         .then(confirmed => {
             if (confirmed) {
                 const form = document.getElementById('bulk-group-form');
