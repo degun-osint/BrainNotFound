@@ -132,7 +132,13 @@ class ClaudeInterviewer:
             response = self.client.messages.create(
                 model=self.model,
                 max_tokens=1024,
-                system=system_prompt,
+                system=[
+                    {
+                        "type": "text",
+                        "text": system_prompt,
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ],
                 messages=messages
             )
 
@@ -307,11 +313,16 @@ class ClaudeInterviewer:
             current_tokens += msg_tokens
 
         # Convert to API format
-        for msg in kept_messages:
-            messages.append({
+        for i, msg in enumerate(kept_messages):
+            msg_dict = {
                 'role': msg.role,
-                'content': msg.content
-            })
+                'content': [{"type": "text", "text": msg.content}]
+            }
+            # Cache the last existing message to enable prefix caching
+            # on the full conversation history up to this point
+            if i == len(kept_messages) - 1:
+                msg_dict['content'][0]['cache_control'] = {"type": "ephemeral"}
+            messages.append(msg_dict)
 
         # Add new user message
         messages.append({

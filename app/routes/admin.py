@@ -2949,7 +2949,8 @@ def response_analysis(identifier):
     return render_template('admin/response_analysis.html',
                           stats=stats,
                           class_averages=class_averages,
-                          quiz_id=response.quiz_id)
+                          quiz=response.quiz,
+                          response=response)
 
 
 @admin_bp.route('/response/<identifier>/analyze', methods=['POST'])
