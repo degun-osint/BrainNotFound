@@ -1057,7 +1057,7 @@ def test_quiz(identifier):
                 quiz_response.id,
                 answers_to_grade
             )
-            return redirect(url_for('quiz.grading', response_id=quiz_response.id))
+            return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
 
         flash(_l('Test du quiz termine !'), 'success')
         return redirect(url_for('quiz.result', response_id=quiz_response.id))

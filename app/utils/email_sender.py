@@ -154,13 +154,13 @@ L'equipe BrainNotFound
 
 def send_bulk_email(users, subject, message_body, async_send=True):
     """Send email to multiple users."""
-    from app.models.settings import Settings
+    from app.models.settings import SiteSettings
 
     success_count = 0
     fail_count = 0
 
     # Get site title for branding
-    site_title = Settings.get('site_title', 'BrainNotFound')
+    site_title = SiteSettings.get_settings().site_title or 'BrainNotFound'
 
     for user in users:
         if not user.email:
