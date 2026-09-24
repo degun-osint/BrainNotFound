@@ -11,6 +11,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+      # Low-memory settings for small servers (see the file for measurements)
+      - ./docker/mysql/low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
     ports:
       - "3312:3306"
     healthcheck:

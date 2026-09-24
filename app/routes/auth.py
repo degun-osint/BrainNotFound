@@ -25,8 +25,13 @@ def sanitize_filename(text):
 # Rate limit error handler
 @auth_bp.errorhandler(429)
 def ratelimit_handler(e):
-    flash(_l('Trop de tentatives. Veuillez reessayer dans quelques minutes.'), 'error')
-    return redirect(request.url)
+    message = _l('Trop de tentatives. Veuillez reessayer dans quelques minutes.')
+    if request.method == 'POST':
+        # Limits only apply to POST here: going back to the (GET) form is safe
+        flash(message, 'error')
+        return redirect(request.url)
+    # Never redirect a limited GET to itself (endless redirect loop)
+    return str(message), 429
 
 
 def is_safe_url(target):

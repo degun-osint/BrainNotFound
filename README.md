@@ -74,6 +74,21 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 - Clé API Anthropic
 - Serveur SMTP pour les envois de mail
 
+### Ressources serveur
+
+Mesures sur la pile Docker complète (application + MySQL 8), avec un établissement de 600 apprenants et 6 000 copies :
+
+| | Au repos | En charge (20 utilisateurs en continu) |
+|---|---|---|
+| Application | ~100 Mo | ~125 Mo, 1 cœur |
+| MySQL (config `docker/mysql/low-memory.cnf`) | ~115 Mo | ~175 Mo |
+
+- **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go + données).
+- **Confortable** : 2 vCPU, 2 Go de RAM.
+- L'IA tourne chez le fournisseur (Anthropic...) : elle ne consomme rien localement, sauf avec un modèle local type Ollama, qui demande alors sa propre machine (GPU ou beaucoup de RAM).
+- Débit mesuré : ~90 pages admin par seconde en continu, une page servie en 10 à 50 ms. Une classe de 30 apprenants en génère quelques-unes par seconde.
+- L'application tourne sur un seul processus (nécessaire pour les WebSockets sans broker Redis) : plus de 2 cœurs n'apportent rien à l'application elle-même.
+
 ### Démarrage rapide
 
 ```bash

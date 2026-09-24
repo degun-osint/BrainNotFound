@@ -20,10 +20,12 @@ login_manager = LoginManager()
 socketio = SocketIO()
 csrf = CSRFProtect()
 mail = Mail()
+# No global default limit: a whole class or company shares one public IP, and
+# "50 per hour" for everyone blocked the site. Sensitive endpoints (login,
+# register, password reset...) carry their own @limiter.limit.
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri="memory://",
-    default_limits=["200 per day", "50 per hour"]
 )
 babel = Babel()
 

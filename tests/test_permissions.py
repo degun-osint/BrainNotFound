@@ -278,3 +278,26 @@ def test_users_page_query_count_does_not_grow_with_rows(app, world, login):
     for i in range(10):
         make_user(f'extra_{i}', groups=[world['g3a'], world['g3b']])
     assert count_queries(client) <= baseline + 2
+
+
+# ==================== rate limiting ====================
+
+def test_no_global_rate_limit_for_a_shared_ip(app, world, login):
+    from app import limiter
+    limiter.enabled = True
+    try:
+        client = login(world['dir_a'])
+        codes = {client.get('/admin/groups').status_code for _ in range(80)}
+        assert codes == {200}  # was capped at 50 per hour for the whole IP
+    finally:
+        limiter.enabled = False
+
+
+def test_rate_limit_handler_never_loops(app):
+    from app.routes.auth import ratelimit_handler
+    with app.test_request_context('/login', method='POST'):
+        resp = ratelimit_handler(None)
+        assert resp.status_code == 302 and resp.headers['Location'].endswith('/login')
+    with app.test_request_context('/login', method='GET'):
+        body, status = ratelimit_handler(None)
+        assert status == 429  # a limited GET is answered, not redirected to itself
