@@ -13,7 +13,7 @@ anthropic>=1.8.0
 openai>=3.19.2  # OpenAI-compatible providers (Mistral, Gemini, Ollama...)
 gunicorn==26.2.0
 gevent==26.9.0
-gevent-websocket==0.10.1
+simple-websocket==1.1.0  # WebSocket for Flask-SocketIO under gevent (gevent-websocket is unmaintained)
 
 # Document parsing for Quiz Generator
 pypdf==6.19.0

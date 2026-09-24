@@ -93,4 +93,4 @@ fi
 
 # Start the application with WebSocket support
 echo "Starting application with WebSocket support..."
-exec gunicorn --bind 0.0.0.0:5000 --workers 1 --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker wsgi:app
+exec gunicorn --bind 0.0.0.0:5000 --workers 1 --worker-class gevent wsgi:app
