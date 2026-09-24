@@ -14,6 +14,7 @@ from app.models.group import Group
 from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
 from app.models.tenant import Tenant, tenant_admins
 from app.models.interview import Interview, InterviewSession
+from app.utils.deletion import delete_user_account
 from app.utils.markdown_parser import parse_quiz_markdown, validate_quiz_data
 from app.utils.quiz_generator import ContentExtractor, generate_quiz_from_content
 from app.utils.email_sender import send_verification_email
@@ -2270,7 +2271,7 @@ def delete_user(identifier):
         return redirect(url_for('admin.users'))
 
     username = user.username
-    db.session.delete(user)
+    delete_user_account(user)
     db.session.commit()
 
     flash(_l('Utilisateur "%(username)s" supprime avec succes', username=username), 'success')
@@ -2306,7 +2307,7 @@ def bulk_delete_users():
             skipped_count += 1
             continue
 
-        db.session.delete(user)
+        delete_user_account(user)
         deleted_count += 1
 
     db.session.commit()

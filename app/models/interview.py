@@ -194,7 +194,9 @@ class InterviewSession(UIDMixin, db.Model):
 
     # Relationships
     interview = db.relationship('Interview', back_populates='sessions')
-    user = db.relationship('User', backref=db.backref('interview_sessions', lazy='dynamic'))
+    # Deleting a user deletes their sessions (user_id is NOT NULL)
+    user = db.relationship('User', backref=db.backref('interview_sessions', lazy='dynamic',
+                                                      cascade='all, delete-orphan'))
     messages = db.relationship('InterviewMessage', back_populates='session',
                                cascade='all, delete-orphan', order_by='InterviewMessage.created_at')
     scores = db.relationship('CriterionScore', back_populates='session',

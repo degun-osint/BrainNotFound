@@ -51,14 +51,9 @@
                     <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
-                    {% if tenant.groups.count() == 0 %}
-                    <form method="POST" action="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}"
-                          onsubmit="return confirmDelete(this, '{{ _('cet etablissement') }}');" class="inline">
-                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
-                            <i class="iconoir-trash"></i>
-                        </button>
-                    </form>
-                    {% endif %}
+                    <a href="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
+                        <i class="iconoir-trash"></i>
+                    </a>
                 </div>
             </div>
             {% endfor %}

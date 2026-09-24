@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Supprimer') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">{{ _('Supprimer l\'etablissement') }} : {{ tenant.name }}</h1>
+
+<div class="alert alert-warning mb-2">
+    <i class="iconoir-warning-triangle"></i>
+    {{ _("Cette suppression est definitive. Une sauvegarde complete est faite juste avant : en cas d'erreur, elle se restaure depuis Parametres > Sauvegarde et restauration.") }}
+    {% if tenant.is_active %}
+    {{ _("Pour simplement bloquer l'acces, vous pouvez plutot desactiver l'etablissement depuis Modifier.") }}
+    {% endif %}
+</div>
+
+<div class="card mb-2">
+    <div class="card-header">{{ _('Ce qui sera supprime') }}</div>
+    <div class="p-2">
+        <ul class="mb-0">
+            <li><strong>{{ plan.groups }}</strong> {{ _('groupe(s)') }}</li>
+            <li><strong>{{ plan.quizzes }}</strong> {{ _('quiz de l\'etablissement') }}, {{ _('avec') }} <strong>{{ plan.responses }}</strong> {{ _('copie(s)') }}</li>
+            <li><strong>{{ plan.interviews }}</strong> {{ _('entretien(s)') }}, {{ _('avec') }} <strong>{{ plan.sessions }}</strong> {{ _('session(s)') }}</li>
+        </ul>
+        <p class="text-light text-sm mt-1 mb-0">
+            {{ _("Les quiz et entretiens d'autres etablissements assignes a ces groupes sont conserves (seule l'assignation disparait).") }}
+        </p>
+    </div>
+</div>
+
+<form method="POST" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="card-header">{{ _('Comptes') }}</div>
+    <div class="p-2">
+        <label class="checkbox-label mb-1">
+            <input type="checkbox" name="delete_accounts" checked>
+            <span>
+                {{ _('Supprimer aussi les %(count)s compte(s) qui n\'appartiennent qu\'a cet etablissement (apprenants, intervenants, administrateurs), avec leurs resultats', count=plan.exclusive_users|length) }}
+            </span>
+        </label>
+        {% if plan.shared_users %}
+        <p class="text-light text-sm">
+            {{ _('%(count)s compte(s) rattache(s) aussi a un autre etablissement, ou superadmin(s), seront conserves et simplement retires.', count=plan.shared_users|length) }}
+        </p>
+        {% endif %}
+
+        <div class="form-group mt-2">
+            <label class="form-label" for="confirm_name">{{ _('Pour confirmer, tapez le nom de l\'etablissement') }} : <strong>{{ tenant.name }}</strong></label>
+            <input type="text" id="confirm_name" name="confirm_name" class="form-input" autocomplete="off" required>
+        </div>
+        <div class="flex gap-md">
+            <button type="submit" class="btn btn-error">
+                <i class="iconoir-trash"></i> {{ _('Supprimer definitivement') }}
+            </button>
+            <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
+                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
+            </a>
+        </div>
+    </div>
+</form>
+{% endblock %}

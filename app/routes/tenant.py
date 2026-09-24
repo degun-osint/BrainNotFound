@@ -1,10 +1,11 @@
 """
 Routes pour la gestion des tenants (organisations).
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import current_app, Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from functools import wraps
+import os
 import re
 from app import db
 from app.models.tenant import Tenant, tenant_admins
@@ -236,26 +237,41 @@ def edit_tenant(identifier):
     return render_template('admin/tenants/edit.html', tenant=tenant)
 
 
-@tenant_bp.route('/<identifier>/delete', methods=['POST'])
+@tenant_bp.route('/<identifier>/delete', methods=['GET', 'POST'])
 @login_required
 @superadmin_required
 def delete_tenant(identifier):
-    """Supprimer un tenant (superadmin only)."""
+    """Delete an organization with its groups and content, after confirmation."""
+    from app.utils.backup_manager import BackupManager
+    from app.utils.deletion import delete_tenant as remove_tenant, tenant_deletion_plan
+
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
         flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
-    # Vérifier qu'il n'y a pas de groupes
-    if tenant.groups.count() > 0:
-        flash(_l('Impossible de supprimer un etablissement qui contient des groupes'), 'error')
-        return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
+    if request.method == 'GET':
+        return render_template('admin/tenants/delete.html', tenant=tenant, plan=tenant_deletion_plan(tenant))
+
+    if request.form.get('confirm_name', '').strip() != tenant.name:
+        flash(_l("Le nom saisi ne correspond pas : rien n'a ete supprime"), 'error')
+        return redirect(url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()))
+
+    # Safety net: full backup first, restorable from Settings
+    manager = BackupManager()
+    ok, path, message, _ = manager.create_backup()
+    if not ok:
+        flash(_l("Sauvegarde prealable impossible, rien n'a ete supprime : %(error)s", error=message), 'error')
+        return redirect(url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()))
+    backup_name = os.path.basename(manager.keep_locally(path, prefix='backup_avant_suppression_'))
 
     name = tenant.name
-    db.session.delete(tenant)
+    plan = remove_tenant(tenant, delete_accounts=request.form.get('delete_accounts') == 'on')
     db.session.commit()
+    current_app.logger.warning(f"Tenant {name} deleted by {current_user.username} (backup {backup_name})")
 
-    flash(_l('Etablissement "%(name)s" supprime', name=name), 'info')
+    flash(_l('Etablissement "%(name)s" supprime (sauvegarde prealable : %(backup)s)',
+             name=name, backup=backup_name), 'success')
     return redirect(url_for('tenant.list_tenants'))
 
 
