@@ -101,7 +101,7 @@ def get_groups_by_tenant():
             tenant = Tenant.query.get(tenant_id) if tenant_id else None
             groups_by_tenant[tenant_id] = {
                 'tenant': tenant,
-                'name': tenant.name if tenant else 'Sans organisation',
+                'name': tenant.name if tenant else 'Sans etablissement',
                 'groups': []
             }
         groups_by_tenant[tenant_id]['groups'].append(group)
@@ -1140,7 +1140,7 @@ def admin_export(identifier):
     writer = csv.writer(output, delimiter=';')
 
     # Header
-    header = ['Etudiant', 'Username', 'Date', 'Duree (min)', 'Echanges', 'Score', 'Score Max', 'Pourcentage', 'Statut']
+    header = ['Apprenant', 'Username', 'Date', 'Duree (min)', 'Echanges', 'Score', 'Score Max', 'Pourcentage', 'Statut']
     # Add criteria columns
     for criterion in interview.criteria:
         header.append(f'{criterion.name} (/{criterion.max_points})')

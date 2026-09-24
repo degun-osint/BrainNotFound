@@ -99,6 +99,9 @@ Required in `.env`:
 
 The app supports French (default) and English via Flask-Babel.
 
+### UI vocabulary
+The app serves schools and corporate e-learning: say **Etablissement / Groupe / Intervenant / Apprenant** (EN: Organization / Group / Instructor / Learner). Never "classe", "professeur", "etudiant" or "tenant" in the UI. In code: tenant = etablissement, group admin (`user_groups.role == 'admin'`) = intervenant, member = apprenant.
+
 ### Key files
 - `babel.cfg` - Extraction configuration
 - `translations/` - Translation catalogs (.po/.mo files)

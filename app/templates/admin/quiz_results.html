@@ -7,7 +7,7 @@
     <h1 class="mb-0">{{ _('Resultats :') }} {{ quiz.title }}</h1>
     {% if responses %}
     <a href="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
-        <i class="iconoir-stats-report"></i> {{ _('Analyse de classe') }}
+        <i class="iconoir-stats-report"></i> {{ _('Analyse du groupe') }}
     </a>
     {% endif %}
 </div>
@@ -36,7 +36,7 @@
 <div class="card">
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
         <span>
-            {{ _('Soumissions des étudiants') }}
+            {{ _('Soumissions des apprenants') }}
             {% if selected_group %}
                 {% for group in groups %}
                     {% if group.id == selected_group %}
@@ -66,7 +66,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{{ _('Étudiant') }}</th>
+                    <th>{{ _('Apprenant') }}</th>
                     <th>{{ _('Groupe') }}</th>
                     <th>{{ _('Score') }}</th>
                     <th>{{ _('Pourcentage') }}</th>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 10:05+0200\n"
+"POT-Creation-Date: 2026-09-24 10:21+0200\n"
 "PO-Revision-Date: 2026-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/models/group.py:83 app/routes/auth.py:143 app/routes/auth.py:363
+#: app/models/group.py:88 app/routes/auth.py:143 app/routes/auth.py:363
 msgid "Code de groupe invalide ou inactif"
 msgstr "Invalid or inactive group code"
 
-#: app/models/group.py:85
+#: app/models/group.py:90
 msgid "Ce groupe a atteint sa limite de membres"
 msgstr "This group has reached its member limit"
 
-#: app/models/group.py:89 app/models/group.py:91
+#: app/models/group.py:94 app/models/group.py:96
 msgid "Cet etablissement n'accepte plus de nouvelles inscriptions"
 msgstr "This organization is not accepting new registrations"
 
@@ -47,12 +47,12 @@ msgstr "Access restricted to super-administrators"
 #: app/routes/tenant.py:246 app/routes/tenant.py:271 app/routes/tenant.py:302
 #: app/routes/tenant.py:330 app/routes/tenant.py:354 app/routes/tenant.py:376
 #: app/routes/tenant.py:424
-msgid "Tenant introuvable"
-msgstr "Tenant not found"
+msgid "Etablissement introuvable"
+msgstr "Organization not found"
 
 #: app/routes/admin.py:135 app/routes/admin.py:1313
-msgid "Acces non autorise a ce tenant"
-msgstr "Unauthorized access to this tenant"
+msgid "Acces non autorise a cet etablissement"
+msgstr "Access denied to this organization"
 
 #: app/routes/admin.py:139
 #, python-format
@@ -60,8 +60,8 @@ msgid "Contexte: %(name)s"
 msgstr "Context: %(name)s"
 
 #: app/routes/admin.py:151
-msgid "Contexte: Tous les tenants"
-msgstr "Context: All stakeholders"
+msgid "Contexte : tous les etablissements"
+msgstr "Context: all organizations"
 
 #: app/routes/admin.py:264
 msgid "Vous devez assigner le quiz a au moins un groupe accessible"
@@ -97,7 +97,7 @@ msgstr "Error creating quiz. Check the Markdown format."
 #: app/routes/admin.py:391 app/routes/admin.py:549 app/routes/admin.py:590
 #: app/routes/admin.py:815 app/routes/admin.py:846 app/routes/admin.py:914
 #: app/routes/admin.py:948 app/routes/admin.py:978 app/routes/admin.py:1047
-#: app/routes/admin.py:2522 app/routes/admin.py:2536 app/routes/quiz.py:235
+#: app/routes/admin.py:2641 app/routes/admin.py:2655 app/routes/quiz.py:235
 #: app/routes/quiz.py:245 app/routes/quiz.py:541
 msgid "Quiz introuvable"
 msgstr "Quiz not found"
@@ -105,8 +105,8 @@ msgstr "Quiz not found"
 #: app/routes/admin.py:400 app/routes/admin.py:558 app/routes/admin.py:601
 #: app/routes/admin.py:822 app/routes/admin.py:851 app/routes/admin.py:919
 #: app/routes/admin.py:957 app/routes/admin.py:985 app/routes/admin.py:1052
-#: app/routes/admin.py:2267 app/routes/admin.py:2331 app/routes/admin.py:2453
-#: app/routes/admin.py:2531
+#: app/routes/admin.py:2386 app/routes/admin.py:2450 app/routes/admin.py:2572
+#: app/routes/admin.py:2650
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr "You do not have access to this quiz."
 
@@ -162,7 +162,7 @@ msgid "Le nom du groupe est requis"
 msgstr "The group name is required"
 
 #: app/routes/admin.py:1247
-msgid "Vous ne pouvez creer des groupes que dans vos tenants"
+msgid "Vous ne pouvez creer des groupes que dans vos etablissements"
 msgstr "You can only create groups in your organizations"
 
 #: app/routes/admin.py:1256 app/routes/admin.py:1316 app/routes/tenant.py:389
@@ -176,13 +176,13 @@ msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
 msgstr "Group \"%(name)s\" created with the code: %(code)s"
 
 #: app/routes/admin.py:1285 app/routes/admin.py:1338 app/routes/admin.py:1359
-#: app/routes/admin.py:1384 app/routes/admin.py:1419 app/routes/admin.py:1516
+#: app/routes/admin.py:1384 app/routes/admin.py:1597 app/routes/admin.py:1694
 msgid "Groupe introuvable"
 msgstr "Group not found"
 
 #: app/routes/admin.py:1290 app/routes/admin.py:1343 app/routes/admin.py:1364
-#: app/routes/admin.py:1395 app/routes/admin.py:1426 app/routes/admin.py:1527
-#: app/routes/admin.py:2191
+#: app/routes/admin.py:1387 app/routes/admin.py:1604 app/routes/admin.py:1705
+#: app/routes/admin.py:2310
 msgid "Vous n'avez pas acces a ce groupe"
 msgstr "You do not have access to this group"
 
@@ -203,281 +203,326 @@ msgstr "It is not possible to delete a group that contains users"
 msgid "Groupe supprime avec succes"
 msgstr "Group successfully removed"
 
-#: app/routes/admin.py:1542
+#: app/routes/admin.py:1477 app/routes/admin.py:1498 app/routes/admin.py:1518
+#: app/routes/admin.py:1559 app/routes/admin.py:1841 app/routes/admin.py:2134
+#: app/routes/admin.py:2233 app/routes/admin.py:2390 app/routes/admin.py:2454
+msgid "Vous n'avez pas acces a cet utilisateur"
+msgstr "You do not have access to this user"
+
+#: app/routes/admin.py:1479
+#, python-format
+msgid "%(name)s fait deja partie du groupe"
+msgstr "%(name)s is already in the group"
+
+#: app/routes/admin.py:1485
+#, python-format
+msgid "%(name)s ajoute au groupe"
+msgstr "%(name)s added to the group"
+
+#: app/routes/admin.py:1502
+#, python-format
+msgid "%(name)s retire du groupe"
+msgstr "%(name)s removed from the group"
+
+#: app/routes/admin.py:1525
+#, python-format
+msgid "Role mis a jour pour %(name)s"
+msgstr "Role updated for %(name)s"
+
+#: app/routes/admin.py:1539
+#, python-format
+msgid ""
+"Nouveau code d'acces : %(code)s. L'ancien code et l'ancien lien ne "
+"fonctionnent plus."
+msgstr "New access code: %(code)s. The old code and link no longer work."
+
+#: app/routes/admin.py:1561
+#, python-format
+msgid ""
+"%(name)s n'a pas d'adresse email reelle : copiez le lien et transmettez-le."
+msgstr "%(name)s has no real email address: copy the link and hand it over."
+
+#: app/routes/admin.py:1565
+#, python-format
+msgid "Lien de reinitialisation envoye a %(email)s"
+msgstr "Password link sent to %(email)s"
+
+#: app/routes/admin.py:1567 app/routes/admin.py:1980 app/routes/admin.py:2167
+msgid "Erreur lors de l'envoi de l'email."
+msgstr "Error sending email."
+
+#: app/routes/admin.py:1720
 msgid "Le sujet et le message sont requis"
 msgstr "The subject and message are required"
 
-#: app/routes/admin.py:1546
+#: app/routes/admin.py:1724
 msgid "Aucun utilisateur avec email dans ce groupe"
 msgstr "No users with email addresses are in this group."
 
-#: app/routes/admin.py:1552
+#: app/routes/admin.py:1730
 #, python-format
 msgid "%(count)s email(s) envoye(s) avec succes"
 msgstr "%(count)s email(s) sent successfully"
 
-#: app/routes/admin.py:1554
+#: app/routes/admin.py:1732
 #, python-format
 msgid "%(count)s email(s) echoue(s)"
 msgstr "%(count)s email(s) failed(s)"
 
-#: app/routes/admin.py:1652 app/routes/admin.py:1913 app/routes/admin.py:2104
+#: app/routes/admin.py:1830 app/routes/admin.py:2120 app/routes/admin.py:2223
 #: app/routes/tenant.py:313 app/routes/tenant.py:335
 msgid "Utilisateur introuvable"
 msgstr "User not found"
 
-#: app/routes/admin.py:1663 app/routes/admin.py:1929 app/routes/admin.py:2114
-#: app/routes/admin.py:2271 app/routes/admin.py:2335
-msgid "Vous n'avez pas acces a cet utilisateur"
-msgstr "You do not have access to this user"
+#: app/routes/admin.py:1948 app/routes/admin.py:2177
+msgid "Nom d'utilisateur et email sont requis"
+msgstr "Username and email are required"
 
-#: app/routes/admin.py:1731
-msgid "Nom d'utilisateur, email et mot de passe sont requis"
-msgstr "Username, email and password are required"
-
-#: app/routes/admin.py:1733 app/routes/admin.py:1987 app/routes/auth.py:137
+#: app/routes/admin.py:1950 app/routes/admin.py:2179 app/routes/auth.py:137
 msgid "Ce nom d'utilisateur existe deja"
 msgstr "This username already exists"
 
-#: app/routes/admin.py:1735 app/routes/admin.py:1989 app/routes/auth.py:139
+#: app/routes/admin.py:1952 app/routes/admin.py:2181 app/routes/auth.py:139
 msgid "Cette adresse email est deja utilisee"
 msgstr "This email address is already in use"
 
-#: app/routes/admin.py:1737
+#: app/routes/admin.py:1954
 msgid "Vous devez assigner au moins un groupe"
 msgstr "You must assign at least one group"
 
-#: app/routes/admin.py:1739
-msgid "Vous devez assigner au moins un tenant pour un admin de tenant"
-msgstr "You must assign at least one tenant to a tenant admin"
+#: app/routes/admin.py:1956
+msgid "Choisissez au moins un etablissement pour un admin d'etablissement"
+msgstr "Choose at least one organization for an organization admin"
 
-#: app/routes/admin.py:1777
+#: app/routes/admin.py:1972
 #, python-format
-msgid "%(role)s \"%(username)s\" cree avec succes"
-msgstr "%(role)s \"%(username)s\" created successfully"
+msgid "Utilisateur \"%(username)s\" cree avec succes"
+msgstr "User \"%(username)s\" created"
 
-#: app/routes/admin.py:1796 app/routes/admin.py:1801 app/routes/admin.py:2384
-#: app/routes/admin.py:2897
+#: app/routes/admin.py:1975
+msgid ""
+"Pas d'email reel : copiez un lien de mot de passe depuis la page du groupe."
+msgstr "No real email address: copy a password link from the group page."
+
+#: app/routes/admin.py:1978
+#, python-format
+msgid "Invitation envoyee a %(email)s pour choisir un mot de passe."
+msgstr "Invitation sent to %(email)s to choose a password."
+
+#: app/routes/admin.py:2003 app/routes/admin.py:2008 app/routes/admin.py:2503
+#: app/routes/admin.py:3016
 msgid "Aucun fichier selectionne"
 msgstr "No files selected"
 
-#: app/routes/admin.py:1808
+#: app/routes/admin.py:2015
 msgid "Veuillez selectionner un groupe par defaut"
 msgstr "Please select a default group"
 
-#: app/routes/admin.py:1815
+#: app/routes/admin.py:2022
 msgid "Groupe invalide"
 msgstr "Invalid group"
 
-#: app/routes/admin.py:1887
+#: app/routes/admin.py:2094
 #, python-format
 msgid ""
 "%(count)s utilisateur(s) importe(s) avec succes dans le groupe \"%(group)s\""
 msgstr "%(count)s user(s) successfully imported into the group \"%(group)s"
 
-#: app/routes/admin.py:1889 app/routes/admin.py:2240
+#: app/routes/admin.py:2096 app/routes/admin.py:2359
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s)"
 msgstr "%(count)s user(s) ignored(s)"
 
-#: app/routes/admin.py:1894
+#: app/routes/admin.py:2101
 #, python-format
 msgid "... et %(count)s autre(s) erreur(s)"
 msgstr "... and %(count)s other error(s)"
 
-#: app/routes/admin.py:1900 app/routes/interview.py:1415
+#: app/routes/admin.py:2107 app/routes/interview.py:1415
 #, python-format
 msgid "Erreur lors de l'import: %(error)s"
 msgstr "Import error: %(error)s"
 
-#: app/routes/admin.py:1924
+#: app/routes/admin.py:2129
 msgid "Vous ne pouvez pas modifier votre propre compte ici"
 msgstr "You cannot edit your own account here"
 
-#: app/routes/admin.py:1952
+#: app/routes/admin.py:2159
 #, python-format
 msgid "Email de %(username)s verifie manuellement."
 msgstr "Email from %(username)s checked manually."
 
-#: app/routes/admin.py:1958
+#: app/routes/admin.py:2165
 #, python-format
 msgid "Email de verification renvoye a %(email)s."
 msgstr "Verification email returns %(email)s."
 
-#: app/routes/admin.py:1960
-msgid "Erreur lors de l'envoi de l'email."
-msgstr "Error sending email."
-
-#: app/routes/admin.py:1985
-msgid "Nom d'utilisateur et email sont requis"
-msgstr "Username and email are required"
-
-#: app/routes/admin.py:2089
+#: app/routes/admin.py:2207
 #, python-format
 msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
 msgstr "User \"%(username)s\" successfully updated"
 
-#: app/routes/admin.py:2109
+#: app/routes/admin.py:2228
 msgid "Vous ne pouvez pas supprimer votre propre compte"
 msgstr "You cannot delete your own account"
 
-#: app/routes/admin.py:2121
+#: app/routes/admin.py:2240
 #, python-format
 msgid "Utilisateur \"%(username)s\" supprime avec succes"
 msgstr "User \"%(username)s\" successfully deleted"
 
-#: app/routes/admin.py:2133 app/routes/admin.py:2177
+#: app/routes/admin.py:2252 app/routes/admin.py:2296
 #: app/templates/admin/users.html:349 app/templates/admin/users.html:376
 msgid "Aucun utilisateur selectionne"
 msgstr "No user selected"
 
-#: app/routes/admin.py:2160
+#: app/routes/admin.py:2279
 #, python-format
 msgid "%(count)s utilisateur(s) supprime(s)"
 msgstr "%(count)s user(s) deleted(s)"
 
-#: app/routes/admin.py:2162
+#: app/routes/admin.py:2281
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
 msgstr "%(count)s user(s) ignored (no permission)"
 
-#: app/routes/admin.py:2181
+#: app/routes/admin.py:2300
 msgid "Aucun groupe selectionne"
 msgstr "No group selected"
 
-#: app/routes/admin.py:2186
+#: app/routes/admin.py:2305
 msgid "Groupe non trouve"
 msgstr "Group not found"
 
-#: app/routes/admin.py:2238
+#: app/routes/admin.py:2357
 #, python-format
 msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
 msgstr "%(count)s user(s) %(action)s group \"%(group)s"
 
-#: app/routes/admin.py:2253 app/routes/admin.py:2322 app/routes/admin.py:2444
-#: app/routes/admin.py:2458
+#: app/routes/admin.py:2372 app/routes/admin.py:2441 app/routes/admin.py:2563
+#: app/routes/admin.py:2577
 msgid "Reponse introuvable"
 msgstr "Answer not found"
 
-#: app/routes/admin.py:2305
+#: app/routes/admin.py:2424
 #, python-format
 msgid "Scores mis a jour pour %(name)s"
 msgstr "Updated scores for %(name)s"
 
-#: app/routes/admin.py:2343
+#: app/routes/admin.py:2462
 #, python-format
 msgid ""
 "Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
 "quiz."
 msgstr "Response from %(name)s deleted. The user can now retake the quiz."
 
-#: app/routes/admin.py:2373
+#: app/routes/admin.py:2492
 msgid "Vous devez generer au moins une question"
 msgstr "You must generate at least one question"
 
-#: app/routes/admin.py:2378
+#: app/routes/admin.py:2497
 msgid "Veuillez selectionner un fichier"
 msgstr "Please select a file"
 
-#: app/routes/admin.py:2388
+#: app/routes/admin.py:2507
 msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
 msgstr "Unsupported file format (PDF, DOCX, MD, TXT only)"
 
-#: app/routes/admin.py:2397
+#: app/routes/admin.py:2516
 msgid ""
 "Le fichier ne contient pas assez de texte exploitable (minimum 100 "
 "caracteres)"
 msgstr "The file does not contain enough usable text (minimum 100 characters)"
 
-#: app/routes/admin.py:2402
+#: app/routes/admin.py:2521
 msgid "Quota mensuel de generations IA atteint pour cet etablissement"
 msgstr "Monthly AI generation quota reached for this organization"
 
-#: app/routes/admin.py:2424
+#: app/routes/admin.py:2543
 #, python-format
 msgid "Erreur lors de la generation: %(error)s"
 msgstr "Error during generation: %(error)s"
 
-#: app/routes/admin.py:2429
+#: app/routes/admin.py:2548
 #, python-format
 msgid "Erreur lors du traitement du fichier: %(error)s"
 msgstr "Error processing file: %(error)s"
 
-#: app/routes/admin.py:2487 app/routes/admin.py:2568
+#: app/routes/admin.py:2606 app/routes/admin.py:2687
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr "Monthly AI analysis quota reached for this organization"
 
-#: app/routes/admin.py:2639
+#: app/routes/admin.py:2758
 msgid "Parametres sauvegardes avec succes"
 msgstr "Settings saved successfully"
 
-#: app/routes/admin.py:2665
+#: app/routes/admin.py:2784
 msgid "URL du fournisseur requise"
 msgstr "Provider URL required"
 
-#: app/routes/admin.py:2667
+#: app/routes/admin.py:2786
 msgid "Modele requis pour ce fournisseur"
 msgstr "Model required for this provider"
 
-#: app/routes/admin.py:2669
+#: app/routes/admin.py:2788
 msgid "Configuration non enregistree : utilisation de Grok non confirmee"
 msgstr "Configuration not saved: use of Grok not confirmed"
 
-#: app/routes/admin.py:2718
+#: app/routes/admin.py:2837
 #, python-format
 msgid ""
 "Modele inconnu chez ce fournisseur : %(model)s. Configuration non modifiee."
 msgstr ""
 "Unknown model for this provider: %(model)s. Configuration not changed."
 
-#: app/routes/admin.py:2737
+#: app/routes/admin.py:2856
 msgid "Cle API refusee par le fournisseur"
 msgstr "API key rejected by the provider"
 
-#: app/routes/admin.py:2739
+#: app/routes/admin.py:2858
 msgid "Impossible de joindre le fournisseur"
 msgstr "Unable to reach the provider"
 
-#: app/routes/admin.py:2743
+#: app/routes/admin.py:2862
 msgid "Configuration incomplete (cle ou URL manquante)"
 msgstr "Incomplete configuration (missing key or URL)"
 
-#: app/routes/admin.py:2863 app/routes/admin.py:2900
+#: app/routes/admin.py:2982 app/routes/admin.py:3019
 #: app/templates/admin/settings.html:351
 msgid "Tapez RESTAURER pour confirmer"
 msgstr "Type RESTORE to confirm"
 
-#: app/routes/admin.py:2905
+#: app/routes/admin.py:3024
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr "Expected format: .tar.gz or .sql.gz"
 
-#: app/routes/admin.py:2955 app/routes/admin.py:3019
+#: app/routes/admin.py:3074 app/routes/admin.py:3138
 #: app/routes/interview.py:563
 msgid "Le titre est requis"
 msgstr "Title is required"
 
-#: app/routes/admin.py:2965 app/routes/admin.py:3029
+#: app/routes/admin.py:3084 app/routes/admin.py:3148
 msgid "Ce slug existe deja"
 msgstr "This slug already exists"
 
-#: app/routes/admin.py:2970 app/routes/admin.py:3034
+#: app/routes/admin.py:3089 app/routes/admin.py:3153
 msgid ""
 "Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
 msgstr "The slug can only contain lowercase letters, numbers, and dashes."
 
-#: app/routes/admin.py:2985
+#: app/routes/admin.py:3104
 msgid "Page creee avec succes"
 msgstr "Page successfully created"
 
-#: app/routes/admin.py:3001 app/routes/admin.py:3062 app/routes/admin.py:3080
+#: app/routes/admin.py:3120 app/routes/admin.py:3181 app/routes/admin.py:3199
 msgid "Page introuvable"
 msgstr "Page not found"
 
-#: app/routes/admin.py:3047
+#: app/routes/admin.py:3166
 msgid "Page modifiee avec succes"
 msgstr "Page successfully modified"
 
-#: app/routes/admin.py:3067
+#: app/routes/admin.py:3186
 msgid "Page supprimee avec succes"
 msgstr "Page successfully deleted"
 
@@ -837,25 +882,25 @@ msgstr "Invalid date format"
 
 #: app/routes/tenant.py:140
 #, python-format
-msgid "Tenant \"%(name)s\" cree avec succes"
-msgstr "Tenant \"%(name)s\" created successfully"
+msgid "Etablissement \"%(name)s\" cree avec succes"
+msgstr "Organization \"%(name)s\" created"
 
 #: app/routes/tenant.py:227
 msgid "Format de date d'expiration invalide"
 msgstr "Invalid expiration date format"
 
 #: app/routes/tenant.py:233
-msgid "Tenant mis a jour"
-msgstr "Tenant updated"
+msgid "Etablissement mis a jour"
+msgstr "Organization updated"
 
 #: app/routes/tenant.py:251
-msgid "Impossible de supprimer un tenant qui contient des groupes"
-msgstr "It is not possible to delete a tenant that contains groups"
+msgid "Impossible de supprimer un etablissement qui contient des groupes"
+msgstr "Cannot delete an organization that still has groups"
 
 #: app/routes/tenant.py:258
 #, python-format
-msgid "Tenant \"%(name)s\" supprime"
-msgstr "Tenant \"%(name)s\" delete"
+msgid "Etablissement \"%(name)s\" supprime"
+msgstr "Organization \"%(name)s\" deleted"
 
 #: app/routes/tenant.py:308
 msgid "Utilisateur non specifie"
@@ -863,18 +908,98 @@ msgstr "User not specified"
 
 #: app/routes/tenant.py:319
 #, python-format
-msgid "%(username)s est maintenant admin du tenant"
-msgstr "%(username)s is now the tenant admin"
+msgid "%(username)s est maintenant admin de l'etablissement"
+msgstr "%(username)s is now an admin of the organization"
 
 #: app/routes/tenant.py:341
 #, python-format
-msgid "%(username)s n'est plus admin du tenant"
-msgstr "%(username)s is no longer an admin of the tenant"
+msgid "%(username)s n'est plus admin de l'etablissement"
+msgstr "%(username)s is no longer an admin of the organization"
 
 #: app/routes/tenant.py:411
 #, python-format
 msgid "Groupe \"%(name)s\" cree avec succes"
 msgstr "Group \"%(name)s\" created successfully"
+
+#: app/templates/admin/preview_quiz.html:21 app/templates/base.html:35
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: app/templates/base.html:38 app/templates/quiz/dashboard.html:12
+msgid "Evaluations"
+msgstr "Evaluations"
+
+#: app/templates/admin/group_detail.html:218
+#: app/templates/admin/quizzes.html:3 app/templates/admin/quizzes.html:7
+#: app/templates/admin/tenants/list.html:37
+#: app/templates/admin/tenants/view.html:15
+#: app/templates/admin/user_grades.html:46 app/templates/base.html:43
+#: app/templates/quiz/dashboard.html:20 app/templates/quiz/dashboard.html:193
+#: app/templates/quiz/dashboard.html:210
+msgid "Quiz"
+msgstr "Quiz"
+
+#: app/templates/admin/dashboard.html:29
+#: app/templates/admin/dashboard.html:165
+#: app/templates/admin/group_detail.html:255
+#: app/templates/admin/interviews/list.html:3
+#: app/templates/admin/interviews/list.html:7 app/templates/base.html:46
+#: app/templates/base.html:80 app/templates/interview/list.html:3
+#: app/templates/interview/list.html:8 app/templates/quiz/dashboard.html:24
+#: app/templates/quiz/dashboard.html:194
+msgid "Entretiens"
+msgstr "Interviews"
+
+#: app/templates/base.html:51
+msgid "Etablissements"
+msgstr "Organizations"
+
+#: app/templates/admin/dashboard.html:33
+#: app/templates/admin/dashboard.html:173
+#: app/templates/admin/interviews/wizard.html:277
+#: app/templates/admin/tenants/list.html:38
+#: app/templates/admin/tenants/list.html:45
+#: app/templates/admin/tenants/view.html:11
+#: app/templates/admin/tenants/view.html:122 app/templates/base.html:53
+msgid "Groupes"
+msgstr "Groups"
+
+#: app/templates/admin/dashboard.html:37 app/templates/admin/groups.html:69
+#: app/templates/admin/tenants/groups.html:42
+#: app/templates/admin/tenants/list.html:36
+#: app/templates/admin/tenants/view.html:19 app/templates/base.html:54
+msgid "Utilisateurs"
+msgstr "Users"
+
+#: app/templates/base.html:58
+msgid "Filtrer par etablissement"
+msgstr "Filter by organization"
+
+#: app/templates/base.html:60
+msgid "Tous"
+msgstr "All"
+
+#: app/templates/base.html:65 app/templates/quiz/list.html:34
+#: app/templates/quiz/list.html:42
+msgid "Tous les etablissements"
+msgstr "All organizations"
+
+#: app/templates/base.html:78
+msgid "Tableau de bord"
+msgstr "Dashboard"
+
+#: app/templates/base.html:79 app/templates/quiz/list.html:10
+msgid "Mes quiz"
+msgstr "My quizzes"
+
+#: app/templates/auth/profile.html:3 app/templates/auth/profile.html:7
+#: app/templates/base.html:85 app/templates/quiz/dashboard.html:177
+msgid "Mon profil"
+msgstr "My profile"
+
+#: app/templates/base.html:89
+msgid "Parametres"
+msgstr "Settings"
 
 #: app/templates/base.html:91 app/templates/base.html:159
 msgid "Theme"
@@ -913,7 +1038,7 @@ msgstr "Markdown quiz, AI interviews, corrected by Claude."
 msgid "Plateforme d evaluation intelligente"
 msgstr "Intelligent evaluation platform"
 
-#: app/templates/auth/login.html:31 app/templates/auth/register.html:60
+#: app/templates/auth/login.html:31 app/templates/auth/register.html:61
 #: app/templates/landing.html:31 private.example/landing.html:50
 #: private.example/landing.html:61
 msgid "Se connecter"
@@ -936,11 +1061,83 @@ msgstr "towards"
 msgid "Plateforme d evaluation intelligente avec correction IA"
 msgstr "Intelligent assessment platform with AI correction"
 
+#: app/templates/admin/_user_roles.html:5
+#: app/templates/admin/edit_user.html:76
+msgid "Role global"
+msgstr "Global role"
+
+#: app/templates/admin/_user_roles.html:9
+#: app/templates/admin/edit_user.html:79
+msgid "Aucun : droits definis groupe par groupe"
+msgstr "None: rights set group by group"
+
+#: app/templates/admin/_user_roles.html:13
+msgid "Administrateur d'etablissement"
+msgstr "Organization administrator"
+
+#: app/templates/admin/_user_roles.html:17
+msgid "Super-administrateur"
+msgstr "Super administrator"
+
+#: app/templates/admin/_user_roles.html:21
+msgid ""
+"Super-admin : acces total. Admin d'etablissement : gere tous les groupes, "
+"intervenants et apprenants de ses etablissements."
+msgstr ""
+"Super-admin: full access. Organization admin: manages all groups, "
+"instructors and learners of their organizations."
+
+#: app/templates/admin/_user_roles.html:27
+msgid "Etablissements a administrer"
+msgstr "Organizations to manage"
+
+#: app/templates/admin/_user_roles.html:43
+msgid "Groupes et roles"
+msgstr "Groups and roles"
+
+#: app/templates/admin/_user_roles.html:48
+#: app/templates/admin/quiz_results.html:70 app/templates/admin/users.html:164
+#: app/templates/quiz/list.html:90
+msgid "Groupe"
+msgstr "Band"
+
+#: app/templates/admin/_user_roles.html:49
+msgid "Role dans le groupe"
+msgstr "Role in the group"
+
+#: app/templates/admin/_user_roles.html:64
+#: app/templates/admin/class_analysis.html:399
+#: app/templates/admin/interviews/session.html:133
+#: app/templates/admin/interviews/view.html:180
+#: app/templates/admin/quiz_results.html:69 app/templates/admin/users.html:39
+#: app/templates/admin/users.html:48 app/templates/admin/users.html:77
+#: app/templates/admin/users.html:226
+msgid "Apprenant"
+msgstr "Learner"
+
+#: app/templates/admin/_user_roles.html:66 app/templates/admin/users.html:39
+#: app/templates/admin/users.html:47 app/templates/admin/users.html:77
+#: app/templates/admin/users.html:224
+msgid "Intervenant"
+msgstr "Instructor"
+
+#: app/templates/admin/_user_roles.html:75
+msgid ""
+"Un intervenant gere uniquement les groupes ou il a ce role. Une personne "
+"peut etre intervenant dans un groupe et apprenant dans un autre."
+msgstr ""
+"An instructor only manages the groups where they have this role. Someone can"
+" be an instructor in one group and a learner in another."
+
+#: app/templates/admin/_user_roles.html:78
+msgid "Aucun groupe disponible"
+msgstr "No groups available"
+
 #: app/templates/admin/class_analysis.html:3
 #: app/templates/admin/class_analysis.html:186
 #: app/templates/admin/quiz_results.html:10
-msgid "Analyse de classe"
-msgstr "Class analysis"
+msgid "Analyse du groupe"
+msgstr "Group analysis"
 
 #: app/templates/admin/class_analysis.html:192
 #: app/templates/admin/class_analysis.html:474
@@ -953,8 +1150,10 @@ msgid "Relancer l'analyse"
 msgstr "Restart the analysis"
 
 #: app/templates/admin/class_analysis.html:205
-msgid "Etudiants"
-msgstr "Students"
+#: app/templates/admin/group_detail.html:73
+#: app/templates/admin/group_detail.html:126
+msgid "Apprenants"
+msgstr "Learners"
 
 #: app/templates/admin/class_analysis.html:209
 #: app/templates/admin/interviews/view.html:37
@@ -981,8 +1180,8 @@ msgid "Analyse pedagogique IA"
 msgstr "Pedagogical analysis of AI"
 
 #: app/templates/admin/class_analysis.html:247
-msgid "Points forts de la classe"
-msgstr "Class strengths"
+msgid "Points forts du groupe"
+msgstr "Group strengths"
 
 #: app/templates/admin/class_analysis.html:259
 msgid "Notions a revoir en cours"
@@ -997,8 +1196,8 @@ msgid "Erreurs frequentes:"
 msgstr "Common mistakes:"
 
 #: app/templates/admin/class_analysis.html:279
-msgid "Etudiants a accompagner"
-msgstr "Students to accompany"
+msgid "Apprenants a accompagner"
+msgstr "Learners needing support"
 
 #: app/templates/admin/class_analysis.html:299
 msgid "Observations comportementales"
@@ -1014,11 +1213,9 @@ msgstr "Recommendations"
 
 #: app/templates/admin/class_analysis.html:341
 msgid ""
-"Cliquez sur \"Lancer l'analyse IA\" pour obtenir une analyse pedagogique de "
-"la classe."
-msgstr ""
-"Click on \"Start AI analysis\" to obtain a pedagogical analysis of the "
-"class."
+"Cliquez sur \"Lancer l'analyse IA\" pour obtenir une analyse pedagogique du "
+"groupe."
+msgstr "Click \"Run AI analysis\" to get a teaching analysis of the group."
 
 #: app/templates/admin/class_analysis.html:349
 msgid "Statistiques par question"
@@ -1062,14 +1259,8 @@ msgid "Focus"
 msgstr "Focus"
 
 #: app/templates/admin/class_analysis.html:396
-msgid "Comparaison des etudiants"
-msgstr "Student comparison"
-
-#: app/templates/admin/class_analysis.html:399
-#: app/templates/admin/interviews/session.html:133
-#: app/templates/admin/interviews/view.html:180
-msgid "Etudiant"
-msgstr "Student"
+msgid "Comparaison des apprenants"
+msgstr "Learner comparison"
 
 #: app/templates/admin/class_analysis.html:400
 #: app/templates/admin/edit_response.html:88
@@ -1161,22 +1352,21 @@ msgstr "A unique code will be automatically generated for this group."
 
 #: app/templates/admin/create_group.html:13
 msgid ""
-"Les étudiants devront entrer ce code lors de l'inscription pour rejoindre le"
-" groupe."
-msgstr ""
-"Students will need to enter this code during registration to join the group."
+"Les apprenants devront entrer ce code lors de l'inscription pour rejoindre "
+"le groupe."
+msgstr "Learners will enter this code when registering to join the group."
 
 #: app/templates/admin/create_group.html:19
 #: app/templates/admin/edit_group.html:24
 #: app/templates/admin/interviews/wizard.html:262
 #: app/templates/quiz/list.html:88
-msgid "Organisation"
+msgid "Etablissement"
 msgstr "Organization"
 
 #: app/templates/admin/create_group.html:29
 #: app/templates/admin/edit_group.html:34 app/templates/quiz/list.html:39
-msgid "Rechercher une organisation..."
-msgstr "Search for an organization..."
+msgid "Rechercher un etablissement..."
+msgstr "Search an organization..."
 
 #: app/templates/admin/create_group.html:44
 #: app/templates/admin/edit_group.html:49
@@ -1224,12 +1414,12 @@ msgstr "Create the group"
 
 #: app/templates/admin/create_group.html:67
 #: app/templates/admin/create_quiz.html:251
-#: app/templates/admin/create_user.html:164
+#: app/templates/admin/create_user.html:49
 #: app/templates/admin/edit_group.html:71
 #: app/templates/admin/edit_page.html:138
 #: app/templates/admin/edit_quiz.html:254
 #: app/templates/admin/edit_response.html:115
-#: app/templates/admin/edit_user.html:236
+#: app/templates/admin/edit_user.html:90
 #: app/templates/admin/email_group.html:59
 #: app/templates/admin/generate_quiz.html:86
 #: app/templates/admin/generate_quiz_preview.html:132
@@ -1242,6 +1432,7 @@ msgid "Annuler"
 msgstr "Cancel"
 
 #: app/templates/admin/create_quiz.html:3
+#: app/templates/admin/group_detail.html:252
 msgid "Creer un quiz"
 msgstr "Create a quiz"
 
@@ -1354,12 +1545,8 @@ msgstr "Allowed groups (optional)"
 
 #: app/templates/admin/create_quiz.html:127
 #: app/templates/admin/create_quiz.html:269
-#: app/templates/admin/create_user.html:106
-#: app/templates/admin/create_user.html:204
 #: app/templates/admin/edit_quiz.html:111
 #: app/templates/admin/edit_quiz.html:279
-#: app/templates/admin/edit_user.html:157
-#: app/templates/admin/edit_user.html:289
 msgid "Tout selectionner"
 msgstr "Select all"
 
@@ -1378,8 +1565,8 @@ msgstr "member(s)"
 
 #: app/templates/admin/create_quiz.html:146
 #: app/templates/admin/edit_quiz.html:130
-msgid "Sans tenant"
-msgstr "Without holding"
+msgid "Sans etablissement"
+msgstr "No organization"
 
 #: app/templates/admin/create_quiz.html:172
 #: app/templates/admin/edit_quiz.html:155
@@ -1453,10 +1640,8 @@ msgstr "Random order of questions"
 #: app/templates/admin/generate_quiz_preview.html:117
 msgid ""
 "Si active, les questions seront affichees dans un ordre different pour "
-"chaque etudiant"
-msgstr ""
-"If active, the questions will be displayed in a different order for each "
-"student."
+"chaque apprenant"
+msgstr "If enabled, questions are shown in a different order for each learner"
 
 #: app/templates/admin/create_quiz.html:227
 #: app/templates/admin/edit_quiz.html:204
@@ -1466,10 +1651,8 @@ msgstr "Random order of multiple-choice answers"
 #: app/templates/admin/create_quiz.html:230
 #: app/templates/admin/edit_quiz.html:206
 msgid ""
-"Si active, les options de chaque QCM seront melangees pour chaque etudiant"
-msgstr ""
-"If active, the options for each multiple-choice question will be shuffled "
-"for each student."
+"Si active, les options de chaque QCM seront melangees pour chaque apprenant"
+msgstr "If enabled, MCQ options are shuffled for each learner"
 
 #: app/templates/admin/create_quiz.html:234
 #: app/templates/admin/edit_quiz.html:209
@@ -1497,9 +1680,7 @@ msgid "Creer le quiz"
 msgstr "Create the quiz"
 
 #: app/templates/admin/create_quiz.html:269
-#: app/templates/admin/create_user.html:204
 #: app/templates/admin/edit_quiz.html:279
-#: app/templates/admin/edit_user.html:289
 msgid "Tout deselectionner"
 msgstr "Deselect all"
 
@@ -1513,131 +1694,63 @@ msgstr "Uploading..."
 msgid "Image ajoutee ! Code:"
 msgstr "Image added! Code:"
 
-#: app/templates/admin/create_user.html:3
+#: app/templates/admin/create_user.html:4
 msgid "Creer un utilisateur - BrainNotFound"
 msgstr "Create a user - BrainNotFound"
 
-#: app/templates/admin/create_user.html:6
+#: app/templates/admin/create_user.html:7
 msgid "Creer un utilisateur"
 msgstr "Create a user"
 
-#: app/templates/admin/create_user.html:12
-#: app/templates/admin/edit_user.html:12 app/templates/auth/profile.html:18
+#: app/templates/admin/create_user.html:13
+#: app/templates/admin/edit_user.html:13 app/templates/auth/profile.html:18
 #: app/templates/auth/register.html:14
 msgid "Prenom"
 msgstr "First name"
 
-#: app/templates/admin/create_user.html:16
-#: app/templates/admin/edit_user.html:17
+#: app/templates/admin/create_user.html:17
+#: app/templates/admin/edit_user.html:18
 #: app/templates/admin/interviews/wizard.html:743
 #: app/templates/auth/profile.html:23 app/templates/auth/register.html:18
 msgid "Nom"
 msgstr "Last name"
 
-#: app/templates/admin/create_user.html:22
-#: app/templates/admin/edit_user.html:24 app/templates/admin/settings.html:156
+#: app/templates/admin/create_user.html:23
+#: app/templates/admin/edit_user.html:25 app/templates/admin/settings.html:156
 #: app/templates/auth/login.html:22 app/templates/auth/profile.html:29
 #: app/templates/auth/register.html:24
 msgid "Nom d'utilisateur"
 msgstr "Username"
 
-#: app/templates/admin/create_user.html:27
-#: app/templates/admin/edit_user.html:30
-#: app/templates/admin/group_users.html:32
+#: app/templates/admin/create_user.html:28
+#: app/templates/admin/edit_user.html:31
+#: app/templates/admin/group_detail.html:152
+#: app/templates/admin/group_detail.html:192
 #: app/templates/admin/tenants/admins.html:22
 #: app/templates/admin/users.html:160 app/templates/auth/register.html:29
 msgid "Email"
 msgstr "E-mail"
 
-#: app/templates/admin/create_user.html:32
+#: app/templates/admin/create_user.html:33
 #: app/templates/admin/settings.html:162 app/templates/auth/login.html:27
 #: app/templates/auth/profile.html:80 app/templates/auth/profile.html:218
-#: app/templates/auth/register.html:47
+#: app/templates/auth/register.html:48
 msgid "Mot de passe"
 msgstr "Password"
 
-#: app/templates/admin/create_user.html:38
-#: app/templates/admin/edit_user.html:73 app/templates/admin/users.html:165
-msgid "Role"
-msgstr "Role"
+#: app/templates/admin/create_user.html:35
+msgid "Laisser vide pour envoyer une invitation par email"
+msgstr "Leave empty to send an email invitation"
 
-#: app/templates/admin/create_user.html:42
-#: app/templates/admin/edit_user.html:127
-#: app/templates/admin/tenants/admins.html:21
-#: app/templates/admin/users.html:39 app/templates/admin/users.html:48
-#: app/templates/admin/users.html:77 app/templates/admin/users.html:226
-msgid "Utilisateur"
-msgstr "User"
+#: app/templates/admin/create_user.html:36
+msgid ""
+"Recommande : laissez vide, la personne recoit un lien pour choisir elle-meme"
+" son mot de passe (valable 72 h)."
+msgstr ""
+"Recommended: leave empty, the person gets a link to choose their own "
+"password (valid 72 h)."
 
 #: app/templates/admin/create_user.html:46
-#: app/templates/admin/edit_user.html:88
-msgid "Administrateur de groupe"
-msgstr "Group Administrator"
-
-#: app/templates/admin/create_user.html:50
-#: app/templates/admin/edit_user.html:83
-msgid "Administrateur d'organisation"
-msgstr "Organization Administrator"
-
-#: app/templates/admin/create_user.html:54
-#: app/templates/admin/edit_user.html:78
-msgid "Super-administrateur"
-msgstr "Super administrator"
-
-#: app/templates/admin/create_user.html:58
-msgid ""
-"Super-admin: acces total. Admin organisation: gere une ou plusieurs "
-"organisations. Admin groupe: gere ses groupes assignes."
-msgstr ""
-"Super-admin: full access. Organization admin: manages one or more "
-"organizations. Group admin: manages assigned groups."
-
-#: app/templates/admin/create_user.html:64
-#: app/templates/admin/edit_user.html:98
-msgid "Organisations a administrer"
-msgstr "Organizations to administer"
-
-#: app/templates/admin/create_user.html:77
-#: app/templates/admin/edit_user.html:112
-msgid "Selectionnez les organisations que cet administrateur pourra gerer."
-msgstr ""
-"Select the organizations that this administrator will be able to manage."
-
-#: app/templates/admin/create_user.html:84
-#: app/templates/admin/dashboard.html:33
-#: app/templates/admin/dashboard.html:173
-#: app/templates/admin/edit_user.html:135
-#: app/templates/admin/interviews/wizard.html:277
-#: app/templates/admin/tenants/list.html:38
-#: app/templates/admin/tenants/list.html:45
-#: app/templates/admin/tenants/view.html:11
-#: app/templates/admin/tenants/view.html:122
-msgid "Groupes"
-msgstr "Groups"
-
-#: app/templates/admin/create_user.html:125
-#: app/templates/admin/edit_user.html:183
-msgid "Sans organisation"
-msgstr "Without organization"
-
-#: app/templates/admin/create_user.html:149
-#: app/templates/admin/edit_user.html:221
-msgid "Aucun groupe disponible"
-msgstr "No groups available"
-
-#: app/templates/admin/create_user.html:154
-#: app/templates/admin/edit_user.html:226
-msgid "Selectionnez un ou plusieurs groupes pour l'utilisateur."
-msgstr "Select one or more groups for the user."
-
-#: app/templates/admin/create_user.html:155
-#: app/templates/admin/edit_user.html:227
-msgid ""
-"Les super-administrateurs et admins d'organisation n'ont pas besoin de "
-"groupes."
-msgstr "Super administrators and organization admins do not need groups."
-
-#: app/templates/admin/create_user.html:161
 msgid "Creer l'utilisateur"
 msgstr "Create the user"
 
@@ -1656,23 +1769,6 @@ msgstr "Default configuration detected"
 #: app/templates/admin/dashboard.html:25
 msgid "Quiz créés"
 msgstr "Quizzes created"
-
-#: app/templates/admin/dashboard.html:29
-#: app/templates/admin/dashboard.html:165
-#: app/templates/admin/interviews/list.html:3
-#: app/templates/admin/interviews/list.html:7
-#: app/templates/interview/list.html:3 app/templates/interview/list.html:8
-#: app/templates/quiz/dashboard.html:24 app/templates/quiz/dashboard.html:194
-msgid "Entretiens"
-msgstr "Interviews"
-
-#: app/templates/admin/dashboard.html:37
-#: app/templates/admin/group_users.html:3 app/templates/admin/groups.html:69
-#: app/templates/admin/tenants/groups.html:42
-#: app/templates/admin/tenants/list.html:36
-#: app/templates/admin/tenants/view.html:19
-msgid "Utilisateurs"
-msgstr "Users"
 
 #: app/templates/admin/dashboard.html:41
 msgid "Réponses soumises"
@@ -1713,6 +1809,7 @@ msgid "Mes Groupes"
 msgstr "My Groups"
 
 #: app/templates/admin/dashboard.html:101
+#: app/templates/admin/group_detail.html:36
 msgid "Copier le code"
 msgstr "Copy the code"
 
@@ -1746,7 +1843,10 @@ msgid "Nouvel Entretien"
 msgstr "New Interview"
 
 #: app/templates/admin/edit_group.html:3 app/templates/admin/edit_page.html:3
-#: app/templates/admin/edit_quiz.html:3 app/templates/admin/edit_user.html:3
+#: app/templates/admin/edit_quiz.html:3 app/templates/admin/edit_user.html:4
+#: app/templates/admin/group_detail.html:17
+#: app/templates/admin/group_detail.html:84
+#: app/templates/admin/group_detail.html:243
 #: app/templates/admin/groups.html:72
 #: app/templates/admin/interviews/list.html:121
 #: app/templates/admin/interviews/view.html:13
@@ -1784,7 +1884,7 @@ msgstr "Currently :"
 #: app/templates/admin/edit_page.html:130
 #: app/templates/admin/edit_quiz.html:251
 #: app/templates/admin/edit_response.html:112
-#: app/templates/admin/edit_user.html:233
+#: app/templates/admin/edit_user.html:87
 #: app/templates/admin/interviews/session.html:270
 #: app/templates/admin/interviews/wizard.html:568
 #: app/templates/admin/tenants/edit.html:167
@@ -1813,6 +1913,8 @@ msgid "Contenu"
 msgstr "Content"
 
 #: app/templates/admin/edit_page.html:18
+#: app/templates/admin/group_detail.html:223
+#: app/templates/admin/group_detail.html:260
 #: app/templates/admin/interviews/wizard.html:241
 #: app/templates/admin/pages.html:18 app/templates/quiz/dashboard.html:201
 msgid "Titre"
@@ -1970,8 +2072,8 @@ msgid "Informations"
 msgstr "Information"
 
 #: app/templates/admin/edit_response.html:12
-msgid "Etudiant:"
-msgstr "Student:"
+msgid "Apprenant :"
+msgstr "Learner:"
 
 #: app/templates/admin/edit_response.html:15
 msgid "Quiz:"
@@ -2010,8 +2112,8 @@ msgid "Reponses correctes:"
 msgstr "Correct answers:"
 
 #: app/templates/admin/edit_response.html:68
-msgid "Reponse de l'etudiant:"
-msgstr "Student's response:"
+msgid "Reponse de l'apprenant :"
+msgstr "Learner's answer:"
 
 #: app/templates/admin/edit_response.html:69
 msgid "(Aucune reponse)"
@@ -2031,38 +2133,38 @@ msgid "Commentaire du correcteur"
 msgstr "Editor's comment"
 
 #: app/templates/admin/edit_response.html:105
-msgid "Ajoutez un commentaire pour l'etudiant (optionnel)..."
-msgstr "Add a comment for the student (optional)..."
+msgid "Ajoutez un commentaire pour l'apprenant (optionnel)..."
+msgstr "Add a comment for the learner (optional)..."
 
 #: app/templates/admin/edit_response.html:106
-msgid "Ce commentaire sera visible par l'etudiant sur sa copie."
-msgstr "This comment will be visible to the student on their paper."
+msgid "Ce commentaire sera visible par l'apprenant sur sa copie."
+msgstr "This comment will be visible to the learner on their paper."
 
-#: app/templates/admin/edit_user.html:6
+#: app/templates/admin/edit_user.html:7
 msgid "Modifier l'utilisateur"
 msgstr "Edit user"
 
-#: app/templates/admin/edit_user.html:36 app/templates/auth/profile.html:51
+#: app/templates/admin/edit_user.html:37 app/templates/auth/profile.html:51
 msgid "Verifie"
 msgstr "Check"
 
-#: app/templates/admin/edit_user.html:40 app/templates/auth/profile.html:55
+#: app/templates/admin/edit_user.html:41 app/templates/auth/profile.html:55
 msgid "Non verifie"
 msgstr "Not verified"
 
-#: app/templates/admin/edit_user.html:49 app/templates/admin/users.html:197
+#: app/templates/admin/edit_user.html:50 app/templates/admin/users.html:197
 msgid "Email non verifie"
 msgstr "Email not verified"
 
-#: app/templates/admin/edit_user.html:53
+#: app/templates/admin/edit_user.html:54
 msgid "Verifier manuellement"
 msgstr "Check manually"
 
-#: app/templates/admin/edit_user.html:56
+#: app/templates/admin/edit_user.html:57
 msgid "Renvoyer email"
 msgstr "Resend email"
 
-#: app/templates/admin/edit_user.html:60
+#: app/templates/admin/edit_user.html:61
 msgid ""
 "Verifier manuellement permet a l'utilisateur de se connecter sans cliquer "
 "sur le lien email."
@@ -2070,67 +2172,28 @@ msgstr ""
 "Manual verification allows the user to log in without clicking on the email "
 "link."
 
-#: app/templates/admin/edit_user.html:66 app/templates/auth/profile.html:90
+#: app/templates/admin/edit_user.html:67 app/templates/auth/profile.html:90
 #: app/templates/auth/reset_password.html:9
 #: app/templates/auth/reset_password.html:17
 msgid "Nouveau mot de passe"
 msgstr "New Password"
 
-#: app/templates/admin/edit_user.html:68 app/templates/admin/settings.html:71
+#: app/templates/admin/edit_user.html:69 app/templates/admin/settings.html:71
 msgid "Laisser vide pour ne pas modifier"
 msgstr "Leave blank to avoid modification"
 
-#: app/templates/admin/edit_user.html:92
-msgid ""
-"Super-admin: acces total. Admin organisation: gere ses organisations "
-"assignees. Admin groupe: gere ses groupes assignes."
-msgstr ""
-"Super-admin: full access. Organization admin: manages assigned "
-"organizations. Group admin: manages assigned groups."
-
-#: app/templates/admin/edit_user.html:118
-msgid "Role actuel"
-msgstr "Current role"
-
-#: app/templates/admin/edit_user.html:121 app/templates/admin/users.html:39
-#: app/templates/admin/users.html:45 app/templates/admin/users.html:77
-#: app/templates/admin/users.html:220
-msgid "Super-Admin"
-msgstr "Super-Admin"
-
-#: app/templates/admin/edit_user.html:123 app/templates/admin/users.html:39
+#: app/templates/admin/edit_user.html:78 app/templates/admin/users.html:39
 #: app/templates/admin/users.html:46 app/templates/admin/users.html:77
 #: app/templates/admin/users.html:222
-msgid "Admin organisation"
-msgstr "Organization Admin"
-
-#: app/templates/admin/edit_user.html:125 app/templates/admin/users.html:39
-#: app/templates/admin/users.html:47 app/templates/admin/users.html:77
-#: app/templates/admin/users.html:224
-msgid "Admin groupe"
-msgstr "Group Admin"
-
-#: app/templates/admin/edit_user.html:130
-msgid "Seuls les super-administrateurs peuvent modifier les roles."
-msgstr "Only super administrators can modify roles."
-
-#: app/templates/admin/edit_user.html:170
-#: app/templates/admin/edit_user.html:195
-#: app/templates/admin/edit_user.html:215 app/templates/admin/users.html:207
-msgid "admin"
-msgstr "admin"
-
-#: app/templates/admin/edit_user.html:170
-#: app/templates/admin/edit_user.html:195
-#: app/templates/admin/edit_user.html:215
-msgid "membre"
-msgstr "member"
+msgid "Admin d'etablissement"
+msgstr "Organization admin"
 
 #: app/templates/admin/email_group.html:3
 msgid "Email au groupe"
 msgstr "Email to the group"
 
-#: app/templates/admin/email_group.html:6 app/templates/admin/groups.html:63
+#: app/templates/admin/email_group.html:6
+#: app/templates/admin/group_detail.html:20 app/templates/admin/groups.html:63
 #: app/templates/admin/tenants/groups.html:36
 msgid "Envoyer un email"
 msgstr "Send an email"
@@ -2353,47 +2416,266 @@ msgstr "Regenerate"
 msgid "Markdown copie dans le presse-papiers !"
 msgstr "Markdown copy to clipboard!"
 
-#: app/templates/admin/group_users.html:6
-msgid "Utilisateurs du groupe :"
-msgstr "Group users:"
+#: app/templates/admin/group_detail.html:11
+#: app/templates/admin/group_detail.html:269
+#: app/templates/admin/groups.html:52
+#: app/templates/admin/interviews/list.html:85
+#: app/templates/admin/interviews/view.html:61
+#: app/templates/admin/interviews/wizard.html:455
+#: app/templates/admin/quizzes.html:87
+#: app/templates/admin/tenants/groups.html:28
+#: app/templates/admin/tenants/list.html:28
+#: app/templates/admin/tenants/quizzes.html:25
+#: app/templates/admin/tenants/view.html:80
+#: app/templates/admin/tenants/view.html:137
+msgid "Actif"
+msgstr "Active"
 
-#: app/templates/admin/group_users.html:13 app/templates/admin/groups.html:46
-#: app/templates/admin/tenants/groups.html:23
-#: app/templates/admin/tenants/view.html:135
-msgid "Code:"
-msgstr "Code:"
+#: app/templates/admin/group_detail.html:11
+#: app/templates/admin/group_detail.html:234
+#: app/templates/admin/group_detail.html:269
+#: app/templates/admin/groups.html:52
+#: app/templates/admin/interviews/list.html:86
+#: app/templates/admin/interviews/view.html:66
+#: app/templates/admin/quizzes.html:87
+#: app/templates/admin/tenants/groups.html:28
+#: app/templates/admin/tenants/list.html:28
+#: app/templates/admin/tenants/quizzes.html:25
+#: app/templates/admin/tenants/view.html:80
+#: app/templates/admin/tenants/view.html:137
+msgid "Inactif"
+msgstr "Inactive"
 
-#: app/templates/admin/group_users.html:18
-msgid "Utilisateur(s)"
-msgstr "User(s)"
+#: app/templates/admin/group_detail.html:23
+msgid "Exporter les resultats"
+msgstr "Export results"
 
-#: app/templates/admin/group_users.html:24 app/templates/admin/users.html:10
-msgid "Liste des utilisateurs"
-msgstr "List of users"
+#: app/templates/admin/group_detail.html:30
+msgid "Acces au groupe"
+msgstr "Group access"
 
-#: app/templates/admin/group_users.html:30 app/templates/admin/users.html:148
+#: app/templates/admin/group_detail.html:34
+msgid "Code d'acces :"
+msgstr "Access code:"
+
+#: app/templates/admin/group_detail.html:41
+msgid "Lien d'invitation copie"
+msgstr "Invitation link copied"
+
+#: app/templates/admin/group_detail.html:42
+msgid "Copier le lien d'invitation"
+msgstr "Copy invitation link"
+
+#: app/templates/admin/group_detail.html:45
+msgid ""
+"Generer un nouveau code ? L'ancien code et l'ancien lien d'invitation ne "
+"fonctionneront plus."
+msgstr ""
+"Generate a new code? The old code and invitation link will stop working."
+
+#: app/templates/admin/group_detail.html:48
+msgid "Nouveau code"
+msgstr "New code"
+
+#: app/templates/admin/group_detail.html:56
+msgid "Apprenant(s)"
+msgstr "Learner(s)"
+
+#: app/templates/admin/group_detail.html:60
+msgid "Intervenant(s)"
+msgstr "Instructor(s)"
+
+#: app/templates/admin/group_detail.html:65
+msgid "Places"
+msgstr "Seats"
+
+#: app/templates/admin/group_detail.html:74
+#: app/templates/admin/group_detail.html:181
+msgid "Intervenants"
+msgstr "Instructors"
+
+#: app/templates/admin/group_detail.html:75
+msgid "Contenus"
+msgstr "Content"
+
+#: app/templates/admin/group_detail.html:80 app/templates/admin/users.html:241
+msgid "Notes"
+msgstr "Notes"
+
+#: app/templates/admin/group_detail.html:89
+msgid "Copier un lien de mot de passe (pas d'email reel)"
+msgstr "Copy a password link (no real email)"
+
+#: app/templates/admin/group_detail.html:95
+msgid "Envoyer un lien pour choisir un mot de passe"
+msgstr "Send a link to choose a password"
+
+#: app/templates/admin/group_detail.html:106
+msgid "Repasser apprenant"
+msgstr "Make learner again"
+
+#: app/templates/admin/group_detail.html:106
+msgid "Nommer intervenant du groupe"
+msgstr "Make instructor of this group"
+
+#: app/templates/admin/group_detail.html:113
+msgid ""
+"Retirer cette personne du groupe ? Son compte et ses resultats sont "
+"conserves."
+msgstr ""
+"Remove this person from the group? Their account and results are kept."
+
+#: app/templates/admin/group_detail.html:115
+#: app/templates/admin/users.html:114
+msgid "Retirer du groupe"
+msgstr "Remove from group"
+
+#: app/templates/admin/group_detail.html:129
+msgid "Nouvel apprenant"
+msgstr "New learner"
+
+#: app/templates/admin/group_detail.html:132
+msgid "Importer (CSV)"
+msgstr "Import (CSV)"
+
+#: app/templates/admin/group_detail.html:140
+msgid "Ajouter une personne existante"
+msgstr "Add an existing person"
+
+#: app/templates/admin/group_detail.html:142
+msgid "Nom, identifiant ou email (2 caracteres minimum)"
+msgstr "Name, username or email (2 characters minimum)"
+
+#: app/templates/admin/group_detail.html:150
+#: app/templates/admin/group_detail.html:191
+#: app/templates/admin/users.html:148
 msgid "Nom complet"
 msgstr "Full name"
 
-#: app/templates/admin/group_users.html:31 app/templates/admin/users.html:154
+#: app/templates/admin/group_detail.html:151
+#: app/templates/admin/users.html:154
 msgid "Identifiant"
 msgstr "Identifier"
 
-#: app/templates/admin/group_users.html:33
-msgid "Inscrit le"
-msgstr "Registered on"
+#: app/templates/admin/group_detail.html:153
+#: app/templates/admin/group_detail.html:193
+#: app/templates/admin/users.html:168 app/templates/auth/profile.html:154
+msgid "Derniere connexion"
+msgstr "Last connection"
 
-#: app/templates/admin/group_users.html:34
-msgid "Quiz complétés"
-msgstr "Quiz completed"
+#: app/templates/admin/group_detail.html:154
+#: app/templates/admin/user_grades.html:26
+msgid "Quiz completes"
+msgstr "Complete quizzes"
 
-#: app/templates/admin/group_users.html:55
-msgid "Aucun utilisateur dans ce groupe."
-msgstr "No users in this group."
+#: app/templates/admin/group_detail.html:155
+#: app/templates/admin/group_detail.html:194
+#: app/templates/admin/group_detail.html:226
+#: app/templates/admin/group_detail.html:262
+#: app/templates/admin/interviews/view.html:186
+#: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:77
+#: app/templates/admin/tenants/admins.html:23
+#: app/templates/admin/users.html:172
+msgid "Actions"
+msgstr "Actions"
 
-#: app/templates/admin/group_users.html:62
+#: app/templates/admin/group_detail.html:164
+#: app/templates/admin/group_detail.html:202
+#: app/templates/admin/users.html:235
+msgid "Jamais"
+msgstr "Never"
+
+#: app/templates/admin/group_detail.html:173
+msgid ""
+"Aucun apprenant pour l'instant. Partagez le code d'acces ou le lien "
+"d'invitation, ou ajoutez des personnes ci-dessus."
+msgstr ""
+"No learner yet. Share the access code or invitation link, or add people "
+"above."
+
+#: app/templates/admin/group_detail.html:184
+msgid ""
+"Un intervenant gere ce groupe : ses apprenants, ses contenus et leurs "
+"resultats. Il n'a aucun droit sur les autres groupes."
+msgstr ""
+"An instructor manages this group: its learners, content and results. They "
+"have no rights on other groups."
+
+#: app/templates/admin/group_detail.html:185
+msgid ""
+"Pour nommer un intervenant, ajoutez la personne au groupe puis utilisez la "
+"fleche dans l'onglet Apprenants."
+msgstr ""
+"To make someone an instructor, add them to the group, then use the arrow in "
+"the Learners tab."
+
+#: app/templates/admin/group_detail.html:200
+#: app/templates/admin/users.html:256
+msgid "vous"
+msgstr "YOU"
+
+#: app/templates/admin/group_detail.html:209
+msgid "Aucun intervenant dans ce groupe."
+msgstr "No instructor in this group."
+
+#: app/templates/admin/group_detail.html:216
+msgid "Contenus assignes"
+msgstr "Assigned content"
+
+#: app/templates/admin/group_detail.html:224
+#: app/templates/admin/group_detail.html:261
+msgid "Etat"
+msgstr "Status"
+
+#: app/templates/admin/group_detail.html:225
+msgid "Reponses du groupe"
+msgstr "Group answers"
+
+#: app/templates/admin/group_detail.html:235
+msgid "Ouvert"
+msgstr "Open"
+
+#: app/templates/admin/group_detail.html:236
+msgid "Ferme"
+msgstr "Closed"
+
+#: app/templates/admin/group_detail.html:240
+msgid "Resultats du groupe"
+msgstr "Group results"
+
+#: app/templates/admin/group_detail.html:252
+msgid "Aucun quiz assigne a ce groupe."
+msgstr "No quiz assigned to this group."
+
+#: app/templates/admin/group_detail.html:271
+msgid "Voir les sessions"
+msgstr "View sessions"
+
+#: app/templates/admin/group_detail.html:280
+msgid "Aucun entretien assigne a ce groupe."
+msgstr "No interview assigned to this group."
+
+#: app/templates/admin/group_detail.html:287
 msgid "Retour aux groupes"
 msgstr "Back to groups"
+
+#: app/templates/admin/group_detail.html:303
+msgid "Action impossible"
+msgstr "Action not allowed"
+
+#: app/templates/admin/group_detail.html:305
+msgid "Lien copie, valable"
+msgstr "Link copied, valid for"
+
+#: app/templates/admin/group_detail.html:333
+msgid "Personne trouvee dans votre perimetre."
+msgstr "Nobody found in your scope."
+
+#: app/templates/admin/group_detail.html:344
+#: app/templates/admin/tenants/view.html:104
+#: app/templates/admin/users.html:112
+msgid "Ajouter"
+msgstr "Add"
 
 #: app/templates/admin/groups.html:3
 msgid "Gestion des groupes - BrainNotFound"
@@ -2424,6 +2706,12 @@ msgstr "New"
 msgid "Creer un groupe dans"
 msgstr "Create a group in"
 
+#: app/templates/admin/groups.html:46
+#: app/templates/admin/tenants/groups.html:23
+#: app/templates/admin/tenants/view.html:135
+msgid "Code:"
+msgstr "Code:"
+
 #: app/templates/admin/groups.html:49 app/templates/admin/settings.html:571
 #: app/templates/admin/tenants/groups.html:25
 msgid "Complet"
@@ -2435,31 +2723,6 @@ msgstr "Complete"
 #: app/templates/admin/tenants/quizzes.html:21
 msgid "Cree le"
 msgstr "Create the"
-
-#: app/templates/admin/groups.html:52
-#: app/templates/admin/interviews/list.html:85
-#: app/templates/admin/interviews/view.html:61
-#: app/templates/admin/interviews/wizard.html:455
-#: app/templates/admin/quizzes.html:87
-#: app/templates/admin/tenants/groups.html:28
-#: app/templates/admin/tenants/list.html:28
-#: app/templates/admin/tenants/quizzes.html:25
-#: app/templates/admin/tenants/view.html:80
-#: app/templates/admin/tenants/view.html:137
-msgid "Actif"
-msgstr "Active"
-
-#: app/templates/admin/groups.html:52
-#: app/templates/admin/interviews/list.html:86
-#: app/templates/admin/interviews/view.html:66
-#: app/templates/admin/quizzes.html:87
-#: app/templates/admin/tenants/groups.html:28
-#: app/templates/admin/tenants/list.html:28
-#: app/templates/admin/tenants/quizzes.html:25
-#: app/templates/admin/tenants/view.html:80
-#: app/templates/admin/tenants/view.html:137
-msgid "Inactif"
-msgstr "Inactive"
 
 #: app/templates/admin/groups.html:66
 msgid "Exporter résultats CSV"
@@ -2633,13 +2896,6 @@ msgstr "Order"
 msgid "Statut"
 msgstr "Status"
 
-#: app/templates/admin/interviews/view.html:186
-#: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:77
-#: app/templates/admin/tenants/admins.html:23
-#: app/templates/admin/users.html:172
-msgid "Actions"
-msgstr "Actions"
-
 #: app/templates/admin/pages.html:37 app/templates/admin/pages.html:41
 msgid "Menu"
 msgstr "Menu"
@@ -2690,19 +2946,13 @@ msgstr "Preview Mode"
 
 #: app/templates/admin/preview_quiz.html:10
 msgid ""
-"Visualisation du quiz comme un etudiant le verra (avec les reponses "
+"Visualisation du quiz comme un apprenant le verra (avec les reponses "
 "correctes visibles)"
-msgstr ""
-"Visualizing the quiz as a student will see it (with the correct answers "
-"visible)"
+msgstr "Preview of the quiz as a learner will see it (correct answers shown)"
 
 #: app/templates/admin/preview_quiz.html:15
 msgid "Tester le quiz"
 msgstr "Take the quiz"
-
-#: app/templates/admin/preview_quiz.html:21
-msgid "Dashboard"
-msgstr "Dashboard"
 
 #: app/templates/admin/preview_quiz.html:29
 msgid "Vous avez déjà testé ce quiz."
@@ -2790,8 +3040,8 @@ msgid "Plusieurs reponses possibles"
 msgstr "Several possible answers"
 
 #: app/templates/admin/preview_quiz.html:107
-msgid "Zone de reponse de l'etudiant..."
-msgstr "Student response area..."
+msgid "Zone de reponse de l'apprenant..."
+msgstr "Learner's answer area..."
 
 #: app/templates/admin/preview_quiz.html:111
 #: app/templates/quiz/result.html:107
@@ -2841,8 +3091,8 @@ msgid "Reinitialiser le filtre"
 msgstr "Reset the filter"
 
 #: app/templates/admin/quiz_results.html:39
-msgid "Soumissions des étudiants"
-msgstr "Student submissions"
+msgid "Soumissions des apprenants"
+msgstr "Learner submissions"
 
 #: app/templates/admin/quiz_results.html:47
 msgid "soumission(s)"
@@ -2867,15 +3117,6 @@ msgstr "Re-correct"
 #: app/templates/admin/quiz_results.html:58
 msgid "Telecharger les resultats"
 msgstr "Download the results"
-
-#: app/templates/admin/quiz_results.html:69
-msgid "Étudiant"
-msgstr "Student"
-
-#: app/templates/admin/quiz_results.html:70 app/templates/admin/users.html:164
-#: app/templates/quiz/list.html:90
-msgid "Groupe"
-msgstr "Band"
 
 #: app/templates/admin/quiz_results.html:72
 #: app/templates/admin/user_grades.html:48
@@ -2931,15 +3172,6 @@ msgstr "this answer (the user will be able to retake the quiz)"
 #: app/templates/admin/quiz_results.html:177
 msgid "Aucune soumission pour ce quiz."
 msgstr "No submissions for this quiz."
-
-#: app/templates/admin/quizzes.html:3 app/templates/admin/quizzes.html:7
-#: app/templates/admin/tenants/list.html:37
-#: app/templates/admin/tenants/view.html:15
-#: app/templates/admin/user_grades.html:46
-#: app/templates/quiz/dashboard.html:20 app/templates/quiz/dashboard.html:193
-#: app/templates/quiz/dashboard.html:210
-msgid "Quiz"
-msgstr "Quiz"
 
 #: app/templates/admin/quizzes.html:10
 msgid "Generator"
@@ -3635,10 +3867,6 @@ msgstr "Registered on:"
 msgid "Retour aux utilisateurs"
 msgstr "Back to users"
 
-#: app/templates/admin/user_grades.html:26
-msgid "Quiz completes"
-msgstr "Complete quizzes"
-
 #: app/templates/admin/user_grades.html:30
 msgid "Points totaux"
 msgstr "Total points"
@@ -3668,6 +3896,15 @@ msgstr "Users - BrainNotFound"
 msgid "Gestion des utilisateurs"
 msgstr "User management"
 
+#: app/templates/admin/users.html:10
+msgid "Liste des utilisateurs"
+msgstr "List of users"
+
+#: app/templates/admin/users.html:39 app/templates/admin/users.html:45
+#: app/templates/admin/users.html:77 app/templates/admin/users.html:220
+msgid "Super-Admin"
+msgstr "Super-Admin"
+
 #: app/templates/admin/users.html:39 app/templates/admin/users.html:44
 msgid "Tous les rôles"
 msgstr "All roles"
@@ -3696,15 +3933,6 @@ msgstr "Choose a group"
 msgid "Ajouter au groupe"
 msgstr "Add to group"
 
-#: app/templates/admin/tenants/view.html:104
-#: app/templates/admin/users.html:112
-msgid "Ajouter"
-msgstr "Add"
-
-#: app/templates/admin/users.html:114
-msgid "Retirer du groupe"
-msgstr "Remove from group"
-
 #: app/templates/admin/tenants/admins.html:37
 #: app/templates/admin/tenants/admins.html:39
 #: app/templates/admin/users.html:115
@@ -3723,9 +3951,13 @@ msgstr "Replace"
 msgid "Annuler la selection"
 msgstr "Cancel selection"
 
-#: app/templates/admin/users.html:168 app/templates/auth/profile.html:154
-msgid "Derniere connexion"
-msgstr "Last connection"
+#: app/templates/admin/users.html:165
+msgid "Role"
+msgstr "Role"
+
+#: app/templates/admin/users.html:207
+msgid "intervenant"
+msgstr "instructor"
 
 #: app/templates/admin/users.html:212
 msgid "autres"
@@ -3739,21 +3971,9 @@ msgstr "IP:"
 msgid "Inconnue"
 msgstr "Unknown"
 
-#: app/templates/admin/users.html:235
-msgid "Jamais"
-msgstr "Never"
-
-#: app/templates/admin/users.html:241
-msgid "Notes"
-msgstr "Notes"
-
 #: app/templates/admin/users.html:250
 msgid "cet utilisateur et toutes ses donnees"
 msgstr "this user and all their data"
-
-#: app/templates/admin/users.html:256
-msgid "vous"
-msgstr "YOU"
 
 #: app/templates/admin/users.html:353
 msgid "Voulez-vous vraiment supprimer"
@@ -3952,8 +4172,8 @@ msgid "Raison de fin"
 msgstr "Reason for ending"
 
 #: app/templates/admin/interviews/session.html:155
-msgid "L'etudiant a termine"
-msgstr "The student has finished"
+msgid "L'apprenant a termine"
+msgstr "The learner finished"
 
 #: app/templates/admin/interviews/session.html:156
 msgid "Conclusion naturelle"
@@ -4042,16 +4262,16 @@ msgstr "Who starts"
 
 #: app/templates/admin/interviews/view.html:86
 #: app/templates/admin/interviews/wizard.html:483
-msgid "L'etudiant"
-msgstr "The student"
+msgid "L'apprenant"
+msgstr "The learner"
 
 #: app/templates/admin/interviews/view.html:86
 msgid "Le personnage"
 msgstr "The character"
 
 #: app/templates/admin/interviews/view.html:89
-msgid "Fin par etudiant"
-msgstr "End by student"
+msgid "Fin par apprenant"
+msgstr "Ended by learner"
 
 #: app/templates/admin/interviews/view.html:90
 #: app/templates/admin/interviews/view.html:94
@@ -4176,8 +4396,8 @@ msgid "Ex: Entretien RPS - Collegue en difficulte"
 msgstr "Example: Psychosocial Risk Assessment - Colleague in Difficulty"
 
 #: app/templates/admin/interviews/wizard.html:250
-msgid "Description visible par les etudiants"
-msgstr "Description visible to students"
+msgid "Description visible par les apprenants"
+msgstr "Description visible to learners"
 
 #: app/templates/admin/interviews/wizard.html:258
 msgid "ex: rps-collegue"
@@ -4236,8 +4456,8 @@ msgid "Situation et scenario"
 msgstr "Situation and scenario"
 
 #: app/templates/admin/interviews/wizard.html:347
-msgid "Ce que l'etudiant sait au depart"
-msgstr "What the student knows at the start"
+msgid "Ce que l'apprenant sait au depart"
+msgstr "What the learner knows at the start"
 
 #: app/templates/admin/interviews/wizard.html:349
 msgid ""
@@ -4248,8 +4468,8 @@ msgstr ""
 "the past few weeks..."
 
 #: app/templates/admin/interviews/wizard.html:353
-msgid "Objectif de l'etudiant"
-msgstr "Student objective"
+msgid "Objectif de l'apprenant"
+msgstr "Learner's objective"
 
 #: app/templates/admin/interviews/wizard.html:355
 msgid ""
@@ -4313,11 +4533,11 @@ msgstr ""
 
 #: app/templates/admin/interviews/wizard.html:405
 msgid ""
-"Les criteres ne peuvent plus etre modifies car des etudiants ont deja passe "
-"cet entretien."
+"Les criteres ne peuvent plus etre modifies car des apprenants ont deja passe"
+" cet entretien."
 msgstr ""
-"The criteria can no longer be modified because students have already passed "
-"this interview."
+"Criteria can no longer be changed because learners have already taken this "
+"interview."
 
 #: app/templates/admin/interviews/wizard.html:409
 msgid "Templates:"
@@ -4336,8 +4556,8 @@ msgid "Duree max (min)"
 msgstr "Maximum duration (minimum)"
 
 #: app/templates/admin/interviews/wizard.html:463
-msgid "L'etudiant peut terminer"
-msgstr "The student can finish"
+msgid "L'apprenant peut terminer"
+msgstr "The learner can end the interview"
 
 #: app/templates/admin/interviews/wizard.html:467
 msgid "L'IA peut terminer"
@@ -4376,8 +4596,8 @@ msgid "Ex: Votre CV, Votre dossier"
 msgstr "Example: Your CV, Your application"
 
 #: app/templates/admin/interviews/wizard.html:512
-msgid "Instructions pour l'etudiant"
-msgstr "Instructions for the student"
+msgid "Instructions pour l'apprenant"
+msgstr "Instructions for the learner"
 
 #: app/templates/admin/interviews/wizard.html:514
 msgid ""
@@ -4400,8 +4620,8 @@ msgid "Base tes questions sur ce CV."
 msgstr "Base your questions on this CV."
 
 #: app/templates/admin/interviews/wizard.html:523
-msgid "Voici le document fourni par l'etudiant:"
-msgstr "Here is the document provided by the student:"
+msgid "Voici le document fourni par l'apprenant :"
+msgstr "Here is the document provided by the learner:"
 
 #: app/templates/admin/interviews/wizard.html:527
 msgid "Utilise ces informations dans tes reponses et questions."
@@ -4505,22 +4725,25 @@ msgstr "Admins of"
 
 #: app/templates/admin/tenants/admins.html:6
 #: app/templates/admin/tenants/view.html:101
-msgid "Administrateurs de l'organisation"
+msgid "Administrateurs de l'etablissement"
 msgstr "Organization administrators"
 
 #: app/templates/admin/tenants/admins.html:12
 msgid ""
-"Les administrateurs d'une organisation peuvent gerer ses groupes, creer des "
-"quiz et gerer les utilisateurs dans leur perimetre. Les superadmins ont "
-"automatiquement acces a toutes les organisations."
+"Les administrateurs d'un etablissement gerent ses groupes, ses intervenants,"
+" ses apprenants et ses contenus. Les superadmins ont automatiquement acces a"
+" tous les etablissements."
 msgstr ""
-"Administrators of an organization can manage its groups, create quizzes, and"
-" manage users within their scope. Superadmins automatically have access to "
-"all organizations."
+"Organization administrators manage its groups, instructors, learners and "
+"content. Superadmins automatically have access to every organization."
 
 #: app/templates/admin/tenants/admins.html:16
 msgid "Administrateurs actuels"
 msgstr "Current administrators"
+
+#: app/templates/admin/tenants/admins.html:21
+msgid "Utilisateur"
+msgstr "User"
 
 #: app/templates/admin/tenants/admins.html:31
 msgid "Superadmin"
@@ -4536,8 +4759,8 @@ msgstr "Global access"
 
 #: app/templates/admin/tenants/admins.html:54
 msgid ""
-"Aucun administrateur specifique. Seuls les superadmins peuvent gerer cette "
-"organisation."
+"Aucun administrateur specifique. Seuls les superadmins peuvent gerer cet "
+"etablissement."
 msgstr ""
 "No specific administrator. Only superadmins can manage this organization."
 
@@ -4567,28 +4790,30 @@ msgstr "Add as admin"
 
 #: app/templates/admin/tenants/admins.html:98
 #: app/templates/admin/tenants/groups.html:72
-msgid "Retour a l'organisation"
+#: app/templates/admin/tenants/quizzes.html:64
+msgid "Retour a l'etablissement"
 msgstr "Back to the organization"
 
 #: app/templates/admin/tenants/create.html:3
-msgid "Creer une Organisation"
-msgstr "Create an Organization"
+msgid "Creer un etablissement"
+msgstr "Create an organization"
 
 #: app/templates/admin/tenants/create.html:6
 #: app/templates/admin/tenants/list.html:11
-msgid "Creer une nouvelle organisation"
+msgid "Creer un nouvel etablissement"
 msgstr "Create a new organization"
 
 #: app/templates/admin/tenants/create.html:9
-msgid "Informations de l'organisation"
-msgstr "Organization information"
+msgid "Informations de l'etablissement"
+msgstr "Organization details"
 
 #: app/templates/admin/tenants/create.html:12
 msgid ""
-"Une organisation represente une entite cliente (ecole, universite, "
-"entreprise)."
+"Un etablissement represente une entite cliente (ecole, universite, "
+"entreprise, organisme de formation)."
 msgstr ""
-"An organization represents a client entity (school, university, company)."
+"An organization is a client entity (school, university, company, training "
+"provider)."
 
 #: app/templates/admin/tenants/create.html:13
 msgid ""
@@ -4598,8 +4823,8 @@ msgstr "You can set usage limits and assign dedicated administrators."
 
 #: app/templates/admin/tenants/create.html:19
 #: app/templates/admin/tenants/edit.html:13
-msgid "Nom de l'organisation"
-msgstr "Organization Name"
+msgid "Nom de l'etablissement"
+msgstr "Organization name"
 
 #: app/templates/admin/tenants/create.html:21
 msgid "Ex: Universite de Paris, Ecole ABC..."
@@ -4614,7 +4839,7 @@ msgid "Laissez vide pour generer automatiquement"
 msgstr "Leave blank to generate automatically"
 
 #: app/templates/admin/tenants/create.html:34
-msgid "Description optionnelle de l'organisation..."
+msgid "Description optionnelle de l'etablissement..."
 msgstr "Optional description of the organization..."
 
 #: app/templates/admin/tenants/create.html:39
@@ -4670,8 +4895,8 @@ msgstr "Generations quiz / month"
 
 #: app/templates/admin/tenants/create.html:86
 #: app/templates/admin/tenants/edit.html:89
-msgid "Analyses classe / mois"
-msgstr "Class/month analysis"
+msgid "Analyses de groupe / mois"
+msgstr "Group analyses / month"
 
 #: app/templates/admin/tenants/create.html:91
 #: app/templates/admin/tenants/edit.html:94
@@ -4721,7 +4946,7 @@ msgid "Alerte quand il reste X%% du quota"
 msgstr "Alert when X%% of the quota remains"
 
 #: app/templates/admin/tenants/create.html:124
-msgid "Creer l'organisation"
+msgid "Creer l'etablissement"
 msgstr "Create the organization"
 
 #: app/templates/admin/tenants/create_group.html:3
@@ -4731,15 +4956,15 @@ msgstr "Create a group"
 
 #: app/templates/admin/tenants/create_group.html:12
 msgid ""
-"Un code unique sera genere automatiquement pour ce groupe. Les etudiants "
+"Un code unique sera genere automatiquement pour ce groupe. Les apprenants "
 "devront entrer ce code lors de l'inscription pour rejoindre le groupe."
 msgstr ""
-"A unique code will be automatically generated for this group. Students will "
-"need to enter this code during registration to join the group."
+"A unique code will be generated for this group. Learners will enter it when "
+"registering to join the group."
 
 #: app/templates/admin/tenants/edit.html:6
-msgid "Modifier l'organisation"
-msgstr "Change the organization"
+msgid "Modifier l'etablissement"
+msgstr "Edit organization"
 
 #: app/templates/admin/tenants/edit.html:21
 msgid "Le slug ne peut pas etre modifie"
@@ -4803,12 +5028,12 @@ msgid "Sans expiration"
 msgstr "No expiration date"
 
 #: app/templates/admin/tenants/edit.html:130
-msgid "Organisation active"
-msgstr "active organization"
+msgid "Etablissement actif"
+msgstr "Active organization"
 
 #: app/templates/admin/tenants/edit.html:132
-msgid "Desactiver une organisation empeche l'acces a ses groupes et quiz"
-msgstr "Disabling an organization prevents access to its groups and quizzes."
+msgid "Desactiver un etablissement empeche l'acces a ses groupes et quiz"
+msgstr "Deactivating an organization blocks access to its groups and quizzes"
 
 #: app/templates/admin/tenants/edit.html:137
 msgid "L'email d'alerte est envoye a l'adresse de contact ci-dessus."
@@ -4835,8 +5060,8 @@ msgid "Groupes de"
 msgstr "Groups of"
 
 #: app/templates/admin/tenants/groups.html:6
-msgid "Groupes de l'organisation"
-msgstr "Organizational Groups"
+msgid "Groupes de l'etablissement"
+msgstr "Organization groups"
 
 #: app/templates/admin/tenants/groups.html:10
 #: app/templates/admin/tenants/list.html:24
@@ -4849,17 +5074,17 @@ msgstr "Export CSV results"
 
 #: app/templates/admin/tenants/groups.html:65
 #: app/templates/admin/tenants/view.html:154
-msgid "Aucun groupe dans cette organisation."
-msgstr "No group within this organization."
+msgid "Aucun groupe dans cet etablissement."
+msgstr "No group in this organization."
 
 #: app/templates/admin/tenants/list.html:3
 #: app/templates/admin/tenants/list.html:6
-msgid "Gestion des Organisations"
-msgstr "Organization Management"
+msgid "Gestion des etablissements"
+msgstr "Organizations"
 
 #: app/templates/admin/tenants/list.html:10
-msgid "Liste des organisations"
-msgstr "List of organizations"
+msgid "Liste des etablissements"
+msgstr "Organization list"
 
 #: app/templates/admin/tenants/list.html:35
 msgid "Limites"
@@ -4880,15 +5105,15 @@ msgid "Admins"
 msgstr "Admins"
 
 #: app/templates/admin/tenants/list.html:56
-msgid "cette organisation"
+msgid "cet etablissement"
 msgstr "this organization"
 
 #: app/templates/admin/tenants/list.html:68
-msgid "Aucune organisation creee."
-msgstr "No organization created."
+msgid "Aucun etablissement cree."
+msgstr "No organization yet."
 
 #: app/templates/admin/tenants/list.html:68
-msgid "Creez votre premiere organisation"
+msgid "Creez votre premier etablissement"
 msgstr "Create your first organization"
 
 #: app/templates/admin/tenants/quizzes.html:3
@@ -4896,16 +5121,12 @@ msgid "Quiz de"
 msgstr "Quiz of"
 
 #: app/templates/admin/tenants/quizzes.html:6
-msgid "Quiz du tenant"
-msgstr "Tenant's Quiz"
+msgid "Quiz de l'etablissement"
+msgstr "Organization quizzes"
 
 #: app/templates/admin/tenants/quizzes.html:57
-msgid "Aucun quiz dans ce tenant."
-msgstr "No quizzes in this tenant."
-
-#: app/templates/admin/tenants/quizzes.html:64
-msgid "Retour au tenant"
-msgstr "Back to the tenant"
+msgid "Aucun quiz dans cet etablissement."
+msgstr "No quiz in this organization."
 
 #: app/templates/admin/tenants/view.html:23
 msgid "Administrateurs"
@@ -4920,8 +5141,8 @@ msgid "Generations quiz (mois)"
 msgstr "Generations quiz (month)"
 
 #: app/templates/admin/tenants/view.html:38
-msgid "Analyses classe (mois)"
-msgstr "Class analysis (month)"
+msgid "Analyses de groupe (mois)"
+msgstr "Group analyses (month)"
 
 #: app/templates/admin/tenants/view.html:44
 #: app/templates/admin/tenants/view.html:47
@@ -4978,7 +5199,7 @@ msgid "Membres"
 msgstr "Members"
 
 #: app/templates/admin/tenants/view.html:162
-msgid "Retour aux organisations"
+msgid "Retour aux etablissements"
 msgstr "Back to organizations"
 
 #: app/templates/auth/forgot_password.html:3
@@ -5028,14 +5249,9 @@ msgstr "Forgot your password?"
 msgid "Pas encore de compte ?"
 msgstr "Don't have an account yet?"
 
-#: app/templates/auth/login.html:39 app/templates/auth/register.html:56
+#: app/templates/auth/login.html:39 app/templates/auth/register.html:57
 msgid "S'inscrire"
 msgstr "Register"
-
-#: app/templates/auth/profile.html:3 app/templates/auth/profile.html:7
-#: app/templates/quiz/dashboard.html:177
-msgid "Mon profil"
-msgstr "My profile"
 
 #: app/templates/auth/profile.html:11
 msgid "Informations personnelles"
@@ -5206,21 +5422,21 @@ msgstr "Registration"
 msgid "Un email de verification sera envoye a cette adresse"
 msgstr "A verification email will be sent to this address."
 
-#: app/templates/auth/register.html:39
-msgid "Entrez le code fourni par votre enseignant"
-msgstr "Enter the code provided by your teacher"
+#: app/templates/auth/register.html:40
+msgid "Entrez le code fourni par votre intervenant"
+msgstr "Enter the code given by your instructor"
 
-#: app/templates/auth/register.html:42
+#: app/templates/auth/register.html:43
 msgid ""
-"Le code de groupe vous a ete fourni par votre enseignant/administrateur"
-msgstr "Your group code was provided to you by your teacher/administrator."
+"Le code de groupe vous a ete fourni par votre intervenant ou administrateur"
+msgstr "The group code was given to you by your instructor or administrator"
 
-#: app/templates/auth/register.html:52
+#: app/templates/auth/register.html:53
 #: app/templates/auth/reset_password.html:22
 msgid "Confirmer le mot de passe"
 msgstr "Confirm password"
 
-#: app/templates/auth/register.html:60
+#: app/templates/auth/register.html:61
 msgid "Deja inscrit ?"
 msgstr "Already registered?"
 
@@ -5510,10 +5726,6 @@ msgstr "min max"
 msgid "Mon Tableau de Bord"
 msgstr "My Dashboard"
 
-#: app/templates/quiz/dashboard.html:12
-msgid "Evaluations"
-msgstr "Evaluations"
-
 #: app/templates/quiz/dashboard.html:35 app/templates/quiz/list.html:105
 msgid "A faire"
 msgstr "To do"
@@ -5599,10 +5811,6 @@ msgstr "An error has occurred"
 msgid "Quiz disponibles"
 msgstr "Quizzes available"
 
-#: app/templates/quiz/list.html:10
-msgid "Mes quiz"
-msgstr "My quizzes"
-
 #: app/templates/quiz/list.html:23
 msgid "Non repondus"
 msgstr "No response"
@@ -5610,10 +5818,6 @@ msgstr "No response"
 #: app/templates/quiz/list.html:24
 msgid "Repondus"
 msgstr "Answered"
-
-#: app/templates/quiz/list.html:34 app/templates/quiz/list.html:42
-msgid "Toutes les organisations"
-msgstr "All organizations"
 
 #: app/templates/quiz/list.html:103
 msgid "Repondu"
@@ -6005,3 +6209,58 @@ msgstr "Intelligent assessment platform with AI correction for education"
 
 #~ msgid "Cle API Anthropic"
 #~ msgstr "Anthropic API key"
+
+#~ msgid "Nom d'utilisateur, email et mot de passe sont requis"
+#~ msgstr "Username, email and password are required"
+
+#~ msgid "%(role)s \"%(username)s\" cree avec succes"
+#~ msgstr "%(role)s \"%(username)s\" created successfully"
+
+#~ msgid ""
+#~ "Super-admin: acces total. Admin organisation: gere une ou plusieurs "
+#~ "organisations. Admin groupe: gere ses groupes assignes."
+#~ msgstr ""
+#~ "Super-admin: full access. Organization admin: manages one or more "
+#~ "organizations. Group admin: manages assigned groups."
+
+#~ msgid "Selectionnez les etablissements que cet administrateur pourra gerer."
+#~ msgstr "Select the organizations this administrator will manage."
+
+#~ msgid "Selectionnez un ou plusieurs groupes pour l'utilisateur."
+#~ msgstr "Select one or more groups for the user."
+
+#~ msgid ""
+#~ "Les super-administrateurs et admins d'organisation n'ont pas besoin de "
+#~ "groupes."
+#~ msgstr "Super administrators and organization admins do not need groups."
+
+#~ msgid ""
+#~ "Super-admin: acces total. Admin organisation: gere ses organisations "
+#~ "assignees. Admin groupe: gere ses groupes assignes."
+#~ msgstr ""
+#~ "Super-admin: full access. Organization admin: manages assigned "
+#~ "organizations. Group admin: manages assigned groups."
+
+#~ msgid "Role actuel"
+#~ msgstr "Current role"
+
+#~ msgid "Seuls les super-administrateurs peuvent modifier les roles."
+#~ msgstr "Only super administrators can modify roles."
+
+#~ msgid "admin"
+#~ msgstr "admin"
+
+#~ msgid "membre"
+#~ msgstr "member"
+
+#~ msgid "Utilisateurs du groupe :"
+#~ msgstr "Group users:"
+
+#~ msgid "Utilisateur(s)"
+#~ msgstr "User(s)"
+
+#~ msgid "Inscrit le"
+#~ msgstr "Registered on"
+
+#~ msgid "Quiz complétés"
+#~ msgstr "Quiz completed"

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Analyse de classe') }} - {{ quiz.title }} - BrainNotFound{% endblock %}
+{% block title %}{{ _('Analyse du groupe') }} - {{ quiz.title }} - BrainNotFound{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -183,7 +183,7 @@
 {% block content %}
 <div class="analysis-header">
     <div>
-        <h1 class="mb-0">{{ _('Analyse de classe') }}</h1>
+        <h1 class="mb-0">{{ _('Analyse du groupe') }}</h1>
         <span class="text-light">{{ quiz.title }}</span>
     </div>
     <div class="flex gap-sm">
@@ -202,7 +202,7 @@
 <!-- Global Stats -->
 <div class="stats-overview">
     <div class="stat-box">
-        <h3>{{ _('Etudiants') }}</h3>
+        <h3>{{ _('Apprenants') }}</h3>
         <div class="value">{{ stats.global_stats.student_count }}</div>
     </div>
     <div class="stat-box">
@@ -244,7 +244,7 @@
                 <!-- Class Strengths -->
                 {% if result.class_strengths %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-check-circle" style="color: var(--accent-success);"></i> {{ _('Points forts de la classe') }}</h4>
+                    <h4 class="mb-1"><i class="iconoir-check-circle" style="color: var(--accent-success);"></i> {{ _('Points forts du groupe') }}</h4>
                     <div class="flex flex-wrap gap-sm">
                         {% for strength in result.class_strengths %}
                         <span class="badge badge-success">{{ strength.topic }} ({{ strength.success_rate }}%)</span>
@@ -276,7 +276,7 @@
                 <!-- Students Needing Support -->
                 {% if result.students_needing_support %}
                 <div class="mb-2">
-                    <h4 class="mb-1"><i class="iconoir-user" style="color: var(--primary);"></i> {{ _('Etudiants a accompagner') }}</h4>
+                    <h4 class="mb-1"><i class="iconoir-user" style="color: var(--primary);"></i> {{ _('Apprenants a accompagner') }}</h4>
                     {% for student in result.students_needing_support %}
                     <div class="question-concern" style="background: rgba(59, 130, 246, 0.05); border-left-color: var(--primary);">
                         <strong>{{ student.name }}</strong>
@@ -338,7 +338,7 @@
             </div>
         {% else %}
             <p class="text-center text-light p-2">
-                {{ _('Cliquez sur "Lancer l\'analyse IA" pour obtenir une analyse pedagogique de la classe.') }}
+                {{ _('Cliquez sur "Lancer l\'analyse IA" pour obtenir une analyse pedagogique du groupe.') }}
             </p>
         {% endif %}
     </div>
@@ -393,10 +393,10 @@
 
 <!-- Student Comparison -->
 <div class="card mb-2">
-    <div class="card-header">{{ _('Comparaison des etudiants') }}</div>
+    <div class="card-header">{{ _('Comparaison des apprenants') }}</div>
 
     <div class="student-row header">
-        <span>{{ _('Etudiant') }}</span>
+        <span>{{ _('Apprenant') }}</span>
         <span>{{ _('Score') }}</span>
         <span>{{ _('Duree') }}</span>
         <span>{{ _('Focus') }}</span>

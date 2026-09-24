@@ -10,13 +10,13 @@
 
     <div class="info-box bg-gray mb-2">
         <strong>{{ _('Information :') }}</strong> {{ _('Un code unique sera généré automatiquement pour ce groupe.') }}
-        {{ _("Les étudiants devront entrer ce code lors de l'inscription pour rejoindre le groupe.") }}
+        {{ _("Les apprenants devront entrer ce code lors de l'inscription pour rejoindre le groupe.") }}
     </div>
 
     <form method="POST">
         {% if tenants and tenants|length > 1 %}
         <div class="form-group">
-            <label class="form-label">{{ _('Organisation') }} *</label>
+            <label class="form-label">{{ _('Etablissement') }} *</label>
             <div class="searchable-select">
                 <input type="hidden" name="tenant_id" value="{{ tenants[0].id }}">
                 <div class="searchable-select-trigger">
@@ -26,7 +26,7 @@
                 </div>
                 <div class="searchable-select-dropdown">
                     <div class="searchable-select-search">
-                        <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
+                        <input type="text" placeholder="{{ _('Rechercher un etablissement...') }}">
                     </div>
                     <div class="searchable-select-options">
                         {% for tenant in tenants %}

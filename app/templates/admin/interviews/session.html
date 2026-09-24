@@ -130,7 +130,7 @@
         <div class="card-body">
             <table class="table table-compact">
                 <tr>
-                    <td class="text-light">{{ _('Etudiant') }}</td>
+                    <td class="text-light">{{ _('Apprenant') }}</td>
                     <td>
                         <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary">
                             {{ session.user.full_name }}
@@ -152,7 +152,7 @@
                 <tr>
                     <td class="text-light">{{ _('Raison de fin') }}</td>
                     <td>
-                        {% if session.end_reason == 'student' %}{{ _("L'etudiant a termine") }}
+                        {% if session.end_reason == 'student' %}{{ _("L'apprenant a termine") }}
                         {% elif session.end_reason == 'ai_natural' %}{{ _('Conclusion naturelle') }}
                         {% elif session.end_reason == 'limit' %}{{ _('Limite atteinte') }}
                         {% elif session.end_reason == 'timeout' %}{{ _('Temps ecoule') }}

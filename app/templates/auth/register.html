@@ -37,10 +37,10 @@
                 <label class="form-label" for="join_code">{{ _('Code de groupe') }}</label>
                 <input type="text" id="join_code" name="join_code" class="form-input"
                        value="{{ request.form.get('join_code') or request.args.get('code', '') }}"
-                       placeholder="{{ _('Entrez le code fourni par votre enseignant') }}"
+                       placeholder="{{ _('Entrez le code fourni par votre intervenant') }}"
                        style="text-transform: uppercase;" required>
                 <small style="color: var(--text-light); font-size: 0.875rem;">
-                    {{ _('Le code de groupe vous a ete fourni par votre enseignant/administrateur') }}
+                    {{ _('Le code de groupe vous a ete fourni par votre intervenant ou administrateur') }}
                 </small>
             </div>
 

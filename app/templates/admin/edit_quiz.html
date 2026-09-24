@@ -127,7 +127,7 @@
                 <div class="tenant-group-section mb-1">
                     <div class="tenant-group-header">
                         <i class="iconoir-globe"></i>
-                        <strong>{{ _('Sans tenant') }}</strong>
+                        <strong>{{ _('Sans etablissement') }}</strong>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
                         {% for group in groups_no_tenant %}
@@ -195,7 +195,7 @@
                 <input type="checkbox" name="randomize_questions" {{ 'checked' if quiz.randomize_questions else '' }}>
                 <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
             </label>
-            <small class="help-text">{{ _('Si active, les questions seront affichees dans un ordre different pour chaque etudiant') }}</small>
+            <small class="help-text">{{ _('Si active, les questions seront affichees dans un ordre different pour chaque apprenant') }}</small>
         </div>
 
         <div class="form-group">
@@ -203,7 +203,7 @@
                 <input type="checkbox" name="randomize_options" {{ 'checked' if quiz.randomize_options else '' }}>
                 <span class="form-label mb-0">{{ _('Ordre aleatoire des reponses QCM') }}</span>
             </label>
-            <small class="help-text">{{ _('Si active, les options de chaque QCM seront melangees pour chaque etudiant') }}</small>
+            <small class="help-text">{{ _('Si active, les options de chaque QCM seront melangees pour chaque apprenant') }}</small>
         </div>
 
         <div class="card-header mt-1">{{ _('Mode Examen (Anti-triche)') }}</div>

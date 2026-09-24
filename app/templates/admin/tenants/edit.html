@@ -3,14 +3,14 @@
 {% block title %}{{ _('Modifier') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Modifier l\'organisation') }}</h1>
+<h1 class="mb-2">{{ _('Modifier l\'etablissement') }}</h1>
 
 <div class="card">
     <div class="card-header">{{ tenant.name }}</div>
 
     <form method="POST">
         <div class="form-group">
-            <label class="form-label" for="name">{{ _('Nom de l\'organisation') }} *</label>
+            <label class="form-label" for="name">{{ _('Nom de l\'etablissement') }} *</label>
             <input type="text" id="name" name="name" class="form-input"
                    value="{{ tenant.name }}" required>
         </div>
@@ -86,7 +86,7 @@
                        value="{{ tenant.monthly_quiz_generations }}" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="monthly_class_analyses">{{ _('Analyses classe / mois') }}</label>
+                <label class="form-label" for="monthly_class_analyses">{{ _('Analyses de groupe / mois') }}</label>
                 <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
                        value="{{ tenant.monthly_class_analyses }}" min="0" style="width: 120px;">
             </div>
@@ -127,9 +127,9 @@
         <div class="form-group">
             <label class="form-checkbox">
                 <input type="checkbox" name="is_active" {% if tenant.is_active %}checked{% endif %}>
-                <span>{{ _('Organisation active') }}</span>
+                <span>{{ _('Etablissement actif') }}</span>
             </label>
-            <small class="text-light">{{ _('Desactiver une organisation empeche l\'acces a ses groupes et quiz') }}</small>
+            <small class="text-light">{{ _('Desactiver un etablissement empeche l\'acces a ses groupes et quiz') }}</small>
         </div>
 
         <h3 class="mt-2 mb-1">{{ _('Alertes quota') }}</h3>

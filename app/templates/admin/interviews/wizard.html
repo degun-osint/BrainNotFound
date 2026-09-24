@@ -247,7 +247,7 @@
                         <div class="form-group">
                             <label class="form-label">{{ _('Description') }}</label>
                             <textarea name="description" class="form-textarea" rows="2"
-                                      placeholder="{{ _('Description visible par les etudiants') }}">{% if interview %}{{ interview.description }}{% endif %}</textarea>
+                                      placeholder="{{ _('Description visible par les apprenants') }}">{% if interview %}{{ interview.description }}{% endif %}</textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-md">
@@ -259,7 +259,7 @@
                                 <small class="text-light">{{ _('Lettres minuscules, chiffres et tirets uniquement') }}</small>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">{{ _('Organisation') }}</label>
+                                <label class="form-label">{{ _('Etablissement') }}</label>
                                 <select name="tenant_id" class="form-select">
                                     <option value="">{{ _('Aucune') }}</option>
                                     {% for tenant_id, data in groups_by_tenant.items() %}
@@ -344,13 +344,13 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">{{ _("Ce que l'etudiant sait au depart") }}</label>
+                            <label class="form-label">{{ _("Ce que l'apprenant sait au depart") }}</label>
                             <textarea name="student_context" class="form-textarea" rows="3"
                                       placeholder="{{ _('Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...') }}">{% if interview %}{{ interview.student_context }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">{{ _("Objectif de l'etudiant") }}</label>
+                            <label class="form-label">{{ _("Objectif de l'apprenant") }}</label>
                             <textarea name="student_objective" class="form-textarea" rows="2"
                                       placeholder="{{ _("Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide") }}">{% if interview %}{{ interview.student_objective }}{% endif %}</textarea>
                         </div>
@@ -402,7 +402,7 @@
                         {% if has_results %}
                         <div class="alert alert-warning mb-md">
                             <i class="iconoir-lock"></i>
-                            <span>{{ _('Les criteres ne peuvent plus etre modifies car des etudiants ont deja passe cet entretien.') }}</span>
+                            <span>{{ _('Les criteres ne peuvent plus etre modifies car des apprenants ont deja passe cet entretien.') }}</span>
                         </div>
                         {% else %}
                         <div class="template-buttons">
@@ -460,7 +460,7 @@
                         <div class="flex gap-md">
                             <label class="check-item">
                                 <input type="checkbox" name="allow_student_end" {% if not interview or interview.allow_student_end %}checked{% endif %}>
-                                <span>{{ _("L'etudiant peut terminer") }}</span>
+                                <span>{{ _("L'apprenant peut terminer") }}</span>
                             </label>
                             <label class="check-item">
                                 <input type="checkbox" name="ai_can_end" {% if not interview or interview.ai_can_end %}checked{% endif %}>
@@ -480,7 +480,7 @@
                                 </label>
                                 <label class="check-item">
                                     <input type="radio" name="student_starts" value="1" {% if interview and interview.student_starts %}checked{% endif %}>
-                                    <span>{{ _("L'etudiant") }}</span>
+                                    <span>{{ _("L'apprenant") }}</span>
                                 </label>
                             </div>
                             <small class="text-light">{{ _("Si le bot commence, il utilisera le message d'ouverture ci-dessous") }}</small>
@@ -509,7 +509,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">{{ _("Instructions pour l'etudiant") }}</label>
+                                <label class="form-label">{{ _("Instructions pour l'apprenant") }}</label>
                                 <textarea name="file_upload_description" class="form-textarea" rows="2"
                                           placeholder="{{ _("Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.") }}">{% if interview %}{{ interview.file_upload_description }}{% endif %}</textarea>
                             </div>
@@ -520,7 +520,7 @@
 
 {file_content}
 
-{{ _('Base tes questions sur ce CV.') }}">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}{{ _("Voici le document fourni par l'etudiant:") }}
+{{ _('Base tes questions sur ce CV.') }}">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}{{ _("Voici le document fourni par l'apprenant :") }}
 
 {file_content}
 

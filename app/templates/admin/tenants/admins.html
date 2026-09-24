@@ -3,13 +3,13 @@
 {% block title %}{{ _('Admins de') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Administrateurs de l\'organisation') }}</h1>
+<h1 class="mb-2">{{ _('Administrateurs de l\'etablissement') }}</h1>
 
 <div class="card mb-2">
     <div class="card-header">{{ tenant.name }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>{{ _('Information :') }}</strong> {{ _('Les administrateurs d\'une organisation peuvent gerer ses groupes, creer des quiz et gerer les utilisateurs dans leur perimetre. Les superadmins ont automatiquement acces a toutes les organisations.') }}
+        <strong>{{ _('Information :') }}</strong> {{ _('Les administrateurs d\'un etablissement gerent ses groupes, ses intervenants, ses apprenants et ses contenus. Les superadmins ont automatiquement acces a tous les etablissements.') }}
     </div>
 
     {% if admins %}
@@ -51,7 +51,7 @@
     </div>
     {% else %}
     <p class="text-center text-light p-2">
-        {{ _('Aucun administrateur specifique. Seuls les superadmins peuvent gerer cette organisation.') }}
+        {{ _('Aucun administrateur specifique. Seuls les superadmins peuvent gerer cet etablissement.') }}
     </p>
     {% endif %}
 </div>
@@ -95,7 +95,7 @@
 
 <div class="actions">
     <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> {{ _('Retour a l\'organisation') }}
+        <i class="iconoir-arrow-left"></i> {{ _('Retour a l\'etablissement') }}
     </a>
 </div>
 {% endblock %}

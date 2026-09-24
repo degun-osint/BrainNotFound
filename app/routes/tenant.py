@@ -137,7 +137,7 @@ def create_tenant():
         db.session.add(tenant)
         db.session.commit()
 
-        flash(_l('Tenant "%(name)s" cree avec succes', name=name), 'success')
+        flash(_l('Etablissement "%(name)s" cree avec succes', name=name), 'success')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/create.html')
@@ -150,7 +150,7 @@ def view_tenant(identifier):
     """Voir les détails d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -189,7 +189,7 @@ def edit_tenant(identifier):
     """Modifier un tenant (superadmin only)."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Redirect if accessed by old numeric ID
@@ -230,7 +230,7 @@ def edit_tenant(identifier):
             tenant.subscription_expires_at = None
 
         db.session.commit()
-        flash(_l('Tenant mis a jour'), 'success')
+        flash(_l('Etablissement mis a jour'), 'success')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     return render_template('admin/tenants/edit.html', tenant=tenant)
@@ -243,19 +243,19 @@ def delete_tenant(identifier):
     """Supprimer un tenant (superadmin only)."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Vérifier qu'il n'y a pas de groupes
     if tenant.groups.count() > 0:
-        flash(_l('Impossible de supprimer un tenant qui contient des groupes'), 'error')
+        flash(_l('Impossible de supprimer un etablissement qui contient des groupes'), 'error')
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()))
 
     name = tenant.name
     db.session.delete(tenant)
     db.session.commit()
 
-    flash(_l('Tenant "%(name)s" supprime', name=name), 'info')
+    flash(_l('Etablissement "%(name)s" supprime', name=name), 'info')
     return redirect(url_for('tenant.list_tenants'))
 
 
@@ -268,7 +268,7 @@ def manage_admins(identifier):
     """Gérer les admins d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     # Redirect if accessed by old numeric ID
@@ -299,7 +299,7 @@ def add_admin(identifier):
     """Ajouter un admin au tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     user_id = request.form.get('user_id', type=int)
@@ -316,7 +316,7 @@ def add_admin(identifier):
     tenant.add_admin(user)
     db.session.commit()
 
-    flash(_l('%(username)s est maintenant admin du tenant', username=user.username), 'success')
+    flash(_l("%(username)s est maintenant admin de l'etablissement", username=user.username), 'success')
     return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
@@ -327,7 +327,7 @@ def remove_admin(identifier, user_identifier):
     """Retirer un admin du tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('tenant.list_tenants'))
 
     user = User.get_by_identifier(user_identifier)
@@ -338,7 +338,7 @@ def remove_admin(identifier, user_identifier):
     tenant.remove_admin(user)
     db.session.commit()
 
-    flash(_l('%(username)s n\'est plus admin du tenant', username=user.username), 'info')
+    flash(_l('%(username)s n\'est plus admin de l\'etablissement', username=user.username), 'info')
     return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
 
 
@@ -351,7 +351,7 @@ def tenant_groups(identifier):
     """Liste des groupes d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -373,7 +373,7 @@ def create_group_in_tenant(identifier):
     """Créer un groupe dans un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID
@@ -421,7 +421,7 @@ def tenant_quizzes(identifier):
     """Liste des quiz d'un tenant."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Redirect if accessed by old numeric ID

@@ -32,37 +32,37 @@
             </button>
             <div class="nav-menu" id="nav-menu">
                 {% if current_user.is_any_admin %}
-                    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('admin.dashboard') }}">{{ _('Dashboard') }}</a>
                     <div class="nav-dropdown">
                         <button type="button" class="nav-dropdown-btn">
-                            <span>Evaluations</span>
+                            <span>{{ _('Evaluations') }}</span>
                             <i class="iconoir-nav-arrow-down"></i>
                         </button>
                         <div class="nav-dropdown-menu">
                             <a href="{{ url_for('admin.quiz_list') }}" class="nav-dropdown-item">
-                                <i class="iconoir-clipboard-check"></i> Quiz
+                                <i class="iconoir-clipboard-check"></i> {{ _('Quiz') }}
                             </a>
                             <a href="{{ url_for('interview.admin_list') }}" class="nav-dropdown-item">
-                                <i class="iconoir-chat-bubble"></i> Entretiens
+                                <i class="iconoir-chat-bubble"></i> {{ _('Entretiens') }}
                             </a>
                         </div>
                     </div>
                     {% if current_user.is_superadmin %}
-                    <a href="{{ url_for('tenant.list_tenants') }}">Organisations</a>
+                    <a href="{{ url_for('tenant.list_tenants') }}">{{ _('Etablissements') }}</a>
                     {% endif %}
-                    <a href="{{ url_for('admin.groups') }}">Groupes</a>
-                    <a href="{{ url_for('admin.users') }}">Utilisateurs</a>
+                    <a href="{{ url_for('admin.groups') }}">{{ _('Groupes') }}</a>
+                    <a href="{{ url_for('admin.users') }}">{{ _('Utilisateurs') }}</a>
                     {% if show_tenant_selector and accessible_tenants %}
                     <div class="nav-tenant-selector">
                         <div class="tenant-dropdown">
-                            <button type="button" class="tenant-dropdown-btn" data-tooltip="Filtrer par organisation">
+                            <button type="button" class="tenant-dropdown-btn" data-tooltip="{{ _('Filtrer par etablissement') }}">
                                 <i class="iconoir-building"></i>
-                                <span>{% if tenant_context %}{{ tenant_context.name|truncate(15) }}{% else %}Tous{% endif %}</span>
+                                <span>{% if tenant_context %}{{ tenant_context.name|truncate(15) }}{% else %}{{ _('Tous') }}{% endif %}</span>
                                 <i class="iconoir-nav-arrow-down"></i>
                             </button>
                             <div class="tenant-dropdown-menu">
                                 <a href="{{ url_for('admin.clear_tenant_context') }}" class="tenant-option {% if not tenant_context %}active{% endif %}">
-                                    <i class="iconoir-globe"></i> Toutes les organisations
+                                    <i class="iconoir-globe"></i> {{ _('Tous les etablissements') }}
                                 </a>
                                 <div class="tenant-divider"></div>
                                 {% for t in accessible_tenants %}
@@ -75,18 +75,18 @@
                     </div>
                     {% endif %}
                 {% else %}
-                    <a href="{{ url_for('quiz.dashboard') }}">Tableau de bord</a>
-                    <a href="{{ url_for('quiz.quiz_list') }}">Mes Quiz</a>
-                    <a href="{{ url_for('interview.interview_list') }}">Entretiens</a>
+                    <a href="{{ url_for('quiz.dashboard') }}">{{ _('Tableau de bord') }}</a>
+                    <a href="{{ url_for('quiz.quiz_list') }}">{{ _('Mes quiz') }}</a>
+                    <a href="{{ url_for('interview.interview_list') }}">{{ _('Entretiens') }}</a>
                 {% endif %}
                 {% for page in menu_pages %}
                 <a href="{{ url_for('auth.view_page', slug=page.slug) }}" {% if page.open_new_tab %}target="_blank"{% endif %}>{{ page.title }}</a>
                 {% endfor %}
-                <a href="{{ url_for('auth.profile') }}" class="nav-user" data-tooltip="Mon profil">
+                <a href="{{ url_for('auth.profile') }}" class="nav-user" data-tooltip="{{ _('Mon profil') }}">
                     <i class="iconoir-user"></i> {{ current_user.username }}
                 </a>
                 {% if current_user.is_superadmin %}
-                <a href="{{ url_for('admin.site_settings') }}" data-tooltip="Parametres"><i class="iconoir-settings"></i></a>
+                <a href="{{ url_for('admin.site_settings') }}" data-tooltip="{{ _('Parametres') }}"><i class="iconoir-settings"></i></a>
                 {% endif %}
                 <button type="button" class="theme-toggle" id="theme-toggle" data-tooltip="{{ _('Theme') }}">
                     <i class="iconoir-sun-light" id="theme-icon-light"></i>

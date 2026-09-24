@@ -127,12 +127,12 @@ def set_tenant_context(identifier):
     """Set the tenant context filter."""
     tenant = Tenant.get_by_identifier(identifier)
     if not tenant:
-        flash(_l('Tenant introuvable'), 'error')
+        flash(_l('Etablissement introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     # Verify access
     if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash(_l('Acces non autorise a ce tenant'), 'error')
+        flash(_l('Acces non autorise a cet etablissement'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     set_scope_tenant(tenant)
@@ -148,7 +148,7 @@ def set_tenant_context(identifier):
 def clear_tenant_context():
     """Clear the tenant context filter (show all)."""
     set_scope_tenant(None)
-    flash(_l('Contexte: Tous les tenants'), 'info')
+    flash(_l('Contexte : tous les etablissements'), 'info')
     return safe_redirect_referrer(url_for('admin.dashboard'))
 
 
@@ -1244,7 +1244,7 @@ def create_group():
         if not current_user.is_superadmin:
             valid_tenant_ids = [t.id for t in tenants]
             if tenant_id and tenant_id not in valid_tenant_ids:
-                flash(_l('Vous ne pouvez creer des groupes que dans vos tenants'), 'error')
+                flash(_l('Vous ne pouvez creer des groupes que dans vos etablissements'), 'error')
                 return render_template('admin/create_group.html', tenants=tenants)
 
         # Default to first available tenant if not specified
@@ -1310,7 +1310,7 @@ def edit_group(identifier):
 
         # Moving a group is limited to the tenants we administer
         if tenant_id and tenant_id != group.tenant_id and tenant_id not in {t.id for t in tenants}:
-            flash(_l('Acces non autorise a ce tenant'), 'error')
+            flash(_l('Acces non autorise a cet etablissement'), 'error')
             return render_template('admin/edit_group.html', group=group, tenants=tenants)
         if tenant_id and tenant_id != group.tenant_id and not db.session.get(Tenant, tenant_id).can_add_group():
             flash(_l('Limite de groupes atteinte (%(max)s)', max=db.session.get(Tenant, tenant_id).max_groups), 'error')
@@ -1953,7 +1953,7 @@ def create_user():
         elif global_role == 'none' and not wanted:
             flash(_l('Vous devez assigner au moins un groupe'), 'error')
         elif global_role == 'tenant_admin' and not tenant_ids:
-            flash(_l('Vous devez assigner au moins un tenant pour un admin de tenant'), 'error')
+            flash(_l("Choisissez au moins un etablissement pour un admin d'etablissement"), 'error')
         elif join_errors:
             for error in join_errors:
                 flash(error, 'error')

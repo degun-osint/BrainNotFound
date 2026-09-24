@@ -7,7 +7,7 @@
     <div>
         <h3>{{ _('Mode Preview') }}</h3>
         <p class="text-sm" style="opacity: 0.9;">
-            {{ _('Visualisation du quiz comme un etudiant le verra (avec les reponses correctes visibles)') }}
+            {{ _('Visualisation du quiz comme un apprenant le verra (avec les reponses correctes visibles)') }}
         </p>
     </div>
     <div class="flex gap-sm">
@@ -104,7 +104,7 @@
         {% endif %}
     {% else %}
         <div class="form-group mt-1">
-            <textarea class="form-textarea" placeholder="{{ _("Zone de reponse de l'etudiant...") }}" disabled></textarea>
+            <textarea class="form-textarea" placeholder="{{ _("Zone de reponse de l'apprenant...") }}" disabled></textarea>
         </div>
         {% if question.expected_answer %}
         <div class="expected-answer mt-1">

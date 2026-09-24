@@ -83,10 +83,10 @@
                 </tr>
                 <tr>
                     <td class="text-light">{{ _('Qui commence') }}</td>
-                    <td>{% if interview.student_starts %}{{ _("L'etudiant") }}{% else %}{{ _('Le personnage') }}{% endif %}</td>
+                    <td>{% if interview.student_starts %}{{ _("L'apprenant") }}{% else %}{{ _('Le personnage') }}{% endif %}</td>
                 </tr>
                 <tr>
-                    <td class="text-light">{{ _('Fin par etudiant') }}</td>
+                    <td class="text-light">{{ _('Fin par apprenant') }}</td>
                     <td>{% if interview.allow_student_end %}<span class="text-success">{{ _('Oui') }}</span>{% else %}<span class="text-error">{{ _('Non') }}</span>{% endif %}</td>
                 </tr>
                 <tr>
@@ -177,7 +177,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>{{ _('Etudiant') }}</th>
+                <th>{{ _('Apprenant') }}</th>
                 <th>{{ _('Date') }}</th>
                 <th>{{ _('Duree') }}</th>
                 <th>{{ _('Echanges') }}</th>
