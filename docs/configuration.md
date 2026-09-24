@@ -34,6 +34,7 @@ Sans clé, l'application fonctionne mais les fonctions IA sont indisponibles : l
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
+| `APP_BIND` | Adresse sur laquelle le port `5006` est publié | `127.0.0.1` |
 | `ALLOWED_HOSTS` | Noms d'hôte acceptés, séparés par des virgules. Toute autre valeur de l'en-tête `Host` reçoit une erreur 403. Sert aussi de liste d'origines pour les WebSockets. | vide = tous |
 | `SESSION_COOKIE_SECURE` | Cookie de session envoyé en HTTPS uniquement. À activer derrière HTTPS, jamais en HTTP simple (la connexion échouerait). | `false` |
 | `SETTINGS_ENCRYPTION_KEY` | Clé de chiffrement des secrets enregistrés en base (clé API, mot de passe FTP). Si absente, elle est dérivée de `SECRET_KEY`. | dérivée |
@@ -171,10 +172,14 @@ Une sauvegarde contient la base de données et les fichiers envoyés (images des
 
 ### Ports
 
-| Port hôte | Service | En production |
-|-----------|---------|---------------|
-| `5006` | Application | Derrière un reverse proxy HTTPS |
-| `3312` | MariaDB | À fermer au pare-feu, ou à retirer du `docker-compose.yml` |
+| Port hôte | Service | Accessible depuis |
+|-----------|---------|-------------------|
+| `5006` | Application | `127.0.0.1` uniquement : le reverse proxy de l'hôte y renvoie |
+| aucun | MariaDB | Réseau Docker interne seulement (`db:3306`) |
+
+`APP_BIND=0.0.0.0` dans le `.env` publie l'application sur toutes les interfaces, par exemple pour un test sans reverse proxy. En production, c'est du HTTP en clair : à éviter.
+
+Un port publié par Docker contourne ufw (Docker insère ses propres règles iptables) : ne comptez pas sur le pare-feu pour fermer un port publié, ne le publiez pas.
 
 ## Générer une clé secrète
 

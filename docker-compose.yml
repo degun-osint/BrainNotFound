@@ -12,8 +12,8 @@ services:
       - mariadb_data:/var/lib/mysql
       # Low-memory settings for small servers
       - ./docker/mariadb/low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
-    ports:
-      - "3312:3306"
+    # No published port: the app reaches it on the internal network (db:3306),
+    # backups and scripts use docker exec. Published ports bypass ufw.
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
@@ -24,8 +24,10 @@ services:
   web:
     build: .
     container_name: quiz_app
+    # Loopback only: the host reverse proxy (Nginx, CloudPanel...) forwards to
+    # it. APP_BIND=0.0.0.0 in .env to reach it directly (no HTTPS, not advised).
     ports:
-      - "5006:5000"
+      - "${APP_BIND:-127.0.0.1}:5006:5000"
     environment:
       - FLASK_ENV=production
       - TZ=Europe/Paris

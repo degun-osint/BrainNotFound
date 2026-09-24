@@ -59,7 +59,8 @@ Au premier démarrage, l'application crée le schéma, le compte `admin` et un �
 
 ### 4. Se connecter
 
-- URL : `http://<serveur>:5006`
+- En local : `http://localhost:5006`
+- Sur un serveur : le port n'écoute que sur `127.0.0.1`, passez par le reverse proxy (voir plus bas), ou mettez `APP_BIND=0.0.0.0` dans le `.env` le temps d'un test
 - Identifiant `admin`, mot de passe `ADMIN_DEFAULT_PASSWORD`
 
 Changez ce mot de passe dès la première connexion, et générez un nouveau code pour le groupe par défaut (ou supprimez-le).
@@ -150,7 +151,7 @@ En installation manuelle, remplacez le port `5006` par celui de gunicorn (`5000`
 
 1. **HTTPS** : certificat Let's Encrypt ou équivalent, puis `SESSION_COOKIE_SECURE=true`.
 2. **`ALLOWED_HOSTS`** : votre nom de domaine, pour refuser les requêtes adressées à un autre hôte.
-3. **Pare-feu** : n'exposez que 80 et 443. Le `docker-compose.yml` publie aussi MariaDB sur le port `3312` et l'application sur `5006` : fermez-les, ou retirez ces lignes et passez par le reverse proxy.
+3. **Ports** : seuls 80 et 443 doivent être ouverts. Le `docker-compose.yml` ne publie pas MariaDB et ne publie l'application que sur `127.0.0.1:5006`. Attention : un port publié par Docker contourne ufw, le pare-feu ne le fermerait pas.
 4. **Secrets** : le `.env` ne se commite pas et ne se copie pas dans une image. Changez les mots de passe d'exemple.
 5. **Mises à jour** : suivez les versions (voir le `CHANGELOG.md`).
 
@@ -245,5 +246,6 @@ docker compose ps               # état et santé des conteneurs
 | Correction lancée mais la page n'avance pas | Le reverse proxy ne transmet pas les WebSockets (`/socket.io`) |
 | Emails non reçus | Variables `MAIL_*` ; regarder `docker compose logs web` au moment de l'envoi |
 | Restauration refusée dès l'envoi | `client_max_body_size` du proxy, ou `BACKUP_MAX_UPLOAD_MB` |
+| Site injoignable sur `http://<serveur>:5006` | Normal : le port n'écoute que sur `127.0.0.1`. Passer par le reverse proxy, ou `APP_BIND=0.0.0.0` |
 | 502 Bad Gateway | L'application ne tourne pas ou redémarre : `docker compose ps` et `docker compose logs web` |
 | Erreur 429 | Trop de tentatives de connexion ou d'inscription depuis la même adresse ; attendre une minute |
