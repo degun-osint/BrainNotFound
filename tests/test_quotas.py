@@ -168,3 +168,20 @@ def test_duplicate_quiz_respects_max_quizzes_and_keeps_tenant(world, content, lo
     db.session.commit()
     client.post(f"/admin/quiz/{content['quiz_a'].get_url_identifier()}/duplicate")
     assert Quiz.query.filter_by(title='Quiz Alpha (copie)').count() == 1
+
+
+def test_null_quota_columns_from_old_migrations_are_tolerated(world, login):
+    """Organizations created before migrations 008-010 hold NULL instead of 0/10."""
+    tenant = world['lycee_a']
+    for column in ('monthly_interviews', 'used_interviews', 'max_users', 'quota_alert_threshold', 'used_ai_corrections'):
+        setattr(tenant, column, None)
+    tenant.monthly_ai_corrections = 5
+    tenant.quota_alert_enabled = True
+    tenant.contact_email = 'dir@test.local'
+    db.session.commit()
+
+    assert tenant.get_ai_usage_stats()['interviews'] == {'used': 0, 'limit': None}
+    assert tenant.can_use_interview() and tenant.can_add_user() and tenant.can_use_ai_correction()
+    tenant.increment_ai_corrections()  # NULL counter: COALESCE, then alert check
+    assert reload_tenant(tenant).used_ai_corrections == 1
+    assert login(world['root']).get(f'/admin/tenants/{tenant.slug}').status_code == 200

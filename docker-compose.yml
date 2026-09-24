@@ -1,22 +1,21 @@
 services:
   db:
-    image: mysql:8.4  # LTS (8.0 is end of life since April 2026)
+    # MariaDB LTS. Data lives in a new volume (mariadb_data): an existing
+    # mysql_data volume is left untouched, see docs/self-hosting.md to migrate.
+    image: mariadb:12.3
     container_name: quiz_db
+    # The MariaDB image reads MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, MYSQL_USER
+    # and MYSQL_PASSWORD from .env as they are (MARIADB_* aliases)
     env_file:
       - .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
-      # Low-memory settings for small servers (see the file for measurements)
-      - ./docker/mysql/low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
+      - mariadb_data:/var/lib/mysql
+      # Low-memory settings for small servers
+      - ./docker/mariadb/low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
     ports:
       - "3312:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -41,4 +40,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  mariadb_data:
+  # Former MySQL data, kept for rollback after migrating to MariaDB
   mysql_data:

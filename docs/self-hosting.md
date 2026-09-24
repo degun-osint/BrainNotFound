@@ -5,7 +5,7 @@ Guide complet pour déployer BrainNotFound sur votre infrastructure.
 ## Prérequis
 
 - **Docker** et **Docker Compose** (recommandé)
-- Ou : Python 3.13, MySQL 8.4+
+- Ou : Python 3.13, MariaDB 11.4+ (ou MySQL 8.4)
 - Clé API Anthropic (pour la correction IA)
 - 2 Go RAM minimum, 4 Go recommandé
 
@@ -147,7 +147,7 @@ Les sauvegardes automatiques vers un serveur FTP se configurent depuis l'interfa
 
 ```bash
 # Backup base de données
-docker-compose exec db mysqldump -u quizuser -p quizdb > backup.sql
+docker compose exec db mariadb-dump -u quizuser -p quizdb > backup.sql
 
 # Backup fichiers uploadés
 tar -czf uploads.tar.gz uploads/
@@ -157,7 +157,7 @@ tar -czf uploads.tar.gz uploads/
 
 ```bash
 # Restaurer la base
-docker-compose exec -T db mysql -u quizuser -p quizdb < backup.sql
+docker compose exec -T db mariadb -u quizuser -p quizdb < backup.sql
 
 # Restaurer les fichiers
 tar -xzf uploads.tar.gz
@@ -168,7 +168,7 @@ tar -xzf uploads.tar.gz
 ```bash
 # 1. Sauvegarder (Administration > Paramètres > Télécharger une sauvegarde),
 #    ou en ligne de commande :
-docker compose exec db sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE"' > avant-mise-a-jour.sql
+docker compose exec db sh -c 'mariadb-dump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE"' > avant-mise-a-jour.sql
 
 # 2. Récupérer les mises à jour, reconstruire et redémarrer
 git pull origin main
@@ -177,13 +177,17 @@ docker compose up -d --build
 
 Les migrations de schéma s'appliquent seules au démarrage (`scripts/migrate_db.py`) : pas de commande à lancer.
 
-### Passage de MySQL 8.0 à 8.4
+### Passage de MySQL à MariaDB
 
-MySQL 8.0 n'est plus maintenu depuis avril 2026 ; `docker-compose.yml` utilise désormais `mysql:8.4` (LTS). Au premier démarrage, MySQL convertit lui-même la base existante (quelques secondes, visible dans `docker compose logs db` : « Server upgrade from '80xxx' to '804xx' completed »).
+La base de données est désormais MariaDB (`mariadb:12.3`, LTS) : plus légère que MySQL (~90 Mo contre ~175 Mo), entièrement communautaire, et cohérente avec l'outil de sauvegarde de l'image. Les fichiers de MySQL ne sont pas lisibles par MariaDB : la migration passe par une sauvegarde, que l'application réimporte elle-même.
 
-- **Conversion irréversible** : une base passée en 8.4 ne peut plus être relue par MySQL 8.0. La sauvegarde de l'étape 1 est le seul retour arrière (la restaurer dans un conteneur 8.0).
-- Les comptes MySQL créés par l'image Docker utilisent `caching_sha2_password`, toujours pris en charge en 8.4. Seul un compte créé à la main avec `mysql_native_password` (désactivé par défaut en 8.4) ne pourrait plus se connecter.
-- Les sauvegardes et restaurations de l'application fonctionnent en 8.4, y compris la restauration d'une sauvegarde faite en 8.0.
+1. **Avant la mise à jour**, sur l'ancienne version : *Paramètres > Télécharger une sauvegarde* (fichier `.tar.gz`, base + fichiers envoyés).
+2. **Mettre à jour** : `git pull` puis `docker compose up -d --build`. MariaDB démarre sur un nouveau volume `mariadb_data`, vide ; l'application y crée le schéma et le compte `admin` (mot de passe `ADMIN_DEFAULT_PASSWORD` du `.env`).
+3. **Se connecter avec `admin`**, puis *Paramètres > Restaurer depuis un fichier* avec la sauvegarde de l'étape 1, en tapant `RESTAURER`. L'application importe la base, applique les migrations, puis vous déconnecte : reconnectez-vous avec vos comptes habituels.
+
+Retour arrière : l'ancien volume `mysql_data` n'est ni modifié ni supprimé. Il suffit de revenir à la version précédente du dépôt (`mysql` dans `docker-compose.yml`) pour le retrouver tel quel. Une fois la migration validée, il peut être supprimé : `docker volume rm <projet>_mysql_data`.
+
+Testé sur une sauvegarde de production (MySQL 8.0.44 vers MariaDB 12.3) : contenu identique, table par table, et toutes les pages fonctionnelles.
 
 ## Dépannage
 

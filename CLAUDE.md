@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BrainNotFound is a Flask-based web application for creating and evaluating quizzes with AI-powered grading. Teachers create quizzes in Markdown format, MCQ questions are graded automatically, and open-ended questions are graded by Claude AI with feedback.
 
-**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MySQL 8.4 LTS, Anthropic Claude API, Docker
+**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MariaDB 12.3 LTS (MySQL-compatible), Anthropic Claude API, Docker
 
 ## Commands
 
@@ -19,7 +19,7 @@ BrainNotFound is a Flask-based web application for creating and evaluating quizz
 docker-compose up -d           # Start services
 docker-compose down            # Stop services
 docker-compose logs -f web     # View Flask logs
-docker-compose exec db mysql -u quizuser -pquizpassword quizdb  # Access database
+docker compose exec db mariadb -u quizuser -p quizdb  # Access database
 
 # Local development (no Docker)
 pip install -r requirements.txt

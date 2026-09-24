@@ -76,12 +76,12 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 
 ### Ressources serveur
 
-Mesures sur la pile Docker complète (application + MySQL 8.4), avec un établissement de 600 apprenants et 6 000 copies :
+Mesures sur la pile Docker complète (application + MariaDB 12.3), avec un établissement de 600 apprenants et 6 000 copies :
 
 | | Au repos | En charge (20 utilisateurs en continu) |
 |---|---|---|
 | Application | ~100 Mo | ~125 Mo, 1 cœur |
-| MySQL (config `docker/mysql/low-memory.cnf`) | ~115 Mo | ~175 Mo |
+| MariaDB (config `docker/mariadb/low-memory.cnf`) | ~70 Mo | ~170 Mo |
 
 - **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go + données).
 - **Confortable** : 2 vCPU, 2 Go de RAM.
@@ -273,7 +273,7 @@ GRADING_PROMPT_TEMPLATE = {
 ## Technologies
 
 - **Backend** : Flask 3.x, SQLAlchemy, Flask-SocketIO, Flask-Babel
-- **Base de données** : MySQL 8.4 LTS
+- **Base de données** : MariaDB 12.3 LTS
 - **IA** : Anthropic Claude API
 - **Temps réel** : WebSocket (gevent)
 - **Planification** : APScheduler

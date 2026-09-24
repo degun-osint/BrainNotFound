@@ -166,19 +166,19 @@ class Tenant(db.Model):
 
     def can_add_user(self):
         """Vérifie si on peut ajouter un utilisateur."""
-        if self.max_users <= 0:
+        if not self.max_users or self.max_users <= 0:
             return True
         return self.get_users_count() < self.max_users
 
     def can_add_quiz(self):
         """Vérifie si on peut ajouter un quiz."""
-        if self.max_quizzes <= 0:
+        if not self.max_quizzes or self.max_quizzes <= 0:
             return True
         return self.get_quizzes_count() < self.max_quizzes
 
     def can_add_group(self):
         """Vérifie si on peut ajouter un groupe."""
-        if self.max_groups <= 0:
+        if not self.max_groups or self.max_groups <= 0:
             return True
         return self.get_groups_count() < self.max_groups
 
@@ -209,15 +209,15 @@ class Tenant(db.Model):
             },
             'users': {
                 'current': self.get_users_count(),
-                'max': self.max_users if self.max_users > 0 else None
+                'max': self.max_users if self.max_users and self.max_users > 0 else None
             },
             'quizzes': {
                 'current': self.get_quizzes_count(),
-                'max': self.max_quizzes if self.max_quizzes > 0 else None
+                'max': self.max_quizzes if self.max_quizzes and self.max_quizzes > 0 else None
             },
             'groups': {
                 'current': self.get_groups_count(),
-                'max': self.max_groups if self.max_groups > 0 else None
+                'max': self.max_groups if self.max_groups and self.max_groups > 0 else None
             }
         }
 
@@ -296,7 +296,7 @@ class Tenant(db.Model):
         if not limit or limit <= 0:
             return True  # None or 0 = unlimited
         self._check_reset_usage()
-        return getattr(self, used_field) + count <= limit
+        return (getattr(self, used_field) or 0) + count <= limit
 
     def increment_usage(self, kind, count=1):
         """Atomically add to a usage counter and commit (safe with concurrent grading tasks)."""
@@ -304,7 +304,7 @@ class Tenant(db.Model):
         used_field = self.USAGE_FIELDS[kind][1]
         column = getattr(Tenant, used_field)
         Tenant.query.filter(Tenant.id == self.id).update(
-            {used_field: column + count}, synchronize_session=False
+            {used_field: db.func.coalesce(column, 0) + count}, synchronize_session=False
         )
         db.session.commit()
         db.session.refresh(self)
@@ -339,20 +339,20 @@ class Tenant(db.Model):
         self._check_reset_usage()
         return {
             'corrections': {
-                'used': self.used_ai_corrections,
-                'limit': self.monthly_ai_corrections if self.monthly_ai_corrections > 0 else None
+                'used': self.used_ai_corrections or 0,
+                'limit': self.monthly_ai_corrections if self.monthly_ai_corrections and self.monthly_ai_corrections > 0 else None
             },
             'generations': {
-                'used': self.used_quiz_generations,
-                'limit': self.monthly_quiz_generations if self.monthly_quiz_generations > 0 else None
+                'used': self.used_quiz_generations or 0,
+                'limit': self.monthly_quiz_generations if self.monthly_quiz_generations and self.monthly_quiz_generations > 0 else None
             },
             'analyses': {
-                'used': self.used_class_analyses,
-                'limit': self.monthly_class_analyses if self.monthly_class_analyses > 0 else None
+                'used': self.used_class_analyses or 0,
+                'limit': self.monthly_class_analyses if self.monthly_class_analyses and self.monthly_class_analyses > 0 else None
             },
             'interviews': {
-                'used': self.used_interviews,
-                'limit': self.monthly_interviews if self.monthly_interviews > 0 else None
+                'used': self.used_interviews or 0,
+                'limit': self.monthly_interviews if self.monthly_interviews and self.monthly_interviews > 0 else None
             }
         }
 
@@ -370,9 +370,10 @@ class Tenant(db.Model):
 
         # Calculer les quotas critiques
         critical_quotas = []
-        threshold = self.quota_alert_threshold
+        threshold = self.quota_alert_threshold if self.quota_alert_threshold is not None else 10
 
         def check_quota(name, used, limit):
+            used = used or 0
             if limit and limit > 0:
                 remaining_pct = ((limit - used) / limit) * 100
                 if remaining_pct <= threshold:

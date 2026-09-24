@@ -2990,6 +2990,7 @@ def _finish_restore(ok, message):
     from flask_login import logout_user
     from app.utils.db_schema import upgrade_schema
 
+    admin = current_user.username if current_user.is_authenticated else '?'
     if ok:
         try:
             message += '. ' + upgrade_schema()
@@ -2998,7 +2999,7 @@ def _finish_restore(ok, message):
             ok, message = False, f"{message}. Schema upgrade failed, restart the container: {e}"
         db.session.remove()
         logout_user()
-    current_app.logger.warning(f"Backup restore by {current_user.get_id() if current_user.is_authenticated else '?'}: {message}")
+    current_app.logger.warning(f"Backup restore by {admin}: {message}")
     return ok, message
 
 
