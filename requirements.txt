@@ -10,6 +10,7 @@ cryptography==46.0.3
 python-dotenv==1.2.1
 markdown==3.10
 anthropic>=0.75.0
+openai>=2.0.0  # OpenAI-compatible providers (Mistral, Gemini, Ollama...)
 gunicorn==23.0.0
 gevent==24.11.1
 gevent-websocket==0.10.1

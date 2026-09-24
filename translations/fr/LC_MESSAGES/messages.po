@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 09:55+0200\n"
+"POT-Creation-Date: 2026-09-24 10:05+0200\n"
 "PO-Revision-Date: 2024-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -255,7 +255,7 @@ msgid "%(role)s \"%(username)s\" cree avec succes"
 msgstr ""
 
 #: app/routes/admin.py:1796 app/routes/admin.py:1801 app/routes/admin.py:2384
-#: app/routes/admin.py:2865
+#: app/routes/admin.py:2897
 msgid "Aucun fichier selectionne"
 msgstr ""
 
@@ -406,62 +406,76 @@ msgstr ""
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2648
+#: app/routes/admin.py:2639
 msgid "Parametres sauvegardes avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2687
+#: app/routes/admin.py:2665
+msgid "URL du fournisseur requise"
+msgstr ""
+
+#: app/routes/admin.py:2667
+msgid "Modele requis pour ce fournisseur"
+msgstr ""
+
+#: app/routes/admin.py:2669
+msgid "Configuration non enregistree : utilisation de Grok non confirmee"
+msgstr ""
+
+#: app/routes/admin.py:2718
 #, python-format
-msgid "Modele Claude inconnu : %(model)s. Modele non modifie."
+msgid ""
+"Modele inconnu chez ce fournisseur : %(model)s. Configuration non "
+"modifiee."
 msgstr ""
 
-#: app/routes/admin.py:2705
-msgid "Cle API refusee par Anthropic"
+#: app/routes/admin.py:2737
+msgid "Cle API refusee par le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2709
-msgid "Impossible de joindre l'API Anthropic"
+#: app/routes/admin.py:2739
+msgid "Impossible de joindre le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2711
-msgid "Aucune cle API configuree"
+#: app/routes/admin.py:2743
+msgid "Configuration incomplete (cle ou URL manquante)"
 msgstr ""
 
-#: app/routes/admin.py:2831 app/routes/admin.py:2868
-#: app/templates/admin/settings.html:321
+#: app/routes/admin.py:2863 app/routes/admin.py:2900
+#: app/templates/admin/settings.html:351
 msgid "Tapez RESTAURER pour confirmer"
 msgstr ""
 
-#: app/routes/admin.py:2873
+#: app/routes/admin.py:2905
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr ""
 
-#: app/routes/admin.py:2923 app/routes/admin.py:2987
+#: app/routes/admin.py:2955 app/routes/admin.py:3019
 #: app/routes/interview.py:563
 msgid "Le titre est requis"
 msgstr ""
 
-#: app/routes/admin.py:2933 app/routes/admin.py:2997
+#: app/routes/admin.py:2965 app/routes/admin.py:3029
 msgid "Ce slug existe deja"
 msgstr ""
 
-#: app/routes/admin.py:2938 app/routes/admin.py:3002
+#: app/routes/admin.py:2970 app/routes/admin.py:3034
 msgid "Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
 msgstr ""
 
-#: app/routes/admin.py:2953
+#: app/routes/admin.py:2985
 msgid "Page creee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2969 app/routes/admin.py:3030 app/routes/admin.py:3048
+#: app/routes/admin.py:3001 app/routes/admin.py:3062 app/routes/admin.py:3080
 msgid "Page introuvable"
 msgstr ""
 
-#: app/routes/admin.py:3015
+#: app/routes/admin.py:3047
 msgid "Page modifiee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:3035
+#: app/routes/admin.py:3067
 msgid "Page supprimee avec succes"
 msgstr ""
 
@@ -999,7 +1013,7 @@ msgid "Statistiques par question"
 msgstr ""
 
 #: app/templates/admin/class_analysis.html:356
-#: app/templates/admin/settings.html:513 app/templates/quiz/dashboard.html:200
+#: app/templates/admin/settings.html:575 app/templates/quiz/dashboard.html:200
 msgid "Type"
 msgstr ""
 
@@ -1089,9 +1103,9 @@ msgstr ""
 #: app/templates/admin/edit_quiz.html:324
 #: app/templates/admin/interviews/wizard.html:863
 #: app/templates/admin/response_analysis.html:486
-#: app/templates/admin/settings.html:397 app/templates/admin/settings.html:429
-#: app/templates/admin/settings.html:466 app/templates/admin/settings.html:489
-#: app/templates/admin/settings.html:492 app/templates/admin/settings.html:546
+#: app/templates/admin/settings.html:459 app/templates/admin/settings.html:491
+#: app/templates/admin/settings.html:528 app/templates/admin/settings.html:551
+#: app/templates/admin/settings.html:554 app/templates/admin/settings.html:608
 msgid "Erreur:"
 msgstr ""
 
@@ -1494,7 +1508,7 @@ msgid "Nom"
 msgstr ""
 
 #: app/templates/admin/create_user.html:22
-#: app/templates/admin/edit_user.html:24 app/templates/admin/settings.html:126
+#: app/templates/admin/edit_user.html:24 app/templates/admin/settings.html:156
 #: app/templates/auth/login.html:22 app/templates/auth/profile.html:29
 #: app/templates/auth/register.html:24
 msgid "Nom d'utilisateur"
@@ -1509,7 +1523,7 @@ msgid "Email"
 msgstr ""
 
 #: app/templates/admin/create_user.html:32
-#: app/templates/admin/settings.html:132 app/templates/auth/login.html:27
+#: app/templates/admin/settings.html:162 app/templates/auth/login.html:27
 #: app/templates/auth/profile.html:80 app/templates/auth/profile.html:218
 #: app/templates/auth/register.html:47
 msgid "Mot de passe"
@@ -2019,7 +2033,7 @@ msgstr ""
 msgid "Nouveau mot de passe"
 msgstr ""
 
-#: app/templates/admin/edit_user.html:68 app/templates/admin/settings.html:44
+#: app/templates/admin/edit_user.html:68 app/templates/admin/settings.html:71
 msgid "Laisser vide pour ne pas modifier"
 msgstr ""
 
@@ -2138,7 +2152,7 @@ msgstr ""
 #: app/templates/admin/interviews/import.html:9
 #: app/templates/admin/interviews/session.html:83
 #: app/templates/admin/interviews/view.html:16
-#: app/templates/admin/settings.html:265 app/templates/interview/start.html:95
+#: app/templates/admin/settings.html:295 app/templates/interview/start.html:95
 msgid "Retour"
 msgstr ""
 
@@ -2360,7 +2374,7 @@ msgstr ""
 msgid "Creer un groupe dans"
 msgstr ""
 
-#: app/templates/admin/groups.html:49 app/templates/admin/settings.html:509
+#: app/templates/admin/groups.html:49 app/templates/admin/settings.html:571
 #: app/templates/admin/tenants/groups.html:25
 msgid "Complet"
 msgstr ""
@@ -2410,7 +2424,7 @@ msgstr ""
 
 #: app/templates/admin/groups.html:76
 #: app/templates/admin/interviews/list.html:126
-#: app/templates/admin/quizzes.html:125 app/templates/admin/settings.html:104
+#: app/templates/admin/quizzes.html:125 app/templates/admin/settings.html:134
 #: app/templates/admin/tenants/groups.html:49
 msgid "Activer"
 msgstr ""
@@ -2544,7 +2558,7 @@ msgid "Importer"
 msgstr ""
 
 #: app/templates/admin/pages.html:3 app/templates/admin/pages.html:7
-#: app/templates/admin/settings.html:84
+#: app/templates/admin/settings.html:114
 msgid "Pages personnalisees"
 msgstr ""
 
@@ -2564,7 +2578,7 @@ msgstr ""
 #: app/templates/admin/interviews/view.html:57
 #: app/templates/admin/interviews/view.html:185
 #: app/templates/admin/interviews/wizard.html:452
-#: app/templates/admin/pages.html:22 app/templates/admin/settings.html:227
+#: app/templates/admin/pages.html:22 app/templates/admin/settings.html:257
 #: app/templates/admin/user_grades.html:51
 msgid "Statut"
 msgstr ""
@@ -3135,7 +3149,7 @@ msgid "Email affiche pour le support et les notifications"
 msgstr ""
 
 #: app/templates/admin/settings.html:34
-msgid "Intelligence artificielle (Claude)"
+msgid "Intelligence artificielle"
 msgstr ""
 
 #: app/templates/admin/settings.html:38
@@ -3145,339 +3159,380 @@ msgid ""
 msgstr ""
 
 #: app/templates/admin/settings.html:42
-msgid "Cle API Anthropic"
+msgid "Fournisseur"
 msgstr ""
 
-#: app/templates/admin/settings.html:47
-msgid "Cle actuelle : definie ici"
+#: app/templates/admin/settings.html:44
+msgid "Anthropic Claude (recommande)"
+msgstr ""
+
+#: app/templates/admin/settings.html:45
+msgid "Compatible OpenAI (OpenAI, Mistral, Gemini, OpenRouter, Ollama...)"
 msgstr ""
 
 #: app/templates/admin/settings.html:49
+msgid ""
+"Les prompts (correction, entretiens, generation) sont optimises et testes"
+" avec Claude. Avec un autre modele, la qualite des corrections peut "
+"baisser : testez avant de l'utiliser avec des apprenants."
+msgstr ""
+
+#: app/templates/admin/settings.html:54
+msgid "URL du fournisseur"
+msgstr ""
+
+#: app/templates/admin/settings.html:63
+msgid "Ollama (local)"
+msgstr ""
+
+#: app/templates/admin/settings.html:65
+msgid ""
+"Changer de fournisseur ou d'URL efface la cle enregistree, pour qu'elle "
+"ne soit jamais envoyee a un autre serveur."
+msgstr ""
+
+#: app/templates/admin/settings.html:69
+msgid "Cle API"
+msgstr ""
+
+#: app/templates/admin/settings.html:74
+msgid "Cle actuelle : definie ici"
+msgstr ""
+
+#: app/templates/admin/settings.html:76
 msgid "Cle actuelle : fichier .env"
 msgstr ""
 
-#: app/templates/admin/settings.html:51
+#: app/templates/admin/settings.html:78
 msgid "Aucune cle configuree : les fonctions IA sont indisponibles."
 msgstr ""
 
-#: app/templates/admin/settings.html:55
+#: app/templates/admin/settings.html:80
+msgid "Aucune cle (normal pour un serveur local comme Ollama)"
+msgstr ""
+
+#: app/templates/admin/settings.html:84
 msgid ""
 "La cle enregistree ne peut pas etre dechiffree (SECRET_KEY modifiee ?). "
 "Saisissez-la a nouveau."
 msgstr ""
 
-#: app/templates/admin/settings.html:60
+#: app/templates/admin/settings.html:89
 msgid "Supprimer la cle enregistree (revenir au .env)"
 msgstr ""
 
-#: app/templates/admin/settings.html:66
+#: app/templates/admin/settings.html:95
 msgid "Modele"
 msgstr ""
 
-#: app/templates/admin/settings.html:72
+#: app/templates/admin/settings.html:101
 msgid "Tester et lister les modeles"
 msgstr ""
 
-#: app/templates/admin/settings.html:75
+#: app/templates/admin/settings.html:104
 msgid "Vide = modele du .env"
 msgstr ""
 
-#: app/templates/admin/settings.html:86
+#: app/templates/admin/settings.html:116
 msgid "Gerer les pages"
 msgstr ""
 
-#: app/templates/admin/settings.html:91
+#: app/templates/admin/settings.html:121
 msgid ""
 "Creez des pages personnalisees (mentions legales, CGU, a propos, etc.) en"
 " Markdown."
 msgstr ""
 
-#: app/templates/admin/settings.html:92
+#: app/templates/admin/settings.html:122
 msgid "Ces pages peuvent etre affichees dans le menu ou le footer du site."
 msgstr ""
 
-#: app/templates/admin/settings.html:100
+#: app/templates/admin/settings.html:130
 msgid "Sauvegardes automatiques"
 msgstr ""
 
-#: app/templates/admin/settings.html:112
+#: app/templates/admin/settings.html:142
 msgid "Serveur FTP"
 msgstr ""
 
-#: app/templates/admin/settings.html:118
+#: app/templates/admin/settings.html:148
 msgid "Port"
 msgstr ""
 
-#: app/templates/admin/settings.html:134
+#: app/templates/admin/settings.html:164
 msgid "Inchange"
 msgstr ""
 
-#: app/templates/admin/settings.html:134
+#: app/templates/admin/settings.html:164
 msgid "Non defini"
 msgstr ""
 
-#: app/templates/admin/settings.html:136
+#: app/templates/admin/settings.html:166
 msgid "Laissez vide pour conserver l'actuel"
 msgstr ""
 
-#: app/templates/admin/settings.html:142
+#: app/templates/admin/settings.html:172
 msgid "Chemin distant"
 msgstr ""
 
-#: app/templates/admin/settings.html:150
+#: app/templates/admin/settings.html:180
 msgid "Utiliser FTPS (TLS)"
 msgstr ""
 
-#: app/templates/admin/settings.html:152
+#: app/templates/admin/settings.html:182
 msgid "Recommande pour la securite"
 msgstr ""
 
-#: app/templates/admin/settings.html:158
+#: app/templates/admin/settings.html:188
 msgid "Tester la connexion"
 msgstr ""
 
-#: app/templates/admin/settings.html:166
+#: app/templates/admin/settings.html:196
 msgid "Planification"
 msgstr ""
 
-#: app/templates/admin/settings.html:170
+#: app/templates/admin/settings.html:200
 msgid "Frequence"
 msgstr ""
 
-#: app/templates/admin/settings.html:172
+#: app/templates/admin/settings.html:202
 msgid "Toutes les heures"
 msgstr ""
 
-#: app/templates/admin/settings.html:173
+#: app/templates/admin/settings.html:203
 msgid "Quotidien"
 msgstr ""
 
-#: app/templates/admin/settings.html:174
+#: app/templates/admin/settings.html:204
 msgid "Hebdomadaire"
 msgstr ""
 
-#: app/templates/admin/settings.html:179
+#: app/templates/admin/settings.html:209
 msgid "Heure (0-23)"
 msgstr ""
 
-#: app/templates/admin/settings.html:185
+#: app/templates/admin/settings.html:215
 msgid "Jour de la semaine"
 msgstr ""
 
-#: app/templates/admin/settings.html:187
+#: app/templates/admin/settings.html:217
 msgid "Lundi"
 msgstr ""
 
-#: app/templates/admin/settings.html:188
+#: app/templates/admin/settings.html:218
 msgid "Mardi"
 msgstr ""
 
-#: app/templates/admin/settings.html:189
+#: app/templates/admin/settings.html:219
 msgid "Mercredi"
 msgstr ""
 
-#: app/templates/admin/settings.html:190
+#: app/templates/admin/settings.html:220
 msgid "Jeudi"
 msgstr ""
 
-#: app/templates/admin/settings.html:191
+#: app/templates/admin/settings.html:221
 msgid "Vendredi"
 msgstr ""
 
-#: app/templates/admin/settings.html:192
+#: app/templates/admin/settings.html:222
 msgid "Samedi"
 msgstr ""
 
-#: app/templates/admin/settings.html:193
+#: app/templates/admin/settings.html:223
 msgid "Dimanche"
 msgstr ""
 
-#: app/templates/admin/settings.html:199
+#: app/templates/admin/settings.html:229
 msgid "Conservation (jours)"
 msgstr ""
 
-#: app/templates/admin/settings.html:202
+#: app/templates/admin/settings.html:232
 msgid "Les sauvegardes plus anciennes seront supprimees automatiquement"
 msgstr ""
 
-#: app/templates/admin/settings.html:208
+#: app/templates/admin/settings.html:238
 msgid "Prochaine sauvegarde prevue :"
 msgstr ""
 
-#: app/templates/admin/settings.html:218
+#: app/templates/admin/settings.html:248
 msgid "Derniere sauvegarde"
 msgstr ""
 
 #: app/templates/admin/interviews/view.html:181
-#: app/templates/admin/settings.html:223 app/templates/admin/settings.html:513
+#: app/templates/admin/settings.html:253 app/templates/admin/settings.html:575
 #: app/templates/admin/user_grades.html:49
 #: app/templates/quiz/dashboard.html:203
 msgid "Date"
 msgstr ""
 
-#: app/templates/admin/settings.html:229
+#: app/templates/admin/settings.html:259
 msgid "Succes"
 msgstr ""
 
-#: app/templates/admin/settings.html:231
+#: app/templates/admin/settings.html:261
 msgid "Echec"
 msgstr ""
 
-#: app/templates/admin/settings.html:235 app/templates/admin/settings.html:513
+#: app/templates/admin/settings.html:265 app/templates/admin/settings.html:575
 msgid "Taille"
 msgstr ""
 
-#: app/templates/admin/settings.html:251
+#: app/templates/admin/settings.html:281
 msgid "Message:"
 msgstr ""
 
-#: app/templates/admin/settings.html:262
+#: app/templates/admin/settings.html:292
 msgid "Enregistrer les parametres"
 msgstr ""
 
-#: app/templates/admin/settings.html:273
+#: app/templates/admin/settings.html:303
 msgid "Sauvegarde et restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:278
+#: app/templates/admin/settings.html:308
 msgid "Les sauvegardes incluent la"
 msgstr ""
 
-#: app/templates/admin/settings.html:278
+#: app/templates/admin/settings.html:308
 msgid "base de donnees"
 msgstr ""
 
-#: app/templates/admin/settings.html:278
+#: app/templates/admin/settings.html:308
 msgid "et les"
 msgstr ""
 
-#: app/templates/admin/settings.html:278
+#: app/templates/admin/settings.html:308
 msgid "fichiers uploades"
 msgstr ""
 
-#: app/templates/admin/settings.html:278
+#: app/templates/admin/settings.html:308
 msgid "(images, PDF des quiz)."
 msgstr ""
 
-#: app/templates/admin/settings.html:282
+#: app/templates/admin/settings.html:312
 msgid "Lancer une sauvegarde maintenant"
 msgstr ""
 
-#: app/templates/admin/settings.html:287
+#: app/templates/admin/settings.html:317
 msgid "Telecharger une sauvegarde"
 msgstr ""
 
-#: app/templates/admin/settings.html:291 app/templates/admin/settings.html:551
+#: app/templates/admin/settings.html:321 app/templates/admin/settings.html:613
 msgid "Voir l'historique"
 msgstr ""
 
-#: app/templates/admin/settings.html:296
+#: app/templates/admin/settings.html:326
 msgid ""
 "Sans FTP, les sauvegardes manuelles sont conservees sur le serveur "
 "(dossier backups/)."
 msgstr ""
 
-#: app/templates/admin/settings.html:302 app/templates/admin/settings.html:534
+#: app/templates/admin/settings.html:332 app/templates/admin/settings.html:596
 msgid "Chargement..."
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:338
 msgid "Restaurer depuis un fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:311
+#: app/templates/admin/settings.html:341
 msgid ""
 "La restauration remplace toutes les donnees actuelles. Une sauvegarde de "
 "l'etat actuel est faite automatiquement juste avant, et restauree si "
 "l'operation echoue. Vous serez deconnecte a la fin."
 msgstr ""
 
-#: app/templates/admin/settings.html:317
+#: app/templates/admin/settings.html:347
 msgid "Fichier de sauvegarde"
 msgstr ""
 
-#: app/templates/admin/settings.html:326
+#: app/templates/admin/settings.html:356
 msgid "Restaurer ce fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:370 app/templates/admin/settings.html:409
+#: app/templates/admin/settings.html:415
+msgid "Etes-vous certain de vouloir utiliser une IA faite par un fasciste ?"
+msgstr ""
+
+#: app/templates/admin/settings.html:428 app/templates/admin/settings.html:471
 msgid "Test en cours..."
 msgstr ""
 
-#: app/templates/admin/settings.html:390
+#: app/templates/admin/settings.html:452
 msgid "Cle valide."
 msgstr ""
 
-#: app/templates/admin/settings.html:390
+#: app/templates/admin/settings.html:452
 msgid "modele(s) disponible(s) dans la liste."
 msgstr ""
 
-#: app/templates/admin/settings.html:441
+#: app/templates/admin/settings.html:503
 msgid "Lancer une sauvegarde maintenant ?"
 msgstr ""
 
-#: app/templates/admin/settings.html:444
+#: app/templates/admin/settings.html:506
 msgid "Sauvegarde en cours..."
 msgstr ""
 
-#: app/templates/admin/settings.html:475
+#: app/templates/admin/settings.html:537
 msgid ""
 "La restauration remplace toutes les donnees actuelles (un instantane de "
 "l'etat actuel est garde). Tapez RESTAURER pour confirmer :"
 msgstr ""
 
-#: app/templates/admin/settings.html:478
+#: app/templates/admin/settings.html:540
 msgid "Restauration..."
 msgstr ""
 
-#: app/templates/admin/settings.html:489
+#: app/templates/admin/settings.html:551
 msgid "Restauration reussie !"
 msgstr ""
 
-#: app/templates/admin/settings.html:495 app/templates/admin/settings.html:517
+#: app/templates/admin/settings.html:557 app/templates/admin/settings.html:579
 msgid "Restaurer"
 msgstr ""
 
-#: app/templates/admin/settings.html:506
+#: app/templates/admin/settings.html:568
 msgid "Aucune sauvegarde trouvee"
 msgstr ""
 
-#: app/templates/admin/settings.html:510
+#: app/templates/admin/settings.html:572
 msgid "Etat sauvegarde automatiquement avant une restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:510
+#: app/templates/admin/settings.html:572
 msgid "Avant restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:511
+#: app/templates/admin/settings.html:573
 msgid "BDD seule"
 msgstr ""
 
 #: app/templates/admin/interviews/session.html:165
-#: app/templates/admin/settings.html:513
+#: app/templates/admin/settings.html:575
 msgid "Fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:513
+#: app/templates/admin/settings.html:575
 #: app/templates/admin/user_grades.html:52
 #: app/templates/quiz/dashboard.html:204
 msgid "Action"
 msgstr ""
 
-#: app/templates/admin/settings.html:520
+#: app/templates/admin/settings.html:582
 msgid "Telecharger"
 msgstr ""
 
-#: app/templates/admin/settings.html:538
+#: app/templates/admin/settings.html:600
 msgid "Sur ce serveur"
 msgstr ""
 
-#: app/templates/admin/settings.html:539
+#: app/templates/admin/settings.html:601
 msgid "Sur le FTP"
 msgstr ""
 
-#: app/templates/admin/settings.html:548
+#: app/templates/admin/settings.html:610
 msgid "Masquer l'historique"
 msgstr ""
 
@@ -5890,5 +5945,23 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "La page va se recharger."
+#~ msgstr ""
+
+#~ msgid "Modele Claude inconnu : %(model)s. Modele non modifie."
+#~ msgstr ""
+
+#~ msgid "Cle API refusee par Anthropic"
+#~ msgstr ""
+
+#~ msgid "Impossible de joindre l'API Anthropic"
+#~ msgstr ""
+
+#~ msgid "Aucune cle API configuree"
+#~ msgstr ""
+
+#~ msgid "Intelligence artificielle (Claude)"
+#~ msgstr ""
+
+#~ msgid "Cle API Anthropic"
 #~ msgstr ""
 

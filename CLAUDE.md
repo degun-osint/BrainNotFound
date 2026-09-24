@@ -27,6 +27,12 @@ export FLASK_APP=wsgi.py
 flask run
 ```
 
+### Tests
+```bash
+pip install -r requirements-dev.txt
+pytest tests          # SQLite in memory, no MySQL/API key needed
+```
+
 ### Configuration Verification
 ```bash
 ./test_setup.sh
@@ -72,13 +78,13 @@ Quiz → [1:N] → Question
 Question → [1:N] → Answer
 ```
 
-## Claude AI Integration
+## LLM Integration
 
-Located in `app/utils/claude_grader.py`:
-- Model configurable via `CLAUDE_MODEL` env var (default: `claude-sonnet-4-20250514`)
-- Grading prompt compares student answer to expected answer
-- Returns score (0 to max_points) and constructive feedback in French
-- Handles API errors gracefully with logging
+All LLM calls go through `app/utils/ai_client.py` (`complete()`):
+- Providers: `anthropic` (default, recommended, keeps prompt caching) or `openai_compatible` (any Chat Completions server: OpenAI, Mistral, Gemini, OpenRouter, Ollama...)
+- Provider, base URL, model and API key are editable in Admin > Settings and read on every call (no restart); env vars are the fallback
+- Prompts are tuned for Claude; `parse_json()` tolerates chatty models
+- Grading prompt compares student answer to expected answer and returns `{score, feedback}` in French
 
 ## Environment Variables
 
@@ -87,6 +93,7 @@ Required in `.env`:
 - `ANTHROPIC_API_KEY` - For AI grading
 - `DATABASE_URL` - MySQL connection string
 - `CLAUDE_MODEL` - Claude model to use (default: `claude-sonnet-4-20250514`)
+- `AI_PROVIDER`, `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` - optional non-Anthropic provider
 
 ## Internationalization (i18n)
 

@@ -5,7 +5,7 @@ Analyzes timing data and focus events to detect potential cheating.
 
 import json
 import re
-from app.utils.ai_client import get_client, get_model, extract_text
+from app.utils.ai_client import complete
 from app.models.quiz import QuizResponse, Answer
 from app import db
 from .prompt_loader import get_anomaly_prompts
@@ -147,7 +147,6 @@ def analyze_quiz_response(response_id):
 
     # Call Claude for analysis
     try:
-        client = get_client()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
@@ -157,14 +156,9 @@ def analyze_quiz_response(response_id):
             context=json.dumps(context, indent=2, ensure_ascii=False)
         )
 
-        message = client.messages.create(
-            model=get_model(),
-            max_tokens=8000,  # Increased for detailed pedagogical analysis
-            messages=[{"role": "user", "content": prompt}]
-        )
+        response_text = complete([{"role": "user", "content": prompt}], max_tokens=8000)
 
         # Parse response
-        response_text = extract_text(message)
 
         # Try to extract JSON if wrapped in markdown code blocks
         if '```json' in response_text:
@@ -536,7 +530,6 @@ def analyze_class(quiz_id):
 
     # Call Claude for analysis
     try:
-        client = get_client()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
@@ -546,13 +539,7 @@ def analyze_class(quiz_id):
             context=json.dumps(context, indent=2, ensure_ascii=False)
         )
 
-        message = client.messages.create(
-            model=get_model(),
-            max_tokens=8000,  # Increased for detailed class analysis
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        response_text = extract_text(message)
+        response_text = complete([{"role": "user", "content": prompt}], max_tokens=8000)
 
         # Extract JSON
         if '```json' in response_text:

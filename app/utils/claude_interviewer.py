@@ -7,7 +7,7 @@ import re
 from flask import current_app
 from typing import Dict, List, Optional
 from .prompt_loader import get_interview_prompts
-from .ai_client import get_client, get_model, extract_text
+from .ai_client import complete
 
 
 class ClaudeInterviewer:
@@ -16,9 +16,8 @@ class ClaudeInterviewer:
     # End signal marker
     END_SIGNAL = '[INTERVIEW_COMPLETE]'
 
-    def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.model = model or get_model()
-        self.client = get_client(api_key)
+    def __init__(self, model: str = None, lang: str = None):
+        self.model = model  # None = model configured in the admin settings
         self.lang = lang or 'fr'
         self.prompts = get_interview_prompts(lang=self.lang)
 
@@ -54,12 +53,7 @@ class ClaudeInterviewer:
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=4096,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return extract_text(message)
+            return complete([{"role": "user", "content": prompt}], max_tokens=4096, model=self.model)
 
         except Exception as e:
             current_app.logger.error(f"System prompt generation error: {str(e)}")
@@ -79,12 +73,7 @@ class ClaudeInterviewer:
         prompt = template.format(system_prompt=system_prompt)
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=4096,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return extract_text(message)
+            return complete([{"role": "user", "content": prompt}], max_tokens=4096, model=self.model)
 
         except Exception as e:
             current_app.logger.error(f"Opening message generation error: {str(e)}")
@@ -128,20 +117,13 @@ class ClaudeInterviewer:
         messages = self._build_conversation_context(session, user_message)
 
         try:
-            response = self.client.messages.create(
-                model=self.model,
+            # cache_control is used by Anthropic and ignored by other providers
+            response_text = complete(
+                messages,
+                system=[{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}],
                 max_tokens=4096,
-                system=[
-                    {
-                        "type": "text",
-                        "text": system_prompt,
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ],
-                messages=messages
+                model=self.model,
             )
-
-            response_text = extract_text(response)
 
             # Check for end signal
             end_signal = self.END_SIGNAL in response_text
@@ -217,13 +199,7 @@ class ClaudeInterviewer:
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-            response_text = extract_text(message)
+            response_text = complete([{"role": "user", "content": prompt}], max_tokens=2048, model=self.model)
 
             # Parse JSON response
             result = self._parse_json_response(response_text)

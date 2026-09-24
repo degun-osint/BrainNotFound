@@ -2618,18 +2618,9 @@ def site_settings():
             if new_password:
                 settings.set_ftp_password(new_password)
 
-            # Claude API: key only replaced when a new one is typed
-            if request.form.get('clear_anthropic_api_key') == 'on':
-                settings.set_anthropic_api_key(None)
-            elif request.form.get('anthropic_api_key', '').strip():
-                settings.set_anthropic_api_key(request.form['anthropic_api_key'].strip())
-            new_model = request.form.get('claude_model', '').strip()[:100] or None
-            if new_model != settings.claude_model:
-                model_error = check_claude_model(new_model, settings.get_anthropic_api_key())
-                if model_error:
-                    flash(model_error, 'error')
-                else:
-                    settings.claude_model = new_model
+            error = save_ai_settings(settings, request.form)
+            if error:
+                flash(error, 'error')
 
             # Backup schedule
             settings.backup_frequency = request.form.get('backup_frequency', 'daily')
@@ -2654,61 +2645,102 @@ def site_settings():
     return render_template('admin/settings.html',
                           settings=settings,
                           next_backup=next_backup,
-                          ai=claude_settings_summary(settings))
+                          ai=ai_settings_summary(settings))
 
 
-def claude_settings_summary(settings):
-    """Where the Claude key/model come from, for display (never the key itself)."""
-    from app.utils.ai_client import DEFAULT_MODEL
-    db_key = settings.get_anthropic_api_key()
-    env_key = current_app.config.get('ANTHROPIC_API_KEY')
-    key = db_key or env_key
+def save_ai_settings(settings, form):
+    """Apply the LLM section of the settings form. Returns an error message or None."""
+    from app.utils import ai_client
+
+    provider = form.get('ai_provider', ai_client.ANTHROPIC)
+    if provider not in ai_client.PROVIDERS:
+        provider = ai_client.ANTHROPIC
+    base_url = None
+    if provider == ai_client.OPENAI_COMPATIBLE:
+        base_url = form.get('ai_base_url', '').strip()[:255] or None
+    model = form.get('ai_model', '').strip()[:100] or None
+    new_key = form.get('ai_api_key', '').strip()
+
+    if provider == ai_client.OPENAI_COMPATIBLE and not base_url:
+        return _l('URL du fournisseur requise')
+    if provider == ai_client.OPENAI_COMPATIBLE and not model:
+        return _l('Modele requis pour ce fournisseur')
+    if ai_client.is_grok(provider, base_url, model) and form.get('grok_confirmed') != '1':
+        return _l('Configuration non enregistree : utilisation de Grok non confirmee')
+
+    endpoint_changed = (provider != (settings.ai_provider or ai_client.ANTHROPIC)
+                        or base_url != settings.ai_base_url)
+    key = new_key or (None if endpoint_changed or form.get('clear_ai_api_key') == 'on'
+                      else settings.get_ai_api_key())
+
+    model_error = check_ai_model(provider, base_url, model, key)
+    if model_error:
+        return model_error
+
+    settings.ai_provider = provider
+    settings.ai_base_url = base_url
+    settings.ai_model = model
+    # A key belongs to one provider/server: it's dropped when switching, never sent elsewhere
+    settings.set_ai_api_key(key)
+    return None
+
+
+def ai_settings_summary(settings):
+    """Where the LLM config comes from, for display (never the key itself)."""
+    from app.utils import ai_client
+    config = ai_client.get_config()
+    db_key = settings.get_ai_api_key()
+    key = config['api_key']
     return {
-        'key_source': 'admin' if db_key else ('env' if env_key else None),
+        'provider': config['provider'],
+        'key_source': 'admin' if db_key else ('env' if key else None),
         'key_hint': f"...{key[-4:]}" if key else None,
-        'key_unreadable': bool(settings.anthropic_api_key_encrypted and not db_key),
-        'env_model': current_app.config.get('CLAUDE_MODEL') or DEFAULT_MODEL,
+        'key_unreadable': bool(settings.ai_api_key_encrypted and not db_key),
+        'env_model': current_app.config.get('CLAUDE_MODEL') or ai_client.DEFAULT_MODEL,
     }
 
 
-def check_claude_model(model, api_key=None):
-    """Return an error message if the model doesn't exist for this key, None otherwise.
+def check_ai_model(provider, base_url, model, api_key=None):
+    """Return an error message if the provider says this model doesn't exist, None otherwise.
 
     Network/auth problems don't block saving: the model may be valid and the
     admin can use the test button once the key is fixed.
     """
-    import anthropic
-    from app.utils.ai_client import get_client
+    from app.utils import ai_client
     if not model:
         return None
     try:
-        get_client(api_key).models.retrieve(model)
-    except anthropic.NotFoundError:
-        return _l('Modele Claude inconnu : %(model)s. Modele non modifie.', model=model)
-    except anthropic.AnthropicError as e:  # no key, auth, network...
-        current_app.logger.warning(f"Could not verify Claude model {model}: {e}")
+        available = {m_id for m_id, _ in ai_client.list_models(provider, api_key, base_url)}
+    except Exception as e:  # no key, auth, network, server without /models...
+        current_app.logger.warning(f"Could not verify AI model {model}: {e}")
+        return None
+    if available and model not in available:
+        return _l('Modele inconnu chez ce fournisseur : %(model)s. Configuration non modifiee.', model=model)
     return None
 
 
-@admin_bp.route('/settings/claude-models', methods=['POST'])
+@admin_bp.route('/settings/ai-models', methods=['POST'])
 @login_required
 @superadmin_required
-def claude_models():
-    """List the models available with the typed key (or the configured one) - also tests the key."""
+def ai_models():
+    """List the models of a provider (typed values or configured ones) - also tests the key."""
     import anthropic
-    from app.utils.ai_client import list_models
+    import openai
+    from app.utils import ai_client
 
-    api_key = (request.get_json(silent=True) or {}).get('api_key', '').strip() or None
+    data = request.get_json(silent=True) or {}
+    provider = data.get('provider') if data.get('provider') in ai_client.PROVIDERS else None
     try:
-        models = list_models(api_key)
-    except anthropic.AuthenticationError:
-        return jsonify({'success': False, 'message': str(_l('Cle API refusee par Anthropic'))})
-    except anthropic.APIStatusError as e:
+        models = ai_client.list_models(provider, data.get('api_key', '').strip() or None,
+                                       data.get('base_url', '').strip() or None)
+    except (anthropic.AuthenticationError, openai.AuthenticationError):
+        return jsonify({'success': False, 'message': str(_l('Cle API refusee par le fournisseur'))})
+    except (anthropic.APIConnectionError, openai.APIConnectionError):
+        return jsonify({'success': False, 'message': str(_l('Impossible de joindre le fournisseur'))})
+    except (anthropic.APIStatusError, openai.APIStatusError) as e:
         return jsonify({'success': False, 'message': f'API error {e.status_code}'})
-    except anthropic.APIConnectionError:
-        return jsonify({'success': False, 'message': str(_l('Impossible de joindre l\'API Anthropic'))})
-    except anthropic.AnthropicError:  # typically: no key configured anywhere
-        return jsonify({'success': False, 'message': str(_l('Aucune cle API configuree'))})
+    except (anthropic.AnthropicError, openai.OpenAIError, ai_client.AIConfigError):
+        return jsonify({'success': False, 'message': str(_l('Configuration incomplete (cle ou URL manquante)'))})
     return jsonify({'success': True, 'models': [{'id': m_id, 'name': name} for m_id, name in models]})
 
 

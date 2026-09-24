@@ -4,7 +4,7 @@ Legacy memberships that never made it into user_groups are copied first,
 so no one loses access to their group.
 
 Revision ID: 013_drop_user_group_id
-Revises: 012_claude_settings
+Revises: 012_ai_settings
 Create Date: 2026-09-24
 """
 from alembic import op
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '013_drop_user_group_id'
-down_revision = '012_claude_settings'
+down_revision = '012_ai_settings'
 branch_labels = None
 depends_on = None
 

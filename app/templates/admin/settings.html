@@ -28,10 +28,10 @@
         </div>
     </div>
 
-    <!-- Claude API -->
+    <!-- LLM provider -->
     <div class="card mb-2">
         <div class="card-header">
-            <i class="iconoir-sparks"></i> {{ _('Intelligence artificielle (Claude)') }}
+            <i class="iconoir-sparks"></i> {{ _('Intelligence artificielle') }}
         </div>
         <div class="p-2">
             <p class="text-light text-sm mt-0">
@@ -39,42 +39,72 @@
             </p>
 
             <div class="form-group">
-                <label for="anthropic_api_key" class="form-label">{{ _('Cle API Anthropic') }}</label>
-                <input type="password" id="anthropic_api_key" name="anthropic_api_key" class="form-input"
+                <label for="ai_provider" class="form-label">{{ _('Fournisseur') }}</label>
+                <select id="ai_provider" name="ai_provider" class="form-input">
+                    <option value="anthropic" {{ 'selected' if ai.provider == 'anthropic' }}>{{ _('Anthropic Claude (recommande)') }}</option>
+                    <option value="openai_compatible" {{ 'selected' if ai.provider == 'openai_compatible' }}>{{ _('Compatible OpenAI (OpenAI, Mistral, Gemini, OpenRouter, Ollama...)') }}</option>
+                </select>
+                <small class="text-warning d-block" id="provider-warning" {% if ai.provider == 'anthropic' %}style="display: none;"{% endif %}>
+                    <i class="iconoir-warning-triangle"></i>
+                    {{ _("Les prompts (correction, entretiens, generation) sont optimises et testes avec Claude. Avec un autre modele, la qualite des corrections peut baisser : testez avant de l'utiliser avec des apprenants.") }}
+                </small>
+            </div>
+
+            <div class="form-group" id="base-url-group" {% if ai.provider == 'anthropic' %}style="display: none;"{% endif %}>
+                <label for="ai_base_url" class="form-label">{{ _('URL du fournisseur') }}</label>
+                <input type="url" id="ai_base_url" name="ai_base_url" class="form-input" list="ai-base-urls"
+                       value="{{ settings.ai_base_url or '' }}" maxlength="255" placeholder="https://api.openai.com/v1">
+                <datalist id="ai-base-urls">
+                    <option value="https://api.openai.com/v1">OpenAI</option>
+                    <option value="https://api.mistral.ai/v1">Mistral</option>
+                    <option value="https://generativelanguage.googleapis.com/v1beta/openai/">Google Gemini</option>
+                    <option value="https://openrouter.ai/api/v1">OpenRouter</option>
+                    <option value="https://api.groq.com/openai/v1">Groq</option>
+                    <option value="http://ollama:11434/v1">{{ _('Ollama (local)') }}</option>
+                </datalist>
+                <small class="text-light">{{ _("Changer de fournisseur ou d'URL efface la cle enregistree, pour qu'elle ne soit jamais envoyee a un autre serveur.") }}</small>
+            </div>
+
+            <div class="form-group">
+                <label for="ai_api_key" class="form-label">{{ _('Cle API') }}</label>
+                <input type="password" id="ai_api_key" name="ai_api_key" class="form-input"
                        autocomplete="new-password" placeholder="{{ _('Laisser vide pour ne pas modifier') }}">
                 <small class="text-light">
                     {% if ai.key_source == 'admin' %}
                         {{ _('Cle actuelle : definie ici') }} ({{ ai.key_hint }})
                     {% elif ai.key_source == 'env' %}
                         {{ _('Cle actuelle : fichier .env') }} ({{ ai.key_hint }})
-                    {% else %}
+                    {% elif ai.provider == 'anthropic' %}
                         <span class="text-error">{{ _('Aucune cle configuree : les fonctions IA sont indisponibles.') }}</span>
+                    {% else %}
+                        {{ _('Aucune cle (normal pour un serveur local comme Ollama)') }}
                     {% endif %}
                 </small>
                 {% if ai.key_unreadable %}
                 <small class="text-error d-block">{{ _('La cle enregistree ne peut pas etre dechiffree (SECRET_KEY modifiee ?). Saisissez-la a nouveau.') }}</small>
                 {% endif %}
-                {% if settings.anthropic_api_key_encrypted %}
+                {% if settings.ai_api_key_encrypted %}
                 <label class="checkbox-label mt-1">
-                    <input type="checkbox" name="clear_anthropic_api_key">
+                    <input type="checkbox" name="clear_ai_api_key">
                     <span>{{ _('Supprimer la cle enregistree (revenir au .env)') }}</span>
                 </label>
                 {% endif %}
             </div>
 
             <div class="form-group mb-0">
-                <label for="claude_model" class="form-label">{{ _('Modele') }}</label>
+                <label for="ai_model" class="form-label">{{ _('Modele') }}</label>
                 <div class="flex gap-sm items-center">
-                    <input type="text" id="claude_model" name="claude_model" class="form-input" list="claude-model-list"
-                           value="{{ settings.claude_model or '' }}" maxlength="100" placeholder="{{ ai.env_model }}">
-                    <datalist id="claude-model-list"></datalist>
+                    <input type="text" id="ai_model" name="ai_model" class="form-input" list="ai-model-list"
+                           value="{{ settings.ai_model or '' }}" maxlength="100" placeholder="{{ ai.env_model if ai.provider == 'anthropic' }}">
+                    <datalist id="ai-model-list"></datalist>
                     <button type="button" class="btn btn-secondary btn-small" id="load-models-btn" style="white-space: nowrap;">
                         <i class="iconoir-refresh"></i> {{ _('Tester et lister les modeles') }}
                     </button>
                 </div>
-                <small class="text-light">{{ _('Vide = modele du .env') }} ({{ ai.env_model }})</small>
+                <small class="text-light" id="model-help">{{ _('Vide = modele du .env') }} ({{ ai.env_model }})</small>
                 <span id="models-result" class="text-light text-sm d-block"></span>
             </div>
+            <input type="hidden" name="grok_confirmed" id="grok_confirmed" value="0">
         </div>
     </div>
 
@@ -361,22 +391,54 @@ document.addEventListener('DOMContentLoaded', function() {
     frequencySelect.addEventListener('change', updateScheduleFields);
     updateScheduleFields();
 
-    // Claude: test key (typed or saved) and fill the model suggestions
+    // LLM provider: show the base URL for OpenAI-compatible servers
+    const providerSelect = document.getElementById('ai_provider');
+    providerSelect.addEventListener('change', function() {
+        const compatible = this.value === 'openai_compatible';
+        document.getElementById('base-url-group').style.display = compatible ? 'block' : 'none';
+        document.getElementById('provider-warning').style.display = compatible ? 'block' : 'none';
+        document.getElementById('model-help').style.display = compatible ? 'none' : 'block';
+        document.getElementById('ai-model-list').innerHTML = '';
+    });
+
+    // Grok needs an explicit confirmation before saving
+    function isGrok() {
+        if (providerSelect.value !== 'openai_compatible') return false;
+        const url = document.getElementById('ai_base_url').value.toLowerCase();
+        const model = document.getElementById('ai_model').value.toLowerCase();
+        return url.includes('x.ai') || model.includes('grok');
+    }
+    document.getElementById('settings-form').addEventListener('submit', function(event) {
+        const confirmed = document.getElementById('grok_confirmed');
+        confirmed.value = '0';
+        if (!isGrok()) return;
+        if (confirm({{ _("Etes-vous certain de vouloir utiliser une IA faite par un fasciste ?")|tojson }})) {
+            confirmed.value = '1';
+        } else {
+            event.preventDefault();
+        }
+    });
+
+    // Test the key (typed or saved) and fill the model suggestions
     document.getElementById('load-models-btn').addEventListener('click', async function() {
         const btn = this;
         const result = document.getElementById('models-result');
-        const list = document.getElementById('claude-model-list');
+        const list = document.getElementById('ai-model-list');
         btn.disabled = true;
         result.textContent = {{ _("Test en cours...")|tojson }};
         result.className = 'text-light text-sm d-block';
         try {
-            const response = await fetch('{{ url_for("admin.claude_models") }}', {
+            const response = await fetch('{{ url_for("admin.ai_models") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({api_key: document.getElementById('anthropic_api_key').value})
+                body: JSON.stringify({
+                    provider: providerSelect.value,
+                    base_url: document.getElementById('ai_base_url').value,
+                    api_key: document.getElementById('ai_api_key').value
+                })
             });
             const data = await response.json();
             if (data.success) {

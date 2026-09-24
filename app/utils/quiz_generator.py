@@ -1,7 +1,6 @@
 """Quiz Generator - Generate quizzes from course content using Claude AI."""
 
-import anthropic
-from .ai_client import get_client, get_model, extract_text
+from .ai_client import complete
 from flask import current_app
 from typing import Dict
 from io import BytesIO
@@ -84,9 +83,8 @@ class ContentExtractor:
 class QuizGenerator:
     """Generate quiz questions from course content using Claude AI."""
 
-    def __init__(self, api_key: str = None, model: str = None):
-        self.model = model or get_model()
-        self.client = get_client(api_key)
+    def __init__(self, model: str = None):
+        self.model = model  # None = model configured in the admin settings
 
     def generate_quiz(
         self,
@@ -147,15 +145,7 @@ class QuizGenerator:
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=16000,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
-
-            response_text = extract_text(message)
+            response_text = complete([{"role": "user", "content": prompt}], max_tokens=16000, model=self.model)
 
             # Clean up response if it contains markdown code blocks
             if response_text.startswith('```'):
@@ -173,13 +163,6 @@ class QuizGenerator:
                 'markdown': response_text
             }
 
-        except anthropic.APIError as e:
-            current_app.logger.error(f"Claude API error during quiz generation: {str(e)}")
-            return {
-                'success': False,
-                'markdown': '',
-                'error': f"Erreur API Claude: {str(e)}"
-            }
         except Exception as e:
             current_app.logger.error(f"Quiz generation error: {str(e)}")
             return {

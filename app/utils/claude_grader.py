@@ -1,14 +1,13 @@
 from flask import current_app
 from typing import Dict
 from .prompt_loader import get_grading_prompts
-from .ai_client import get_client, get_model, extract_text
+from .ai_client import complete, parse_json
 
 class ClaudeGrader:
     """Grade open-ended questions using Claude API."""
 
-    def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.model = model or get_model()
-        self.client = get_client(api_key)
+    def __init__(self, model: str = None, lang: str = None):
+        self.model = model  # None = model configured in the admin settings
         self.lang = lang or 'fr'
 
     def grade_answer(self, question: str, expected_answer: str, student_answer: str, max_points: float, severity: str = 'modere', mood: list = None, lang: str = None) -> Dict:
@@ -64,26 +63,10 @@ class ClaudeGrader:
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=4096,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
+            response_text = complete([{"role": "user", "content": prompt}], max_tokens=4096, model=self.model)
 
-            response_text = extract_text(message)
-
-            # Parse JSON response
-            import json
-            # Remove markdown code blocks if present
-            if response_text.startswith('```'):
-                response_text = response_text.split('```')[1]
-                if response_text.startswith('json'):
-                    response_text = response_text[4:]
-                response_text = response_text.strip()
-
-            result = json.loads(response_text)
+            # Bare JSON, fenced in ``` or wrapped in prose (depends on the model)
+            result = parse_json(response_text)
 
             # Ensure score is within bounds
             score = max(0, min(max_points, float(result.get('score', 0))))
