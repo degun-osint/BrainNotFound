@@ -473,6 +473,191 @@ const SearchableSelect = {
 };
 
 // ============================================
+// Native <select> enhancement
+// ============================================
+// Every <select> is turned into the searchable-select look. The native select
+// stays in the DOM (visually hidden) and remains the source of truth: forms,
+// `required`, `disabled`, `.value` reads and `change` listeners keep working.
+// Opt out with <select data-native>.
+const SelectEnhancer = {
+    SEARCH_THRESHOLD: 8,  // show a search box from this many options
+
+    init: function(root) {
+        (root || document).querySelectorAll('select:not([data-native]):not([data-enhanced])').forEach(function(select) {
+            SelectEnhancer.enhance(select);
+        });
+    },
+
+    enhance: function(select) {
+        select.dataset.enhanced = '1';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'searchable-select enhanced-select';
+        if (select.classList.contains('form-select') || select.classList.contains('form-input')) {
+            wrapper.classList.add('searchable-select--block');
+        }
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'searchable-select-trigger';
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        const label = document.createElement('span');
+        const arrow = document.createElement('i');
+        arrow.className = 'iconoir-nav-arrow-down';
+        trigger.append(label, arrow);
+        if (select.id) {
+            // <label for="..."> keeps focusing something visible
+            const htmlLabel = document.querySelector('label[for="' + select.id + '"]');
+            if (htmlLabel) htmlLabel.addEventListener('click', function(e) { e.preventDefault(); trigger.focus(); });
+        }
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'searchable-select-dropdown';
+        const list = document.createElement('div');
+        list.className = 'searchable-select-options';
+        list.setAttribute('role', 'listbox');
+        let searchInput = null;
+
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.append(select, trigger, dropdown);
+        select.classList.add('native-select-hidden');
+        select.tabIndex = -1;
+
+        function realOptions() {
+            return Array.from(select.options);
+        }
+
+        function build() {
+            list.innerHTML = '';
+            const options = realOptions();
+            if (options.length >= SelectEnhancer.SEARCH_THRESHOLD && !searchInput) {
+                const box = document.createElement('div');
+                box.className = 'searchable-select-search';
+                searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = document.documentElement.lang === 'en' ? 'Search...' : 'Rechercher...';
+                box.appendChild(searchInput);
+                dropdown.appendChild(box);
+                searchInput.addEventListener('click', function(e) { e.stopPropagation(); });
+                searchInput.addEventListener('input', filter);
+                searchInput.addEventListener('keydown', onKey);
+            }
+            dropdown.appendChild(list);
+            options.forEach(function(opt) {
+                if (opt.disabled && opt.value === '') return;  // placeholder: shown on the trigger only
+                const item = document.createElement('div');
+                item.className = 'searchable-select-option';
+                item.setAttribute('role', 'option');
+                item.dataset.value = opt.value;
+                item.textContent = opt.textContent.trim();
+                if (opt.disabled) item.classList.add('disabled');
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!opt.disabled) choose(opt.value);
+                });
+                list.appendChild(item);
+            });
+            refresh();
+        }
+
+        function refresh() {
+            const current = select.options[select.selectedIndex];
+            label.textContent = current ? current.textContent.trim() : '';
+            label.classList.toggle('text-light', !current || current.value === '');
+            list.querySelectorAll('.searchable-select-option').forEach(function(item) {
+                const selected = current && item.dataset.value === current.value;
+                item.classList.toggle('selected', !!selected);
+                item.setAttribute('aria-selected', selected ? 'true' : 'false');
+            });
+            trigger.disabled = select.disabled;
+            wrapper.classList.toggle('disabled', select.disabled);
+        }
+
+        function visibleItems() {
+            return Array.from(list.querySelectorAll('.searchable-select-option:not(.hidden):not(.disabled)'));
+        }
+
+        function filter() {
+            const query = searchInput.value.toLowerCase().trim();
+            list.querySelectorAll('.searchable-select-option').forEach(function(item) {
+                item.classList.toggle('hidden', query !== '' && !item.textContent.toLowerCase().includes(query));
+            });
+        }
+
+        function highlight(item) {
+            list.querySelectorAll('.searchable-select-option.active').forEach(function(el) { el.classList.remove('active'); });
+            if (item) {
+                item.classList.add('active');
+                item.scrollIntoView({block: 'nearest'});
+            }
+        }
+
+        function open() {
+            document.querySelectorAll('.searchable-select.open').forEach(function(el) {
+                if (el !== wrapper) el.classList.remove('open');
+            });
+            wrapper.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+            highlight(list.querySelector('.searchable-select-option.selected') || visibleItems()[0]);
+            if (searchInput) setTimeout(function() { searchInput.focus(); }, 10);
+        }
+
+        function close() {
+            wrapper.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            if (searchInput) {
+                searchInput.value = '';
+                filter();
+            }
+        }
+
+        function choose(value) {
+            close();
+            trigger.focus();
+            if (select.value === value) return;
+            select.value = value;
+            refresh();
+            // Inline onchange="..." handlers and addEventListener('change') both fire
+            select.dispatchEvent(new Event('change', {bubbles: true}));
+        }
+
+        function onKey(e) {
+            const items = visibleItems();
+            const active = list.querySelector('.searchable-select-option.active');
+            const index = items.indexOf(active);
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (!wrapper.classList.contains('open')) { open(); return; }
+                const next = e.key === 'ArrowDown' ? Math.min(index + 1, items.length - 1) : Math.max(index - 1, 0);
+                highlight(items[next]);
+            } else if (e.key === 'Enter' || (e.key === ' ' && e.target === trigger)) {
+                e.preventDefault();
+                if (!wrapper.classList.contains('open')) open();
+                else if (active) choose(active.dataset.value);
+            } else if (e.key === 'Escape' || e.key === 'Tab') {
+                close();
+            }
+        }
+
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            wrapper.classList.contains('open') ? close() : open();
+        });
+        trigger.addEventListener('keydown', onKey);
+        // Programmatic changes (value set by other scripts) and invalid form submits
+        select.addEventListener('change', refresh);
+        select.addEventListener('invalid', function() { wrapper.classList.add('invalid'); });
+        select.addEventListener('change', function() { wrapper.classList.remove('invalid'); });
+        new MutationObserver(function(mutations) {
+            if (mutations.some(function(m) { return m.type === 'childList'; })) build();
+            else refresh();
+        }).observe(select, {childList: true, subtree: true, attributes: true, attributeFilter: ['disabled']});
+
+        build();
+    }
+};
+
+// ============================================
 // DOMContentLoaded initialization
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -487,6 +672,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize searchable selects
     SearchableSelect.init();
+
+    // Turn native <select> into the same component
+    SelectEnhancer.init();
 
     // Initialize mobile menu
     initMobileMenu();
