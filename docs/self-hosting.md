@@ -5,7 +5,7 @@ Guide complet pour déployer BrainNotFound sur votre infrastructure.
 ## Prérequis
 
 - **Docker** et **Docker Compose** (recommandé)
-- Ou : Python 3.11+, MySQL 8.0+
+- Ou : Python 3.13, MySQL 8.4+
 - Clé API Anthropic (pour la correction IA)
 - 2 Go RAM minimum, 4 Go recommandé
 
@@ -166,18 +166,24 @@ tar -xzf uploads.tar.gz
 ## Mise à jour
 
 ```bash
-# Arrêter les services
-docker-compose down
+# 1. Sauvegarder (Administration > Paramètres > Télécharger une sauvegarde),
+#    ou en ligne de commande :
+docker compose exec db sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE"' > avant-mise-a-jour.sql
 
-# Récupérer les mises à jour
+# 2. Récupérer les mises à jour, reconstruire et redémarrer
 git pull origin main
-
-# Reconstruire et redémarrer
-docker-compose up -d --build
-
-# Appliquer les migrations
-docker-compose exec web flask db upgrade
+docker compose up -d --build
 ```
+
+Les migrations de schéma s'appliquent seules au démarrage (`scripts/migrate_db.py`) : pas de commande à lancer.
+
+### Passage de MySQL 8.0 à 8.4
+
+MySQL 8.0 n'est plus maintenu depuis avril 2026 ; `docker-compose.yml` utilise désormais `mysql:8.4` (LTS). Au premier démarrage, MySQL convertit lui-même la base existante (quelques secondes, visible dans `docker compose logs db` : « Server upgrade from '80xxx' to '804xx' completed »).
+
+- **Conversion irréversible** : une base passée en 8.4 ne peut plus être relue par MySQL 8.0. La sauvegarde de l'étape 1 est le seul retour arrière (la restaurer dans un conteneur 8.0).
+- Les comptes MySQL créés par l'image Docker utilisent `caching_sha2_password`, toujours pris en charge en 8.4. Seul un compte créé à la main avec `mysql_native_password` (désactivé par défaut en 8.4) ne pourrait plus se connecter.
+- Les sauvegardes et restaurations de l'application fonctionnent en 8.4, y compris la restauration d'une sauvegarde faite en 8.0.
 
 ## Dépannage
 

@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8.4  # LTS (8.0 is end of life since April 2026)
     container_name: quiz_db
     env_file:
       - .env

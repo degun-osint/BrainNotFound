@@ -76,7 +76,7 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 
 ### Ressources serveur
 
-Mesures sur la pile Docker complète (application + MySQL 8), avec un établissement de 600 apprenants et 6 000 copies :
+Mesures sur la pile Docker complète (application + MySQL 8.4), avec un établissement de 600 apprenants et 6 000 copies :
 
 | | Au repos | En charge (20 utilisateurs en continu) |
 |---|---|---|
@@ -273,7 +273,7 @@ GRADING_PROMPT_TEMPLATE = {
 ## Technologies
 
 - **Backend** : Flask 3.x, SQLAlchemy, Flask-SocketIO, Flask-Babel
-- **Base de données** : MySQL 8.0
+- **Base de données** : MySQL 8.4 LTS
 - **IA** : Anthropic Claude API
 - **Temps réel** : WebSocket (gevent)
 - **Planification** : APScheduler

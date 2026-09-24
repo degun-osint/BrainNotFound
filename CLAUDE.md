@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BrainNotFound is a Flask-based web application for creating and evaluating quizzes with AI-powered grading. Teachers create quizzes in Markdown format, MCQ questions are graded automatically, and open-ended questions are graded by Claude AI with feedback.
 
-**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MySQL 8.0, Anthropic Claude API, Docker
+**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MySQL 8.4 LTS, Anthropic Claude API, Docker
 
 ## Commands
 
