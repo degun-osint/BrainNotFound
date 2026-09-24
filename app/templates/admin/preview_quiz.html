@@ -64,7 +64,7 @@
         {% if quiz.groups.count() > 0 %}
         <li>{{ _('Groupes :') }} {{ quiz.groups.all()|map(attribute='name')|join(', ') }}</li>
         {% else %}
-        <li>{{ _('Groupes :') }} {{ _('Tous les utilisateurs') }}</li>
+        <li>{{ _('Groupes :') }} <span class="badge badge-warning">{{ _('Aucun groupe : invisible pour les apprenants') }}</span></li>
         {% endif %}
         <li>{{ _('Severite correction :') }} {{ quiz.grading_severity or _('modere') }}</li>
     </ul>

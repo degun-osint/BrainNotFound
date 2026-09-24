@@ -11,7 +11,7 @@ import re
 from app import db
 from app.models.interview import (
     Interview, EvaluationCriterion, InterviewSession,
-    InterviewMessage, CriterionScore, interview_groups
+    InterviewMessage, CriterionScore
 )
 from app.models.group import Group
 from app.models.tenant import Tenant
@@ -133,18 +133,8 @@ def interview_list():
         db.or_(Interview.available_until == None, Interview.available_until >= now)
     )
 
-    # Filter by user's groups
-    if user_group_ids:
-        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
-        base_query = base_query.filter(
-            db.or_(
-                Interview.groups.any(Group.id.in_(user_group_ids)),
-                ~Interview.id.in_(interviews_with_groups)
-            )
-        )
-    else:
-        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
-        base_query = base_query.filter(~Interview.id.in_(interviews_with_groups))
+    # Only interviews assigned to one of the user's groups (no group = visible to no learner)
+    base_query = base_query.filter(Interview.groups.any(Group.id.in_(user_group_ids)))
 
     interviews = base_query.order_by(Interview.created_at.desc()).all()
 

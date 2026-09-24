@@ -131,3 +131,27 @@ def test_interview_list_is_scoped(world, content, login):
     html = login(world['dir_b']).get('/interview/admin/interviews').get_data(as_text=True)
     assert 'Interview Bravo' in html
     assert 'Interview Alpha' not in html
+
+
+# ==================== learners: no group = invisible ====================
+
+def test_content_without_group_is_invisible_to_learners(world, content, login):
+    from app.models import Interview, Quiz
+    orphan_quiz = Quiz(title='Quiz Orphan', markdown_content='# x', is_active=True)
+    orphan_itw = Interview(title='Interview Orphan', system_prompt='p', is_active=True)
+    db.session.add_all([orphan_quiz, orphan_itw])
+    db.session.commit()
+
+    client = login(world['eleve_3a'])
+    quizzes = client.get('/quiz/list').get_data(as_text=True)
+    interviews = client.get('/interview/list').get_data(as_text=True)
+
+    assert 'Quiz Alpha' in quizzes and 'Quiz Orphan' not in quizzes
+    assert 'Interview Alpha' in interviews and 'Interview Orphan' not in interviews
+    assert not orphan_quiz.is_available_for_user(world['eleve_3a'])
+    assert client.get(f'/quiz/{orphan_quiz.get_url_identifier()}/take').status_code == 302
+
+
+def test_learner_only_sees_content_of_own_groups(world, content, login):
+    html = login(world['eleve_3a']).get('/quiz/list').get_data(as_text=True)
+    assert 'Quiz Bravo' not in html
