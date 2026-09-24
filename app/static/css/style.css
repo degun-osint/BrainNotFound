@@ -2533,6 +2533,20 @@ button.searchable-select-trigger {
     cursor: not-allowed;
 }
 
+.flex > .combobox {
+    flex: 1;
+    min-width: 0;
+}
+
+.combobox .searchable-select-option small {
+    margin-left: 0.5rem;
+}
+
+.combobox .searchable-select-option.selected small {
+    color: inherit;
+    opacity: 0.7;
+}
+
 /* Kept in the DOM for forms and validation, but out of sight */
 .native-select-hidden {
     position: absolute !important;

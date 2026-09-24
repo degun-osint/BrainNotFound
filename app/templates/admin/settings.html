@@ -451,6 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 result.textContent = {{ _("Cle valide.")|tojson }} + ' ' + data.models.length + ' ' + {{ _("modele(s) disponible(s) dans la liste.")|tojson }};
                 result.className = 'text-success text-sm d-block';
+                document.getElementById('ai_model').focus();  // opens the suggestions
             } else {
                 result.textContent = data.message;
                 result.className = 'text-error text-sm d-block';

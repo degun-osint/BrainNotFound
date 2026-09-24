@@ -658,6 +658,143 @@ const SelectEnhancer = {
 };
 
 // ============================================
+// <input list="..."> (datalist) enhancement
+// ============================================
+// Free-text input with suggestions in the searchable-select look. The
+// <datalist> stays the source of the suggestions (scripts may refill it) and
+// the input keeps its name/value, so forms are unchanged. Opt out: data-native.
+const ComboboxEnhancer = {
+    init: function(root) {
+        (root || document).querySelectorAll('input[list]:not([data-native]):not([data-enhanced])').forEach(function(input) {
+            const datalist = document.getElementById(input.getAttribute('list'));
+            if (datalist) ComboboxEnhancer.enhance(input, datalist);
+        });
+    },
+
+    enhance: function(input, datalist) {
+        input.dataset.enhanced = '1';
+        input.removeAttribute('list');  // no native suggestion popup
+        input.setAttribute('autocomplete', 'off');
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'searchable-select combobox searchable-select--block';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        const dropdown = document.createElement('div');
+        dropdown.className = 'searchable-select-dropdown';
+        const list = document.createElement('div');
+        list.className = 'searchable-select-options';
+        list.setAttribute('role', 'listbox');
+        dropdown.appendChild(list);
+        wrapper.appendChild(dropdown);
+
+        function build() {
+            list.innerHTML = '';
+            Array.from(datalist.options).forEach(function(opt) {
+                const item = document.createElement('div');
+                item.className = 'searchable-select-option';
+                item.setAttribute('role', 'option');
+                item.dataset.value = opt.value;
+                const main = document.createElement('span');
+                main.textContent = opt.value;
+                item.appendChild(main);
+                const label = (opt.label || opt.textContent || '').trim();
+                if (label && label !== opt.value) {
+                    const hint = document.createElement('small');
+                    hint.className = 'text-light';
+                    hint.textContent = ' ' + label;
+                    item.appendChild(hint);
+                }
+                item.addEventListener('mousedown', function(e) {
+                    e.preventDefault();  // keep focus in the input
+                    choose(opt.value);
+                });
+                list.appendChild(item);
+            });
+            filter();
+        }
+
+        function items() {
+            return Array.from(list.querySelectorAll('.searchable-select-option:not(.hidden)'));
+        }
+
+        function filter() {
+            const query = input.value.toLowerCase().trim();
+            let exact = false;
+            list.querySelectorAll('.searchable-select-option').forEach(function(item) {
+                const text = item.textContent.toLowerCase();
+                item.classList.toggle('hidden', query !== '' && !text.includes(query));
+                item.classList.toggle('selected', item.dataset.value === input.value);
+                if (item.dataset.value.toLowerCase() === query) exact = true;
+            });
+            // Show everything again when the typed value is one of the options
+            if (exact) list.querySelectorAll('.searchable-select-option').forEach(function(item) { item.classList.remove('hidden'); });
+            return items().length;
+        }
+
+        function highlight(item) {
+            list.querySelectorAll('.searchable-select-option.active').forEach(function(el) { el.classList.remove('active'); });
+            if (item) {
+                item.classList.add('active');
+                item.scrollIntoView({block: 'nearest'});
+            }
+        }
+
+        function open() {
+            if (!datalist.options.length || input.disabled || input.readOnly) return;
+            if (!filter()) { close(); return; }
+            wrapper.classList.add('open');
+        }
+
+        function close() {
+            wrapper.classList.remove('open');
+            highlight(null);
+        }
+
+        let choosing = false;
+        function choose(value) {
+            input.value = value;
+            close();
+            // Tell other scripts, without reopening the list on our own event
+            choosing = true;
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+            input.dispatchEvent(new Event('change', {bubbles: true}));
+            choosing = false;
+        }
+
+        input.addEventListener('focus', open);
+        input.addEventListener('click', open);
+        input.addEventListener('input', function() {
+            if (!choosing) open();
+        });
+        input.addEventListener('blur', function() { setTimeout(close, 100); });
+        input.addEventListener('keydown', function(e) {
+            const visible = items();
+            const active = list.querySelector('.searchable-select-option.active');
+            const index = visible.indexOf(active);
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (!wrapper.classList.contains('open')) { open(); return; }
+                const next = e.key === 'ArrowDown' ? Math.min(index + 1, visible.length - 1) : Math.max(index - 1, 0);
+                highlight(visible[next]);
+            } else if (e.key === 'Enter' && wrapper.classList.contains('open') && active) {
+                e.preventDefault();  // pick the suggestion instead of submitting the form
+                choose(active.dataset.value);
+            } else if (e.key === 'Escape') {
+                close();
+            }
+        });
+        // Suggestions refilled by scripts (e.g. "list models" button)
+        new MutationObserver(function() {
+            build();
+            if (document.activeElement === input) open();
+        }).observe(datalist, {childList: true, subtree: true, attributes: true});
+
+        build();
+    }
+};
+
+// ============================================
 // DOMContentLoaded initialization
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -675,6 +812,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Turn native <select> into the same component
     SelectEnhancer.init();
+    ComboboxEnhancer.init();
 
     // Initialize mobile menu
     initMobileMenu();
