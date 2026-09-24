@@ -28,6 +28,56 @@
         </div>
     </div>
 
+    <!-- Claude API -->
+    <div class="card mb-2">
+        <div class="card-header">
+            <i class="iconoir-sparks"></i> {{ _('Intelligence artificielle (Claude)') }}
+        </div>
+        <div class="p-2">
+            <p class="text-light text-sm mt-0">
+                {{ _("Les modifications s'appliquent immediatement, sans redemarrer les conteneurs. Laisser vide pour utiliser les valeurs du fichier .env.") }}
+            </p>
+
+            <div class="form-group">
+                <label for="anthropic_api_key" class="form-label">{{ _('Cle API Anthropic') }}</label>
+                <input type="password" id="anthropic_api_key" name="anthropic_api_key" class="form-input"
+                       autocomplete="new-password" placeholder="{{ _('Laisser vide pour ne pas modifier') }}">
+                <small class="text-light">
+                    {% if ai.key_source == 'admin' %}
+                        {{ _('Cle actuelle : definie ici') }} ({{ ai.key_hint }})
+                    {% elif ai.key_source == 'env' %}
+                        {{ _('Cle actuelle : fichier .env') }} ({{ ai.key_hint }})
+                    {% else %}
+                        <span class="text-error">{{ _('Aucune cle configuree : les fonctions IA sont indisponibles.') }}</span>
+                    {% endif %}
+                </small>
+                {% if ai.key_unreadable %}
+                <small class="text-error d-block">{{ _('La cle enregistree ne peut pas etre dechiffree (SECRET_KEY modifiee ?). Saisissez-la a nouveau.') }}</small>
+                {% endif %}
+                {% if settings.anthropic_api_key_encrypted %}
+                <label class="checkbox-label mt-1">
+                    <input type="checkbox" name="clear_anthropic_api_key">
+                    <span>{{ _('Supprimer la cle enregistree (revenir au .env)') }}</span>
+                </label>
+                {% endif %}
+            </div>
+
+            <div class="form-group mb-0">
+                <label for="claude_model" class="form-label">{{ _('Modele') }}</label>
+                <div class="flex gap-sm items-center">
+                    <input type="text" id="claude_model" name="claude_model" class="form-input" list="claude-model-list"
+                           value="{{ settings.claude_model or '' }}" maxlength="100" placeholder="{{ ai.env_model }}">
+                    <datalist id="claude-model-list"></datalist>
+                    <button type="button" class="btn btn-secondary btn-small" id="load-models-btn" style="white-space: nowrap;">
+                        <i class="iconoir-refresh"></i> {{ _('Tester et lister les modeles') }}
+                    </button>
+                </div>
+                <small class="text-light">{{ _('Vide = modele du .env') }} ({{ ai.env_model }})</small>
+                <span id="models-result" class="text-light text-sm d-block"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Pages -->
     <div class="card mb-2">
         <div class="card-header flex justify-between items-center">
@@ -278,6 +328,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     frequencySelect.addEventListener('change', updateScheduleFields);
     updateScheduleFields();
+
+    // Claude: test key (typed or saved) and fill the model suggestions
+    document.getElementById('load-models-btn').addEventListener('click', async function() {
+        const btn = this;
+        const result = document.getElementById('models-result');
+        const list = document.getElementById('claude-model-list');
+        btn.disabled = true;
+        result.textContent = {{ _("Test en cours...")|tojson }};
+        result.className = 'text-light text-sm d-block';
+        try {
+            const response = await fetch('{{ url_for("admin.claude_models") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({api_key: document.getElementById('anthropic_api_key').value})
+            });
+            const data = await response.json();
+            if (data.success) {
+                list.innerHTML = '';
+                data.models.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.name;
+                    list.appendChild(opt);
+                });
+                result.textContent = {{ _("Cle valide.")|tojson }} + ' ' + data.models.length + ' ' + {{ _("modele(s) disponible(s) dans la liste.")|tojson }};
+                result.className = 'text-success text-sm d-block';
+            } else {
+                result.textContent = data.message;
+                result.className = 'text-error text-sm d-block';
+            }
+        } catch (error) {
+            result.textContent = {{ _("Erreur:")|tojson }} + ' ' + error.message;
+            result.className = 'text-error text-sm d-block';
+        }
+        btn.disabled = false;
+    });
 
     // Test FTP connection
     document.getElementById('test-ftp-btn').addEventListener('click', async function() {

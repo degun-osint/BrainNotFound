@@ -88,8 +88,8 @@
                         <small class="text-light">{{ response.user.username }}</small>
                     </td>
                     <td>
-                        {% if response.user.group %}
-                            {{ response.user.group.name }}
+                        {% if user_group_names.get(response.user_id) %}
+                            {{ user_group_names[response.user_id] }}
                         {% else %}
                             <span class="text-light">-</span>
                         {% endif %}

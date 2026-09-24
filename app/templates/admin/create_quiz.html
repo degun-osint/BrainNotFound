@@ -3,6 +3,7 @@
 {% block title %}{{ _('Creer un quiz') }} - BrainNotFound{% endblock %}
 
 {% block content %}
+{% set member_counts = group_member_counts(groups) %}
 <h1 class="mb-2">{{ _('Creer un nouveau quiz') }}</h1>
 
 <div class="card">
@@ -131,7 +132,7 @@ Réponse modèle ici...{% endif %}</textarea>
                         <label class="check-item">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}">
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -149,7 +150,7 @@ Réponse modèle ici...{% endif %}</textarea>
                         <label class="check-item">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}">
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -162,7 +163,7 @@ Réponse modèle ici...{% endif %}</textarea>
                 <label class="check-item">
                     <input type="checkbox" name="group_ids" value="{{ group.id }}">
                     <span>{{ group.name }}</span>
-                    <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                    <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                 </label>
                 {% endfor %}
             </div>

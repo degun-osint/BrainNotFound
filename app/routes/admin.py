@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, send_from_directory, abort, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, send_from_directory, abort
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from functools import wraps
@@ -17,6 +17,11 @@ from app.utils.markdown_parser import parse_quiz_markdown, validate_quiz_data
 from app.utils.quiz_generator import ContentExtractor, generate_quiz_from_content
 from app.utils.email_sender import send_verification_email
 from app.utils.prompt_loader import get_fallback_warnings, is_using_fallback
+from app.utils.scope import (
+    get_tenant_context, get_accessible_tenants, set_tenant_context as set_scope_tenant,
+    scoped_groups, scoped_group_ids, scoped_quizzes, scoped_interviews, scoped_users,
+    scoped_user_ids, validate_group_ids, assign_groups, default_tenant_id, quota_tenant,
+)
 from datetime import datetime
 from io import BytesIO
 import unicodedata
@@ -96,43 +101,6 @@ def superadmin_required(f):
 
 # ==================== Tenant Context Management ====================
 
-def get_tenant_context():
-    """Get the current tenant context from session.
-    Returns None if viewing all tenants, or the Tenant object if filtered.
-    """
-    tenant_id = session.get('admin_tenant_context')
-    if not tenant_id:
-        return None
-
-    tenant = Tenant.query.get(tenant_id)
-    if not tenant:
-        # Invalid tenant ID, clear it
-        session.pop('admin_tenant_context', None)
-        return None
-
-    # Verify user has access to this tenant
-    if not current_user.is_superadmin:
-        if current_user.is_tenant_admin:
-            if not current_user.is_admin_of_tenant(tenant_id):
-                session.pop('admin_tenant_context', None)
-                return None
-        else:
-            # Group admin cannot use tenant context
-            session.pop('admin_tenant_context', None)
-            return None
-
-    return tenant
-
-
-def get_accessible_tenants():
-    """Get list of tenants the current user can access."""
-    if current_user.is_superadmin:
-        return Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-    elif current_user.is_tenant_admin:
-        return list(current_user.admin_tenants.filter_by(is_active=True).order_by(Tenant.name))
-    return []
-
-
 @admin_bp.context_processor
 def inject_tenant_context():
     """Make tenant context available in all admin templates."""
@@ -166,7 +134,7 @@ def set_tenant_context(identifier):
         flash(_l('Acces non autorise a ce tenant'), 'error')
         return redirect(url_for('admin.dashboard'))
 
-    session['admin_tenant_context'] = tenant.id
+    set_scope_tenant(tenant)
     flash(_l('Contexte: %(name)s', name=tenant.name), 'info')
 
     # Redirect back to referrer (validated) or dashboard
@@ -178,7 +146,7 @@ def set_tenant_context(identifier):
 @admin_required
 def clear_tenant_context():
     """Clear the tenant context filter (show all)."""
-    session.pop('admin_tenant_context', None)
+    set_scope_tenant(None)
     flash(_l('Contexte: Tous les tenants'), 'info')
     return safe_redirect_referrer(url_for('admin.dashboard'))
 
@@ -191,200 +159,55 @@ def dashboard():
     per_page = 10
     search = request.args.get('search', '', type=str).strip()
     filter_group_id = request.args.get('group', 0, type=int)
-    filter_tenant_id = request.args.get('tenant', 0, type=int)
 
-    # Get tenant context (if set via navbar)
-    tenant_ctx = get_tenant_context()
+    all_groups = scoped_groups().all()
 
-    # Sync filter_tenant_id with navbar context if no URL filter provided
-    if filter_tenant_id == 0 and tenant_ctx:
-        filter_tenant_id = tenant_ctx.id
-
-    # Build all_tenants list for dropdown filter
-    # Don't show dropdown if navbar context is already set (would be redundant)
-    all_tenants = []
-    if not tenant_ctx:
-        if current_user.is_superadmin:
-            all_tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-        elif current_user.is_tenant_admin:
-            admin_tenant_list = list(current_user.admin_tenants)
-            if len(admin_tenant_list) > 1:
-                all_tenants = admin_tenant_list
-
-    # Determine which tenant IDs to filter by
-    if filter_tenant_id > 0:
-        # Tenant filter active (from URL or navbar context)
-        filter_tenant_ids = [filter_tenant_id]
-    elif current_user.is_superadmin:
-        # Superadmin with no context = all tenants (None means no filter)
-        filter_tenant_ids = None
-    elif current_user.is_tenant_admin:
-        # Tenant admin without context = their tenants
-        filter_tenant_ids = [t.id for t in current_user.admin_tenants]
-    else:
-        # Group admin = no tenant filter, use group-based filtering
-        filter_tenant_ids = None
-
-    # Get groups for filter dropdown
-    if filter_tenant_ids is not None:
-        all_groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id.in_(filter_tenant_ids)
-        ).order_by(Group.name).all()
-    elif current_user.is_superadmin:
-        all_groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-    else:
-        # Group admin: only their admin groups
-        all_groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-
-    # Build query with optional search
-    query = Quiz.query
+    query = scoped_quizzes()
     if search:
         query = query.filter(Quiz.title.ilike(f'%{search}%'))
-
-    # Filter by selected group
     if filter_group_id > 0:
         query = query.filter(Quiz.groups.any(Group.id == filter_group_id))
-
-    # Apply tenant/permission filtering
-    if filter_tenant_ids is not None:
-        # Filter by tenant context - quiz must belong to tenant OR be assigned to a group of that tenant
-        tenant_group_ids = [g.id for g in Group.query.filter(Group.tenant_id.in_(filter_tenant_ids)).all()]
-        if tenant_group_ids:
-            query = query.filter(
-                db.or_(
-                    Quiz.tenant_id.in_(filter_tenant_ids),
-                    Quiz.groups.any(Group.id.in_(tenant_group_ids))
-                )
-            )
-        else:
-            # No groups in this tenant, filter by tenant_id only
-            query = query.filter(Quiz.tenant_id.in_(filter_tenant_ids))
-    elif not current_user.is_superadmin:
-        # Group admin without tenant context: show their quizzes + quizzes in their groups
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        if admin_group_ids:
-            query = query.filter(
-                db.or_(
-                    Quiz.created_by_id == current_user.id,
-                    Quiz.groups.any(Group.id.in_(admin_group_ids))
-                )
-            )
-        else:
-            query = query.filter(Quiz.created_by_id == current_user.id)
-
-    # Paginate
     pagination = query.order_by(Quiz.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
-    quizzes = pagination.items
 
-    # Stats - filtered by tenant context
-    if filter_tenant_ids is not None:
-        # Filtered by tenant context
-        tenant_group_ids = [g.id for g in Group.query.filter(Group.tenant_id.in_(filter_tenant_ids)).all()]
-        total_users = User.query.join(user_groups).filter(
-            user_groups.c.group_id.in_(tenant_group_ids)
-        ).distinct().count() if tenant_group_ids else 0
-        total_quizzes = pagination.total
-        accessible_quiz_ids = [q.id for q in Quiz.query.filter(
-            db.or_(
-                Quiz.tenant_id.in_(filter_tenant_ids),
-                Quiz.groups.any(Group.id.in_(tenant_group_ids)) if tenant_group_ids else False
-            )
-        ).all()]
-        total_responses = QuizResponse.query.filter(QuizResponse.quiz_id.in_(accessible_quiz_ids)).count() if accessible_quiz_ids else 0
-        total_groups = len(tenant_group_ids)
-    elif current_user.is_superadmin:
-        # Superadmin without context = all
-        total_users = User.query.filter_by(is_admin=False).count()
-        total_quizzes = Quiz.query.count()
-        total_responses = QuizResponse.query.count()
-        total_groups = Group.query.count()
-        accessible_quiz_ids = None  # Used later for recent activity
-    else:
-        # Group admin stats
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        total_users = User.query.join(user_groups).filter(
-            user_groups.c.group_id.in_(admin_group_ids),
-            user_groups.c.role == 'member'
-        ).distinct().count() if admin_group_ids else 0
-        total_quizzes = pagination.total
-        accessible_quiz_ids = [q.id for q in Quiz.query.filter(
-            Quiz.groups.any(Group.id.in_(admin_group_ids))
-        ).all()] if admin_group_ids else []
-        total_responses = QuizResponse.query.filter(QuizResponse.quiz_id.in_(accessible_quiz_ids)).count() if accessible_quiz_ids else 0
-        total_groups = len(admin_group_ids)
+    quiz_ids = scoped_quizzes().with_entities(Quiz.id)
+    interview_ids = scoped_interviews().with_entities(Interview.id)
+    not_test = db.or_(QuizResponse.is_test == False, QuizResponse.is_test == None)  # noqa: E711,E712
 
-    # Interview stats
-    if current_user.is_superadmin:
-        total_interviews = Interview.query.count()
-    else:
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        total_interviews = Interview.query.filter(
-            db.or_(
-                Interview.created_by_id == current_user.id,
-                Interview.groups.any(Group.id.in_(admin_group_ids)) if admin_group_ids else False
-            )
-        ).count()
+    users_query = scoped_users()
+    if current_user.is_superadmin and not get_tenant_context():
+        users_query = users_query.filter(User.is_admin == False)  # noqa: E712
 
     stats = {
-        'total_users': total_users,
-        'total_quizzes': total_quizzes,
-        'total_responses': total_responses,
-        'total_groups': total_groups,
-        'total_interviews': total_interviews
+        'total_users': users_query.count(),
+        'total_quizzes': scoped_quizzes().count(),
+        'total_responses': QuizResponse.query.filter(QuizResponse.quiz_id.in_(quiz_ids)).count(),
+        'total_groups': scoped_groups(active_only=False).count(),
+        'total_interviews': scoped_interviews().count(),
     }
 
-    # Recent activity - last 5 submissions (using accessible_quiz_ids from stats section)
-    if accessible_quiz_ids is None:
-        # No filter (superadmin without tenant context)
-        recent_responses = QuizResponse.query.filter(
-            db.or_(QuizResponse.is_test == False, QuizResponse.is_test == None)
-        ).order_by(QuizResponse.submitted_at.desc()).limit(5).all()
-    else:
-        # Filtered by tenant context or permissions
-        recent_responses = QuizResponse.query.filter(
-            QuizResponse.quiz_id.in_(accessible_quiz_ids),
-            db.or_(QuizResponse.is_test == False, QuizResponse.is_test == None)
-        ).order_by(QuizResponse.submitted_at.desc()).limit(5).all() if accessible_quiz_ids else []
+    recent_responses = QuizResponse.query.filter(
+        QuizResponse.quiz_id.in_(quiz_ids), not_test
+    ).order_by(QuizResponse.submitted_at.desc()).limit(5).all()
 
-    # Pending grading count
-    if accessible_quiz_ids is None:
-        pending_grading = QuizResponse.query.filter(
-            QuizResponse.grading_status.in_(['pending', 'grading'])
-        ).count()
-    else:
-        pending_grading = QuizResponse.query.filter(
-            QuizResponse.quiz_id.in_(accessible_quiz_ids),
-            QuizResponse.grading_status.in_(['pending', 'grading'])
-        ).count() if accessible_quiz_ids else 0
+    pending_grading = QuizResponse.query.filter(
+        QuizResponse.quiz_id.in_(quiz_ids),
+        QuizResponse.grading_status.in_(['pending', 'grading'])
+    ).count()
+
+    recent_interviews = InterviewSession.query.filter(
+        InterviewSession.interview_id.in_(interview_ids),
+        InterviewSession.is_test == False  # noqa: E712
+    ).order_by(InterviewSession.started_at.desc()).limit(5).all()
 
     # Get fallback warnings for superadmins (using default prompts/pages)
     fallback_warnings = []
     if current_user.is_superadmin and is_using_fallback():
         fallback_warnings = get_fallback_warnings()
 
-    # Recent interview sessions
-    if current_user.is_superadmin:
-        recent_interviews = InterviewSession.query.filter(
-            InterviewSession.is_test == False
-        ).order_by(InterviewSession.started_at.desc()).limit(5).all()
-    else:
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        if admin_group_ids:
-            accessible_interview_ids = [i.id for i in Interview.query.filter(
-                db.or_(
-                    Interview.created_by_id == current_user.id,
-                    Interview.groups.any(Group.id.in_(admin_group_ids))
-                )
-            ).all()]
-            recent_interviews = InterviewSession.query.filter(
-                InterviewSession.interview_id.in_(accessible_interview_ids),
-                InterviewSession.is_test == False
-            ).order_by(InterviewSession.started_at.desc()).limit(5).all() if accessible_interview_ids else []
-        else:
-            recent_interviews = []
-
-    return render_template('admin/dashboard.html', quizzes=quizzes, stats=stats, pagination=pagination, search=search, all_groups=all_groups, filter_group_id=filter_group_id, all_tenants=all_tenants, filter_tenant_id=filter_tenant_id, recent_responses=recent_responses, pending_grading=pending_grading, fallback_warnings=fallback_warnings, recent_interviews=recent_interviews)
+    return render_template('admin/dashboard.html', quizzes=pagination.items, stats=stats, pagination=pagination,
+                           search=search, all_groups=all_groups, filter_group_id=filter_group_id,
+                           recent_responses=recent_responses, pending_grading=pending_grading,
+                           fallback_warnings=fallback_warnings, recent_interviews=recent_interviews)
 
 
 @admin_bp.route('/quizzes')
@@ -397,63 +220,19 @@ def quiz_list():
     search = request.args.get('search', '', type=str).strip()
     filter_group_id = request.args.get('group', 0, type=int)
 
-    # Get tenant context
-    tenant_ctx = get_tenant_context()
-    filter_tenant_id = tenant_ctx.id if tenant_ctx else 0
-
-    # Get groups for filter dropdown
-    all_groups = []
-    if filter_tenant_id:
-        all_groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id == filter_tenant_id
-        ).order_by(Group.name).all()
-    elif current_user.is_superadmin:
-        all_groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-    else:
-        all_groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-
-    # Build query with optional search
-    query = Quiz.query
+    query = scoped_quizzes()
     if search:
         query = query.filter(Quiz.title.ilike(f'%{search}%'))
-
-    # Filter by selected group
     if filter_group_id > 0:
         query = query.filter(Quiz.groups.any(Group.id == filter_group_id))
 
-    # Apply tenant/permission filtering
-    if filter_tenant_id:
-        tenant_group_ids = [g.id for g in Group.query.filter(Group.tenant_id == filter_tenant_id).all()]
-        if tenant_group_ids:
-            query = query.filter(
-                db.or_(
-                    Quiz.tenant_id == filter_tenant_id,
-                    Quiz.groups.any(Group.id.in_(tenant_group_ids))
-                )
-            )
-        else:
-            query = query.filter(Quiz.tenant_id == filter_tenant_id)
-    elif not current_user.is_superadmin:
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        if admin_group_ids:
-            query = query.filter(
-                db.or_(
-                    Quiz.created_by_id == current_user.id,
-                    Quiz.groups.any(Group.id.in_(admin_group_ids))
-                )
-            )
-        else:
-            query = query.filter(Quiz.created_by_id == current_user.id)
-
-    # Paginate
     quizzes = query.order_by(Quiz.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
 
     return render_template(
         'admin/quizzes.html',
         quizzes=quizzes,
         search=search,
-        all_groups=all_groups,
+        all_groups=scoped_groups().all(),
         filter_group_id=filter_group_id
     )
 
@@ -462,31 +241,8 @@ def quiz_list():
 @login_required
 @admin_required
 def create_quiz():
-    # Get tenant context
     tenant_ctx = get_tenant_context()
-
-    # Filter available groups based on tenant context or admin type
-    if tenant_ctx:
-        # Specific tenant context selected
-        groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id == tenant_ctx.id
-        ).order_by(Group.name).all()
-        user_tenant_ids = [tenant_ctx.id]
-    elif current_user.is_superadmin:
-        groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-        user_tenant_ids = None  # Superadmin can access all
-    elif current_user.is_tenant_admin:
-        # Tenant admin: only groups from their tenants
-        user_tenant_ids = [t.id for t in current_user.admin_tenants]
-        groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id.in_(user_tenant_ids)
-        ).order_by(Group.name).all()
-    else:
-        # Group admin: only their admin groups
-        groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-        user_tenant_ids = None
+    groups = scoped_groups().all()
 
     if request.method == 'POST':
         markdown_content = request.form.get('markdown_content')
@@ -501,23 +257,17 @@ def create_quiz():
         one_question_per_page = request.form.get('one_question_per_page') == 'on'
         custom_slug = request.form.get('slug', '').strip() or None
 
-        # Determine quiz tenant_id and validate group selection
-        quiz_tenant_id = tenant_ctx.id if tenant_ctx else None
-
-        if not current_user.is_superadmin or tenant_ctx:
-            # Validate groups are from accessible scope
-            valid_group_ids = [str(g.id) for g in groups]  # groups already filtered
-            valid_ids = [gid for gid in group_ids if gid in valid_group_ids]
-            if not valid_ids:
-                flash(_l('Vous devez assigner le quiz a au moins un groupe accessible'), 'error')
-                return render_template('admin/create_quiz.html', groups=groups)
-            group_ids = valid_ids
-
-            # Set tenant_id from first group if not already set by context
-            if not quiz_tenant_id:
-                first_group = Group.query.get(int(valid_ids[0]))
-                if first_group and first_group.tenant_id:
-                    quiz_tenant_id = first_group.tenant_id
+        # Keep only groups in scope; non-superadmins (or any admin with a context) must pick one
+        selected_groups = validate_group_ids(group_ids)
+        if not selected_groups and (not current_user.is_superadmin or tenant_ctx):
+            flash(_l('Vous devez assigner le quiz a au moins un groupe accessible'), 'error')
+            return render_template('admin/create_quiz.html', groups=groups)
+        group_ids = [str(g.id) for g in selected_groups]
+        quiz_tenant_id = default_tenant_id(selected_groups)
+        quiz_tenant = db.session.get(Tenant, quiz_tenant_id) if quiz_tenant_id else None
+        if quiz_tenant and not quiz_tenant.can_add_quiz():
+            flash(_l('Limite de quiz atteinte pour cet etablissement (%(max)s)', max=quiz_tenant.max_quizzes), 'error')
+            return render_template('admin/create_quiz.html', groups=groups)
 
         # Parse dates
         available_from = None
@@ -649,19 +399,10 @@ def edit_quiz(identifier):
         flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
-    # Get tenant context from navbar
-    tenant_ctx = get_tenant_context()
-
-    # Filter groups based on tenant context and permissions
+    groups = scoped_groups().all()
+    admin_users = []
     if current_user.is_superadmin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-        # Get all admin users for author selection (superadmins + group admins)
+        # All admin users for author selection (superadmins + group admins)
         group_admin_ids = db.session.query(user_groups.c.user_id).filter(
             user_groups.c.role == 'admin'
         ).distinct().subquery()
@@ -671,22 +412,6 @@ def edit_quiz(identifier):
                 User.id.in_(group_admin_ids)
             )
         ).order_by(User.last_name, User.first_name, User.username).all()
-    elif current_user.is_tenant_admin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            tenant_ids = [t.id for t in current_user.admin_tenants]
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id.in_(tenant_ids)
-            ).order_by(Group.name).all()
-        admin_users = []
-    else:
-        groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-        admin_users = []
 
     if request.method == 'POST':
         markdown_content = request.form.get('markdown_content')
@@ -702,13 +427,9 @@ def edit_quiz(identifier):
         custom_slug = request.form.get('slug', '').strip() or None
 
         # Non-superadmins must keep at least one of their accessible groups
-        if not current_user.is_superadmin:
-            accessible_group_ids = [str(g.id) for g in current_user.get_accessible_groups()]
-            valid_ids = [gid for gid in group_ids if gid in accessible_group_ids]
-            if not valid_ids:
-                flash(_l('Le quiz doit rester assigne a au moins un de vos groupes'), 'error')
-                return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
-            group_ids = valid_ids
+        if not current_user.is_superadmin and not validate_group_ids(group_ids):
+            flash(_l('Le quiz doit rester assigne a au moins un de vos groupes'), 'error')
+            return render_template('admin/edit_quiz.html', quiz=quiz, groups=groups, admin_users=admin_users)
 
         # Parse dates
         available_from = None
@@ -777,12 +498,8 @@ def edit_quiz(identifier):
                     quiz.created_by_id = int(new_author_id)
 
             # Update group assignments
-            quiz.groups = []
-            if group_ids:
-                for gid in group_ids:
-                    group = Group.query.get(int(gid))
-                    if group:
-                        quiz.groups.append(group)
+            # Groups outside our scope (shared quiz) are kept as they are
+            assign_groups(quiz.groups, group_ids)
 
             # Delete old questions and their answers (bulk delete doesn't cascade)
             old_questions = Question.query.filter_by(quiz_id=quiz.id).all()
@@ -1133,6 +850,18 @@ def duplicate_quiz(identifier):
         flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
+    # Copy group assignments (only accessible groups for non-superadmins)
+    if current_user.is_superadmin:
+        copied_groups = original.groups.all()
+    else:
+        accessible_group_ids = [g.id for g in current_user.get_accessible_groups()]
+        copied_groups = [g for g in original.groups if g.id in accessible_group_ids]
+    tenant_id = default_tenant_id(copied_groups) or original.tenant_id
+    tenant = db.session.get(Tenant, tenant_id) if tenant_id else None
+    if tenant and not tenant.can_add_quiz():
+        flash(_l('Limite de quiz atteinte pour cet etablissement (%(max)s)', max=tenant.max_quizzes), 'error')
+        return redirect(url_for('admin.quiz_list'))
+
     # Create new quiz with copied data
     new_title = f"{original.title} (copie)"
     new_quiz = Quiz(
@@ -1147,20 +876,13 @@ def duplicate_quiz(identifier):
         available_until=None,
         grading_severity=original.grading_severity,
         grading_mood=original.grading_mood,
-        created_by_id=current_user.id  # New copy is created by current user
+        created_by_id=current_user.id,  # New copy is created by current user
+        tenant_id=tenant_id
     )
     db.session.add(new_quiz)
     db.session.flush()
-
-    # Copy group assignments (only accessible groups for non-superadmins)
-    if current_user.is_superadmin:
-        for group in original.groups:
-            new_quiz.groups.append(group)
-    else:
-        accessible_group_ids = [g.id for g in current_user.get_accessible_groups()]
-        for group in original.groups:
-            if group.id in accessible_group_ids:
-                new_quiz.groups.append(group)
+    for group in copied_groups:
+        new_quiz.groups.append(group)
 
     # Copy questions
     for orig_q in original.questions.order_by(Question.order):
@@ -1202,6 +924,20 @@ def toggle_quiz(identifier):
     flash(_l('Quiz %(status)s', status=status), 'success')
     return redirect(url_for('admin.dashboard'))
 
+def scoped_quiz_responses(quiz, group_id=None):
+    """Responses to a quiz from users the current admin can see, optionally for one group."""
+    query = QuizResponse.query.filter(QuizResponse.quiz_id == quiz.id)
+    if group_id:
+        members = db.session.query(user_groups.c.user_id).filter(
+            user_groups.c.group_id == group_id,
+            user_groups.c.group_id.in_(scoped_group_ids())
+        )
+        query = query.filter(QuizResponse.user_id.in_(members))
+    elif not current_user.is_superadmin:
+        query = query.filter(QuizResponse.user_id.in_(scoped_user_ids()))
+    return query.order_by(QuizResponse.submitted_at.desc())
+
+
 @admin_bp.route('/quiz/<identifier>/results')
 @login_required
 @admin_required
@@ -1210,8 +946,6 @@ def quiz_results(identifier):
     if not quiz:
         flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
-
-    quiz_id = quiz.id  # Keep for queries
 
     # Redirect to canonical URL if accessed by numeric ID
     if identifier != quiz.get_url_identifier():
@@ -1223,39 +957,12 @@ def quiz_results(identifier):
         return redirect(url_for('admin.dashboard'))
 
     group_filter = request.args.get('group', None, type=int)
+    groups = scoped_groups(active_only=False).all()
+    responses = scoped_quiz_responses(quiz, group_filter).all()
+    user_group_names = Group.names_by_user({r.user_id for r in responses})
 
-    # Get groups for filter dropdown based on admin type
-    if current_user.is_superadmin:
-        groups = Group.query.order_by(Group.name).all()
-        admin_group_ids = None  # Superadmin sees all
-    elif current_user.is_tenant_admin:
-        # Tenant admin: show groups from their tenants
-        tenant_ids = [t.id for t in current_user.admin_tenants]
-        groups = Group.query.filter(Group.tenant_id.in_(tenant_ids)).order_by(Group.name).all()
-        admin_group_ids = [g.id for g in groups] if groups else None  # None = see all responses for this quiz
-    else:
-        # Group admin: only their admin groups
-        groups = list(current_user.get_admin_groups().order_by(Group.name))
-        admin_group_ids = [g.id for g in groups]
-
-    # Build response query
-    query = QuizResponse.query.join(User).filter(QuizResponse.quiz_id == quiz_id)
-
-    # Filter by specific group if requested
-    if group_filter:
-        # Use the new user_groups table for filtering
-        query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
-            user_groups.c.group_id == group_filter
-        )
-    elif admin_group_ids is not None and admin_group_ids:
-        # Non-superadmin without filter - only show users in their accessible groups
-        query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
-            user_groups.c.group_id.in_(admin_group_ids)
-        )
-
-    responses = query.distinct().order_by(QuizResponse.submitted_at.desc()).all()
-
-    return render_template('admin/quiz_results.html', quiz=quiz, responses=responses, groups=groups, selected_group=group_filter)
+    return render_template('admin/quiz_results.html', quiz=quiz, responses=responses, groups=groups,
+                           selected_group=group_filter, user_group_names=user_group_names)
 
 
 @admin_bp.route('/quiz/<identifier>/regrade', methods=['POST'])
@@ -1339,40 +1046,13 @@ def export_quiz_csv(identifier):
         flash(_l('Quiz introuvable'), 'error')
         return redirect(url_for('admin.dashboard'))
 
-    quiz_id = quiz.id  # Keep for queries
-
     # Check permission
     if not current_user.can_access_quiz(quiz):
         flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
     group_filter = request.args.get('group', None, type=int)
-
-    # Get admin's groups for filtering based on admin type
-    if current_user.is_superadmin:
-        admin_group_ids = None
-    elif current_user.is_tenant_admin:
-        tenant_ids = [t.id for t in current_user.admin_tenants]
-        tenant_groups = Group.query.filter(Group.tenant_id.in_(tenant_ids)).all()
-        admin_group_ids = [g.id for g in tenant_groups] if tenant_groups else None
-    else:
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-
-    # Build response query
-    query = QuizResponse.query.join(User).filter(QuizResponse.quiz_id == quiz_id)
-
-    # Filter by specific group if requested
-    if group_filter:
-        query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
-            user_groups.c.group_id == group_filter
-        )
-    elif admin_group_ids is not None and admin_group_ids:
-        # Non-superadmin without filter - only show users in their accessible groups
-        query = query.join(user_groups, User.id == user_groups.c.user_id).filter(
-            user_groups.c.group_id.in_(admin_group_ids)
-        )
-
-    responses = query.distinct().order_by(QuizResponse.submitted_at.desc()).all()
+    responses = scoped_quiz_responses(quiz, group_filter).all()
 
     # Create CSV in memory
     output = StringIO()
@@ -1389,7 +1069,7 @@ def export_quiz_csv(identifier):
         user = resp.user
         percentage = (resp.total_score / resp.max_score * 100) if resp.max_score > 0 else 0
         # Get all user groups as comma-separated list
-        user_group_names = ', '.join([g.name for g in user.groups]) or (user.group.name if user.group else '')
+        user_group_names = ', '.join([g.name for g in user.groups])
         writer.writerow([
             user.last_name or '',
             user.first_name or '',
@@ -1421,7 +1101,6 @@ def users():
     per_page = 20
     search = request.args.get('search', '', type=str).strip()
     filter_group_id = request.args.get('group', 0, type=int)
-    filter_tenant_id = request.args.get('tenant', 0, type=int)
     filter_role = request.args.get('role', '', type=str)
     sort_by = request.args.get('sort', 'created_at')
     sort_dir = request.args.get('dir', 'desc')
@@ -1436,102 +1115,8 @@ def users():
     if filter_role not in valid_roles:
         filter_role = ''
 
-    # Get tenant context from navbar selector
-    tenant_ctx = get_tenant_context()
-
-    # Sync filter_tenant_id with navbar context if no URL filter provided
-    if filter_tenant_id == 0 and tenant_ctx:
-        filter_tenant_id = tenant_ctx.id
-
-    # Get all tenants for dropdown (only for superadmin or tenant_admin with multiple tenants)
-    # Don't show dropdown if navbar context is already set (would be redundant)
-    all_tenants = []
-    if not tenant_ctx:
-        if current_user.is_superadmin:
-            all_tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-        elif current_user.is_tenant_admin:
-            admin_tenant_list = list(current_user.admin_tenants)
-            if len(admin_tenant_list) > 1:
-                all_tenants = admin_tenant_list
-
-    # Determine effective tenant filter
-    if filter_tenant_id > 0:
-        # Validate user has access to this tenant
-        if current_user.is_superadmin or (current_user.is_tenant_admin and any(t.id == filter_tenant_id for t in current_user.admin_tenants)):
-            filter_tenant_ids = [filter_tenant_id]
-        else:
-            filter_tenant_id = 0
-            filter_tenant_ids = None
-    elif current_user.is_superadmin:
-        filter_tenant_ids = None
-    elif current_user.is_tenant_admin:
-        filter_tenant_ids = [t.id for t in current_user.admin_tenants]
-    else:
-        filter_tenant_ids = None
-
-    # Get groups for filter dropdown (filtered by tenant if selected)
-    if filter_tenant_id > 0:
-        all_groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id == filter_tenant_id
-        ).order_by(Group.name).all()
-    elif filter_tenant_ids is not None:
-        all_groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id.in_(filter_tenant_ids)
-        ).order_by(Group.name).all()
-    elif current_user.is_superadmin:
-        all_groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-    else:
-        all_groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-
-    # Build user query based on context
-    # Note: User.is_admin is the DB column for superadmin status
-    if filter_tenant_ids is not None:
-        # Filter users by tenant's groups, but also include superadmins and tenant admins
-        tenant_group_ids = [g.id for g in Group.query.filter(Group.tenant_id.in_(filter_tenant_ids)).all()]
-
-        if tenant_group_ids:
-            # Users in groups OR superadmins OR tenant admins of filtered tenants
-            users_in_groups_q = db.session.query(user_groups.c.user_id).filter(
-                user_groups.c.group_id.in_(tenant_group_ids)
-            )
-            tenant_admins_q = db.session.query(tenant_admins.c.user_id).filter(
-                tenant_admins.c.tenant_id.in_(filter_tenant_ids)
-            )
-            query = User.query.filter(
-                db.or_(
-                    User.id.in_(users_in_groups_q),
-                    User.is_admin == True,
-                    User.id.in_(tenant_admins_q)
-                )
-            )
-        else:
-            # No groups, but still show superadmins and tenant admins
-            tenant_admins_q = db.session.query(tenant_admins.c.user_id).filter(
-                tenant_admins.c.tenant_id.in_(filter_tenant_ids)
-            )
-            query = User.query.filter(
-                db.or_(
-                    User.is_admin == True,
-                    User.id.in_(tenant_admins_q)
-                )
-            )
-    elif current_user.is_superadmin:
-        query = User.query
-    else:
-        # Group admin: see members of their groups
-        admin_group_ids = [g.id for g in current_user.get_admin_groups()]
-        if admin_group_ids:
-            query = User.query.filter(
-                User.id.in_(
-                    db.session.query(user_groups.c.user_id).filter(
-                        user_groups.c.group_id.in_(admin_group_ids)
-                    )
-                )
-            )
-        else:
-            query = User.query.filter(False)
+    all_groups = scoped_groups().all()
+    query = scoped_users()
 
     # Filter by selected group (using subquery to avoid JOIN conflicts)
     if filter_group_id > 0:
@@ -1550,39 +1135,19 @@ def users():
             )
         )
 
-    # Filter by role (fetch IDs explicitly to avoid subquery issues)
-    # Note: User.is_admin is the DB column, User.is_superadmin is a Python property
+    # Filter by role (User.is_admin is the superadmin DB column)
+    tenant_admin_ids = db.session.query(tenant_admins.c.user_id)
+    group_admin_ids = db.session.query(user_groups.c.user_id).filter(user_groups.c.role == 'admin')
     if filter_role == 'superadmin':
-        query = query.filter(User.is_admin == True)
+        query = query.filter(User.is_admin == True)  # noqa: E712
     elif filter_role == 'tenant_admin':
-        # Get tenant admin user IDs
-        ta_ids = [r.user_id for r in db.session.query(tenant_admins.c.user_id).all()]
-        if ta_ids:
-            query = query.filter(User.is_admin == False, User.id.in_(ta_ids))
-        else:
-            query = query.filter(False)  # No tenant admins exist
+        query = query.filter(User.is_admin == False, User.id.in_(tenant_admin_ids))  # noqa: E712
     elif filter_role == 'group_admin':
-        # Get group admin IDs (excluding tenant admins)
-        ta_ids = set(r.user_id for r in db.session.query(tenant_admins.c.user_id).all())
-        ga_ids = [r.user_id for r in db.session.query(user_groups.c.user_id).filter(
-            user_groups.c.role == 'admin'
-        ).all()]
-        # Group admins who are not tenant admins
-        pure_ga_ids = [uid for uid in ga_ids if uid not in ta_ids]
-        if pure_ga_ids:
-            query = query.filter(User.is_admin == False, User.id.in_(pure_ga_ids))
-        else:
-            query = query.filter(False)  # No group admins exist
+        query = query.filter(User.is_admin == False, User.id.in_(group_admin_ids),  # noqa: E712
+                             ~User.id.in_(tenant_admin_ids))
     elif filter_role == 'user':
-        # Get IDs of all admins to exclude
-        ta_ids = set(r.user_id for r in db.session.query(tenant_admins.c.user_id).all())
-        ga_ids = set(r.user_id for r in db.session.query(user_groups.c.user_id).filter(
-            user_groups.c.role == 'admin'
-        ).all())
-        admin_ids = ta_ids | ga_ids
-        query = query.filter(User.is_admin == False)
-        if admin_ids:
-            query = query.filter(~User.id.in_(list(admin_ids)))
+        query = query.filter(User.is_admin == False, ~User.id.in_(tenant_admin_ids),  # noqa: E712
+                             ~User.id.in_(group_admin_ids))
 
     # Apply sorting (MySQL compatible - no NULLS LAST support)
     sort_column_map = {
@@ -1604,34 +1169,50 @@ def users():
     all_users = pagination.items
     return render_template('admin/users.html', users=all_users, pagination=pagination, search=search,
                           all_groups=all_groups, filter_group_id=filter_group_id,
-                          all_tenants=all_tenants, filter_tenant_id=filter_tenant_id,
-                          filter_role=filter_role, sort_by=sort_by, sort_dir=sort_dir)
+                          filter_role=filter_role, sort_by=sort_by, sort_dir=sort_dir,
+                          meta=users_list_meta(all_users))
+
+
+def users_list_meta(users):
+    """Groups, roles and permissions for a page of users, in 2 queries instead of ~5 per row.
+
+    Returns {user_id: {'groups': [(group, role)], 'rank': int, 'can_manage': bool}}.
+    """
+    ids = [u.id for u in users]
+    memberships = {uid: [] for uid in ids}
+    tenant_admin_ids = set()
+    if ids:
+        rows = db.session.query(user_groups.c.user_id, Group, user_groups.c.role).join(
+            Group, Group.id == user_groups.c.group_id
+        ).filter(user_groups.c.user_id.in_(ids)).order_by(Group.name).all()
+        for uid, group, role in rows:
+            memberships[uid].append((group, role))
+        tenant_admin_ids = {row[0] for row in db.session.query(tenant_admins.c.user_id).filter(
+            tenant_admins.c.user_id.in_(ids))}
+    meta = {}
+    for u in users:
+        groups = memberships[u.id]
+        if u.is_admin:
+            rank = 3
+        elif u.id in tenant_admin_ids:
+            rank = 2
+        elif any(role == 'admin' for _, role in groups):
+            rank = 1
+        else:
+            rank = 0
+        meta[u.id] = {
+            'groups': groups,
+            'rank': rank,
+            'can_manage': current_user.can_manage(u.id, rank, {g.id for g, _ in groups}),
+        }
+    return meta
 
 # Group management routes - Superadmin and Tenant Admin
 @admin_bp.route('/groups')
 @login_required
 @admin_required
 def groups():
-    # Get tenant context
-    tenant_ctx = get_tenant_context()
-
-    # Determine filter
-    if tenant_ctx:
-        # Specific tenant context
-        all_groups = Group.query.filter(
-            Group.tenant_id == tenant_ctx.id
-        ).order_by(Group.created_at.desc()).all()
-    elif current_user.is_superadmin:
-        all_groups = Group.query.order_by(Group.created_at.desc()).all()
-    elif current_user.is_tenant_admin:
-        # Tenant admin without context: all their tenants' groups
-        tenant_ids = [t.id for t in current_user.admin_tenants]
-        all_groups = Group.query.filter(
-            Group.tenant_id.in_(tenant_ids)
-        ).order_by(Group.created_at.desc()).all()
-    else:
-        # Group admin: only their admin groups
-        all_groups = list(current_user.get_admin_groups().order_by(Group.created_at.desc()))
+    all_groups = scoped_groups(active_only=False).order_by(None).order_by(Group.created_at.desc()).all()
     return render_template('admin/groups.html', groups=all_groups)
 
 @admin_bp.route('/group/create', methods=['GET', 'POST'])
@@ -1668,6 +1249,11 @@ def create_group():
         # Default to first available tenant if not specified
         if not tenant_id and tenants:
             tenant_id = tenants[0].id
+
+        tenant = db.session.get(Tenant, tenant_id) if tenant_id else None
+        if tenant and not tenant.can_add_group():
+            flash(_l('Limite de groupes atteinte (%(max)s)', max=tenant.max_groups), 'error')
+            return render_template('admin/create_group.html', tenants=tenants)
 
         # Generate unique join code
         join_code = Group.generate_join_code()
@@ -1714,11 +1300,25 @@ def edit_group(identifier):
         tenants = list(current_user.admin_tenants.filter_by(is_active=True))
 
     if request.method == 'POST':
-        group.name = request.form.get('name')
+        name = request.form.get('name', '').strip()
+        tenant_id = request.form.get('tenant_id', type=int)
+
+        if not name:
+            flash(_l('Le nom du groupe est requis'), 'error')
+            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+
+        # Moving a group is limited to the tenants we administer
+        if tenant_id and tenant_id != group.tenant_id and tenant_id not in {t.id for t in tenants}:
+            flash(_l('Acces non autorise a ce tenant'), 'error')
+            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+        if tenant_id and tenant_id != group.tenant_id and not db.session.get(Tenant, tenant_id).can_add_group():
+            flash(_l('Limite de groupes atteinte (%(max)s)', max=db.session.get(Tenant, tenant_id).max_groups), 'error')
+            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+
+        group.name = name
         group.description = request.form.get('description', '')
         max_members = request.form.get('max_members', 0, type=int)
         group.max_members = max(0, max_members)
-        tenant_id = request.form.get('tenant_id', type=int)
         if tenant_id:
             group.tenant_id = tenant_id
         db.session.commit()
@@ -1798,7 +1398,10 @@ def group_users(identifier):
     users = User.query.join(user_groups).filter(
         user_groups.c.group_id == group_id
     ).order_by(User.created_at.desc()).all()
-    return render_template('admin/group_users.html', group=group, users=users)
+    response_counts = dict(db.session.query(QuizResponse.user_id, db.func.count(QuizResponse.id)).filter(
+        QuizResponse.user_id.in_([u.id for u in users])
+    ).group_by(QuizResponse.user_id).all()) if users else {}
+    return render_template('admin/group_users.html', group=group, users=users, response_counts=response_counts)
 
 
 @admin_bp.route('/group/<identifier>/export-results')
@@ -2086,38 +1689,8 @@ def user_grades(identifier):
 @admin_required
 def create_user():
     """Create a new user (admin or regular)."""
-    # Get tenant context from navbar
-    tenant_ctx = get_tenant_context()
-
-    # Filter groups based on tenant context and permissions
-    if current_user.is_superadmin:
-        if tenant_ctx:
-            # Superadmin with tenant context: only groups from that tenant
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-        tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-    elif current_user.is_tenant_admin:
-        if tenant_ctx:
-            # Tenant admin with context: only groups from that tenant
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            # Tenant admin without context: groups from all their tenants
-            tenant_ids = [t.id for t in current_user.admin_tenants]
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id.in_(tenant_ids)
-            ).order_by(Group.name).all()
-        tenants = []
-    else:
-        groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
-        tenants = []
+    groups = scoped_groups().all()
+    tenants = get_accessible_tenants() if current_user.is_superadmin else []
 
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
@@ -2144,13 +1717,16 @@ def create_user():
             if not current_user.is_tenant_admin:
                 is_group_admin = False
 
-        # Validate group ids based on accessible groups
-        if not current_user.is_superadmin:
-            accessible_group_ids = [str(g.id) for g in current_user.get_accessible_groups()]
-            group_ids = [gid for gid in group_ids if gid in accessible_group_ids]
+        # Keep only groups in scope, and check they can take one more person
+        selected_groups = validate_group_ids(group_ids)
+        group_ids = [str(g.id) for g in selected_groups]
+        join_errors = [f'{g.name} : {g.join_error()}' for g in selected_groups if g.join_error()]
 
         # Validation
-        if not username or not email or not password:
+        if join_errors and not is_superadmin and not is_tenant_admin:
+            for error in join_errors:
+                flash(error, 'error')
+        elif not username or not email or not password:
             flash(_l('Nom d\'utilisateur, email et mot de passe sont requis'), 'error')
         elif User.query.filter_by(username=username).first():
             flash(_l('Ce nom d\'utilisateur existe deja'), 'error')
@@ -2212,32 +1788,7 @@ def import_users():
     import csv
     from io import StringIO
 
-    # Get tenant context from navbar
-    tenant_ctx = get_tenant_context()
-
-    # Get groups for dropdown based on tenant context and permissions
-    if current_user.is_superadmin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-    elif current_user.is_tenant_admin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            tenant_ids = [t.id for t in current_user.admin_tenants]
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id.in_(tenant_ids)
-            ).order_by(Group.name).all()
-    else:
-        groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
+    groups = scoped_groups().all()
 
     if request.method == 'POST':
         if 'csv_file' not in request.files:
@@ -2256,14 +1807,9 @@ def import_users():
             flash(_l('Veuillez selectionner un groupe par defaut'), 'error')
             return redirect(request.url)
 
-        # Check group access
-        if not current_user.is_superadmin:
-            accessible_group_ids = [g.id for g in current_user.get_accessible_groups()]
-            if default_group_id not in accessible_group_ids:
-                flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
-                return redirect(request.url)
-
-        default_group = Group.query.get(default_group_id)
+        # Group must be in scope
+        valid = validate_group_ids([default_group_id])
+        default_group = valid[0] if valid else None
         if not default_group:
             flash(_l('Groupe invalide'), 'error')
             return redirect(request.url)
@@ -2310,6 +1856,12 @@ def import_users():
 
                 if User.query.filter_by(email=email).first():
                     errors.append(f"Ligne {row_num}: Email '{email}' existe deja")
+                    skipped_count += 1
+                    continue
+
+                join_error = default_group.join_error()
+                if join_error:
+                    errors.append(f"Ligne {row_num}: {join_error}")
                     skipped_count += 1
                     continue
 
@@ -2366,51 +1918,18 @@ def edit_user(identifier):
     if identifier != user.get_url_identifier():
         return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()), code=301)
 
-    # Permission check - group admins can only edit users in their groups
-    if not current_user.can_access_user(user):
-        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
-        return redirect(url_for('admin.users'))
-
-    # Group admins cannot edit superadmins
-    if not current_user.is_superadmin and user.is_superadmin:
-        flash(_l('Vous ne pouvez pas modifier un super-administrateur'), 'error')
-        return redirect(url_for('admin.users'))
-
     # Prevent editing yourself to remove admin rights
     if user.id == current_user.id:
         flash(_l('Vous ne pouvez pas modifier votre propre compte ici'), 'error')
         return redirect(url_for('admin.users'))
 
-    # Get tenant context from navbar
-    tenant_ctx = get_tenant_context()
+    # Write access: lower role only, and all of the user's groups must be ours
+    if not current_user.can_manage_user(user):
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
+        return redirect(url_for('admin.users'))
 
-    # Get available groups based on admin level and tenant context
-    if current_user.is_superadmin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-        tenants = Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-    elif current_user.is_tenant_admin:
-        if tenant_ctx:
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id == tenant_ctx.id
-            ).order_by(Group.name).all()
-        else:
-            tenant_ids = [t.id for t in current_user.admin_tenants]
-            groups = Group.query.filter(
-                Group.is_active == True,
-                Group.tenant_id.in_(tenant_ids)
-            ).order_by(Group.name).all()
-        tenants = []
-    else:
-        # Group admins can only assign users to their admin groups
-        groups = current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name).all()
-        tenants = []
+    groups = scoped_groups().all()
+    tenants = get_accessible_tenants() if current_user.is_superadmin else []
 
     # Get user's current groups with roles
     user_group_roles = {}
@@ -2520,7 +2039,10 @@ def edit_user(identifier):
                 for gid in groups_to_add:
                     if gid in modifiable_group_ids:
                         group = Group.query.get(gid)
-                        if group:
+                        join_error = group.join_error(user) if group else None
+                        if join_error:
+                            flash(f'{group.name} : {join_error}', 'error')
+                        elif group:
                             role = 'admin' if is_group_admin else 'member'
                             user.add_to_group(group, role=role)
 
@@ -2562,6 +2084,7 @@ def edit_user(identifier):
                 user.set_password(password)
 
             db.session.commit()
+            User.clear_role_cache()
             flash(_l('Utilisateur "%(username)s" mis a jour avec succes', username=username), 'success')
             return redirect(url_for('admin.users'))
 
@@ -2580,23 +2103,14 @@ def delete_user(identifier):
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
-    # Permission check - group admins can only delete users in their groups
-    if not current_user.can_access_user(user):
-        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
-        return redirect(url_for('admin.users'))
-
-    # Group admins cannot delete superadmins or other group admins
-    if not current_user.is_superadmin:
-        if user.is_superadmin:
-            flash(_l('Vous ne pouvez pas supprimer un super-administrateur'), 'error')
-            return redirect(url_for('admin.users'))
-        if user.is_group_admin:
-            flash(_l('Vous ne pouvez pas supprimer un administrateur de groupe'), 'error')
-            return redirect(url_for('admin.users'))
-
     # Prevent self-deletion
     if user.id == current_user.id:
         flash(_l('Vous ne pouvez pas supprimer votre propre compte'), 'error')
+        return redirect(url_for('admin.users'))
+
+    # Write access: lower role only, and all of the user's groups must be ours
+    if not current_user.can_manage_user(user):
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
     username = user.username
@@ -2631,16 +2145,10 @@ def bulk_delete_users():
             skipped_count += 1
             continue
 
-        # Permission check
-        if not current_user.can_access_user(user):
+        # Permission check (write access)
+        if not current_user.can_manage_user(user):
             skipped_count += 1
             continue
-
-        # Group admins cannot delete superadmins or other group admins
-        if not current_user.is_superadmin:
-            if user.is_superadmin or user.is_group_admin:
-                skipped_count += 1
-                continue
 
         db.session.delete(user)
         deleted_count += 1
@@ -2668,7 +2176,7 @@ def bulk_change_group():
         flash(_l('Aucun utilisateur selectionne'), 'warning')
         return redirect(url_for('admin.users'))
 
-    if not group_id:
+    if not group_id or action not in ('add', 'remove', 'replace'):
         flash(_l('Aucun groupe selectionne'), 'warning')
         return redirect(url_for('admin.users'))
 
@@ -2684,34 +2192,42 @@ def bulk_change_group():
 
     updated_count = 0
     skipped_count = 0
+    managed_group_ids = current_user.get_managed_group_ids()  # None = all
 
     for user_id in user_ids:
         user = User.query.get(user_id)
         if not user:
             continue
 
-        # Skip if user cannot be accessed
-        if not current_user.can_access_user(user):
+        # Skip users we cannot see, ourselves, and peers or superiors
+        if (user.id == current_user.id
+                or not current_user.can_access_user(user)
+                or (not current_user.is_superadmin and user.role_rank >= current_user.role_rank)):
             skipped_count += 1
             continue
 
-        # Check max members
-        if action in ['add', 'replace'] and group not in user.groups.all():
-            if group.max_members > 0 and group.get_member_count() >= group.max_members:
-                skipped_count += 1
-                continue
+        in_group = user.is_member_of_group(group.id)
+
+        # Check group/tenant capacity
+        if action in ['add', 'replace'] and not in_group and group.join_error(user):
+            skipped_count += 1
+            continue
 
         if action == 'add':
-            if group not in user.groups.all():
-                user.groups.append(group)
+            if not in_group:
+                user.add_to_group(group, 'member')
                 updated_count += 1
         elif action == 'remove':
-            if group in user.groups.all():
-                user.groups.remove(group)
+            if in_group:
+                user.remove_from_group(group)
                 updated_count += 1
         elif action == 'replace':
-            # Remove all groups and add just this one
-            user.groups = [group]
+            # Leave only the groups we manage; memberships elsewhere are kept
+            for g in user.groups.all():
+                if g.id != group.id and (managed_group_ids is None or g.id in managed_group_ids):
+                    user.remove_from_group(g)
+            if not in_group:
+                user.add_to_group(group, 'member')
             updated_count += 1
 
     db.session.commit()
@@ -2838,17 +2354,7 @@ def delete_response(identifier):
 @admin_required
 def generate_quiz():
     """Generate a quiz from uploaded course material using AI."""
-    # Get groups for form (same pattern as create_quiz)
-    if current_user.is_superadmin:
-        groups = Group.query.filter_by(is_active=True).order_by(Group.name).all()
-    elif current_user.is_tenant_admin:
-        tenant_ids = [t.id for t in current_user.admin_tenants]
-        groups = Group.query.filter(
-            Group.is_active == True,
-            Group.tenant_id.in_(tenant_ids)
-        ).order_by(Group.name).all()
-    else:
-        groups = list(current_user.get_admin_groups().filter(Group.is_active == True).order_by(Group.name))
+    groups = scoped_groups().all()
 
     if request.method == 'POST':
         # Get form data
@@ -2890,6 +2396,11 @@ def generate_quiz():
                 flash(_l('Le fichier ne contient pas assez de texte exploitable (minimum 100 caracteres)'), 'error')
                 return render_template('admin/generate_quiz.html', groups=groups)
 
+            tenant = quota_tenant()
+            if tenant and not tenant.can_generate_quiz():
+                flash(_l('Quota mensuel de generations IA atteint pour cet etablissement'), 'error')
+                return render_template('admin/generate_quiz.html', groups=groups)
+
             # Generate quiz using Claude
             result = generate_quiz_from_content(
                 content=content,
@@ -2901,6 +2412,8 @@ def generate_quiz():
             )
 
             if result['success']:
+                if tenant:
+                    tenant.increment_quiz_generations()
                 # Render preview page with generated markdown
                 return render_template('admin/generate_quiz_preview.html',
                                      generated_markdown=result['markdown'],
@@ -2935,7 +2448,7 @@ def response_analysis(identifier):
         return redirect(url_for('admin.response_analysis', identifier=response.get_url_identifier()), code=301)
 
     # Check permission
-    if not current_user.can_access_quiz(response.quiz):
+    if not current_user.can_access_quiz(response.quiz) or not current_user.can_access_user(response.user):
         flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
         return redirect(url_for('admin.dashboard'))
 
@@ -2965,8 +2478,12 @@ def analyze_response(identifier):
         return jsonify({'error': 'Response not found'}), 404
 
     # Check permission
-    if not current_user.can_access_quiz(response.quiz):
+    if not current_user.can_access_quiz(response.quiz) or not current_user.can_access_user(response.user):
         return jsonify({'error': 'Unauthorized'}), 403
+
+    tenant = response.quiz.tenant
+    if tenant and not tenant.can_analyze_class():
+        return jsonify({'error': str(_l('Quota mensuel d\'analyses IA atteint pour cet etablissement'))}), 429
 
     # Update status
     response.ai_analysis_status = 'pending'
@@ -2980,6 +2497,8 @@ def analyze_response(identifier):
         response.ai_analysis_result = result
         response.ai_analysis_status = 'completed'
         db.session.commit()
+        if tenant:
+            tenant.increment_class_analyses()
 
         return jsonify({'success': True, 'result': result})
 
@@ -3044,6 +2563,9 @@ def analyze_class_route(identifier):
     if not current_user.can_access_quiz(quiz):
         return jsonify({'error': 'Unauthorized'}), 403
 
+    if quiz.tenant and not quiz.tenant.can_analyze_class():
+        return jsonify({'error': str(_l('Quota mensuel d\'analyses IA atteint pour cet etablissement'))}), 429
+
     try:
         result = analyze_class(quiz.id)
 
@@ -3053,6 +2575,8 @@ def analyze_class_route(identifier):
         # Store result in quiz
         quiz.class_analysis_result = result
         db.session.commit()
+        if quiz.tenant:
+            quiz.tenant.increment_class_analyses()
 
         return jsonify({'success': True, 'result': result})
 
@@ -3093,6 +2617,19 @@ def site_settings():
             if new_password:
                 settings.set_ftp_password(new_password)
 
+            # Claude API: key only replaced when a new one is typed
+            if request.form.get('clear_anthropic_api_key') == 'on':
+                settings.set_anthropic_api_key(None)
+            elif request.form.get('anthropic_api_key', '').strip():
+                settings.set_anthropic_api_key(request.form['anthropic_api_key'].strip())
+            new_model = request.form.get('claude_model', '').strip()[:100] or None
+            if new_model != settings.claude_model:
+                model_error = check_claude_model(new_model, settings.get_anthropic_api_key())
+                if model_error:
+                    flash(model_error, 'error')
+                else:
+                    settings.claude_model = new_model
+
             # Backup schedule
             settings.backup_frequency = request.form.get('backup_frequency', 'daily')
             settings.backup_hour = int(request.form.get('backup_hour', 3) or 3)
@@ -3115,7 +2652,63 @@ def site_settings():
 
     return render_template('admin/settings.html',
                           settings=settings,
-                          next_backup=next_backup)
+                          next_backup=next_backup,
+                          ai=claude_settings_summary(settings))
+
+
+def claude_settings_summary(settings):
+    """Where the Claude key/model come from, for display (never the key itself)."""
+    from app.utils.ai_client import DEFAULT_MODEL
+    db_key = settings.get_anthropic_api_key()
+    env_key = current_app.config.get('ANTHROPIC_API_KEY')
+    key = db_key or env_key
+    return {
+        'key_source': 'admin' if db_key else ('env' if env_key else None),
+        'key_hint': f"...{key[-4:]}" if key else None,
+        'key_unreadable': bool(settings.anthropic_api_key_encrypted and not db_key),
+        'env_model': current_app.config.get('CLAUDE_MODEL') or DEFAULT_MODEL,
+    }
+
+
+def check_claude_model(model, api_key=None):
+    """Return an error message if the model doesn't exist for this key, None otherwise.
+
+    Network/auth problems don't block saving: the model may be valid and the
+    admin can use the test button once the key is fixed.
+    """
+    import anthropic
+    from app.utils.ai_client import get_client
+    if not model:
+        return None
+    try:
+        get_client(api_key).models.retrieve(model)
+    except anthropic.NotFoundError:
+        return _l('Modele Claude inconnu : %(model)s. Modele non modifie.', model=model)
+    except anthropic.AnthropicError as e:  # no key, auth, network...
+        current_app.logger.warning(f"Could not verify Claude model {model}: {e}")
+    return None
+
+
+@admin_bp.route('/settings/claude-models', methods=['POST'])
+@login_required
+@superadmin_required
+def claude_models():
+    """List the models available with the typed key (or the configured one) - also tests the key."""
+    import anthropic
+    from app.utils.ai_client import list_models
+
+    api_key = (request.get_json(silent=True) or {}).get('api_key', '').strip() or None
+    try:
+        models = list_models(api_key)
+    except anthropic.AuthenticationError:
+        return jsonify({'success': False, 'message': str(_l('Cle API refusee par Anthropic'))})
+    except anthropic.APIStatusError as e:
+        return jsonify({'success': False, 'message': f'API error {e.status_code}'})
+    except anthropic.APIConnectionError:
+        return jsonify({'success': False, 'message': str(_l('Impossible de joindre l\'API Anthropic'))})
+    except anthropic.AnthropicError:  # typically: no key configured anywhere
+        return jsonify({'success': False, 'message': str(_l('Aucune cle API configuree'))})
+    return jsonify({'success': True, 'models': [{'id': m_id, 'name': name} for m_id, name in models]})
 
 
 @admin_bp.route('/settings/test-ftp', methods=['POST'])

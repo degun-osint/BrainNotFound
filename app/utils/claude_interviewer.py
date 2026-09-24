@@ -2,12 +2,12 @@
 Claude Interviewer - Handle interview conversations and evaluations.
 """
 
-import anthropic
 import json
 import re
 from flask import current_app
 from typing import Dict, List, Optional
 from .prompt_loader import get_interview_prompts
+from .ai_client import get_client, get_model, extract_text
 
 
 class ClaudeInterviewer:
@@ -17,9 +17,8 @@ class ClaudeInterviewer:
     END_SIGNAL = '[INTERVIEW_COMPLETE]'
 
     def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
-        self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+        self.model = model or get_model()
+        self.client = get_client(api_key)
         self.lang = lang or 'fr'
         self.prompts = get_interview_prompts(lang=self.lang)
 
@@ -60,7 +59,7 @@ class ClaudeInterviewer:
                 max_tokens=4096,
                 messages=[{"role": "user", "content": prompt}]
             )
-            return message.content[0].text.strip()
+            return extract_text(message)
 
         except Exception as e:
             current_app.logger.error(f"System prompt generation error: {str(e)}")
@@ -82,10 +81,10 @@ class ClaudeInterviewer:
         try:
             message = self.client.messages.create(
                 model=self.model,
-                max_tokens=500,
+                max_tokens=4096,
                 messages=[{"role": "user", "content": prompt}]
             )
-            return message.content[0].text.strip()
+            return extract_text(message)
 
         except Exception as e:
             current_app.logger.error(f"Opening message generation error: {str(e)}")
@@ -131,7 +130,7 @@ class ClaudeInterviewer:
         try:
             response = self.client.messages.create(
                 model=self.model,
-                max_tokens=1024,
+                max_tokens=4096,
                 system=[
                     {
                         "type": "text",
@@ -142,7 +141,7 @@ class ClaudeInterviewer:
                 messages=messages
             )
 
-            response_text = response.content[0].text.strip()
+            response_text = extract_text(response)
 
             # Check for end signal
             end_signal = self.END_SIGNAL in response_text
@@ -224,7 +223,7 @@ class ClaudeInterviewer:
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            response_text = message.content[0].text.strip()
+            response_text = extract_text(message)
 
             # Parse JSON response
             result = self._parse_json_response(response_text)

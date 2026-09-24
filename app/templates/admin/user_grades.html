@@ -10,7 +10,7 @@
         <div>
             <strong>{{ _('Identifiant :') }}</strong> {{ user.username }}<br>
             <strong>{{ _('Email :') }}</strong> {{ user.email }}<br>
-            <strong>{{ _('Groupe :') }}</strong> {{ user.group.name if user.group else _('Aucun') }}<br>
+            <strong>{{ _('Groupe :') }}</strong> {{ user.groups|map(attribute='name')|join(', ') or _('Aucun') }}<br>
             <strong>{{ _('Inscrit le :') }}</strong> {{ user.created_at.strftime('%d/%m/%Y') }}
         </div>
         <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small">

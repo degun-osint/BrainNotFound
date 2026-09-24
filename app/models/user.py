@@ -1,4 +1,5 @@
 from app import db
+from flask import has_request_context, request
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -26,8 +27,6 @@ class User(UIDMixin, UserMixin, db.Model):
     last_name = db.Column(db.String(100), nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # Superadmin flag
-    # Legacy field - kept for backward compatibility during migration
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Email verification fields
@@ -47,7 +46,6 @@ class User(UIDMixin, UserMixin, db.Model):
     language_preference = db.Column(db.String(5), nullable=True, default=None)
 
     # Relationships
-    group = db.relationship('Group', back_populates='users', foreign_keys=[group_id])  # Legacy
     responses = db.relationship('QuizResponse', back_populates='user', lazy='dynamic',
                                cascade='all, delete-orphan')
 
@@ -72,15 +70,50 @@ class User(UIDMixin, UserMixin, db.Model):
         """Check if user is a superadmin (full access)."""
         return self.is_admin
 
+    # ==================== Per-request role cache ====================
+    # Roles are checked dozens of times per admin page (decorators, context
+    # processors, templates); memoize them for the duration of the request.
+
+    def _cached(self, name, compute):
+        if not has_request_context():
+            return compute()
+        cache = getattr(request, '_role_cache', None)
+        if cache is None:
+            cache = request._role_cache = {}
+        key = (self.id, name)
+        if key not in cache:
+            cache[key] = compute()
+        return cache[key]
+
+    @staticmethod
+    def clear_role_cache():
+        """Call after changing group roles or tenant admins within a request."""
+        if has_request_context():
+            request._role_cache = {}
+
+    def admin_tenant_ids(self):
+        """IDs of the tenants this user administers."""
+        from app.models.tenant import tenant_admins
+        return self._cached('tenant_ids', lambda: {
+            row[0] for row in db.session.query(tenant_admins.c.tenant_id).filter(tenant_admins.c.user_id == self.id)
+        })
+
+    def admin_group_ids(self):
+        """IDs of the groups where this user has the admin role."""
+        return self._cached('group_ids', lambda: {
+            row[0] for row in db.session.query(user_groups.c.group_id).filter(
+                user_groups.c.user_id == self.id, user_groups.c.role == 'admin')
+        })
+
     @property
     def is_group_admin(self):
         """Check if user is admin of at least one group."""
-        return self.get_admin_groups().count() > 0
+        return bool(self.admin_group_ids())
 
     @property
     def is_tenant_admin(self):
         """Check if user is admin of at least one tenant."""
-        return self.admin_tenants.count() > 0
+        return bool(self.admin_tenant_ids())
 
     @property
     def is_any_admin(self):
@@ -102,7 +135,7 @@ class User(UIDMixin, UserMixin, db.Model):
             return Group.query.filter_by(is_active=True)
         if self.is_tenant_admin:
             # Tenant admins can access all groups in their tenants
-            tenant_ids = [t.id for t in self.admin_tenants]
+            tenant_ids = list(self.admin_tenant_ids())
             return Group.query.filter(
                 Group.is_active == True,
                 Group.tenant_id.in_(tenant_ids)
@@ -114,7 +147,7 @@ class User(UIDMixin, UserMixin, db.Model):
         """Check if user is admin of a specific tenant."""
         if self.is_superadmin:
             return True
-        return self.admin_tenants.filter_by(id=tenant_id).first() is not None
+        return tenant_id in self.admin_tenant_ids()
 
     def get_accessible_tenants(self):
         """Get tenants this user can access as admin."""
@@ -137,16 +170,16 @@ class User(UIDMixin, UserMixin, db.Model):
 
     def is_admin_of_group(self, group_id):
         """Check if user is admin of a specific group (includes tenant admins)."""
+        from app.models.group import Group
         if self.is_superadmin:
             return True
         # Tenant admin can access groups in their tenants
         if self.is_tenant_admin:
-            from app.models.group import Group
             group = Group.query.get(group_id)
             if group and group.tenant_id:
                 return self.is_admin_of_tenant(group.tenant_id)
         # Direct group admin
-        return self.get_admin_groups().filter_by(id=group_id).first() is not None
+        return group_id in self.admin_group_ids()
 
     def is_member_of_group(self, group_id):
         """Check if user is member of a specific group."""
@@ -162,35 +195,84 @@ class User(UIDMixin, UserMixin, db.Model):
             return True
         # Tenant admin can access users in their tenants
         if self.is_tenant_admin:
-            admin_tenant_ids = set(t.id for t in self.admin_tenants)
+            admin_tenant_ids = self.admin_tenant_ids()
             # Get tenants of target user's groups
             target_tenant_ids = set(g.tenant_id for g in target_user.groups if g.tenant_id)
             if admin_tenant_ids & target_tenant_ids:
                 return True
         # Group admin can access users in their admin groups
-        admin_group_ids = [g.id for g in self.get_admin_groups()]
-        target_group_ids = [g.id for g in target_user.groups]
-        return bool(set(admin_group_ids) & set(target_group_ids))
+        target_group_ids = {g.id for g in target_user.groups}
+        return bool(self.admin_group_ids() & target_group_ids)
+
+    @property
+    def role_rank(self):
+        """Numeric rank of the user's highest role (3=super, 2=tenant, 1=group, 0=user)."""
+        if self.is_superadmin:
+            return 3
+        if self.is_tenant_admin:
+            return 2
+        if self.is_group_admin:
+            return 1
+        return 0
+
+    def get_managed_group_ids(self):
+        """IDs of all groups (active or not) this admin controls. None = all groups."""
+        from app.models.group import Group
+        if self.is_superadmin:
+            return None
+        def compute():
+            ids = set(self.admin_group_ids())
+            if self.is_tenant_admin:
+                ids |= {row[0] for row in db.session.query(Group.id).filter(
+                    Group.tenant_id.in_(self.admin_tenant_ids()))}
+            return ids
+        return self._cached('managed_group_ids', compute)
+
+    def can_manage_user(self, target_user):
+        """Check if this admin can modify/delete a target user (write access).
+
+        Stricter than can_access_user (read access): the target must have a
+        lower role and every one of its groups must be managed by this admin,
+        so an account shared with another tenant or teacher can't be altered.
+        """
+        return self.can_manage(target_user.id, target_user.role_rank, {g.id for g in target_user.groups})
+
+    def can_manage(self, target_id, target_rank, target_group_ids):
+        """can_manage_user from precomputed data (lists preload ranks and memberships)."""
+        if target_id == self.id:
+            return False
+        if self.is_superadmin:
+            return True
+        if target_rank >= self.role_rank:
+            return False
+        if not target_group_ids:
+            return False
+        return set(target_group_ids) <= self.get_managed_group_ids()
+
+    def _can_access_content(self, item):
+        """Shared access rule for quizzes and interviews (anything with tenant_id, groups, created_by_id)."""
+        if self.is_superadmin:
+            return True
+        if item.created_by_id == self.id:
+            return True
+        item_groups = item.groups.all()
+        # Tenant admin: content of their tenants OR assigned to one of their tenants' groups
+        if self.is_tenant_admin:
+            admin_tenant_ids = self.admin_tenant_ids()
+            if item.tenant_id and item.tenant_id in admin_tenant_ids:
+                return True
+            if admin_tenant_ids & set(g.tenant_id for g in item_groups if g.tenant_id):
+                return True
+        # Group admin: only content explicitly assigned to their groups
+        return bool(self.admin_group_ids() & {g.id for g in item_groups})
 
     def can_access_quiz(self, quiz):
         """Check if this admin can access/manage a quiz."""
-        if self.is_superadmin:
-            return True
-        # Tenant admin can access quizzes in their tenants OR assigned to their tenant's groups
-        if self.is_tenant_admin:
-            admin_tenant_ids = set(t.id for t in self.admin_tenants)
-            # Direct tenant assignment
-            if quiz.tenant_id and quiz.tenant_id in admin_tenant_ids:
-                return True
-            # Quiz assigned to a group in one of admin's tenants
-            quiz_group_tenant_ids = set(g.tenant_id for g in quiz.groups if g.tenant_id)
-            if admin_tenant_ids & quiz_group_tenant_ids:
-                return True
-        # Group admin can ONLY access quizzes explicitly assigned to their groups
-        admin_group_ids = set(g.id for g in self.get_admin_groups())
-        quiz_group_ids = set(g.id for g in quiz.groups)
-        # Can access only if quiz is in one of admin's groups
-        return bool(admin_group_ids & quiz_group_ids)
+        return self._can_access_content(quiz)
+
+    def can_access_interview(self, interview):
+        """Check if this admin can access/manage an interview and its sessions."""
+        return self._can_access_content(interview)
 
     def can_access_group(self, group):
         """Check if this admin can access/manage a group."""
@@ -212,6 +294,7 @@ class User(UIDMixin, UserMixin, db.Model):
                 role=role
             )
             db.session.execute(stmt)
+            User.clear_role_cache()
 
     def remove_from_group(self, group):
         """Remove user from a group."""
@@ -220,6 +303,7 @@ class User(UIDMixin, UserMixin, db.Model):
             user_groups.c.group_id == group.id
         )
         db.session.execute(stmt)
+        User.clear_role_cache()
 
     def get_role_in_group(self, group_id):
         """Get user's role in a specific group."""

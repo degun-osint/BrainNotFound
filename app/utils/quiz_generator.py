@@ -1,6 +1,7 @@
 """Quiz Generator - Generate quizzes from course content using Claude AI."""
 
 import anthropic
+from .ai_client import get_client, get_model, extract_text
 from flask import current_app
 from typing import Dict
 from io import BytesIO
@@ -84,9 +85,8 @@ class QuizGenerator:
     """Generate quiz questions from course content using Claude AI."""
 
     def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
-        self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+        self.model = model or get_model()
+        self.client = get_client(api_key)
 
     def generate_quiz(
         self,
@@ -149,13 +149,13 @@ class QuizGenerator:
         try:
             message = self.client.messages.create(
                 model=self.model,
-                max_tokens=4096,
+                max_tokens=16000,
                 messages=[
                     {"role": "user", "content": prompt}
                 ]
             )
 
-            response_text = message.content[0].text.strip()
+            response_text = extract_text(message)
 
             # Clean up response if it contains markdown code blocks
             if response_text.startswith('```'):

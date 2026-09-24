@@ -3,6 +3,7 @@
 {% block title %}{{ _('Modifier') }} {{ quiz.title }} - BrainNotFound{% endblock %}
 
 {% block content %}
+{% set member_counts = group_member_counts(groups) %}
 <h1 class="mb-2">{{ _('Modifier le quiz') }}</h1>
 
 <!-- Quiz Link Section -->
@@ -115,7 +116,7 @@
                         <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -133,7 +134,7 @@
                         <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -146,7 +147,7 @@
                 <label class="check-item {{ 'selected' if group.id in quiz_group_ids else '' }}">
                     <input type="checkbox" name="group_ids" value="{{ group.id }}" {{ 'checked' if group.id in quiz_group_ids else '' }}>
                     <span>{{ group.name }}</span>
-                    <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                    <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                 </label>
                 {% endfor %}
             </div>

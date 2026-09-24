@@ -37,6 +37,10 @@ class SiteSettings(db.Model):
     last_backup_message = db.Column(db.Text, nullable=True)
     last_backup_size = db.Column(db.BigInteger, nullable=True)  # bytes
 
+    # Claude API (overrides ANTHROPIC_API_KEY / CLAUDE_MODEL env, applied without restart)
+    claude_model = db.Column(db.String(100), nullable=True)
+    anthropic_api_key_encrypted = db.Column(db.Text, nullable=True)  # Encrypted
+
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -91,6 +95,26 @@ class SiteSettings(db.Model):
                 return base64.b64decode(self.ftp_password_encrypted.encode()).decode()
             except Exception:
                 return None
+
+    def set_anthropic_api_key(self, api_key):
+        """Encrypt and store the Claude API key (None/empty clears it)."""
+        if not api_key:
+            self.anthropic_api_key_encrypted = None
+            return
+        # No plain/base64 fallback here: an API key must never be stored readable
+        f = Fernet(self._get_encryption_key())
+        self.anthropic_api_key_encrypted = f.encrypt(api_key.encode()).decode()
+
+    def get_anthropic_api_key(self):
+        """Decrypt and return the Claude API key, or None."""
+        if not self.anthropic_api_key_encrypted:
+            return None
+        try:
+            f = Fernet(self._get_encryption_key())
+            return f.decrypt(self.anthropic_api_key_encrypted.encode()).decode()
+        except Exception:
+            # Wrong SECRET_KEY / SETTINGS_ENCRYPTION_KEY (e.g. restored backup): fall back to env
+            return None
 
     def to_dict(self):
         """Return settings as dictionary (without sensitive data)."""

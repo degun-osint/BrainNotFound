@@ -182,6 +182,9 @@ def create_app(config_class=Config):
 
     app.jinja_env.filters['render_quiz_images'] = render_quiz_images
 
+    from app.models.group import Group
+    app.jinja_env.globals['group_member_counts'] = Group.member_counts
+
     # Timezone conversion filters for templates
     from app.utils import format_datetime, format_time
 
@@ -218,7 +221,8 @@ def create_app(config_class=Config):
         }
 
     # Initialize backup scheduler (only in main process, not in reloader)
-    if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    skip_scheduler = app.testing or os.environ.get('SKIP_BACKUP_SCHEDULER')
+    if not skip_scheduler and (not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true'):
         try:
             from app.utils.backup_scheduler import init_backup_scheduler
             init_backup_scheduler(app)

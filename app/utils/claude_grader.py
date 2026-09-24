@@ -1,15 +1,14 @@
-import anthropic
 from flask import current_app
 from typing import Dict
 from .prompt_loader import get_grading_prompts
+from .ai_client import get_client, get_model, extract_text
 
 class ClaudeGrader:
     """Grade open-ended questions using Claude API."""
 
     def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
-        self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+        self.model = model or get_model()
+        self.client = get_client(api_key)
         self.lang = lang or 'fr'
 
     def grade_answer(self, question: str, expected_answer: str, student_answer: str, max_points: float, severity: str = 'modere', mood: list = None, lang: str = None) -> Dict:
@@ -67,13 +66,13 @@ class ClaudeGrader:
         try:
             message = self.client.messages.create(
                 model=self.model,
-                max_tokens=1024,
+                max_tokens=4096,
                 messages=[
                     {"role": "user", "content": prompt}
                 ]
             )
 
-            response_text = message.content[0].text.strip()
+            response_text = extract_text(message)
 
             # Parse JSON response
             import json

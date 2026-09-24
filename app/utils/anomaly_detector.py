@@ -4,9 +4,8 @@ Analyzes timing data and focus events to detect potential cheating.
 """
 
 import json
-import os
 import re
-from anthropic import Anthropic
+from app.utils.ai_client import get_client, get_model, extract_text
 from app.models.quiz import QuizResponse, Answer
 from app import db
 from .prompt_loader import get_anomaly_prompts
@@ -148,7 +147,7 @@ def analyze_quiz_response(response_id):
 
     # Call Claude for analysis
     try:
-        client = Anthropic()
+        client = get_client()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
@@ -159,13 +158,13 @@ def analyze_quiz_response(response_id):
         )
 
         message = client.messages.create(
-            model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=2500,  # Increased for detailed pedagogical analysis
+            model=get_model(),
+            max_tokens=8000,  # Increased for detailed pedagogical analysis
             messages=[{"role": "user", "content": prompt}]
         )
 
         # Parse response
-        response_text = message.content[0].text.strip()
+        response_text = extract_text(message)
 
         # Try to extract JSON if wrapped in markdown code blocks
         if '```json' in response_text:
@@ -537,7 +536,7 @@ def analyze_class(quiz_id):
 
     # Call Claude for analysis
     try:
-        client = Anthropic()
+        client = get_client()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
@@ -548,12 +547,12 @@ def analyze_class(quiz_id):
         )
 
         message = client.messages.create(
-            model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=4000,  # Increased for detailed class analysis
+            model=get_model(),
+            max_tokens=8000,  # Increased for detailed class analysis
             messages=[{"role": "user", "content": prompt}]
         )
 
-        response_text = message.content[0].text.strip()
+        response_text = extract_text(message)
 
         # Extract JSON
         if '```json' in response_text:

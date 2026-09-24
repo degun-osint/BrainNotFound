@@ -10,27 +10,6 @@
         <span>{{ _('Liste des utilisateurs') }}</span>
         <div class="flex gap-sm items-center flex-wrap">
             <form method="GET" class="flex gap-sm items-center">
-                {% if all_tenants and all_tenants|length > 0 %}
-                <div class="searchable-select" data-autosubmit="true">
-                    <input type="hidden" name="tenant" value="{{ filter_tenant_id or 0 }}">
-                    <div class="searchable-select-trigger">
-                        <i class="iconoir-building"></i>
-                        <span>{% if filter_tenant_id %}{% for t in all_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}{{ _('Toutes les organisations') }}{% endif %}</span>
-                        <i class="iconoir-nav-arrow-down"></i>
-                    </div>
-                    <div class="searchable-select-dropdown">
-                        <div class="searchable-select-search">
-                            <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
-                        </div>
-                        <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">{{ _('Toutes les organisations') }}</div>
-                            {% for tenant in all_tenants %}
-                            <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
                 <div class="searchable-select" data-autosubmit="true">
                     <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
                     <div class="searchable-select-trigger">
@@ -75,7 +54,7 @@
                 <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Rechercher') }}">
                     <i class="iconoir-search"></i>
                 </button>
-                {% if search or filter_group_id or filter_tenant_id or filter_role %}
+                {% if search or filter_group_id or filter_role %}
                 <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
                     <i class="iconoir-xmark"></i>
                 </a>
@@ -90,15 +69,13 @@
         </div>
     </div>
 
-    {% if search or filter_group_id or filter_tenant_id or filter_role %}
+    {% if search or filter_group_id or filter_role %}
     <div class="search-results-info">
         <span class="text-light">
-            {% if filter_tenant_id %}{{ _('Organisation:') }} {{ all_tenants|selectattr('id', 'eq', filter_tenant_id)|map(attribute='name')|first }}{% endif %}
-            {% if filter_tenant_id and filter_group_id %} - {% endif %}
             {% if filter_group_id %}{{ _('Groupe:') }} {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
-            {% if (filter_tenant_id or filter_group_id) and filter_role %} - {% endif %}
+            {% if filter_group_id and filter_role %} - {% endif %}
             {% if filter_role %}{{ _('Rôle:') }} {% if filter_role == 'superadmin' %}{{ _('Super-Admin') }}{% elif filter_role == 'tenant_admin' %}{{ _('Admin organisation') }}{% elif filter_role == 'group_admin' %}{{ _('Admin groupe') }}{% elif filter_role == 'user' %}{{ _('Utilisateur') }}{% endif %}{% endif %}
-            {% if (filter_tenant_id or filter_group_id or filter_role) and search %} - {% endif %}
+            {% if (filter_group_id or filter_role) and search %} - {% endif %}
             {% if search %}{{ _('Recherche:') }} "{{ search }}"{% endif %}
             - {{ pagination.total }} {{ _('resultat(s)') }}
         </span>
@@ -167,19 +144,19 @@
                     <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
                 </th>
                 <th class="th-sortable {% if sort_by == 'full_name' %}sorted-{{ sort_dir }}{% endif %}">
-                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='full_name', dir='asc' if sort_by == 'full_name' and sort_dir == 'desc' else 'desc') }}">
+                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, role=filter_role, sort='full_name', dir='asc' if sort_by == 'full_name' and sort_dir == 'desc' else 'desc') }}">
                         {{ _('Nom complet') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'full_name' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
                 <th class="th-sortable {% if sort_by == 'username' %}sorted-{{ sort_dir }}{% endif %}">
-                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='username', dir='asc' if sort_by == 'username' and sort_dir == 'desc' else 'desc') }}">
+                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, role=filter_role, sort='username', dir='asc' if sort_by == 'username' and sort_dir == 'desc' else 'desc') }}">
                         {{ _('Identifiant') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'username' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
                 </th>
                 <th class="th-sortable {% if sort_by == 'email' %}sorted-{{ sort_dir }}{% endif %}">
-                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='email', dir='asc' if sort_by == 'email' and sort_dir == 'desc' else 'desc') }}">
+                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, role=filter_role, sort='email', dir='asc' if sort_by == 'email' and sort_dir == 'desc' else 'desc') }}">
                         {{ _('Email') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'email' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
@@ -187,7 +164,7 @@
                 <th>{{ _('Groupe') }}</th>
                 <th>{{ _('Role') }}</th>
                 <th class="th-sortable {% if sort_by == 'last_login' %}sorted-{{ sort_dir }}{% endif %}">
-                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort='last_login', dir='asc' if sort_by == 'last_login' and sort_dir == 'desc' else 'desc') }}">
+                    <a href="{{ url_for('admin.users', search=search, group=filter_group_id, role=filter_role, sort='last_login', dir='asc' if sort_by == 'last_login' and sort_dir == 'desc' else 'desc') }}">
                         {{ _('Derniere connexion') }}
                         <i class="iconoir-nav-arrow-{% if sort_by == 'last_login' %}{{ 'up' if sort_dir == 'asc' else 'down' }}{% else %}down{% endif %}"></i>
                     </a>
@@ -221,12 +198,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% set user_groups = user.groups.all() %}
+                    {% set user_groups = meta[user.id].groups %}
                     {% if user_groups %}
-                        {% for g in user_groups[:3] %}
+                        {% for g, role in user_groups[:3] %}
                         <div class="mb-0">
                             <span class="font-medium">{{ g.name }}</span>
-                            {% set role = user.get_role_in_group(g.id) %}
                             {% if role == 'admin' %}
                             <span class="badge-mini badge-warning">{{ _('admin') }}</span>
                             {% endif %}
@@ -242,9 +218,9 @@
                 <td>
                     {% if user.is_admin %}
                         <span class="badge badge-primary">{{ _('Super-Admin') }}</span>
-                    {% elif user.is_tenant_admin %}
+                    {% elif meta[user.id].rank == 2 %}
                         <span class="badge badge-info">{{ _('Admin organisation') }}</span>
-                    {% elif user.is_group_admin %}
+                    {% elif meta[user.id].rank == 1 %}
                         <span class="badge badge-warning">{{ _('Admin groupe') }}</span>
                     {% else %}
                         <span class="badge badge-default">{{ _('Utilisateur') }}</span>
@@ -266,7 +242,7 @@
                             <i class="iconoir-stats-report"></i>
                         </a>
                         {% endif %}
-                        {% if user.id != current_user.id %}
+                        {% if meta[user.id].can_manage %}
                         <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
@@ -276,7 +252,7 @@
                                 <i class="iconoir-trash"></i>
                             </button>
                         </form>
-                        {% else %}
+                        {% elif user.id == current_user.id %}
                         <span class="text-light text-sm">({{ _('vous') }})</span>
                         {% endif %}
                     </div>
@@ -289,7 +265,7 @@
     {% if pagination and pagination.pages > 1 %}
     <div class="pagination">
         {% if pagination.has_prev %}
-        <a href="{{ url_for('admin.users', page=pagination.prev_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page precedente') }}">
+        <a href="{{ url_for('admin.users', page=pagination.prev_num, search=search, group=filter_group_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page precedente') }}">
             <i class="iconoir-nav-arrow-left"></i>
         </a>
         {% endif %}
@@ -298,14 +274,14 @@
                 {% if page_num == pagination.page %}
                 <span class="btn btn-primary btn-small">{{ page_num }}</span>
                 {% else %}
-                <a href="{{ url_for('admin.users', page=page_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
+                <a href="{{ url_for('admin.users', page=page_num, search=search, group=filter_group_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
                 {% endif %}
             {% else %}
                 <span class="pagination-ellipsis">...</span>
             {% endif %}
         {% endfor %}
         {% if pagination.has_next %}
-        <a href="{{ url_for('admin.users', page=pagination.next_num, search=search, group=filter_group_id, tenant=filter_tenant_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page suivante') }}">
+        <a href="{{ url_for('admin.users', page=pagination.next_num, search=search, group=filter_group_id, role=filter_role, sort=sort_by, dir=sort_dir) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page suivante') }}">
             <i class="iconoir-nav-arrow-right"></i>
         </a>
         {% endif %}

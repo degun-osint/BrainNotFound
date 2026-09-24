@@ -45,7 +45,7 @@
                     <td class="text-light font-mono text-sm">{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ user.responses.count() }}</td>
+                    <td>{{ response_counts.get(user.id, 0) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
