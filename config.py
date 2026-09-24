@@ -36,6 +36,10 @@ class Config:
     UPLOAD_FOLDER = 'uploads'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
 
+    # Backups kept on the server (manual backups without FTP, pre-restore snapshots)
+    BACKUP_LOCAL_DIR = os.environ.get('BACKUP_LOCAL_DIR', 'backups')
+    BACKUP_MAX_UPLOAD_MB = int(os.environ.get('BACKUP_MAX_UPLOAD_MB', 2048))
+
     # Security: Allowed hosts (comma-separated, empty = allow all)
     _allowed_hosts_raw = os.environ.get('ALLOWED_HOSTS', '').strip()
     ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_raw.split(',') if h.strip()] if _allowed_hosts_raw else []

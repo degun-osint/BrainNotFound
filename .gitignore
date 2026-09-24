@@ -62,3 +62,6 @@ deploy.sh
 # Copy private.example/ to private/ and customize
 private/
 .claude
+
+# Server-side backups and pre-restore snapshots
+backups/

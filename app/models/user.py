@@ -364,6 +364,25 @@ class User(UIDMixin, UserMixin, db.Model):
         self.last_login = datetime.utcnow()
         self.last_login_ip = ip_address
 
+    def get_id(self):
+        """Session identifier: id bound to the random uid.
+
+        A backup restore rewinds MySQL auto-increments, so a numeric id alone
+        could later point to a different person; the uid can't be reused.
+        """
+        return f'{self.id}:{self.uid}' if self.uid else str(self.id)
+
+    @staticmethod
+    def load_from_session_id(session_id):
+        """Inverse of get_id(): the user, or None if the id no longer matches."""
+        user_id, _, uid = str(session_id).partition(':')
+        if not user_id.isdigit():
+            return None
+        user = db.session.get(User, int(user_id))
+        if user is None or (user.uid or '') != uid:
+            return None
+        return user
+
     def get_url_identifier(self):
         """Get the URL identifier (uid or username as fallback)."""
         return self.uid if self.uid else self.username

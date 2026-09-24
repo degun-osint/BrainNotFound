@@ -80,8 +80,8 @@ def create_app(config_class=Config):
     from app.models.user import User
 
     @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+    def load_user(session_id):
+        return User.load_from_session_id(session_id)
 
     # Security: Check allowed hosts
     @app.before_request

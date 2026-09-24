@@ -35,6 +35,7 @@ services:
         condition: service_healthy
     volumes:
       - ./uploads:/app/uploads
+      - ./backups:/app/backups
     restart: unless-stopped
 
 volumes:

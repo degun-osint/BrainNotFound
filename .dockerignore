@@ -1,0 +1,16 @@
+# Secrets: provided at runtime through env_file (docker-compose), never baked into the image
+.env
+.env.*
+!.env.example
+
+# Runtime data (bind-mounted volumes)
+uploads/
+backups/
+
+# Development
+.git
+.claude
+**/__pycache__
+*.pyc
+tests/
+requirements-dev.txt

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, send_from_directory, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, send_from_directory, send_file, abort
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from functools import wraps
@@ -6,8 +6,9 @@ from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
 import os
 import shutil
+import tempfile
 import uuid
-from app import db
+from app import db, csrf
 from app.models.user import User, user_groups
 from app.models.group import Group
 from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
@@ -2744,89 +2745,146 @@ def run_manual_backup():
 @login_required
 @superadmin_required
 def backup_history():
-    """Get backup history from FTP server."""
-    from app.models.settings import SiteSettings
-    from ftplib import FTP, FTP_TLS
+    """Backups available for download/restore: on this server and on FTP."""
+    from app.utils.backup_manager import BackupManager
 
-    settings = SiteSettings.get_settings()
+    manager = BackupManager()
+    local = [{k: v for k, v in f.items() if k != 'mtime'} for f in manager.list_local_backups()]
+    ftp_ok, ftp_files, ftp_message = manager.list_ftp_backups()
+    return jsonify({
+        'local': local,
+        'ftp': ftp_files[:50] if ftp_ok else [],
+        'ftp_error': None if ftp_ok or not manager._get_settings().ftp_enabled else ftp_message,
+    })
 
-    if not settings.ftp_enabled or not settings.ftp_host:
-        return jsonify({'error': 'FTP not configured', 'files': []})
 
-    ftp = None
-    try:
-        if settings.ftp_use_tls:
-            ftp = FTP_TLS()
-        else:
-            ftp = FTP()
+@admin_bp.route('/settings/backups/<name>/download')
+@login_required
+@superadmin_required
+def download_backup(name):
+    """Download a backup stored on this server."""
+    from app.utils.backup_manager import BackupManager
 
-        ftp.connect(settings.ftp_host, settings.ftp_port, timeout=10)
-        password = settings.get_ftp_password() or ''
-        ftp.login(settings.ftp_username, password)
+    path = BackupManager().local_backup_path(name)
+    if not path:
+        abort(404)
+    return send_file(path, as_attachment=True, download_name=name)
 
-        if settings.ftp_use_tls:
-            ftp.prot_p()
 
-        # Navigate to backup directory
+@admin_bp.route('/settings/backups/download-now', methods=['POST'])
+@login_required
+@superadmin_required
+def download_backup_now():
+    """Create a full backup (DB + uploads) and send it straight to the browser."""
+    from app.utils.backup_manager import BackupManager
+
+    manager = BackupManager()
+    ok, path, message, _ = manager.create_backup()
+    if not ok:
+        flash(message, 'error')
+        return redirect(url_for('admin.site_settings'))
+    response = send_file(path, as_attachment=True, download_name=os.path.basename(path))
+    response.call_on_close(lambda: manager._cleanup_local(path))
+    return response
+
+
+def _restore_confirmed(value):
+    return (value or '').strip().upper() in ('RESTAURER', 'RESTORE')  # FR / EN interface
+
+
+def _finish_restore(ok, message):
+    """After a restore: migrate the restored schema, then log the admin out.
+
+    The restored users table may not contain the current account (or give its
+    id to someone else), so the current session must not survive.
+    """
+    from flask_login import logout_user
+    from app.utils.db_schema import upgrade_schema
+
+    if ok:
         try:
-            ftp.cwd(settings.ftp_path or '/backups')
-        except Exception:
-            return jsonify({'files': []})
-
-        # Get file list with details
-        files = []
-        def parse_line(line):
-            parts = line.split()
-            if len(parts) >= 9:
-                filename = ' '.join(parts[8:])
-                if filename.startswith('backup_') and filename.endswith('.sql.gz'):
-                    size = int(parts[4]) if parts[4].isdigit() else 0
-                    files.append({
-                        'name': filename,
-                        'size': size,
-                        'date': ' '.join(parts[5:8])
-                    })
-
-        ftp.retrlines('LIST', parse_line)
-        ftp.quit()
-
-        # Sort by name (date is in filename)
-        files.sort(key=lambda x: x['name'], reverse=True)
-
-        return jsonify({'files': files[:50]})  # Last 50 backups
-
-    except Exception as e:
-        current_app.logger.error(f"FTP backup listing error: {str(e)}")
-        if ftp:
-            try:
-                ftp.quit()
-            except Exception:
-                pass
-        return jsonify({'error': 'Erreur de connexion FTP', 'files': []})
+            message += '. ' + upgrade_schema()
+        except Exception as e:
+            current_app.logger.error(f"Schema upgrade after restore failed: {e}")
+            ok, message = False, f"{message}. Schema upgrade failed, restart the container: {e}"
+        db.session.remove()
+        logout_user()
+    current_app.logger.warning(f"Backup restore by {current_user.get_id() if current_user.is_authenticated else '?'}: {message}")
+    return ok, message
 
 
 @admin_bp.route('/settings/restore-backup', methods=['POST'])
 @login_required
 @superadmin_required
 def restore_backup():
-    """Restore database from a backup file on FTP."""
+    """Restore a backup stored on this server (source=local) or on FTP (source=ftp)."""
     from app.utils.backup_manager import BackupManager
 
-    filename = request.json.get('filename') if request.is_json else request.form.get('filename')
+    data = request.get_json(silent=True) or request.form
+    filename = data.get('filename', '')
+    source = data.get('source', 'ftp')
+    manager = BackupManager()
 
-    if not filename:
-        return jsonify({'success': False, 'message': 'Filename required'}), 400
+    if not manager.is_valid_backup_name(filename):
+        return jsonify({'success': False, 'message': 'Invalid backup filename'}), 400
+    if not _restore_confirmed(data.get('confirm')):
+        return jsonify({'success': False, 'message': str(_l('Tapez RESTAURER pour confirmer'))}), 400
 
-    # Security: validate filename format (support both old .sql.gz and new .tar.gz)
-    if not filename.startswith('backup_'):
-        return jsonify({'success': False, 'message': 'Invalid backup filename'}), 400
-    if not (filename.endswith('.sql.gz') or filename.endswith('.tar.gz')):
-        return jsonify({'success': False, 'message': 'Invalid backup filename'}), 400
+    if source == 'local':
+        path = manager.local_backup_path(filename)
+        if not path:
+            return jsonify({'success': False, 'message': 'Backup not found'}), 404
+        ok, message = manager.restore_backup(path)
+    else:
+        result = manager.restore_from_ftp(filename)
+        ok, message = result['success'], result['message']
+
+    ok, message = _finish_restore(ok, message)
+    return jsonify({'success': ok, 'message': message, 'redirect': url_for('auth.login') if ok else None})
+
+
+@admin_bp.route('/settings/restore-upload', methods=['POST'])
+@csrf.exempt  # checked below, once the upload size limit has been raised
+@login_required
+@superadmin_required
+def restore_upload():
+    """Restore a backup file uploaded from the admin's computer."""
+    from flask_wtf.csrf import validate_csrf
+    from wtforms import ValidationError
+    from app.utils.backup_manager import BackupManager, BACKUP_SUFFIX
+
+    # Backups (DB + uploads) are larger than the global 16 MB request limit
+    request.max_content_length = current_app.config['BACKUP_MAX_UPLOAD_MB'] * 1024 * 1024
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except ValidationError:
+        abort(400)
+
+    upload = request.files.get('backup_file')
+    if not upload or not upload.filename:
+        flash(_l('Aucun fichier selectionne'), 'error')
+        return redirect(url_for('admin.site_settings'))
+    if not _restore_confirmed(request.form.get('confirm')):
+        flash(_l('Tapez RESTAURER pour confirmer'), 'error')
+        return redirect(url_for('admin.site_settings'))
+
+    suffix = BACKUP_SUFFIX if upload.filename.endswith(BACKUP_SUFFIX) else '.sql.gz'
+    if not upload.filename.endswith(suffix):
+        flash(_l('Format attendu : .tar.gz ou .sql.gz'), 'error')
+        return redirect(url_for('admin.site_settings'))
 
     manager = BackupManager()
-    result = manager.restore_from_ftp(filename)
+    tmp_dir = tempfile.mkdtemp(prefix='restore_upload_')
+    path = os.path.join(tmp_dir, f'upload{suffix}')
+    try:
+        upload.save(path)
+        ok, message = manager.restore_backup(path)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    return jsonify(result)
+    ok, message = _finish_restore(ok, message)
+    flash(message, 'success' if ok else 'error')
+    return redirect(url_for('auth.login') if ok else url_for('admin.site_settings'))
 
 
 # ============================================================
