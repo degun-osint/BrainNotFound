@@ -19,6 +19,10 @@
         <div class="stat-label">{{ _('Utilisateurs') }}</div>
     </div>
     <div class="stat-card">
+        <div class="stat-value">{{ stats.storage.current }}{% if stats.storage.max %}/{{ stats.storage.max }}{% endif %}</div>
+        <div class="stat-label">{{ _('Stockage (Mo)') }}</div>
+    </div>
+    <div class="stat-card">
         <div class="stat-value">{{ admins|length }}</div>
         <div class="stat-label">{{ _('Administrateurs') }}</div>
     </div>

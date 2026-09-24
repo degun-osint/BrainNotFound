@@ -94,7 +94,13 @@
                             <span class="text-light">-</span>
                         {% endif %}
                     </td>
-                    <td>{{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}</td>
+                    <td>
+                        {{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}
+                        {% if response.grading_status == 'review' %}
+                        <a href="{{ url_for('admin.edit_response', identifier=response.get_url_identifier()) }}" class="badge badge-warning"
+                           data-tooltip="{{ _('Quota IA atteint : des reponses attendent votre correction') }}">{{ _('A corriger') }}</a>
+                        {% endif %}
+                    </td>
                     <td>
                         {% set percentage = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
                         {{ "%.1f"|format(percentage) }}%

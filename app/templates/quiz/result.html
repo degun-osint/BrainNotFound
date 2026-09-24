@@ -17,6 +17,13 @@
 
 <h1 class="mb-2">{{ _('Resultats :') }} {{ quiz_response.quiz.title }}</h1>
 
+{% if quiz_response.grading_status == 'review' %}
+<div class="alert alert-info mb-2">
+    <i class="iconoir-hourglass"></i>
+    {{ _("Note provisoire : certaines reponses seront corrigees par votre intervenant.") }}
+</div>
+{% endif %}
+
 <div class="score-banner">
     <div class="score-value">{{ "%.2f"|format(quiz_response.total_score) }} / {{ "%.2f"|format(quiz_response.max_score) }}</div>
     <div class="score-label">

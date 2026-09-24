@@ -113,6 +113,7 @@ class QuizResponse(UIDMixin, db.Model):
     STATUS_GRADING = 'grading'
     STATUS_COMPLETED = 'completed'
     STATUS_ERROR = 'error'
+    STATUS_REVIEW = 'review'  # graded, but some answers wait for the instructor (AI quota reached)
 
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
@@ -123,7 +124,7 @@ class QuizResponse(UIDMixin, db.Model):
     started_at = db.Column(db.DateTime, nullable=True)  # When quiz was started
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_late = db.Column(db.Boolean, default=False)  # Submitted after time limit
-    grading_status = db.Column(db.String(20), default='pending')  # pending, grading, completed, error
+    grading_status = db.Column(db.String(20), default='pending')  # pending, grading, completed, review, error
     grading_progress = db.Column(db.Integer, default=0)  # Number of questions graded
     grading_total = db.Column(db.Integer, default=0)  # Total questions to grade
 

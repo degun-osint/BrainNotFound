@@ -45,6 +45,7 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
 
             open_score = 0.0
             graded_count = 0
+            needs_review = False
 
             for answer_info in answers_data:
                 answer_id = answer_info['answer_id']
@@ -66,7 +67,8 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                 if answer.answer_text and question.expected_answer and tenant and not tenant.can_use_ai_correction():
                     # Monthly AI quota exhausted: leave it to the instructor
                     answer.score = 0.0
-                    answer.ai_feedback = "Quota mensuel de corrections IA atteint : correction manuelle requise."
+                    answer.ai_feedback = "Quota mensuel de corrections IA atteint : cette reponse sera corrigee par l'intervenant."
+                    needs_review = True
                     current_app.logger.warning(f"AI correction quota reached for tenant {tenant.slug}")
                 elif answer.answer_text:
                     if question.expected_answer:
@@ -117,7 +119,8 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
             # Finalize grading - ADD open score to MCQ score (don't overwrite!)
             total_score = mcq_score + open_score
             quiz_response.total_score = total_score
-            quiz_response.grading_status = QuizResponse.STATUS_COMPLETED
+            quiz_response.grading_status = (QuizResponse.STATUS_REVIEW if needs_review
+                                            else QuizResponse.STATUS_COMPLETED)
             db.session.commit()
 
             current_app.logger.info(f"Grading complete for response {response_id}: MCQ={mcq_score}, Open={open_score}, Total={total_score}")
@@ -127,7 +130,8 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                 'response_id': response_id,
                 'total_score': total_score,
                 'max_score': quiz_response.max_score,
-                'percentage': (total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0
+                'percentage': (total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0,
+                'needs_review': needs_review
             }, room=room)
 
         except Exception as e:

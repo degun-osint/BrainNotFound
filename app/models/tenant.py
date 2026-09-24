@@ -2,6 +2,8 @@
 Modèle Tenant pour la gestion multi-tenant logique.
 Un tenant représente une organisation/client avec ses propres limites et admins.
 """
+import os
+
 from app import db
 from datetime import datetime
 import secrets
@@ -180,9 +182,31 @@ class Tenant(db.Model):
             return True
         return self.get_groups_count() < self.max_groups
 
+    def get_storage_used_bytes(self):
+        """Taille des fichiers envoyes pour les quiz de ce tenant (images des questions)."""
+        from flask import current_app
+        from app.models.quiz import Quiz
+        root = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+        total = 0
+        for (quiz_id,) in db.session.query(Quiz.id).filter(Quiz.tenant_id == self.id):
+            folder = os.path.join(root, f'quiz-{quiz_id}')
+            for dirpath, _, files in os.walk(folder):
+                total += sum(os.path.getsize(os.path.join(dirpath, name)) for name in files)
+        return total
+
+    def can_store(self, extra_bytes):
+        """Verifie si on peut ajouter extra_bytes sans depasser max_storage_mb."""
+        if not self.max_storage_mb or self.max_storage_mb <= 0:
+            return True
+        return self.get_storage_used_bytes() + extra_bytes <= self.max_storage_mb * 1024 * 1024
+
     def get_usage_stats(self):
         """Retourne les statistiques d'utilisation."""
         return {
+            'storage': {
+                'current': round(self.get_storage_used_bytes() / (1024 * 1024), 1),
+                'max': self.max_storage_mb if self.max_storage_mb and self.max_storage_mb > 0 else None
+            },
             'users': {
                 'current': self.get_users_count(),
                 'max': self.max_users if self.max_users > 0 else None

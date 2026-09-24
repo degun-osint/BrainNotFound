@@ -670,7 +670,7 @@ def grading(identifier):
         return redirect(url_for('quiz.quiz_list'))
 
     # If grading is already completed, redirect to results
-    if quiz_response.grading_status == QuizResponse.STATUS_COMPLETED:
+    if quiz_response.grading_status in (QuizResponse.STATUS_COMPLETED, QuizResponse.STATUS_REVIEW):
         return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     return render_template('quiz/grading.html', quiz_response=quiz_response)

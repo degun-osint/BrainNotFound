@@ -34,13 +34,38 @@ def role_in(user, group):
     ('dir_b', 'eleve_3a', False),   # other tenant
     # Group admin: plain users fully inside their groups
     ('prof_3a', 'eleve_3a', True),
-    ('prof_3a', 'eleve_3a_3b', False),  # also in another teacher's class
+    ('prof_3a', 'eleve_3a_3b', True),   # shared with a colleague of the same organization
     ('prof_3a', 'eleve_ab', False),
     ('prof_3a', 'prof_3b', False),
     ('prof_3a', 'dir_a', False),
 ])
 def test_can_manage_user(world, actor, target, expected):
     assert world[actor].can_manage_user(world[target]) is expected
+
+
+@pytest.mark.parametrize('actor, target, expected', [
+    ('prof_3a', 'eleve_3a', True),
+    ('prof_3a', 'eleve_3a_3b', False),  # would erase results from a colleague's group
+    ('dir_a', 'eleve_3a_3b', True),
+    ('dir_a', 'eleve_ab', False),
+])
+def test_can_delete_user_requires_every_group(world, actor, target, expected):
+    assert world[actor].can_manage_user(world[target], for_delete=True) is expected
+
+
+def test_instructor_edits_shared_learner_but_keeps_colleague_group(world, login):
+    student = world['eleve_3a_3b']
+    client = login(world['prof_3a'])
+    client.post(f'/admin/user/{student.get_url_identifier()}/edit', data={
+        'username': student.username, 'email': 'new@test.local', 'password': 'newpass'})
+    user = reload(student)
+    assert user.email == 'new@test.local' and user.check_password('newpass')
+    assert {g.name for g in user.groups} == {'3A', '3B'}
+
+
+def test_instructor_cannot_delete_shared_learner(world, login):
+    login(world['prof_3a']).post(f"/admin/user/{world['eleve_3a_3b'].get_url_identifier()}/delete")
+    assert reload(world['eleve_3a_3b']) is not None
 
 
 def test_can_manage_user_rejects_group_admin_shared_with_peer(world):

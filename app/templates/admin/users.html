@@ -246,12 +246,14 @@
                         <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
+                        {% if meta[user.id].can_delete %}
                         <form method="POST" action="{{ url_for('admin.delete_user', identifier=user.get_url_identifier()) }}"
                               onsubmit="return confirmDelete(this, '{{ _("cet utilisateur et toutes ses donnees") }}');" class="inline">
                             <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
                                 <i class="iconoir-trash"></i>
                             </button>
                         </form>
+                        {% endif %}
                         {% elif user.id == current_user.id %}
                         <span class="text-light text-sm">({{ _('vous') }})</span>
                         {% endif %}

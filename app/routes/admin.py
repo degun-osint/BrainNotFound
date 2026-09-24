@@ -194,6 +194,10 @@ def dashboard():
         QuizResponse.quiz_id.in_(quiz_ids),
         QuizResponse.grading_status.in_(['pending', 'grading'])
     ).count()
+    to_review = QuizResponse.query.filter(
+        QuizResponse.quiz_id.in_(quiz_ids),
+        QuizResponse.grading_status == QuizResponse.STATUS_REVIEW
+    ).count()
 
     recent_interviews = InterviewSession.query.filter(
         InterviewSession.interview_id.in_(interview_ids),
@@ -207,7 +211,7 @@ def dashboard():
 
     return render_template('admin/dashboard.html', quizzes=pagination.items, stats=stats, pagination=pagination,
                            search=search, all_groups=all_groups, filter_group_id=filter_group_id,
-                           recent_responses=recent_responses, pending_grading=pending_grading,
+                           recent_responses=recent_responses, pending_grading=pending_grading, to_review=to_review,
                            fallback_warnings=fallback_warnings, recent_interviews=recent_interviews)
 
 
@@ -343,6 +347,7 @@ def create_quiz():
             )
             db.session.add(quiz)
             db.session.flush()
+            adopt_temp_uploads(quiz)
 
             # Assign groups
             if group_ids:
@@ -381,6 +386,27 @@ def create_quiz():
             return render_template('admin/create_quiz.html', markdown_content=markdown_content, groups=groups)
 
     return render_template('admin/create_quiz.html', groups=groups)
+
+def adopt_temp_uploads(quiz):
+    """Move the images uploaded while creating the quiz into its own folder.
+
+    Unreferenced leftovers older than a day are cleaned up.
+    """
+    import time
+    root = current_app.config['UPLOAD_FOLDER']
+    tmp_dir = os.path.join(root, f'quiz-tmp-{current_user.id}')
+    if not os.path.isdir(tmp_dir):
+        return
+    referenced = set(re.findall(r'!\[[^\]]*\]\(([\w\-\.]+)\)', quiz.markdown_content or ''))
+    dest_dir = os.path.join(root, f'quiz-{quiz.id}')
+    for name in os.listdir(tmp_dir):
+        path = os.path.join(tmp_dir, name)
+        if name in referenced:
+            os.makedirs(dest_dir, exist_ok=True)
+            shutil.move(path, os.path.join(dest_dir, name))
+        elif time.time() - os.path.getmtime(path) > 86400:
+            os.remove(path)
+
 
 @admin_bp.route('/quiz/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
@@ -1204,7 +1230,9 @@ def users_list_meta(users):
         meta[u.id] = {
             'groups': groups,
             'rank': rank,
-            'can_manage': current_user.can_manage(u.id, rank, {g.id for g, _ in groups}),
+            'can_manage': current_user.can_manage(u.id, rank, [(g.id, g.tenant_id) for g, _ in groups]),
+            'can_delete': current_user.can_manage(u.id, rank, [(g.id, g.tenant_id) for g, _ in groups],
+                                                  for_delete=True),
         }
     return meta
 
@@ -1770,7 +1798,15 @@ def upload_image():
         return jsonify({'error': 'Aucun fichier'}), 400
 
     file = request.files['image']
-    quiz_id = request.form.get('quiz_id', 'temp')
+    quiz_ref = request.form.get('quiz_id', 'temp')
+    if quiz_ref == 'temp':
+        # Quiz being created: per-admin folder, moved into the quiz folder on creation
+        folder, tenant = f'quiz-tmp-{current_user.id}', quota_tenant()
+    else:
+        quiz = db.session.get(Quiz, int(quiz_ref)) if quiz_ref.isdigit() else None
+        if not quiz or not current_user.can_access_quiz(quiz):
+            return jsonify({'error': 'Quiz introuvable'}), 403
+        folder, tenant = f'quiz-{quiz.id}', quiz.tenant
 
     if file.filename == '':
         return jsonify({'error': 'Aucun fichier selectionne'}), 400
@@ -1783,8 +1819,15 @@ def upload_image():
     if not detected_ext:
         return jsonify({'error': 'Fichier invalide: le contenu ne correspond pas a une image'}), 400
 
+    file.stream.seek(0, os.SEEK_END)
+    size = file.stream.tell()
+    file.stream.seek(0)
+    if tenant and not tenant.can_store(size):
+        return jsonify({'error': str(_l('Espace de stockage de l\'etablissement plein (%(max)s Mo)',
+                                        max=tenant.max_storage_mb))}), 413
+
     # Create upload directory
-    upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], f'quiz-{quiz_id}')
+    upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], folder)
     os.makedirs(upload_dir, exist_ok=True)
 
     # Use detected extension for safety
@@ -2229,7 +2272,7 @@ def delete_user(identifier):
         return redirect(url_for('admin.users'))
 
     # Write access: lower role only, and all of the user's groups must be ours
-    if not current_user.can_manage_user(user):
+    if not current_user.can_manage_user(user, for_delete=True):
         flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
@@ -2266,7 +2309,7 @@ def bulk_delete_users():
             continue
 
         # Permission check (write access)
-        if not current_user.can_manage_user(user):
+        if not current_user.can_manage_user(user, for_delete=True):
             skipped_count += 1
             continue
 
@@ -2419,6 +2462,8 @@ def edit_response(identifier):
         # Update total score and admin comment
         response.total_score = total_score
         response.admin_comment = request.form.get('admin_comment', '').strip() or None
+        if response.grading_status == QuizResponse.STATUS_REVIEW:
+            response.grading_status = QuizResponse.STATUS_COMPLETED  # the instructor has now graded it
         db.session.commit()
 
         flash(_l('Scores mis a jour pour %(name)s', name=user.full_name), 'success')

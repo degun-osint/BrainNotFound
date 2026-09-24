@@ -228,26 +228,53 @@ class User(UIDMixin, UserMixin, db.Model):
             return ids
         return self._cached('managed_group_ids', compute)
 
-    def can_manage_user(self, target_user):
-        """Check if this admin can modify/delete a target user (write access).
+    def can_manage_user(self, target_user, for_delete=False):
+        """Check if this admin can modify (or delete) a target user: write access.
 
-        Stricter than can_access_user (read access): the target must have a
-        lower role and every one of its groups must be managed by this admin,
-        so an account shared with another tenant or teacher can't be altered.
+        Stricter than can_access_user (read access). The target must have a
+        lower role, and:
+        - edit: share at least one group managed by this admin, with all of
+          its groups inside this admin's organizations (an instructor edits
+          their learner even if a colleague also has them; an account that
+          belongs to another organization is left to that organization);
+        - delete: every group of the target must be managed by this admin,
+          since deleting erases the target's results everywhere.
         """
-        return self.can_manage(target_user.id, target_user.role_rank, {g.id for g in target_user.groups})
+        return self.can_manage(target_user.id, target_user.role_rank,
+                               [(g.id, g.tenant_id) for g in target_user.groups], for_delete)
 
-    def can_manage(self, target_id, target_rank, target_group_ids):
-        """can_manage_user from precomputed data (lists preload ranks and memberships)."""
+    def can_manage(self, target_id, target_rank, target_groups, for_delete=False):
+        """can_manage_user from precomputed data; target_groups = [(group_id, tenant_id)]."""
         if target_id == self.id:
             return False
         if self.is_superadmin:
             return True
         if target_rank >= self.role_rank:
             return False
-        if not target_group_ids:
+        target_groups = list(target_groups)
+        group_ids = {gid for gid, _ in target_groups}
+        if not group_ids:
             return False
-        return set(target_group_ids) <= self.get_managed_group_ids()
+        managed = self.get_managed_group_ids()
+        if group_ids <= managed:
+            return True
+        if for_delete or not group_ids & managed:
+            return False
+        own_tenants = self.managed_tenant_ids()
+        return all(tid is not None and tid in own_tenants for _, tid in target_groups)
+
+    def managed_tenant_ids(self):
+        """Organizations of the groups this admin manages (plus the ones they administer)."""
+        from app.models.group import Group
+
+        def compute():
+            ids = set(self.admin_tenant_ids())
+            managed = self.get_managed_group_ids()
+            if managed:
+                ids |= {row[0] for row in db.session.query(Group.tenant_id).filter(
+                    Group.id.in_(managed), Group.tenant_id.isnot(None)).distinct()}
+            return ids
+        return self._cached('managed_tenant_ids', compute)
 
     def _can_access_content(self, item):
         """Shared access rule for quizzes and interviews (anything with tenant_id, groups, created_by_id)."""

@@ -70,11 +70,32 @@ def test_grading_stops_calling_claude_when_quota_reached(app, world, content, mo
     response, answers = _open_quiz_response(world, content['quiz_a'], 2)
 
     grading_tasks.grade_quiz_async(app, response.id, answers)
+    db.session.expire_all()  # grading ran in its own app context
 
     assert len(calls) == 1
     assert reload_tenant(tenant).used_ai_corrections == 1
     feedbacks = [db.session.get(Answer, a['answer_id']).ai_feedback for a in answers]
     assert 'Quota' in feedbacks[1]
+    assert db.session.get(QuizResponse, response.id).grading_status == QuizResponse.STATUS_REVIEW
+
+
+def test_instructor_grading_clears_review_status(app, world, content, login, monkeypatch):
+    from app.utils import grading_tasks
+    monkeypatch.setattr(grading_tasks, 'grade_open_question', lambda *a, **k: {'score': 2.0, 'feedback': 'ok'})
+    world['lycee_a'].monthly_ai_corrections = 1
+    db.session.commit()
+    response, answers = _open_quiz_response(world, content['quiz_a'], 2)
+    grading_tasks.grade_quiz_async(app, response.id, answers)
+    db.session.expire_all()  # grading ran in its own app context
+
+    client = login(world['prof_3a'])
+    results = client.get(f"/admin/quiz/{content['quiz_a'].get_url_identifier()}/results").get_data(as_text=True)
+    assert 'A corriger' in results
+    assert 'copie(s) a corriger' in client.get('/admin/dashboard').get_data(as_text=True)
+
+    client.post(f'/admin/response/{response.get_url_identifier()}/edit',
+                data={f"score_{a['answer_id']}": '1' for a in answers})
+    assert db.session.get(QuizResponse, response.id).grading_status == QuizResponse.STATUS_COMPLETED
 
 
 # ==================== joining groups ====================
