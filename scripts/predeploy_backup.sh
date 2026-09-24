@@ -27,5 +27,18 @@ if ! gunzip -c "$out" | grep 'CREATE TABLE `users`' > /dev/null; then
     echo "ERREUR : la sauvegarde $out est vide ou incomplete, deploiement annule" >&2
     exit 1
 fi
-echo "Sauvegarde : $out ($(du -h "$out" | cut -f1))" >&2
+# A database holding only the seeded admin (e.g. a deploy that stopped before
+# re-importing): keep the dump, but never offer it for re-import.
+USERS=$(docker compose exec -T db sh -c '
+    CLIENT=$(command -v mariadb || command -v mysql)
+    MYSQL_PWD="$MYSQL_ROOT_PASSWORD" "$CLIENT" -N -uroot "$MYSQL_DATABASE" -e "SELECT COUNT(*) FROM users"
+' < /dev/null | tr -d '[:space:]')
+if [ "${USERS:-0}" -le 1 ]; then
+    empty="${out/backup_predeploy_/backup_predeploy_emptydb_}"
+    mv "$out" "$empty"
+    echo "Base quasi vide ($USERS utilisateur) : $empty conservee, mais pas utilisee pour un reimport" >&2
+    echo ""
+    exit 0
+fi
+echo "Sauvegarde : $out ($(du -h "$out" | cut -f1), $USERS utilisateurs)" >&2
 echo "$out"
