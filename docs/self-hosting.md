@@ -177,9 +177,20 @@ docker compose up -d --build
 
 Les migrations de schéma s'appliquent seules au démarrage (`scripts/migrate_db.py`) : pas de commande à lancer.
 
+### Avec `deploy.sh` (recommandé)
+
+Depuis le poste de développement : `./deploy.sh` (hôte et dossier surchargeables : `VPS_HOST=... VPS_PATH=... ./deploy.sh`). Le script :
+
+1. sauvegarde la base de production sur le VPS, dans `backups/backup_predeploy_<date>.sql.gz` (visible aussi dans *Paramètres*), et s'arrête si la sauvegarde est vide ;
+2. synchronise les fichiers (`rsync --delete`) sans jamais envoyer, écraser ni supprimer les `.env*`, `uploads/` et `backups/` du VPS ; l'empreinte des `.env*` est vérifiée avant et après ;
+3. reconstruit l'image pendant que le site tourne encore, redémarre et attend que l'application réponde ;
+4. si la base redémarre vide (passage à MariaDB), réimporte automatiquement la sauvegarde de l'étape 1 et applique les migrations.
+
 ### Passage de MySQL à MariaDB
 
 La base de données est désormais MariaDB (`mariadb:12.3`, LTS) : plus légère que MySQL (~90 Mo contre ~175 Mo), entièrement communautaire, et cohérente avec l'outil de sauvegarde de l'image. Les fichiers de MySQL ne sont pas lisibles par MariaDB : la migration passe par une sauvegarde, que l'application réimporte elle-même.
+
+Avec `deploy.sh`, tout est automatique (étapes 1 et 4 ci-dessus). À la main, sans le script :
 
 1. **Avant la mise à jour**, sur l'ancienne version : *Paramètres > Télécharger une sauvegarde* (fichier `.tar.gz`, base + fichiers envoyés).
 2. **Mettre à jour** : `git pull` puis `docker compose up -d --build`. MariaDB démarre sur un nouveau volume `mariadb_data`, vide ; l'application y crée le schéma et le compte `admin` (mot de passe `ADMIN_DEFAULT_PASSWORD` du `.env`).
