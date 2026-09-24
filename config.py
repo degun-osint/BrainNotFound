@@ -32,7 +32,7 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
-    CLAUDE_MODEL = os.environ.get('CLAUDE_MODEL') or 'claude-sonnet-4-20250514'
+    CLAUDE_MODEL = os.environ.get('CLAUDE_MODEL') or 'claude-opus-5-5'
     # Non-Anthropic LLM provider fallback (see app/utils/ai_client.py)
     AI_PROVIDER = os.environ.get('AI_PROVIDER')
     AI_BASE_URL = os.environ.get('AI_BASE_URL')

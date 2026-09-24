@@ -83,13 +83,16 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                             )
                             answer.score = grading_result['score']
                             answer.ai_feedback = grading_result['feedback']
-                            if tenant:
+                            if grading_result.get('needs_review'):
+                                needs_review = True
+                            elif tenant:
                                 tenant.increment_ai_corrections()
                             current_app.logger.info(f"AI graded answer {answer_id}: score={answer.score}")
                         except Exception as e:
                             current_app.logger.error(f"Grading error for answer {answer_id}: {e}")
                             answer.score = 0.0
-                            answer.ai_feedback = f"Erreur lors de la correction: {str(e)}"
+                            answer.ai_feedback = "Correction automatique impossible : cette reponse sera corrigee par l'intervenant."
+                            needs_review = True
                     else:
                         # No expected answer defined - give full points with note
                         answer.score = question.points

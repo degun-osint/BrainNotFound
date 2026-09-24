@@ -141,7 +141,7 @@ ANTHROPIC_API_KEY=sk-ant-xxx
 DATABASE_URL=mysql+pymysql://user:pass@host:3306/db
 
 # Modèle Claude (optionnel)
-CLAUDE_MODEL=claude-sonnet-4-20250514
+CLAUDE_MODEL=claude-opus-5-5
 
 # Sécurité (production)
 ALLOWED_HOSTS=monsite.com

@@ -92,7 +92,7 @@ Required in `.env`:
 - `SECRET_KEY` - Flask secret key
 - `ANTHROPIC_API_KEY` - For AI grading
 - `DATABASE_URL` - MySQL connection string
-- `CLAUDE_MODEL` - Claude model to use (default: `claude-sonnet-4-20250514`)
+- `CLAUDE_MODEL` - Claude model to use (default: `claude-opus-5-5`)
 - `AI_PROVIDER`, `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` - optional non-Anthropic provider
 
 ## Internationalization (i18n)

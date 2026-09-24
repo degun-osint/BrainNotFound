@@ -5,7 +5,7 @@ Analyzes timing data and focus events to detect potential cheating.
 
 import json
 import re
-from app.utils.ai_client import complete
+from app.utils.ai_client import complete, wrap_untrusted, data_notice
 from app.models.quiz import QuizResponse, Answer
 from app import db
 from .prompt_loader import get_anomaly_prompts
@@ -152,11 +152,13 @@ def analyze_quiz_response(response_id):
         prompts = get_anomaly_prompts()
         prompt_template = prompts['INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE']
 
+        # Contains learner answers: delimited as data
         prompt = prompt_template.format(
-            context=json.dumps(context, indent=2, ensure_ascii=False)
+            context=wrap_untrusted(json.dumps(context, indent=2, ensure_ascii=False), 'donnees_apprenants')
         )
 
-        response_text = complete([{"role": "user", "content": prompt}], max_tokens=8000)
+        response_text = complete([{"role": "user", "content": prompt}],
+                                 system=data_notice('donnees_apprenants', assessed=False), effort='medium')
 
         # Parse response
 
@@ -535,11 +537,13 @@ def analyze_class(quiz_id):
         prompts = get_anomaly_prompts()
         prompt_template = prompts['CLASS_ANALYSIS_PROMPT_TEMPLATE']
 
+        # Contains learner answers: delimited as data
         prompt = prompt_template.format(
-            context=json.dumps(context, indent=2, ensure_ascii=False)
+            context=wrap_untrusted(json.dumps(context, indent=2, ensure_ascii=False), 'donnees_apprenants')
         )
 
-        response_text = complete([{"role": "user", "content": prompt}], max_tokens=8000)
+        response_text = complete([{"role": "user", "content": prompt}],
+                                 system=data_notice('donnees_apprenants', assessed=False), effort='medium')
 
         # Extract JSON
         if '```json' in response_text:

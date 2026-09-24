@@ -19,7 +19,7 @@ Toutes les options de configuration de BrainNotFound.
 | Variable | Description | Défaut |
 |----------|-------------|--------|
 | `FLASK_ENV` | Environnement (development/production) | `production` |
-| `CLAUDE_MODEL` | Modèle Claude à utiliser | `claude-sonnet-4-20250514` |
+| `CLAUDE_MODEL` | Modèle Claude à utiliser | `claude-opus-5-5` |
 | `ALLOWED_HOSTS` | Domaines autorisés (séparés par virgule) | Tous |
 
 #### Sessions et sécurité
@@ -55,7 +55,7 @@ DATABASE_URL=mysql+pymysql://quizuser:quizpassword@db/quizdb
 
 # === API Anthropic ===
 ANTHROPIC_API_KEY=sk-ant-api03-...
-CLAUDE_MODEL=claude-sonnet-4-20250514
+CLAUDE_MODEL=claude-opus-5-5
 
 # === Sécurité ===
 ALLOWED_HOSTS=quiz.example.com,www.quiz.example.com
@@ -99,15 +99,18 @@ Les sauvegardes sont configurées depuis l'interface admin, pas via des variable
 
 ## Modèles Claude
 
-Modèles disponibles pour la correction IA :
+Modèles recommandés pour la correction IA (génération 5.x) :
 
-| Modèle | Description | Coût relatif |
-|--------|-------------|--------------|
-| `claude-sonnet-4-20250514` | Équilibre performance/coût (recommandé) | Moyen |
-| `claude-opus-4-20250514` | Meilleure qualité | Élevé |
-| `claude-3-haiku-20240307` | Rapide et économique | Faible |
+| Modèle | Description |
+|--------|-------------|
+| `claude-opus-5-5` | Défaut, recommandé : très bon rapport qualité / coût |
+| `claude-sonnet-5` | Plus économique, pour de gros volumes de corrections |
+| `claude-haiku-4-5` | Le plus rapide et le moins cher |
+| `claude-fable-5-1` | Le plus performant, au prix le plus élevé |
 
-Configurez via `CLAUDE_MODEL` dans `.env`.
+Le modèle et la clé se règlent dans **Administration > Paramètres > Intelligence artificielle**, sans redémarrage ; le bouton « Tester et lister les modèles » affiche les modèles réellement disponibles pour votre clé. `CLAUDE_MODEL` dans `.env` sert de valeur par défaut.
+
+Sur les modèles 5.x, la réflexion est toujours active et l'application fixe l'effort par usage (`low` pour les réponses du personnage en entretien, `medium` ailleurs). Les modèles plus anciens qui ne gèrent pas l'effort reçoivent la requête sans ce paramètre.
 
 ## Docker Compose
 

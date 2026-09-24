@@ -1,6 +1,6 @@
 """Quiz Generator - Generate quizzes from course content using Claude AI."""
 
-from .ai_client import complete
+from .ai_client import complete, wrap_untrusted, data_notice
 from flask import current_app
 from typing import Dict
 from io import BytesIO
@@ -130,7 +130,7 @@ class QuizGenerator:
         custom_instructions = ""
         if instructions:
             custom_instructions = f"""
-**INSTRUCTIONS SPECIFIQUES DE L'ENSEIGNANT:**
+**INSTRUCTIONS SPECIFIQUES DE L'INTERVENANT:**
 {instructions}
 """
 
@@ -141,11 +141,13 @@ class QuizGenerator:
             num_open=num_open,
             difficulty_text=difficulty_text,
             custom_instructions=custom_instructions,
-            content=content
+            content=wrap_untrusted(content, 'support_de_cours')
         )
 
         try:
-            response_text = complete([{"role": "user", "content": prompt}], max_tokens=16000, model=self.model)
+            response_text = complete([{"role": "user", "content": prompt}],
+                                     system=data_notice('support_de_cours', assessed=False),
+                                     model=self.model, effort='medium')
 
             # Clean up response if it contains markdown code blocks
             if response_text.startswith('```'):

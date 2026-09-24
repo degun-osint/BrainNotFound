@@ -1,7 +1,7 @@
 from flask import current_app
 from typing import Dict
 from .prompt_loader import get_grading_prompts
-from .ai_client import complete, parse_json
+from .ai_client import complete, parse_json, wrap_untrusted, data_notice
 
 class ClaudeGrader:
     """Grade open-ended questions using Claude API."""
@@ -58,12 +58,14 @@ class ClaudeGrader:
             mood_text=mood_text,
             question=question,
             expected_answer=expected_answer,
-            student_answer=student_answer,
+            student_answer=wrap_untrusted(student_answer, 'reponse_apprenant'),
             max_points=max_points
         )
 
         try:
-            response_text = complete([{"role": "user", "content": prompt}], max_tokens=4096, model=self.model)
+            response_text = complete([{"role": "user", "content": prompt}],
+                                     system=data_notice('reponse_apprenant', current_lang),
+                                     model=self.model, effort='medium')
 
             # Bare JSON, fenced in ``` or wrapped in prose (depends on the model)
             result = parse_json(response_text)
@@ -79,10 +81,12 @@ class ClaudeGrader:
 
         except Exception as e:
             # Fallback in case of error
-            current_app.logger.error(f"Claude grading error: {str(e)}")
+            # Refusal, API error, unparsable answer: never a silent 0, the instructor grades it
+            current_app.logger.error(f"AI grading error: {str(e)}")
             return {
                 'score': 0.0,
-                'feedback': f"Erreur lors de l'évaluation automatique: {str(e)}"
+                'feedback': "Correction automatique impossible : cette reponse sera corrigee par l'intervenant.",
+                'needs_review': True
             }
 
 
