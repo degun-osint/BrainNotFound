@@ -1,112 +1,115 @@
 # Premiers pas
 
-Ce guide vous accompagne dans la configuration initiale de BrainNotFound.
+Ce guide accompagne la configuration initiale de BrainNotFound : un établissement, un groupe, des apprenants et un premier quiz.
 
 ## Connexion administrateur
 
-Après l'installation, connectez-vous avec les identifiants par défaut :
+Au premier démarrage, l'application crée un compte super-administrateur :
 
 - **Identifiant** : `admin`
-- **Mot de passe** : `admin123`
+- **Mot de passe** : la valeur de `ADMIN_DEFAULT_PASSWORD` dans le `.env` (`admin123` si la variable est absente)
 
-> **Important** : Changez immédiatement le mot de passe par défaut dans votre profil.
+> Changez ce mot de passe dès la première connexion, depuis **Mon profil**. Tant que la configuration par défaut est détectée, le tableau de bord affiche un avertissement.
 
-## Créer votre premier groupe
+## Choisir le fournisseur d'IA
 
-Les groupes permettent d'organiser vos étudiants (par classe, promotion, projet...).
+La correction des questions ouvertes, le générateur de quiz et les entretiens ont besoin d'une IA. Si la clé n'est pas dans le `.env`, renseignez-la dans **Paramètres > Intelligence artificielle**, puis cliquez sur **Tester et lister les modèles**. Voir [Configuration](configuration#intelligence-artificielle).
 
-1. Allez dans **Groupes** depuis le menu
-2. Cliquez sur **Nouveau groupe**
-3. Remplissez :
-   - **Nom** : ex. "L3 Informatique 2024"
-   - **Description** : optionnel
-   - **Code d'accès** : généré automatiquement ou personnalisé
-4. Cliquez sur **Créer**
+## Créer un établissement
 
-Le **code d'accès** permet aux étudiants de rejoindre le groupe lors de leur inscription.
+> Réservé aux super-administrateurs.
 
-## Inviter des étudiants
+1. Menu **Établissements** > **Nouveau**
+2. Donnez un nom, et éventuellement un contact et des quotas
+3. Enregistrez
 
-Deux méthodes possibles :
+Sur une petite instance, un seul établissement suffit. Pour confier sa gestion à quelqu'un, nommez un administrateur d'établissement (voir [Établissements et groupes](groups-tenants#roles)).
 
-### Option 1 : Code d'accès (recommandé)
+## Créer un groupe
 
-Partagez le code d'accès du groupe avec vos étudiants. Ils pourront :
-1. S'inscrire sur la plateforme
-2. Entrer le code lors de l'inscription
-3. Rejoindre automatiquement le groupe
+Un groupe rassemble des apprenants : une classe, une promotion, une session de formation.
 
-### Option 2 : Import CSV
+1. Menu **Groupes** > **Nouveau** (ou **Nouveau groupe** depuis la fiche d'un établissement)
+2. Renseignez le **nom**, l'**établissement** et, si besoin, un nombre maximum de places
+3. Enregistrez
 
-Pour importer plusieurs utilisateurs :
+Un **code d'accès** de 8 caractères est généré automatiquement. Il s'affiche sur la page du groupe, avec le lien d'invitation correspondant.
 
-1. Allez dans **Utilisateurs** > **Import**
-2. Préparez un fichier CSV avec les colonnes :
-   ```
-   username,email,password,first_name,last_name
-   ```
-3. Sélectionnez le groupe de destination
-4. Importez le fichier
+## Inviter des apprenants
 
-## Créer votre premier quiz
+Tout se fait depuis la page du groupe (**Groupes** > nom du groupe).
 
-### Option 1 : Rédaction manuelle
+### Code d'accès ou lien d'invitation (recommandé)
 
-1. Depuis le **Dashboard**, cliquez sur **Nouveau**
-2. Donnez un titre à votre quiz
-3. Rédigez vos questions en Markdown (voir [Syntaxe des quiz](quiz-syntax))
-4. Configurez les options :
-   - **Groupes autorisés** : limitez l'accès à certains groupes
-   - **Limite de temps** : optionnel
-   - **Période de disponibilité** : optionnel
-5. Cliquez sur **Créer**
+Partagez le code, ou le lien d'invitation (`/register?code=CODE`) qui le préremplit. L'apprenant :
 
-### Option 2 : Génération par IA
+1. s'inscrit avec ce code (l'inscription sans code n'est pas possible) ;
+2. confirme son adresse email via le lien reçu ;
+3. se connecte et retrouve directement les contenus du groupe.
 
-Vous pouvez générer automatiquement un quiz à partir d'un support de cours :
+Une personne qui a déjà un compte peut rejoindre un autre groupe avec son code depuis **Mon profil**.
 
-1. Depuis le **Dashboard**, cliquez sur **Generator**
-2. Uploadez votre fichier (PDF, Word, Markdown ou texte)
-3. Configurez : nombre de QCM, questions ouvertes, difficulté
-4. Cliquez sur **Générer**
-5. Vérifiez et modifiez le quiz généré
-6. Validez pour créer le quiz
+Le bouton **Nouveau code** invalide l'ancien code et l'ancien lien, par exemple en fin de session.
 
-> Voir le [Guide d'administration](admin-guide#générateur-de-quiz-par-ia) pour plus de détails sur le générateur.
+### Création manuelle
 
-## Exemple de quiz simple
+**Nouvel apprenant** crée le compte directement dans le groupe. Sans mot de passe, la personne reçoit par email un lien pour choisir le sien (valable 72 heures). Pour un compte sans email réel, copiez ce lien et transmettez-le vous-même.
+
+### Import CSV
+
+**Importer (CSV)** crée plusieurs comptes d'un coup. Le fichier utilise le **point-virgule** comme séparateur ; voir le [format détaillé](admin-guide#import-csv).
+
+### Ajouter une personne existante
+
+Le champ **Ajouter une personne existante** recherche un compte déjà présent dans votre périmètre et l'ajoute au groupe.
+
+## Créer un premier quiz
+
+### Rédaction en Markdown
+
+1. **Quiz** > **Nouveau quiz**
+2. Rédigez les questions en Markdown (voir [Syntaxe des quiz](quiz-syntax))
+3. Cochez les **groupes** qui y ont accès. Un quiz sans groupe n'est visible par aucun apprenant.
+4. Réglez si besoin la limite de temps, la période de disponibilité, la sévérité et le ton de la correction
+5. **Créer le quiz**
+
+Un quiz créé est **actif** tout de suite. Pour le masquer le temps de le relire, utilisez **Désactiver** dans la liste des quiz. Une copie faite avec **Dupliquer** est au contraire créée inactive.
+
+### Génération par l'IA
+
+1. **Quiz** > **Generator**, ou **Generator IA** depuis le tableau de bord
+2. Envoyez un support de cours (PDF, Word, Markdown ou texte)
+3. Choisissez le nombre de QCM, de questions ouvertes et la difficulté
+4. Relisez et corrigez le Markdown proposé, puis créez le quiz
+
+Voir le [guide d'administration](admin-guide#generateur-de-quiz-par-ia).
+
+## Exemple de quiz
 
 ```markdown
 # Quiz d'introduction
 
-## QCM - Quelle est la capitale de la France ? [1 pt]
+## QCM - Quelle est la capitale de la France ? [1 point]
 - [ ] Lyon
 - [x] Paris
 - [ ] Marseille
 
-## OUVERTE - Décrivez le cycle de l'eau [3 pts]
+## OUVERTE - Décrivez le cycle de l'eau [3 points]
 ### Réponse attendue
 Le cycle de l'eau comprend l'évaporation, la condensation,
 les précipitations et le ruissellement.
 ```
 
-## Activer le quiz
+## Consulter les résultats
 
-Par défaut, un nouveau quiz est **inactif**. Pour le rendre disponible :
+1. Dans la liste des quiz, cliquez sur **Résultats**
+2. Consultez les statistiques et la liste des copies
+3. Ouvrez une copie pour voir les réponses, ajuster une note ou ajouter un commentaire visible par l'apprenant
 
-1. Dans la liste des quiz, cliquez sur l'icône œil
-2. Ou modifiez le quiz et cochez "Actif"
+La page du groupe donne aussi le taux de réponse du groupe pour chaque contenu, et **Exporter les résultats** en CSV.
 
-## Voir les résultats
+## Et ensuite
 
-Après que les étudiants ont répondu :
-
-1. Cliquez sur l'icône **Résultats** du quiz
-2. Consultez les statistiques globales
-3. Cliquez sur un étudiant pour voir ses réponses détaillées
-4. Ajustez les notes si nécessaire
-
-## Prochaines étapes
-
-- [Syntaxe des quiz](quiz-syntax) : Maîtrisez toutes les possibilités du format Markdown
-- [Administration](admin-guide) : Gérez finement les permissions et paramètres
+- [Syntaxe des quiz](quiz-syntax) : toutes les possibilités du format
+- [Administration](admin-guide) : utilisateurs, correction, entretiens, paramètres
+- [Établissements et groupes](groups-tenants) : rôles, quotas, suppression

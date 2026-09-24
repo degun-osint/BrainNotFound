@@ -3,6 +3,7 @@
 {% block title %}{{ _('Gestion des groupes - BrainNotFound') }}{% endblock %}
 
 {% block content %}
+{% set member_counts = group_member_counts(groups) %}
 <h1 class="mb-2">{{ _('Gestion des groupes') }}</h1>
 
 <div class="card">
@@ -40,17 +41,20 @@
             {% for group in groups %}
             <div class="quiz-card">
                 <div class="quiz-info">
-                    <h3>{{ group.name }}</h3>
+                    <h3><a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="link-primary">{{ group.name }}</a></h3>
                     <div class="quiz-meta">
                         {{ _('Code:') }} <strong class="font-mono text-info">{{ group.join_code }}</strong> -
-                        {{ group.get_member_count() }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} {{ _('membre(s)') }}
-                        {% if group.is_full() %}<span class="badge badge-warning">{{ _('Complet') }}</span>{% endif %} -
+                        {% set count = member_counts.get(group.id, 0) %}
+                        {{ count }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} {{ _('membre(s)') }}
+                        {% if group.max_members and count >= group.max_members %}<span class="badge badge-warning">{{ _('Complet') }}</span>{% endif %} -
                         {{ _('Cree le') }} {{ group.created_at.strftime('%d/%m/%Y') }} -
                         <span class="{{ 'text-success' if group.is_active else 'text-error' }}">
                             {{ _('Actif') if group.is_active else _('Inactif') }}
                         </span>
                         {% if group.tenant %}
                         - <span class="badge badge-info">{{ group.tenant.name }}</span>
+                        {% else %}
+                        - <span class="badge badge-warning" data-tooltip="{{ _('Rattachez-le a un etablissement via Modifier') }}">{{ _('Sans etablissement') }}</span>
                         {% endif %}
                     </div>
                     {% if group.description %}
@@ -64,7 +68,7 @@
                     <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Exporter résultats CSV') }}">
                         <i class="iconoir-download"></i>
                     </a>
-                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }} ({{ group.users.count() }})">
+                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }} ({{ member_counts.get(group.id, 0) }})">
                         <i class="iconoir-group"></i>
                     </a>
                     <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">

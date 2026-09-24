@@ -2491,6 +2491,73 @@ a.tenant-option {
     display: none;
 }
 
+/* Native <select> enhanced by SelectEnhancer (static/js/main.js) */
+.searchable-select--block {
+    width: 100%;
+}
+
+button.searchable-select-trigger {
+    width: 100%;
+    font: inherit;
+    font-size: 0.875rem;
+    color: inherit;
+    text-align: left;
+}
+
+.searchable-select-trigger:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+}
+
+.searchable-select-trigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.searchable-select.disabled .searchable-select-trigger {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.searchable-select.invalid .searchable-select-trigger {
+    border-color: var(--accent-error, #dc2626);
+}
+
+.searchable-select-option.active:not(.selected) {
+    background: var(--gray-100);
+}
+
+.searchable-select-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.flex > .combobox {
+    flex: 1;
+    min-width: 0;
+}
+
+.combobox .searchable-select-option small {
+    margin-left: 0.5rem;
+}
+
+.combobox .searchable-select-option.selected small {
+    color: inherit;
+    opacity: 0.7;
+}
+
+/* Kept in the DOM for forms and validation, but out of sight */
+.native-select-hidden {
+    position: absolute !important;
+    left: 0;
+    bottom: 0;
+    width: 100% !important;
+    height: 1px !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .searchable-select-empty {
     padding: 0.75rem;
     text-align: center;

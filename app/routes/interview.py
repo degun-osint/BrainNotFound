@@ -11,11 +11,15 @@ import re
 from app import db
 from app.models.interview import (
     Interview, EvaluationCriterion, InterviewSession,
-    InterviewMessage, CriterionScore, interview_groups
+    InterviewMessage, CriterionScore
 )
 from app.models.group import Group
 from app.models.tenant import Tenant
 from app.utils.claude_interviewer import ClaudeInterviewer, get_criteria_templates
+from app.utils.scope import (
+    get_tenant_context, get_accessible_tenants, scoped_groups, scoped_interviews,
+    validate_group_ids, assign_groups, default_tenant_id,
+)
 import unicodedata
 
 interview_bp = Blueprint('interview', __name__)
@@ -42,24 +46,6 @@ def sanitize_filename(text):
 # ============================================================================
 # Context Processor - Tenant Selector for Admin Pages
 # ============================================================================
-
-def get_tenant_context():
-    """Get the current tenant context from session."""
-    from flask import session
-    tenant_id = session.get('admin_tenant_context')
-    if tenant_id:
-        return Tenant.query.get(tenant_id)
-    return None
-
-
-def get_accessible_tenants():
-    """Get list of tenants the current user can access."""
-    if current_user.is_superadmin:
-        return Tenant.query.filter_by(is_active=True).order_by(Tenant.name).all()
-    elif current_user.is_tenant_admin:
-        return list(current_user.admin_tenants.filter_by(is_active=True).order_by(Tenant.name))
-    return []
-
 
 @interview_bp.context_processor
 def inject_tenant_context():
@@ -100,11 +86,8 @@ def admin_required(f):
 
 
 def get_admin_groups():
-    """Get groups accessible to current admin."""
-    if current_user.is_admin:  # Superadmin
-        return Group.query.order_by(Group.name).all()
-    # Tenant/Group admin - get their accessible groups
-    return current_user.get_accessible_groups()
+    """Active groups in the current admin's scope."""
+    return scoped_groups().all()
 
 
 def get_groups_by_tenant():
@@ -118,7 +101,7 @@ def get_groups_by_tenant():
             tenant = Tenant.query.get(tenant_id) if tenant_id else None
             groups_by_tenant[tenant_id] = {
                 'tenant': tenant,
-                'name': tenant.name if tenant else 'Sans organisation',
+                'name': tenant.name if tenant else 'Sans etablissement',
                 'groups': []
             }
         groups_by_tenant[tenant_id]['groups'].append(group)
@@ -150,18 +133,8 @@ def interview_list():
         db.or_(Interview.available_until == None, Interview.available_until >= now)
     )
 
-    # Filter by user's groups
-    if user_group_ids:
-        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
-        base_query = base_query.filter(
-            db.or_(
-                Interview.groups.any(Group.id.in_(user_group_ids)),
-                ~Interview.id.in_(interviews_with_groups)
-            )
-        )
-    else:
-        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
-        base_query = base_query.filter(~Interview.id.in_(interviews_with_groups))
+    # Only interviews assigned to one of the user's groups (no group = visible to no learner)
+    base_query = base_query.filter(Interview.groups.any(Group.id.in_(user_group_ids)))
 
     interviews = base_query.order_by(Interview.created_at.desc()).all()
 
@@ -539,26 +512,7 @@ def admin_list():
     filter_group_id = request.args.get('group', 0, type=int)
     search = request.args.get('search', '').strip()
 
-    # Build query based on admin level
-    if current_user.is_admin:  # Superadmin
-        query = Interview.query
-    else:
-        # Get accessible group IDs (includes tenant admin groups)
-        admin_groups = current_user.get_accessible_groups()
-        admin_group_ids = [g.id for g in admin_groups]
-
-        # Interviews created by user OR assigned to their groups
-        query = Interview.query.filter(
-            db.or_(
-                Interview.created_by_id == current_user.id,
-                Interview.groups.any(Group.id.in_(admin_group_ids))
-            )
-        )
-
-    # Apply tenant context filter
-    tenant_context = get_tenant_context()
-    if tenant_context:
-        query = query.filter(Interview.tenant_id == tenant_context.id)
+    query = scoped_interviews()
 
     # Apply group filter
     if filter_group_id:
@@ -613,6 +567,9 @@ def admin_create():
             flash(_l('Le prompt systeme est requis'), 'error')
             return redirect(url_for('interview.admin_create'))
 
+        # Only groups in scope can be assigned
+        selected_groups = validate_group_ids(request.form.getlist('group_ids'))
+
         # Parse slug
         slug = data.get('slug', '').strip() or None
         if slug:
@@ -661,20 +618,13 @@ def admin_create():
             available_from=available_from,
             available_until=available_until,
             created_by_id=current_user.id,
-            tenant_id=data.get('tenant_id') or None
+            tenant_id=default_tenant_id(selected_groups)
         )
         db.session.add(interview)
         db.session.flush()
 
-        # Add groups
-        group_ids = request.form.getlist('group_ids')
-        for group_id in group_ids:
-            try:
-                group = Group.query.get(int(group_id))
-                if group:
-                    interview.groups.append(group)
-            except ValueError:
-                pass
+        for group in selected_groups:
+            interview.groups.append(group)
 
         # Add criteria
         criteria_json = data.get('criteria_json', '[]')
@@ -718,6 +668,10 @@ def admin_view(identifier):
         flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+        return redirect(url_for('interview.admin_list'))
+
     # Redirect to canonical URL if accessed by numeric ID
     if identifier != interview.get_url_identifier():
         return redirect(url_for('interview.admin_view', identifier=interview.get_url_identifier()), code=301)
@@ -754,6 +708,10 @@ def admin_edit(identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -814,15 +772,8 @@ def admin_edit(identifier):
         except ValueError:
             pass
 
-        # Update groups
-        interview.groups = []
-        for group_id in request.form.getlist('group_ids'):
-            try:
-                group = Group.query.get(int(group_id))
-                if group:
-                    interview.groups.append(group)
-            except ValueError:
-                pass
+        # Update groups (groups outside our scope are kept as they are)
+        assign_groups(interview.groups, request.form.getlist('group_ids'))
 
         # Update criteria only if no completed sessions exist
         if not has_results:
@@ -887,6 +838,10 @@ def admin_delete(identifier):
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+        return redirect(url_for('interview.admin_list'))
     db.session.delete(interview)
     db.session.commit()
     flash(_l('Entretien supprime'), 'success')
@@ -901,6 +856,10 @@ def admin_session(identifier, session_identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
@@ -929,7 +888,7 @@ def admin_session(identifier, session_identifier):
 def admin_add_comment(identifier, session_identifier):
     """Add admin comment to a session."""
     interview = Interview.get_by_identifier(identifier)
-    if not interview:
+    if not interview or not current_user.can_access_interview(interview):
         return jsonify({'error': 'Entretien non trouve'}), 404
 
     session = InterviewSession.get_by_identifier(session_identifier)
@@ -939,7 +898,7 @@ def admin_add_comment(identifier, session_identifier):
     if session.interview_id != interview.id:
         return jsonify({'error': 'Session non trouvee'}), 404
 
-    comment = request.form.get('comment', '').strip()
+    comment =request.form.get('comment', '').strip()
     session.admin_comment = comment
     db.session.commit()
 
@@ -955,6 +914,10 @@ def admin_reevaluate_session(identifier, session_identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
@@ -998,6 +961,10 @@ def admin_session_pdf(identifier, session_identifier):
         flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
 
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+        return redirect(url_for('interview.admin_list'))
+
     session = InterviewSession.get_by_identifier(session_identifier)
     if not session:
         flash(_l('Session non trouvee'), 'error')
@@ -1038,6 +1005,10 @@ def admin_test(identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.admin_list'))
 
     # Redirect to canonical URL if accessed by numeric ID
@@ -1103,6 +1074,10 @@ def admin_toggle(identifier):
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+        return redirect(url_for('interview.admin_list'))
     interview.is_active = not interview.is_active
     db.session.commit()
     status = _l('active') if interview.is_active else _l('desactive')
@@ -1118,6 +1093,10 @@ def admin_delete_session(identifier, session_identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+    if not current_user.can_access_interview(interview):
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
         return redirect(url_for('interview.admin_list'))
 
     session = InterviewSession.get_by_identifier(session_identifier)
@@ -1148,13 +1127,20 @@ def admin_export(identifier):
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
         return redirect(url_for('interview.admin_list'))
+
+
+    if not current_user.can_access_interview(interview):
+
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+
+        return redirect(url_for('interview.admin_list'))
     sessions = interview.sessions.filter(InterviewSession.is_test == False).all()
 
     output = StringIO()
     writer = csv.writer(output, delimiter=';')
 
     # Header
-    header = ['Etudiant', 'Username', 'Date', 'Duree (min)', 'Echanges', 'Score', 'Score Max', 'Pourcentage', 'Statut']
+    header = ['Apprenant', 'Username', 'Date', 'Duree (min)', 'Echanges', 'Score', 'Score Max', 'Pourcentage', 'Statut']
     # Add criteria columns
     for criterion in interview.criteria:
         header.append(f'{criterion.name} (/{criterion.max_points})')
@@ -1250,6 +1236,13 @@ def admin_export_json(identifier):
     interview = Interview.get_by_identifier(identifier)
     if not interview:
         flash(_l('Entretien introuvable'), 'error')
+        return redirect(url_for('interview.admin_list'))
+
+
+    if not current_user.can_access_interview(interview):
+
+        flash(_l("Vous n'avez pas acces a cet entretien"), 'error')
+
         return redirect(url_for('interview.admin_list'))
 
     # Build export data
@@ -1389,7 +1382,7 @@ def admin_import():
 
             # Ownership
             is_active=False,  # Imported interviews start inactive
-            tenant_id=get_tenant_context().id if get_tenant_context() else None,
+            tenant_id=default_tenant_id(),
             created_by_id=current_user.id
         )
 

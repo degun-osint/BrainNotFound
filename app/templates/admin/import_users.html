@@ -38,7 +38,7 @@
         <select id="default_group" name="default_group" class="form-select" required>
             <option value="">-- {{ _('Selectionnez un groupe') }} --</option>
             {% for group in groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
+            <option value="{{ group.id }}" {{ 'selected' if group.id == (request.args.get('group')|int) }}>{{ group.name }}</option>
             {% endfor %}
         </select>
         <small class="text-light">{{ _('Tous les utilisateurs importes seront ajoutes a ce groupe.') }}</small>

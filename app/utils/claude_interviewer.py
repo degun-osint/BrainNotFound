@@ -2,12 +2,12 @@
 Claude Interviewer - Handle interview conversations and evaluations.
 """
 
-import anthropic
 import json
 import re
 from flask import current_app
 from typing import Dict, List, Optional
 from .prompt_loader import get_interview_prompts
+from .ai_client import complete, wrap_untrusted, data_notice
 
 
 class ClaudeInterviewer:
@@ -16,10 +16,8 @@ class ClaudeInterviewer:
     # End signal marker
     END_SIGNAL = '[INTERVIEW_COMPLETE]'
 
-    def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
-        self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+    def __init__(self, model: str = None, lang: str = None):
+        self.model = model  # None = model configured in the admin settings
         self.lang = lang or 'fr'
         self.prompts = get_interview_prompts(lang=self.lang)
 
@@ -55,12 +53,7 @@ class ClaudeInterviewer:
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=4096,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return message.content[0].text.strip()
+            return complete([{"role": "user", "content": prompt}], model=self.model, effort='medium')
 
         except Exception as e:
             current_app.logger.error(f"System prompt generation error: {str(e)}")
@@ -80,12 +73,7 @@ class ClaudeInterviewer:
         prompt = template.format(system_prompt=system_prompt)
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=500,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return message.content[0].text.strip()
+            return complete([{"role": "user", "content": prompt}], model=self.model, effort='medium')
 
         except Exception as e:
             current_app.logger.error(f"Opening message generation error: {str(e)}")
@@ -117,9 +105,10 @@ class ClaudeInterviewer:
             default_injection = self.prompts.get('FILE_INJECTION_TEMPLATE', '')
             injection_template = interview.file_upload_prompt_injection or default_injection
             file_injection = injection_template.replace(
-                '{file_content}', session.uploaded_file_content
+                '{file_content}', wrap_untrusted(session.uploaded_file_content, 'document_apprenant', stable_key=session.id)
             ).replace('{file_name}', session.uploaded_file_name or ('fichier' if self.lang == 'fr' else 'file'))
-            base_system_prompt = f"{base_system_prompt}\n\n{file_injection}"
+            base_system_prompt = (f"{base_system_prompt}\n\n{file_injection}\n\n"
+                                  f"{data_notice('document_apprenant', self.lang, assessed=False)}")
 
         # Build the conversation wrapper
         wrapper = self.prompts['CONVERSATION_WRAPPER']
@@ -129,20 +118,14 @@ class ClaudeInterviewer:
         messages = self._build_conversation_context(session, user_message)
 
         try:
-            response = self.client.messages.create(
+            # cache_control is used by Anthropic and ignored by other providers
+            # Conversational turn: low effort keeps the character responsive
+            response_text = complete(
+                messages,
+                system=[{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}],
                 model=self.model,
-                max_tokens=1024,
-                system=[
-                    {
-                        "type": "text",
-                        "text": system_prompt,
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ],
-                messages=messages
+                effort='low',
             )
-
-            response_text = response.content[0].text.strip()
 
             # Check for end signal
             end_signal = self.END_SIGNAL in response_text
@@ -205,7 +188,7 @@ class ClaudeInterviewer:
         # Add file content context if available
         file_context = ''
         if session.uploaded_file_content:
-            file_context = f"\n\nDocument fourni par l'etudiant ({session.uploaded_file_name or 'fichier'}):\n{session.uploaded_file_content[:2000]}{'...' if len(session.uploaded_file_content) > 2000 else ''}"
+            file_context = f"\n\nDocument fourni par l'apprenant ({session.uploaded_file_name or 'fichier'}):\n{session.uploaded_file_content[:2000]}{'...' if len(session.uploaded_file_content) > 2000 else ''}"
 
         prompt = template.format(
             interview_title=interview.title,
@@ -213,18 +196,13 @@ class ClaudeInterviewer:
             student_objective=interview.student_objective or '',
             persona_name=interview.persona_name or 'Le personnage',
             persona_role=interview.persona_role or '',
-            conversation_transcript=transcript + file_context,
+            conversation_transcript=wrap_untrusted(transcript + file_context, 'entretien'),
             criteria_json=criteria_json
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-            response_text = message.content[0].text.strip()
+            response_text = complete([{"role": "user", "content": prompt}],
+                                     system=data_notice('entretien', self.lang), model=self.model, effort='medium')
 
             # Parse JSON response
             result = self._parse_json_response(response_text)

@@ -55,14 +55,14 @@
                 onclick="return confirm(this.dataset.confirm);">
             <i class="iconoir-send"></i> {{ _('Envoyer') }} ({{ users|length }})
         </button>
-        <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
+        <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
             <i class="iconoir-xmark"></i> {{ _('Annuler') }}
         </a>
     </div>
 </form>
 {% else %}
 <div class="actions">
-    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> {{ _('Retour') }}
     </a>
 </div>

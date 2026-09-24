@@ -8,7 +8,7 @@ class QuizParser:
     Format:
     # Quiz Title
 
-    ## QCM - Question text here [X points]
+    ## QCM - Question text here [X points]  (or [X pts])
     - [ ] Option 1
     - [x] Option 2 (correct)
     - [ ] Option 3
@@ -68,8 +68,8 @@ class QuizParser:
         header = lines[start_idx].strip()
 
         # Parse header: ## TYPE - Question text [X points]
-        mcq_match = re.match(r'^##\s+QCM\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*points?\])?$', header, re.IGNORECASE)
-        open_match = re.match(r'^##\s+OUVERTE?\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*points?\])?$', header, re.IGNORECASE)
+        mcq_match = re.match(r'^##\s+QCM\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
+        open_match = re.match(r'^##\s+OUVERTE?\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
 
         if mcq_match:
             return self._parse_mcq_question(lines, start_idx, mcq_match)

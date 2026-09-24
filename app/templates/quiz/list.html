@@ -31,15 +31,15 @@
                     <input type="hidden" name="tenant" id="tenant-input" value="{{ filter_tenant_id or 0 }}">
                     <div class="searchable-select-trigger">
                         <i class="iconoir-building"></i>
-                        <span>{% if filter_tenant_id %}{% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}{{ _('Toutes les organisations') }}{% endif %}</span>
+                        <span>{% if filter_tenant_id %}{% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% else %}{{ _('Tous les etablissements') }}{% endif %}</span>
                         <i class="iconoir-nav-arrow-down"></i>
                     </div>
                     <div class="searchable-select-dropdown">
                         <div class="searchable-select-search">
-                            <input type="text" placeholder="{{ _('Rechercher une organisation...') }}">
+                            <input type="text" placeholder="{{ _('Rechercher un etablissement...') }}">
                         </div>
                         <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">{{ _('Toutes les organisations') }}</div>
+                            <div class="searchable-select-option {% if not filter_tenant_id %}selected{% endif %}" data-value="0">{{ _('Tous les etablissements') }}</div>
                             {% for tenant in user_tenants %}
                             <div class="searchable-select-option {% if filter_tenant_id == tenant.id %}selected{% endif %}" data-value="{{ tenant.id }}">{{ tenant.name }}</div>
                             {% endfor %}
@@ -85,7 +85,7 @@
     {% if filter_group_id or filter_tenant_id %}
     <div class="search-results-info">
         <span class="text-light">
-            {% if filter_tenant_id %}{{ _('Organisation') }}: {% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% endif %}
+            {% if filter_tenant_id %}{{ _('Etablissement') }}: {% for t in user_tenants %}{% if t.id == filter_tenant_id %}{{ t.name }}{% endif %}{% endfor %}{% endif %}
             {% if filter_tenant_id and filter_group_id %} - {% endif %}
             {% if filter_group_id %}{{ _('Groupe') }}: {% for g in user_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% endif %}
             - {{ quizzes|length }} {{ _('quiz') }}

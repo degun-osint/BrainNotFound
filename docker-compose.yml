@@ -1,20 +1,21 @@
 services:
   db:
-    image: mysql:8.0
+    # MariaDB LTS. Data lives in a new volume (mariadb_data): an existing
+    # mysql_data volume is left untouched, see docs/self-hosting.md to migrate.
+    image: mariadb:12.3
     container_name: quiz_db
+    # The MariaDB image reads MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, MYSQL_USER
+    # and MYSQL_PASSWORD from .env as they are (MARIADB_* aliases)
     env_file:
       - .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
-    ports:
-      - "3312:3306"
+      - mariadb_data:/var/lib/mysql
+      # Low-memory settings for small servers
+      - ./docker/mariadb/low-memory.cnf:/etc/mysql/conf.d/low-memory.cnf:ro
+    # No published port: the app reaches it on the internal network (db:3306),
+    # backups and scripts use docker exec. Published ports bypass ufw.
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,8 +24,10 @@ services:
   web:
     build: .
     container_name: quiz_app
+    # Loopback only: the host reverse proxy (Nginx, CloudPanel...) forwards to
+    # it. APP_BIND=0.0.0.0 in .env to reach it directly (no HTTPS, not advised).
     ports:
-      - "5006:5000"
+      - "${APP_BIND:-127.0.0.1}:5006:5000"
     environment:
       - FLASK_ENV=production
       - TZ=Europe/Paris
@@ -35,7 +38,10 @@ services:
         condition: service_healthy
     volumes:
       - ./uploads:/app/uploads
+      - ./backups:/app/backups
     restart: unless-stopped
 
 volumes:
+  mariadb_data:
+  # Former MySQL data, kept for rollback after migrating to MariaDB
   mysql_data:

@@ -48,18 +48,15 @@ class Quiz(UIDMixin, db.Model):
 
     def is_available_for_group(self, group_id):
         """Check if quiz is assigned to a specific group."""
-        if not self.groups.count():  # No groups assigned = available to all
-            return True
         return self.groups.filter_by(id=group_id).first() is not None
 
     def is_available_for_user(self, user):
-        """Check if quiz is available for a user (any of their groups)."""
-        if not self.groups.count():  # No groups assigned = available to all
-            return True
-        # Check if any of the user's groups match the quiz's groups
-        user_group_ids = set(g.id for g in user.groups)
-        quiz_group_ids = set(g.id for g in self.groups)
-        return bool(user_group_ids & quiz_group_ids)
+        """Check if quiz is assigned to one of the user's groups.
+
+        A quiz without any group is visible to no learner (only to its admins).
+        """
+        user_group_ids = {g.id for g in user.groups}
+        return any(g.id in user_group_ids for g in self.groups)
 
     def is_open(self):
         """Check if quiz is currently open (within time window)."""
@@ -116,6 +113,7 @@ class QuizResponse(UIDMixin, db.Model):
     STATUS_GRADING = 'grading'
     STATUS_COMPLETED = 'completed'
     STATUS_ERROR = 'error'
+    STATUS_REVIEW = 'review'  # graded, but some answers wait for the instructor (AI quota reached)
 
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
@@ -126,7 +124,7 @@ class QuizResponse(UIDMixin, db.Model):
     started_at = db.Column(db.DateTime, nullable=True)  # When quiz was started
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_late = db.Column(db.Boolean, default=False)  # Submitted after time limit
-    grading_status = db.Column(db.String(20), default='pending')  # pending, grading, completed, error
+    grading_status = db.Column(db.String(20), default='pending')  # pending, grading, completed, review, error
     grading_progress = db.Column(db.Integer, default=0)  # Number of questions graded
     grading_total = db.Column(db.Integer, default=0)  # Total questions to grade
 

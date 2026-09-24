@@ -28,6 +28,86 @@
         </div>
     </div>
 
+    <!-- LLM provider -->
+    <div class="card mb-2">
+        <div class="card-header">
+            <i class="iconoir-sparks"></i> {{ _('Intelligence artificielle') }}
+        </div>
+        <div class="p-2">
+            <p class="text-light text-sm mt-0">
+                {{ _("Les modifications s'appliquent immediatement, sans redemarrer les conteneurs. Laisser vide pour utiliser les valeurs du fichier .env.") }}
+            </p>
+
+            <div class="form-group">
+                <label for="ai_provider" class="form-label">{{ _('Fournisseur') }}</label>
+                <select id="ai_provider" name="ai_provider" class="form-input">
+                    <option value="anthropic" {{ 'selected' if ai.provider == 'anthropic' }}>{{ _('Anthropic Claude (recommande)') }}</option>
+                    <option value="openai_compatible" {{ 'selected' if ai.provider == 'openai_compatible' }}>{{ _('Compatible OpenAI (OpenAI, Mistral, Gemini, OpenRouter, Ollama...)') }}</option>
+                </select>
+                <small class="text-warning d-block" id="provider-warning" {% if ai.provider == 'anthropic' %}style="display: none;"{% endif %}>
+                    <i class="iconoir-warning-triangle"></i>
+                    {{ _("Les prompts (correction, entretiens, generation) sont optimises et testes avec Claude. Avec un autre modele, la qualite des corrections peut baisser : testez avant de l'utiliser avec des apprenants.") }}
+                </small>
+            </div>
+
+            <div class="form-group" id="base-url-group" {% if ai.provider == 'anthropic' %}style="display: none;"{% endif %}>
+                <label for="ai_base_url" class="form-label">{{ _('URL du fournisseur') }}</label>
+                <input type="url" id="ai_base_url" name="ai_base_url" class="form-input" list="ai-base-urls"
+                       value="{{ settings.ai_base_url or '' }}" maxlength="255" placeholder="https://api.openai.com/v1">
+                <datalist id="ai-base-urls">
+                    <option value="https://api.openai.com/v1">OpenAI</option>
+                    <option value="https://api.mistral.ai/v1">Mistral</option>
+                    <option value="https://generativelanguage.googleapis.com/v1beta/openai/">Google Gemini</option>
+                    <option value="https://openrouter.ai/api/v1">OpenRouter</option>
+                    <option value="https://api.groq.com/openai/v1">Groq</option>
+                    <option value="http://ollama:11434/v1">{{ _('Ollama (local)') }}</option>
+                </datalist>
+                <small class="text-light">{{ _("Changer de fournisseur ou d'URL efface la cle enregistree, pour qu'elle ne soit jamais envoyee a un autre serveur.") }}</small>
+            </div>
+
+            <div class="form-group">
+                <label for="ai_api_key" class="form-label">{{ _('Cle API') }}</label>
+                <input type="password" id="ai_api_key" name="ai_api_key" class="form-input"
+                       autocomplete="new-password" placeholder="{{ _('Laisser vide pour ne pas modifier') }}">
+                <small class="text-light">
+                    {% if ai.key_source == 'admin' %}
+                        {{ _('Cle actuelle : definie ici') }} ({{ ai.key_hint }})
+                    {% elif ai.key_source == 'env' %}
+                        {{ _('Cle actuelle : fichier .env') }} ({{ ai.key_hint }})
+                    {% elif ai.provider == 'anthropic' %}
+                        <span class="text-error">{{ _('Aucune cle configuree : les fonctions IA sont indisponibles.') }}</span>
+                    {% else %}
+                        {{ _('Aucune cle (normal pour un serveur local comme Ollama)') }}
+                    {% endif %}
+                </small>
+                {% if ai.key_unreadable %}
+                <small class="text-error d-block">{{ _('La cle enregistree ne peut pas etre dechiffree (SECRET_KEY modifiee ?). Saisissez-la a nouveau.') }}</small>
+                {% endif %}
+                {% if settings.ai_api_key_encrypted %}
+                <label class="checkbox-label mt-1">
+                    <input type="checkbox" name="clear_ai_api_key">
+                    <span>{{ _('Supprimer la cle enregistree (revenir au .env)') }}</span>
+                </label>
+                {% endif %}
+            </div>
+
+            <div class="form-group mb-0">
+                <label for="ai_model" class="form-label">{{ _('Modele') }}</label>
+                <div class="flex gap-sm items-center">
+                    <input type="text" id="ai_model" name="ai_model" class="form-input" list="ai-model-list"
+                           value="{{ settings.ai_model or '' }}" maxlength="100" placeholder="{{ ai.env_model if ai.provider == 'anthropic' }}">
+                    <datalist id="ai-model-list"></datalist>
+                    <button type="button" class="btn btn-secondary btn-small" id="load-models-btn" style="white-space: nowrap;">
+                        <i class="iconoir-refresh"></i> {{ _('Tester et lister les modeles') }}
+                    </button>
+                </div>
+                <small class="text-light" id="model-help">{{ _('Vide = modele du .env') }} ({{ ai.env_model }})</small>
+                <span id="models-result" class="text-light text-sm d-block"></span>
+            </div>
+            <input type="hidden" name="grok_confirmed" id="grok_confirmed" value="0">
+        </div>
+    </div>
+
     <!-- Custom Pages -->
     <div class="card mb-2">
         <div class="card-header flex justify-between items-center">
@@ -206,36 +286,6 @@
     </div>
     {% endif %}
 
-    <!-- Manual Backup & History -->
-    <div class="card mb-2">
-        <div class="card-header">
-            <i class="iconoir-database-restore"></i> {{ _('Actions manuelles') }}
-        </div>
-        <div class="p-2">
-            <div class="alert alert-info mb-1">
-                <i class="iconoir-info-circle"></i>
-                {{ _('Les sauvegardes incluent la') }} <strong>{{ _('base de donnees') }}</strong> {{ _('et les') }} <strong>{{ _('fichiers uploades') }}</strong> {{ _('(images, PDF des quiz).') }}
-            </div>
-            <div class="flex gap-md items-center flex-wrap">
-                <button type="button" class="btn btn-primary" id="run-backup-btn">
-                    <i class="iconoir-download"></i> {{ _('Lancer une sauvegarde maintenant') }}
-                </button>
-                <button type="button" class="btn btn-secondary" id="view-history-btn">
-                    <i class="iconoir-folder"></i> {{ _("Voir l'historique") }}
-                </button>
-                <span id="backup-result" class="text-light"></span>
-            </div>
-
-            <!-- Backup History (hidden by default) -->
-            <div id="backup-history" style="display: none;" class="mt-2">
-                <h4>{{ _('Historique des sauvegardes') }}</h4>
-                <div id="backup-history-content">
-                    <p class="text-light">{{ _('Chargement...') }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Save Button -->
     <div class="flex gap-md">
         <button type="submit" class="btn btn-primary">
@@ -246,6 +296,68 @@
         </a>
     </div>
 </form>
+
+<!-- Manual Backup, Download & Restore (outside the settings form: it has its own forms) -->
+<div class="card mb-2 mt-2">
+    <div class="card-header">
+        <i class="iconoir-database-restore"></i> {{ _('Sauvegarde et restauration') }}
+    </div>
+    <div class="p-2">
+        <div class="alert alert-info mb-1">
+            <i class="iconoir-info-circle"></i>
+            {{ _('Les sauvegardes incluent la') }} <strong>{{ _('base de donnees') }}</strong> {{ _('et les') }} <strong>{{ _('fichiers uploades') }}</strong> {{ _('(images, PDF des quiz).') }}
+        </div>
+        <div class="flex gap-md items-center flex-wrap">
+            <button type="button" class="btn btn-primary" id="run-backup-btn">
+                <i class="iconoir-database-backup"></i> {{ _('Lancer une sauvegarde maintenant') }}
+            </button>
+            <form method="POST" action="{{ url_for('admin.download_backup_now') }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="iconoir-download"></i> {{ _('Telecharger une sauvegarde') }}
+                </button>
+            </form>
+            <button type="button" class="btn btn-secondary" id="view-history-btn">
+                <i class="iconoir-folder"></i> {{ _("Voir l'historique") }}
+            </button>
+            <span id="backup-result" class="text-light"></span>
+        </div>
+        <small class="text-light d-block mt-1">
+            {{ _("Sans FTP, les sauvegardes manuelles sont conservees sur le serveur (dossier backups/).") }}
+        </small>
+
+        <!-- Backup History (hidden by default) -->
+        <div id="backup-history" style="display: none;" class="mt-2">
+            <div id="backup-history-content">
+                <p class="text-light">{{ _('Chargement...') }}</p>
+            </div>
+        </div>
+
+        <hr class="my-2">
+
+        <h4 class="mb-1">{{ _('Restaurer depuis un fichier') }}</h4>
+        <div class="alert alert-warning mb-1">
+            <i class="iconoir-warning-triangle"></i>
+            {{ _("La restauration remplace toutes les donnees actuelles. Une sauvegarde de l'etat actuel est faite automatiquement juste avant, et restauree si l'operation echoue. Vous serez deconnecte a la fin.") }}
+        </div>
+        <form method="POST" action="{{ url_for('admin.restore_upload') }}" enctype="multipart/form-data" id="restore-upload-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-2 gap-md">
+                <div class="form-group">
+                    <label class="form-label" for="backup_file">{{ _('Fichier de sauvegarde') }} (.tar.gz, .sql.gz)</label>
+                    <input type="file" id="backup_file" name="backup_file" class="form-input" accept=".gz" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="restore_confirm">{{ _('Tapez RESTAURER pour confirmer') }}</label>
+                    <input type="text" id="restore_confirm" name="confirm" class="form-input" autocomplete="off" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-error">
+                <i class="iconoir-upload"></i> {{ _('Restaurer ce fichier') }}
+            </button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -278,6 +390,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
     frequencySelect.addEventListener('change', updateScheduleFields);
     updateScheduleFields();
+
+    // LLM provider: show the base URL for OpenAI-compatible servers
+    const providerSelect = document.getElementById('ai_provider');
+    providerSelect.addEventListener('change', function() {
+        const compatible = this.value === 'openai_compatible';
+        document.getElementById('base-url-group').style.display = compatible ? 'block' : 'none';
+        document.getElementById('provider-warning').style.display = compatible ? 'block' : 'none';
+        document.getElementById('model-help').style.display = compatible ? 'none' : 'block';
+        document.getElementById('ai-model-list').innerHTML = '';
+    });
+
+    // Grok needs an explicit confirmation before saving
+    function isGrok() {
+        if (providerSelect.value !== 'openai_compatible') return false;
+        const url = document.getElementById('ai_base_url').value.toLowerCase();
+        const model = document.getElementById('ai_model').value.toLowerCase();
+        return url.includes('x.ai') || model.includes('grok');
+    }
+    document.getElementById('settings-form').addEventListener('submit', function(event) {
+        const confirmed = document.getElementById('grok_confirmed');
+        confirmed.value = '0';
+        if (!isGrok()) return;
+        if (confirm({{ _("Etes-vous certain de vouloir utiliser une IA faite par un fasciste ?")|tojson }})) {
+            confirmed.value = '1';
+        } else {
+            event.preventDefault();
+        }
+    });
+
+    // Test the key (typed or saved) and fill the model suggestions
+    document.getElementById('load-models-btn').addEventListener('click', async function() {
+        const btn = this;
+        const result = document.getElementById('models-result');
+        const list = document.getElementById('ai-model-list');
+        btn.disabled = true;
+        result.textContent = {{ _("Test en cours...")|tojson }};
+        result.className = 'text-light text-sm d-block';
+        try {
+            const response = await fetch('{{ url_for("admin.ai_models") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    provider: providerSelect.value,
+                    base_url: document.getElementById('ai_base_url').value,
+                    api_key: document.getElementById('ai_api_key').value
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                list.innerHTML = '';
+                data.models.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.name;
+                    list.appendChild(opt);
+                });
+                result.textContent = {{ _("Cle valide.")|tojson }} + ' ' + data.models.length + ' ' + {{ _("modele(s) disponible(s) dans la liste.")|tojson }};
+                result.className = 'text-success text-sm d-block';
+                document.getElementById('ai_model').focus();  // opens the suggestions
+            } else {
+                result.textContent = data.message;
+                result.className = 'text-error text-sm d-block';
+            }
+        } catch (error) {
+            result.textContent = {{ _("Erreur:")|tojson }} + ' ' + error.message;
+            result.className = 'text-error text-sm d-block';
+        }
+        btn.disabled = false;
+    });
 
     // Test FTP connection
     document.getElementById('test-ftp-btn').addEventListener('click', async function() {
@@ -349,6 +533,60 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = false;
     });
 
+    // Restore a backup listed in the history (stored on the server or on FTP)
+    async function restoreListed(btn) {
+        const typed = prompt({{ _("La restauration remplace toutes les donnees actuelles (un instantane de l'etat actuel est garde). Tapez RESTAURER pour confirmer :")|tojson }} + '\n' + btn.dataset.filename);
+        if (typed === null) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="iconoir-refresh"></i> ' + {{ _("Restauration...")|tojson }};
+        try {
+            const response = await fetch('{{ url_for("admin.restore_backup") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ filename: btn.dataset.filename, source: btn.dataset.source, confirm: typed })
+            });
+            const result = await response.json();
+            alert((result.success ? {{ _("Restauration reussie !")|tojson }} : {{ _("Erreur:")|tojson }}) + '\n\n' + result.message);
+            if (result.success) { window.location = result.redirect; return; }
+        } catch (error) {
+            alert({{ _("Erreur:")|tojson }} + ' ' + error.message);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }};
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function backupTable(files, source) {
+        if (!files.length) {
+            return '<p class="text-light">' + {{ _("Aucune sauvegarde trouvee")|tojson }} + '</p>';
+        }
+        const typeLabels = {
+            full: '<span class="badge badge-success">' + {{ _("Complet")|tojson }} + '</span>',
+            snapshot: '<span class="badge badge-info" title="' + {{ _("Etat sauvegarde automatiquement avant une restauration")|tojson }} + '">' + {{ _("Avant restauration")|tojson }} + '</span>',
+            database_only: '<span class="badge badge-warning">' + {{ _("BDD seule")|tojson }} + '</span>'
+        };
+        let html = '<table class="table table-small"><thead><tr><th>' + {{ _("Fichier")|tojson }} + '</th><th>' + {{ _("Type")|tojson }} + '</th><th>' + {{ _("Taille")|tojson }} + '</th><th>' + {{ _("Date")|tojson }} + '</th><th>' + {{ _("Action")|tojson }} + '</th></tr></thead><tbody>';
+        files.forEach(file => {
+            const size = file.size > 1048576 ? (file.size / 1048576).toFixed(2) + ' Mo' : (file.size / 1024).toFixed(1) + ' Ko';
+            const name = escapeHtml(file.name);
+            let actions = '<button type="button" class="btn btn-error btn-small restore-btn" data-source="' + source + '" data-filename="' + name + '"><i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }} + '</button>';
+            if (source === 'local') {
+                const url = '{{ url_for("admin.download_backup", name="__NAME__") }}'.replace('__NAME__', encodeURIComponent(file.name));
+                actions = '<a class="btn btn-secondary btn-small btn-icon" href="' + url + '" data-tooltip="' + {{ _("Telecharger")|tojson }} + '"><i class="iconoir-download"></i></a> ' + actions;
+            }
+            html += '<tr><td><code class="text-small">' + name + '</code></td><td>' + (typeLabels[file.type] || '') + '</td><td>' + size + '</td><td>' + escapeHtml(file.date) + '</td><td class="flex gap-sm">' + actions + '</td></tr>';
+        });
+        return html + '</tbody></table>';
+    }
+
     // View backup history
     document.getElementById('view-history-btn').addEventListener('click', async function() {
         const historyDiv = document.getElementById('backup-history');
@@ -357,70 +595,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (historyDiv.style.display === 'none') {
             historyDiv.style.display = 'block';
             contentDiv.innerHTML = '<p class="text-light">' + {{ _("Chargement...")|tojson }} + '</p>';
-
             try {
                 const response = await fetch('{{ url_for("admin.backup_history") }}');
                 const data = await response.json();
-
-                if (data.error) {
-                    contentDiv.innerHTML = '<p class="text-error">' + data.error + '</p>';
-                } else if (data.files.length === 0) {
-                    contentDiv.innerHTML = '<p class="text-light">' + {{ _("Aucune sauvegarde trouvee")|tojson }} + '</p>';
-                } else {
-                    let html = '<div class="alert alert-warning mb-1"><i class="iconoir-warning-triangle"></i> <strong>' + {{ _("Attention:")|tojson }} + '</strong> ' + {{ _("La restauration remplacera toutes les donnees actuelles!")|tojson }} + '</div>';
-                    html += '<table class="table table-small"><thead><tr><th>' + {{ _("Fichier")|tojson }} + '</th><th>' + {{ _("Type")|tojson }} + '</th><th>' + {{ _("Taille")|tojson }} + '</th><th>' + {{ _("Date")|tojson }} + '</th><th>' + {{ _("Action")|tojson }} + '</th></tr></thead><tbody>';
-                    data.files.forEach(file => {
-                        const sizeKb = (file.size / 1024).toFixed(1);
-                        const sizeMb = (file.size / 1048576).toFixed(2);
-                        const sizeDisplay = file.size > 1048576 ? sizeMb + ' Mo' : sizeKb + ' Ko';
-                        const typeLabel = file.type === 'full' ? '<span class="badge badge-success" title="' + {{ _("Base de donnees + images")|tojson }} + '">' + {{ _("Complet")|tojson }} + '</span>' : '<span class="badge badge-warning" title="' + {{ _("Base de donnees uniquement")|tojson }} + '">' + {{ _("BDD seule")|tojson }} + '</span>';
-                        html += '<tr><td><code class="text-small">' + file.name + '</code></td><td>' + typeLabel + '</td><td>' + sizeDisplay + '</td><td>' + file.date + '</td>';
-                        html += '<td><button type="button" class="btn btn-error btn-small restore-btn" data-filename="' + file.name + '"><i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }} + '</button></td></tr>';
-                    });
-                    html += '</tbody></table>';
-                    contentDiv.innerHTML = html;
-
-                    // Add restore button handlers
-                    contentDiv.querySelectorAll('.restore-btn').forEach(btn => {
-                        btn.addEventListener('click', async function() {
-                            const filename = this.dataset.filename;
-                            if (!confirm({{ _("ATTENTION: Cette action va remplacer TOUTES les donnees actuelles par celles du backup")|tojson }} + ' "' + filename + '".\n\n' + {{ _("Cette action est IRREVERSIBLE.")|tojson }} + '\n\n' + {{ _("Continuer ?")|tojson }})) return;
-                            if (!confirm({{ _("Derniere confirmation: Etes-vous VRAIMENT sur de vouloir restaurer ce backup ?")|tojson }})) return;
-
-                            this.disabled = true;
-                            this.innerHTML = '<i class="iconoir-refresh"></i> ' + {{ _("Restauration...")|tojson }};
-
-                            try {
-                                const response = await fetch('{{ url_for("admin.restore_backup") }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-                                    },
-                                    body: JSON.stringify({ filename: filename })
-                                });
-                                const result = await response.json();
-
-                                if (result.success) {
-                                    alert({{ _("Restauration reussie!")|tojson }} + '\n\n' + result.message + '\n\n' + {{ _("La page va se recharger.")|tojson }});
-                                    location.reload();
-                                } else {
-                                    alert({{ _("Erreur:")|tojson }} + ' ' + result.message);
-                                    this.disabled = false;
-                                    this.innerHTML = '<i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }};
-                                }
-                            } catch (error) {
-                                alert({{ _("Erreur:")|tojson }} + ' ' + error.message);
-                                this.disabled = false;
-                                this.innerHTML = '<i class="iconoir-database-restore"></i> ' + {{ _("Restaurer")|tojson }};
-                            }
-                        });
-                    });
-                }
+                let html = '<h4>' + {{ _("Sur ce serveur")|tojson }} + '</h4>' + backupTable(data.local, 'local');
+                html += '<h4 class="mt-2">' + {{ _("Sur le FTP")|tojson }} + '</h4>';
+                html += data.ftp_error ? '<p class="text-error">' + escapeHtml(data.ftp_error) + '</p>' : backupTable(data.ftp, 'ftp');
+                contentDiv.innerHTML = html;
+                contentDiv.querySelectorAll('.restore-btn').forEach(btn => {
+                    btn.addEventListener('click', () => restoreListed(btn));
+                });
             } catch (error) {
-                contentDiv.innerHTML = '<p class="text-error">' + {{ _("Erreur:")|tojson }} + ' ' + error.message + '</p>';
+                contentDiv.innerHTML = '<p class="text-error">' + {{ _("Erreur:")|tojson }} + ' ' + escapeHtml(error.message) + '</p>';
             }
-
             this.innerHTML = '<i class="iconoir-eye-closed"></i> ' + {{ _("Masquer l'historique")|tojson }};
         } else {
             historyDiv.style.display = 'none';

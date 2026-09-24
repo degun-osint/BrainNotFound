@@ -4,6 +4,9 @@ from threading import Thread
 from app import mail
 
 
+ADMIN_RESET_LINK_HOURS = 72
+
+
 def send_async_email(app, msg):
     """Send email in background thread."""
     with app.app_context():
@@ -85,9 +88,13 @@ L'equipe BrainNotFound
         return False
 
 
-def send_reset_email(user, async_send=True):
-    """Send password reset link to user."""
-    token = user.generate_reset_token()
+def send_reset_email(user, async_send=True, by_admin=False):
+    """Send password reset link to user (by_admin: sent by an administrator, valid 72 hours)."""
+    hours = ADMIN_RESET_LINK_HOURS if by_admin else 1
+    token = user.generate_reset_token(hours=hours)
+    validity = f"{hours} heures" if hours > 1 else "1 heure"
+    intro = ("Un administrateur vous invite a choisir (ou changer) votre mot de passe."
+             if by_admin else "Vous avez demande la reinitialisation de votre mot de passe.")
     reset_url = url_for('auth.reset_password', token=token, _external=True)
 
     msg = Message(
@@ -97,12 +104,12 @@ def send_reset_email(user, async_send=True):
 
     msg.body = f"""Bonjour {user.first_name or user.username},
 
-Vous avez demande la reinitialisation de votre mot de passe.
+{intro}
 
 Pour creer un nouveau mot de passe, cliquez sur le lien suivant :
 {reset_url}
 
-Ce lien est valide pendant 1 heure.
+Ce lien est valide pendant {validity}.
 
 Si vous n'avez pas demande cette reinitialisation, vous pouvez ignorer cet email.
 Votre mot de passe restera inchange.
@@ -117,7 +124,7 @@ L'equipe BrainNotFound
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #2563eb;">Reinitialisation de mot de passe</h2>
         <p>Bonjour {user.first_name or user.username},</p>
-        <p>Vous avez demande la reinitialisation de votre mot de passe.</p>
+        <p>{intro}</p>
         <p>Pour creer un nouveau mot de passe, cliquez sur le bouton ci-dessous :</p>
         <p style="text-align: center; margin: 30px 0;">
             <a href="{reset_url}"
@@ -130,7 +137,7 @@ L'equipe BrainNotFound
             Ou copiez ce lien dans votre navigateur :<br>
             <a href="{reset_url}" style="color: #2563eb;">{reset_url}</a>
         </p>
-        <p style="color: #666; font-size: 14px;">Ce lien est valide pendant 1 heure.</p>
+        <p style="color: #666; font-size: 14px;">Ce lien est valide pendant {validity}.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
         <p style="color: #999; font-size: 12px;">
             Si vous n'avez pas demande cette reinitialisation, vous pouvez ignorer cet email.

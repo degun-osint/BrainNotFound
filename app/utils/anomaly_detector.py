@@ -4,9 +4,8 @@ Analyzes timing data and focus events to detect potential cheating.
 """
 
 import json
-import os
 import re
-from anthropic import Anthropic
+from app.utils.ai_client import complete, wrap_untrusted, data_notice
 from app.models.quiz import QuizResponse, Answer
 from app import db
 from .prompt_loader import get_anomaly_prompts
@@ -148,24 +147,20 @@ def analyze_quiz_response(response_id):
 
     # Call Claude for analysis
     try:
-        client = Anthropic()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
         prompt_template = prompts['INDIVIDUAL_ANALYSIS_PROMPT_TEMPLATE']
 
+        # Contains learner answers: delimited as data
         prompt = prompt_template.format(
-            context=json.dumps(context, indent=2, ensure_ascii=False)
+            context=wrap_untrusted(json.dumps(context, indent=2, ensure_ascii=False), 'donnees_apprenants')
         )
 
-        message = client.messages.create(
-            model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=2500,  # Increased for detailed pedagogical analysis
-            messages=[{"role": "user", "content": prompt}]
-        )
+        response_text = complete([{"role": "user", "content": prompt}],
+                                 system=data_notice('donnees_apprenants', assessed=False), effort='medium')
 
         # Parse response
-        response_text = message.content[0].text.strip()
 
         # Try to extract JSON if wrapped in markdown code blocks
         if '```json' in response_text:
@@ -537,23 +532,18 @@ def analyze_class(quiz_id):
 
     # Call Claude for analysis
     try:
-        client = Anthropic()
 
         # Load prompts from private/ or private.example/
         prompts = get_anomaly_prompts()
         prompt_template = prompts['CLASS_ANALYSIS_PROMPT_TEMPLATE']
 
+        # Contains learner answers: delimited as data
         prompt = prompt_template.format(
-            context=json.dumps(context, indent=2, ensure_ascii=False)
+            context=wrap_untrusted(json.dumps(context, indent=2, ensure_ascii=False), 'donnees_apprenants')
         )
 
-        message = client.messages.create(
-            model=os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514'),
-            max_tokens=4000,  # Increased for detailed class analysis
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        response_text = message.content[0].text.strip()
+        response_text = complete([{"role": "user", "content": prompt}],
+                                 system=data_notice('donnees_apprenants', assessed=False), effort='medium')
 
         # Extract JSON
         if '```json' in response_text:

@@ -7,7 +7,7 @@
     <h1 class="mb-0">{{ _('Resultats :') }} {{ quiz.title }}</h1>
     {% if responses %}
     <a href="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
-        <i class="iconoir-stats-report"></i> {{ _('Analyse de classe') }}
+        <i class="iconoir-stats-report"></i> {{ _('Analyse du groupe') }}
     </a>
     {% endif %}
 </div>
@@ -36,7 +36,7 @@
 <div class="card">
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
         <span>
-            {{ _('Soumissions des étudiants') }}
+            {{ _('Soumissions des apprenants') }}
             {% if selected_group %}
                 {% for group in groups %}
                     {% if group.id == selected_group %}
@@ -66,7 +66,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{{ _('Étudiant') }}</th>
+                    <th>{{ _('Apprenant') }}</th>
                     <th>{{ _('Groupe') }}</th>
                     <th>{{ _('Score') }}</th>
                     <th>{{ _('Pourcentage') }}</th>
@@ -88,13 +88,19 @@
                         <small class="text-light">{{ response.user.username }}</small>
                     </td>
                     <td>
-                        {% if response.user.group %}
-                            {{ response.user.group.name }}
+                        {% if user_group_names.get(response.user_id) %}
+                            {{ user_group_names[response.user_id] }}
                         {% else %}
                             <span class="text-light">-</span>
                         {% endif %}
                     </td>
-                    <td>{{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}</td>
+                    <td>
+                        {{ "%.2f"|format(response.total_score) }} / {{ "%.2f"|format(response.max_score) }}
+                        {% if response.grading_status == 'review' %}
+                        <a href="{{ url_for('admin.edit_response', identifier=response.get_url_identifier()) }}" class="badge badge-warning"
+                           data-tooltip="{{ _('Quota IA atteint : des reponses attendent votre correction') }}">{{ _('A corriger') }}</a>
+                        {% endif %}
+                    </td>
                     <td>
                         {% set percentage = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
                         {{ "%.1f"|format(percentage) }}%

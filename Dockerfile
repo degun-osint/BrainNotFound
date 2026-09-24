@@ -2,11 +2,10 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install system dependencies (including MySQL client for backup/restore)
-RUN apt-get update && apt-get install -y \
-    default-libmysqlclient-dev \
+# MySQL client only (mysqldump/mysql for backup/restore). No compiler needed:
+# pymysql is pure Python, gevent and cryptography ship prebuilt wheels.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     default-mysql-client \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies

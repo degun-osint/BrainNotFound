@@ -37,6 +37,12 @@ class SiteSettings(db.Model):
     last_backup_message = db.Column(db.Text, nullable=True)
     last_backup_size = db.Column(db.BigInteger, nullable=True)  # bytes
 
+    # LLM provider (overrides the env config, applied without restart - see utils/ai_client.py)
+    ai_provider = db.Column(db.String(30), nullable=True)   # 'anthropic' (default) or 'openai_compatible'
+    ai_base_url = db.Column(db.String(255), nullable=True)  # openai_compatible only
+    ai_model = db.Column(db.String(100), nullable=True)
+    ai_api_key_encrypted = db.Column(db.Text, nullable=True)  # Encrypted
+
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -91,6 +97,26 @@ class SiteSettings(db.Model):
                 return base64.b64decode(self.ftp_password_encrypted.encode()).decode()
             except Exception:
                 return None
+
+    def set_ai_api_key(self, api_key):
+        """Encrypt and store the LLM API key (None/empty clears it)."""
+        if not api_key:
+            self.ai_api_key_encrypted = None
+            return
+        # No plain/base64 fallback here: an API key must never be stored readable
+        f = Fernet(self._get_encryption_key())
+        self.ai_api_key_encrypted = f.encrypt(api_key.encode()).decode()
+
+    def get_ai_api_key(self):
+        """Decrypt and return the LLM API key, or None."""
+        if not self.ai_api_key_encrypted:
+            return None
+        try:
+            f = Fernet(self._get_encryption_key())
+            return f.decrypt(self.ai_api_key_encrypted.encode()).decode()
+        except Exception:
+            # Wrong SECRET_KEY / SETTINGS_ENCRYPTION_KEY (e.g. restored backup): fall back to env
+            return None
 
     def to_dict(self):
         """Return settings as dictionary (without sensitive data)."""

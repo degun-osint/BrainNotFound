@@ -47,9 +47,9 @@ Genere un system prompt detaille qui:
 5. Precise les sujets sensibles et comment les aborder
 6. Est redige en francais et adapte a un contexte educatif
 
-IMPORTANT: Le prompt doit etre autonome et directement utilisable. Ne mentionne JAMAIS qu'il s'agit d'un exercice ou d'une simulation dans le prompt genere.
+IMPORTANT: Le prompt doit etre autonome et directement utilisable. Ne mentionne jamais qu'il s'agit d'un exercice ou d'une simulation dans le prompt genere.
 
-Genere UNIQUEMENT le system prompt, sans introduction ni explication.""",
+Genere uniquement le system prompt, sans introduction ni explication.""",
 
     'en': """You are an expert in creating pedagogical scenarios for educational role-playing games.
 
@@ -91,9 +91,9 @@ Generate a detailed system prompt that:
 5. Specifies sensitive topics and how to address them
 6. Is written in English and adapted to an educational context
 
-IMPORTANT: The prompt must be standalone and directly usable. NEVER mention that it is an exercise or simulation in the generated prompt.
+IMPORTANT: The prompt must be standalone and directly usable. Never mention that it is an exercise or simulation in the generated prompt.
 
-Generate ONLY the system prompt, without introduction or explanation."""
+Generate only the system prompt, without introduction or explanation."""
 }
 
 # Wrapper for conversation - adds rules and end signal detection
@@ -103,8 +103,8 @@ CONVERSATION_WRAPPER = {
 ---
 
 REGLES IMPERATIVES:
-1. Tu incarnes TOUJOURS ce personnage. Ne brise JAMAIS l'immersion.
-2. Ne revele JAMAIS que tu es une IA ou que c'est un exercice.
+1. Tu incarnes TOUJOURS ce personnage. Ne brise jamais l'immersion.
+2. Ne revele jamais que tu es une IA ou que c'est un exercice.
 3. Tes reponses doivent etre naturelles et conversationnelles (2-4 phrases en general, parfois plus si necessaire).
 4. Adapte ton langage au personnage (registre, expressions, hesitations...).
 5. Reagis de maniere coherente avec ta personnalite et ton etat emotionnel.
@@ -120,8 +120,8 @@ Ce marqueur indique que l'entretien peut se terminer. Ne l'utilise que si c'est 
 ---
 
 IMPERATIVE RULES:
-1. You ALWAYS embody this character. NEVER break the immersion.
-2. NEVER reveal that you are an AI or that this is an exercise.
+1. You ALWAYS embody this character. Never break the immersion.
+2. Never reveal that you are an AI or that this is an exercise.
 3. Your responses should be natural and conversational (2-4 sentences generally, sometimes more if necessary).
 4. Adapt your language to the character (register, expressions, hesitations...).
 5. React consistently with your personality and emotional state.
@@ -135,12 +135,12 @@ This marker indicates that the interview can end. Only use it if truly appropria
 
 # Evaluation template for multi-criteria assessment
 EVALUATION_TEMPLATE = {
-    'fr': """Tu es un evaluateur pedagogique expert. Analyse la transcription d'un entretien simule et evalue l'etudiant selon les criteres donnes.
+    'fr': """Tu es un evaluateur pedagogique expert. Analyse la transcription d'un entretien simule et evalue l'apprenant selon les criteres donnes.
 
 **CONTEXTE DE L'ENTRETIEN:**
 Titre: {interview_title}
 Description: {interview_description}
-Objectif de l'etudiant: {student_objective}
+Objectif de l'apprenant: {student_objective}
 
 **PERSONNAGE:**
 {persona_name} - {persona_role}
@@ -158,7 +158,7 @@ Pour chaque critere, tu dois:
 2. Identifier les points forts et axes d'amelioration
 3. Attribuer un score juste et argumente
 
-Reponds UNIQUEMENT au format JSON suivant:
+Reponds uniquement au format JSON suivant:
 {{
     "scores": [
         {{
@@ -174,12 +174,12 @@ Reponds UNIQUEMENT au format JSON suivant:
     "max_total": <somme des max_scores>
 }}""",
 
-    'en': """You are an expert pedagogical evaluator. Analyze the transcript of a simulated interview and evaluate the student according to the given criteria.
+    'en': """You are an expert pedagogical evaluator. Analyze the transcript of a simulated interview and evaluate the learner according to the given criteria.
 
 **INTERVIEW CONTEXT:**
 Title: {interview_title}
 Description: {interview_description}
-Student's objective: {student_objective}
+Learner's objective: {student_objective}
 
 **CHARACTER:**
 {persona_name} - {persona_role}
@@ -197,7 +197,7 @@ For each criterion, you must:
 2. Identify strengths and areas for improvement
 3. Assign a fair and reasoned score
 
-Respond ONLY in the following JSON format:
+Respond only in the following JSON format:
 {{
     "scores": [
         {{
@@ -226,7 +226,7 @@ Genere le premier message de ce personnage pour demarrer la conversation. Ce mes
 3. Inviter implicitement l'interlocuteur a reagir
 4. Faire 2-4 phrases maximum
 
-Reponds UNIQUEMENT avec le message du personnage, sans guillemets ni indication de role.""",
+Reponds uniquement avec le message du personnage, sans guillemets ni indication de role.""",
 
     'en': """You embody the following character:
 
@@ -238,7 +238,7 @@ Generate the first message from this character to start the conversation. This m
 3. Implicitly invite the interlocutor to react
 4. Be 2-4 sentences maximum
 
-Respond ONLY with the character's message, without quotes or role indication."""
+Respond only with the character's message, without quotes or role indication."""
 }
 
 # Predefined evaluation criteria templates
@@ -481,12 +481,12 @@ ERROR_MESSAGES = {
 
 # Document injection template
 FILE_INJECTION_TEMPLATE = {
-    'fr': """Voici le document fourni par l'etudiant ({file_name}):
+    'fr': """Voici le document fourni par l'apprenant ({file_name}):
 
 {file_content}
 
 Utilise ces informations dans tes reponses et questions.""",
-    'en': """Here is the document provided by the student ({file_name}):
+    'en': """Here is the document provided by the learner ({file_name}):
 
 {file_content}
 

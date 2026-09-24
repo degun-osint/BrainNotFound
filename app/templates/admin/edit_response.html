@@ -9,7 +9,7 @@
     <div class="card-header">{{ _('Informations') }}</div>
     <div class="info-grid">
         <div>
-            <strong>{{ _('Etudiant:') }}</strong> {{ user.full_name }} ({{ user.username }})
+            <strong>{{ _('Apprenant :') }}</strong> {{ user.full_name }} ({{ user.username }})
         </div>
         <div>
             <strong>{{ _('Quiz:') }}</strong> {{ quiz.title }}
@@ -65,7 +65,7 @@
                         </div>
                     {% else %}
                         <div class="answer-box">
-                            <strong>{{ _("Reponse de l'etudiant:") }}</strong>
+                            <strong>{{ _("Reponse de l'apprenant :") }}</strong>
                             <div class="whitespace-pre mt-1">{{ answer.answer_text or _('(Aucune reponse)') }}</div>
                         </div>
                         {% if answer.question.expected_answer %}
@@ -102,8 +102,8 @@
         <div class="card-header">{{ _('Commentaire du correcteur') }}</div>
         <div class="form-group mb-0 p-1">
             <textarea name="admin_comment" class="form-textarea" rows="3"
-                      placeholder="{{ _('Ajoutez un commentaire pour l\'etudiant (optionnel)...') }}">{{ response.admin_comment or '' }}</textarea>
-            <small class="text-light">{{ _("Ce commentaire sera visible par l'etudiant sur sa copie.") }}</small>
+                      placeholder="{{ _('Ajoutez un commentaire pour l\'apprenant (optionnel)...') }}">{{ response.admin_comment or '' }}</textarea>
+            <small class="text-light">{{ _("Ce commentaire sera visible par l'apprenant sur sa copie.") }}</small>
         </div>
     </div>
 

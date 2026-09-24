@@ -90,17 +90,15 @@ class Interview(UIDMixin, db.Model):
 
     def is_available_for_group(self, group_id):
         """Check if interview is assigned to a specific group."""
-        if not self.groups.count():
-            return True
         return self.groups.filter_by(id=group_id).first() is not None
 
     def is_available_for_user(self, user):
-        """Check if interview is available for a user (any of their groups)."""
-        if not self.groups.count():
-            return True
-        user_group_ids = set(g.id for g in user.groups)
-        interview_group_ids = set(g.id for g in self.groups)
-        return bool(user_group_ids & interview_group_ids)
+        """Check if interview is assigned to one of the user's groups.
+
+        A interview without any group is visible to no learner (only to its admins).
+        """
+        user_group_ids = {g.id for g in user.groups}
+        return any(g.id in user_group_ids for g in self.groups)
 
     def is_open(self):
         """Check if interview is currently open (within time window)."""
@@ -196,7 +194,9 @@ class InterviewSession(UIDMixin, db.Model):
 
     # Relationships
     interview = db.relationship('Interview', back_populates='sessions')
-    user = db.relationship('User', backref=db.backref('interview_sessions', lazy='dynamic'))
+    # Deleting a user deletes their sessions (user_id is NOT NULL)
+    user = db.relationship('User', backref=db.backref('interview_sessions', lazy='dynamic',
+                                                      cascade='all, delete-orphan'))
     messages = db.relationship('InterviewMessage', back_populates='session',
                                cascade='all, delete-orphan', order_by='InterviewMessage.created_at')
     scores = db.relationship('CriterionScore', back_populates='session',

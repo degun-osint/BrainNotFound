@@ -32,9 +32,18 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
-    CLAUDE_MODEL = os.environ.get('CLAUDE_MODEL') or 'claude-sonnet-4-20250514'
+    CLAUDE_MODEL = os.environ.get('CLAUDE_MODEL') or 'claude-opus-5-5'
+    # Non-Anthropic LLM provider fallback (see app/utils/ai_client.py)
+    AI_PROVIDER = os.environ.get('AI_PROVIDER')
+    AI_BASE_URL = os.environ.get('AI_BASE_URL')
+    AI_API_KEY = os.environ.get('AI_API_KEY')
+    AI_MODEL = os.environ.get('AI_MODEL')
     UPLOAD_FOLDER = 'uploads'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+
+    # Backups kept on the server (manual backups without FTP, pre-restore snapshots)
+    BACKUP_LOCAL_DIR = os.environ.get('BACKUP_LOCAL_DIR', 'backups')
+    BACKUP_MAX_UPLOAD_MB = int(os.environ.get('BACKUP_MAX_UPLOAD_MB', 2048))
 
     # Security: Allowed hosts (comma-separated, empty = allow all)
     _allowed_hosts_raw = os.environ.get('ALLOWED_HOSTS', '').strip()

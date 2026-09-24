@@ -1,6 +1,6 @@
 """Background grading tasks with WebSocket notifications."""
 from app import db, socketio
-from app.models.quiz import QuizResponse, Answer, Question
+from app.models.quiz import QuizResponse, Answer
 from app.utils.claude_grader import grade_open_question
 from flask import current_app
 
@@ -45,6 +45,7 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
 
             open_score = 0.0
             graded_count = 0
+            needs_review = False
 
             for answer_info in answers_data:
                 answer_id = answer_info['answer_id']
@@ -62,7 +63,14 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                 current_app.logger.info(f"Grading answer {answer_id}: text='{answer.answer_text[:50] if answer.answer_text else 'None'}...', expected='{question.expected_answer[:50] if question.expected_answer else 'None'}...'")
 
                 # Grade open question with AI
-                if answer.answer_text:
+                tenant = quiz.tenant
+                if answer.answer_text and question.expected_answer and tenant and not tenant.can_use_ai_correction():
+                    # Monthly AI quota exhausted: leave it to the instructor
+                    answer.score = 0.0
+                    answer.ai_feedback = "Quota mensuel de corrections IA atteint : cette reponse sera corrigee par l'intervenant."
+                    needs_review = True
+                    current_app.logger.warning(f"AI correction quota reached for tenant {tenant.slug}")
+                elif answer.answer_text:
                     if question.expected_answer:
                         try:
                             grading_result = grade_open_question(
@@ -75,11 +83,16 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                             )
                             answer.score = grading_result['score']
                             answer.ai_feedback = grading_result['feedback']
+                            if grading_result.get('needs_review'):
+                                needs_review = True
+                            elif tenant:
+                                tenant.increment_ai_corrections()
                             current_app.logger.info(f"AI graded answer {answer_id}: score={answer.score}")
                         except Exception as e:
                             current_app.logger.error(f"Grading error for answer {answer_id}: {e}")
                             answer.score = 0.0
-                            answer.ai_feedback = f"Erreur lors de la correction: {str(e)}"
+                            answer.ai_feedback = "Correction automatique impossible : cette reponse sera corrigee par l'intervenant."
+                            needs_review = True
                     else:
                         # No expected answer defined - give full points with note
                         answer.score = question.points
@@ -109,7 +122,8 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
             # Finalize grading - ADD open score to MCQ score (don't overwrite!)
             total_score = mcq_score + open_score
             quiz_response.total_score = total_score
-            quiz_response.grading_status = QuizResponse.STATUS_COMPLETED
+            quiz_response.grading_status = (QuizResponse.STATUS_REVIEW if needs_review
+                                            else QuizResponse.STATUS_COMPLETED)
             db.session.commit()
 
             current_app.logger.info(f"Grading complete for response {response_id}: MCQ={mcq_score}, Open={open_score}, Total={total_score}")
@@ -119,7 +133,8 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                 'response_id': response_id,
                 'total_score': total_score,
                 'max_score': quiz_response.max_score,
-                'percentage': (total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0
+                'percentage': (total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0,
+                'needs_review': needs_review
             }, room=room)
 
         except Exception as e:

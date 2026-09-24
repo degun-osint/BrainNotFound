@@ -1,15 +1,13 @@
-import anthropic
 from flask import current_app
 from typing import Dict
 from .prompt_loader import get_grading_prompts
+from .ai_client import complete, parse_json, wrap_untrusted, data_notice
 
 class ClaudeGrader:
     """Grade open-ended questions using Claude API."""
 
-    def __init__(self, api_key: str = None, model: str = None, lang: str = None):
-        self.api_key = api_key or current_app.config.get('ANTHROPIC_API_KEY')
-        self.model = model or current_app.config.get('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+    def __init__(self, model: str = None, lang: str = None):
+        self.model = model  # None = model configured in the admin settings
         self.lang = lang or 'fr'
 
     def grade_answer(self, question: str, expected_answer: str, student_answer: str, max_points: float, severity: str = 'modere', mood: list = None, lang: str = None) -> Dict:
@@ -60,31 +58,17 @@ class ClaudeGrader:
             mood_text=mood_text,
             question=question,
             expected_answer=expected_answer,
-            student_answer=student_answer,
+            student_answer=wrap_untrusted(student_answer, 'reponse_apprenant'),
             max_points=max_points
         )
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=1024,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
+            response_text = complete([{"role": "user", "content": prompt}],
+                                     system=data_notice('reponse_apprenant', current_lang),
+                                     model=self.model, effort='medium')
 
-            response_text = message.content[0].text.strip()
-
-            # Parse JSON response
-            import json
-            # Remove markdown code blocks if present
-            if response_text.startswith('```'):
-                response_text = response_text.split('```')[1]
-                if response_text.startswith('json'):
-                    response_text = response_text[4:]
-                response_text = response_text.strip()
-
-            result = json.loads(response_text)
+            # Bare JSON, fenced in ``` or wrapped in prose (depends on the model)
+            result = parse_json(response_text)
 
             # Ensure score is within bounds
             score = max(0, min(max_points, float(result.get('score', 0))))
@@ -97,10 +81,12 @@ class ClaudeGrader:
 
         except Exception as e:
             # Fallback in case of error
-            current_app.logger.error(f"Claude grading error: {str(e)}")
+            # Refusal, API error, unparsable answer: never a silent 0, the instructor grades it
+            current_app.logger.error(f"AI grading error: {str(e)}")
             return {
                 'score': 0.0,
-                'feedback': f"Erreur lors de l'évaluation automatique: {str(e)}"
+                'feedback': "Correction automatique impossible : cette reponse sera corrigee par l'intervenant.",
+                'needs_review': True
             }
 
 

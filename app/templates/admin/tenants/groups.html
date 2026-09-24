@@ -3,7 +3,7 @@
 {% block title %}{{ _('Groupes de') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Groupes de l\'organisation') }}</h1>
+<h1 class="mb-2">{{ _('Groupes de l\'etablissement') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
@@ -39,7 +39,7 @@
                     <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Exporter resultats CSV') }}">
                         <i class="iconoir-download"></i>
                     </a>
-                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }}">
+                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }}">
                         <i class="iconoir-group"></i>
                     </a>
                     <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
@@ -62,14 +62,14 @@
         </div>
     {% else %}
         <p class="text-center text-light p-2">
-            {{ _('Aucun groupe dans cette organisation.') }} <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">{{ _('Creez votre premier groupe') }}</a>
+            {{ _('Aucun groupe dans cet etablissement.') }} <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">{{ _('Creez votre premier groupe') }}</a>
         </p>
     {% endif %}
 </div>
 
 <div class="mt-2">
     <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> {{ _('Retour a l\'organisation') }}
+        <i class="iconoir-arrow-left"></i> {{ _('Retour a l\'etablissement') }}
     </a>
 </div>
 {% endblock %}

@@ -7,34 +7,34 @@ Supports multilingual prompts: 'fr' (French) and 'en' (English).
 
 SEVERITY_INSTRUCTIONS = {
     'fr': {
-        'gentil': """Tu es un correcteur BIENVEILLANT. Tu dois:
+        'gentil': """Tu es un correcteur bienveillant. Tu dois:
 - Valoriser tout effort de reponse
 - Accorder le benefice du doute
 - Donner des points partiels genereusement
 - Utiliser un ton encourageant""",
-        'modere': """Tu es un correcteur EQUILIBRE. Tu dois:
+        'modere': """Tu es un correcteur equilibre. Tu dois:
 - Accepter les reponses equivalentes
 - Ignorer les fautes d'orthographe si le sens est clair
 - Attribuer des points partiels si l'idee principale est presente
 - Donner un feedback constructif""",
-        'severe': """Tu es un correcteur RIGOUREUX. Tu dois:
+        'severe': """Tu es un correcteur rigoureux. Tu dois:
 - Exiger une formulation precise
 - Etre attentif a la terminologie
 - Attribuer des points proportionnels a la qualite
 - Pointer les points forts ET les axes d'amelioration"""
     },
     'en': {
-        'gentil': """You are a BENEVOLENT grader. You must:
+        'gentil': """You are a benevolent grader. You must:
 - Value every effort to respond
 - Give the benefit of the doubt
 - Award partial points generously
 - Use an encouraging tone""",
-        'modere': """You are a BALANCED grader. You must:
+        'modere': """You are a balanced grader. You must:
 - Accept equivalent answers
 - Ignore spelling errors if the meaning is clear
 - Award partial points if the main idea is present
 - Provide constructive feedback""",
-        'severe': """You are a RIGOROUS grader. You must:
+        'severe': """You are a rigorous grader. You must:
 - Require precise wording
 - Pay attention to terminology
 - Award points proportional to quality
@@ -62,7 +62,7 @@ MOOD_DESCRIPTIONS = {
 }
 
 GRADING_PROMPT_TEMPLATE = {
-    'fr': """Tu es un correcteur d'evaluation. Note la reponse d'un etudiant.
+    'fr': """Tu es un correcteur d'evaluation. Note la reponse d'un apprenant.
 
 {severity_text}{mood_text}
 
@@ -71,7 +71,7 @@ Question: {question}
 Reponse attendue:
 {expected_answer}
 
-Reponse de l'etudiant:
+Reponse de l'apprenant:
 {student_answer}
 
 Points maximum: {max_points}
@@ -82,12 +82,12 @@ Instructions:
 3. Attribue un score entre 0 et {max_points}
 4. Fournis un feedback constructif
 
-Reponds UNIQUEMENT au format JSON:
+Reponds uniquement au format JSON:
 {{
     "score": <nombre entre 0 et {max_points}>,
     "feedback": "<feedback en francais>"
 }}""",
-    'en': """You are an exam grader. Grade a student's answer.
+    'en': """You are an exam grader. Grade a learner's answer.
 
 {severity_text}{mood_text}
 
@@ -96,7 +96,7 @@ Question: {question}
 Expected answer:
 {expected_answer}
 
-Student's answer:
+Learner's answer:
 {student_answer}
 
 Maximum points: {max_points}
@@ -107,7 +107,7 @@ Instructions:
 3. Assign a score between 0 and {max_points}
 4. Provide constructive feedback
 
-Respond ONLY in JSON format:
+Respond only in JSON format:
 {{
     "score": <number between 0 and {max_points}>,
     "feedback": "<feedback in English>"

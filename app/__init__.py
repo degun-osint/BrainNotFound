@@ -20,10 +20,12 @@ login_manager = LoginManager()
 socketio = SocketIO()
 csrf = CSRFProtect()
 mail = Mail()
+# No global default limit: a whole class or company shares one public IP, and
+# "50 per hour" for everyone blocked the site. Sensitive endpoints (login,
+# register, password reset...) carry their own @limiter.limit.
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri="memory://",
-    default_limits=["200 per day", "50 per hour"]
 )
 babel = Babel()
 
@@ -80,8 +82,8 @@ def create_app(config_class=Config):
     from app.models.user import User
 
     @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+    def load_user(session_id):
+        return User.load_from_session_id(session_id)
 
     # Security: Check allowed hosts
     @app.before_request
@@ -182,6 +184,9 @@ def create_app(config_class=Config):
 
     app.jinja_env.filters['render_quiz_images'] = render_quiz_images
 
+    from app.models.group import Group
+    app.jinja_env.globals['group_member_counts'] = Group.member_counts
+
     # Timezone conversion filters for templates
     from app.utils import format_datetime, format_time
 
@@ -218,7 +223,8 @@ def create_app(config_class=Config):
         }
 
     # Initialize backup scheduler (only in main process, not in reloader)
-    if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    skip_scheduler = app.testing or os.environ.get('SKIP_BACKUP_SCHEDULER')
+    if not skip_scheduler and (not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true'):
         try:
             from app.utils.backup_scheduler import init_backup_scheduler
             init_backup_scheduler(app)

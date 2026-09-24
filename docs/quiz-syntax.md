@@ -7,20 +7,20 @@ BrainNotFound utilise le format **Markdown** pour définir les quiz. Ce format e
 ```markdown
 # Titre du quiz
 
-## TYPE - Énoncé de la question [X pts]
+## TYPE - Énoncé de la question [X points]
 (contenu selon le type)
 ```
 
 - Le **titre** est défini par un `#` en début de fichier
 - Chaque **question** commence par `##` suivi du type et de l'énoncé
-- Les **points** sont indiqués entre crochets `[X pts]`
+- Les **points** sont indiqués entre crochets à la fin de la ligne : `[2 points]`, `[1 point]` ou en abrégé `[2 pts]`, décimales acceptées (`[1.5 points]`). Sans mention, la question vaut 1 point.
 
 ## Types de questions
 
 ### QCM (Question à Choix Multiples)
 
 ```markdown
-## QCM - Quelle est la réponse correcte ? [2 pts]
+## QCM - Quelle est la réponse correcte ? [2 points]
 - [ ] Réponse incorrecte A
 - [x] Réponse correcte
 - [ ] Réponse incorrecte B
@@ -31,22 +31,22 @@ BrainNotFound utilise le format **Markdown** pour définir les quiz. Ce format e
 - Utilisez `- [x]` pour la ou les réponses correctes
 - Plusieurs réponses correctes sont possibles (QCM à choix multiples)
 
-**Correction** : Automatique. L'étudiant doit cocher exactement les bonnes réponses pour avoir tous les points (tout ou rien).
+**Correction** : Automatique. L'apprenant doit cocher exactement les bonnes réponses pour avoir tous les points (tout ou rien).
 
 ### Question ouverte
 
 ```markdown
-## OUVERTE - Expliquez le concept X [5 pts]
+## OUVERTE - Expliquez le concept X [5 points]
 ### Réponse attendue
 La réponse attendue qui servira de référence pour
 l'évaluation par l'IA. Soyez précis sur les points
-clés que l'étudiant doit mentionner.
+clés que l'apprenant doit mentionner.
 ```
 
 - La section `### Réponse attendue` est obligatoire
-- Elle sert de référence à Claude pour évaluer la réponse de l'étudiant
+- Elle sert de référence à l'IA pour évaluer la réponse de l'apprenant
 
-**Correction** : Par l'IA (Claude). L'IA compare la réponse de l'étudiant à la réponse attendue et attribue une note avec un feedback personnalisé.
+**Correction** : par l'IA. L'IA compare la réponse de l'apprenant à la réponse attendue et attribue une note avec un feedback personnalisé.
 
 ## Options avancées
 
@@ -55,7 +55,7 @@ clés que l'étudiant doit mentionner.
 Vous pouvez inclure des images dans vos questions :
 
 ```markdown
-## QCM - Identifiez ce schéma [2 pts]
+## QCM - Identifiez ce schéma [2 points]
 ![Description de l'image](nom-image.png)
 
 - [ ] Option A
@@ -63,15 +63,15 @@ Vous pouvez inclure des images dans vos questions :
 - [ ] Option C
 ```
 
-1. Uploadez l'image via le bouton prévu lors de l'édition
-2. Référencez-la avec `![description](nom-fichier.png)`
+1. Envoyez l'image avec le bouton **Ajouter une image** de l'éditeur (PNG, JPG, GIF ou WEBP)
+2. Collez le code Markdown fourni, de la forme `![description](nom-fichier.png)`
 
 ### Code
 
 Pour les questions techniques, utilisez les blocs de code :
 
 ````markdown
-## OUVERTE - Que fait ce code ? [3 pts]
+## OUVERTE - Que fait ce code ? [3 points]
 
 ```python
 def factorial(n):
@@ -93,15 +93,17 @@ Trois niveaux disponibles dans les paramètres du quiz :
 | Niveau | Description |
 |--------|-------------|
 | **Gentil** | Valorise les efforts, tolérant sur la formulation |
-| **Normal** | Équilibre entre précision et compréhension |
-| **Strict** | Exige une réponse précise et complète |
+| **Modéré** | Équilibre entre précision et compréhension |
+| **Sévère** | Exige une réponse précise et complète |
+
+Le **ton des retours** se règle au même endroit : neutre, jovial, taquin, encourageant, sarcastique ou professoral.
 
 ## Bonnes pratiques
 
 ### Pour les QCM
 
 - Proposez 3 à 5 options par question
-- Évitez les options évidement fausses
+- Évitez les options évidemment fausses
 - Formulez des distracteurs plausibles
 - Une seule bonne réponse par défaut (sauf QCM multiples explicites)
 
@@ -117,19 +119,19 @@ Trois niveaux disponibles dans les paramètres du quiz :
 ```markdown
 # Examen Python - Semestre 1
 
-## QCM - Quel mot-clé définit une fonction en Python ? [1 pt]
+## QCM - Quel mot-clé définit une fonction en Python ? [1 point]
 - [ ] function
 - [ ] func
 - [x] def
 - [ ] define
 
-## QCM - Lesquels sont des types mutables ? [2 pts]
+## QCM - Lesquels sont des types mutables ? [2 points]
 - [x] list
 - [ ] tuple
 - [x] dict
 - [ ] str
 
-## OUVERTE - Expliquez la différence entre une liste et un tuple [4 pts]
+## OUVERTE - Expliquez la différence entre une liste et un tuple [4 points]
 ### Réponse attendue
 Une liste est un type mutable : on peut modifier ses éléments,
 en ajouter ou en supprimer après création. Elle utilise les
@@ -141,7 +143,7 @@ modifié. Il utilise les parenthèses ().
 Les tuples sont plus rapides et peuvent servir de clés de
 dictionnaire, contrairement aux listes.
 
-## OUVERTE - Écrivez une fonction qui inverse une chaîne [5 pts]
+## OUVERTE - Écrivez une fonction qui inverse une chaîne [5 points]
 ### Réponse attendue
 ```python
 def reverse_string(s):

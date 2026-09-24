@@ -218,7 +218,7 @@ let pollInterval = setInterval(function() {
     fetch('/quiz/grading-status/' + responseId)
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'completed') {
+            if (data.status === 'completed' || data.status === 'review') {
                 clearInterval(pollInterval);
                 window.location.href = resultUrl;
             }

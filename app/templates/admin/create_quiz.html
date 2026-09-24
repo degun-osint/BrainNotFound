@@ -3,6 +3,7 @@
 {% block title %}{{ _('Creer un quiz') }} - BrainNotFound{% endblock %}
 
 {% block content %}
+{% set member_counts = group_member_counts(groups) %}
 <h1 class="mb-2">{{ _('Creer un nouveau quiz') }}</h1>
 
 <div class="card">
@@ -131,7 +132,7 @@ Réponse modèle ici...{% endif %}</textarea>
                         <label class="check-item">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}" data-tenant="{{ tenant_id }}">
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -142,14 +143,14 @@ Réponse modèle ici...{% endif %}</textarea>
                 <div class="tenant-group-section mb-1">
                     <div class="tenant-group-header">
                         <i class="iconoir-globe"></i>
-                        <strong>{{ _('Sans tenant') }}</strong>
+                        <strong>{{ _('Sans etablissement') }}</strong>
                     </div>
                     <div class="flex flex-wrap gap-md mt-0">
                         {% for group in groups_no_tenant %}
                         <label class="check-item">
                             <input type="checkbox" name="group_ids" value="{{ group.id }}">
                             <span>{{ group.name }}</span>
-                            <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                            <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                         </label>
                         {% endfor %}
                     </div>
@@ -162,13 +163,13 @@ Réponse modèle ici...{% endif %}</textarea>
                 <label class="check-item">
                     <input type="checkbox" name="group_ids" value="{{ group.id }}">
                     <span>{{ group.name }}</span>
-                    <span class="text-light text-sm">({{ group.users.count() }} users)</span>
+                    <span class="text-light text-sm">({{ member_counts.get(group.id, 0) }} {{ _('membre(s)') }})</span>
                 </label>
                 {% endfor %}
             </div>
             {% endif %}
             <small class="help-text">
-                {{ _("Si aucun groupe n'est selectionne, le quiz sera disponible pour tous les utilisateurs") }}
+                {{ _("Si aucun groupe n'est selectionne, le quiz ne sera visible par aucun apprenant") }}
             </small>
         </div>
 
@@ -216,7 +217,7 @@ Réponse modèle ici...{% endif %}</textarea>
                 <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
             </label>
             <small class="help-text">
-                {{ _('Si active, les questions seront affichees dans un ordre different pour chaque etudiant') }}
+                {{ _('Si active, les questions seront affichees dans un ordre different pour chaque apprenant') }}
             </small>
         </div>
 
@@ -226,7 +227,7 @@ Réponse modèle ici...{% endif %}</textarea>
                 <span class="form-label mb-0">{{ _('Ordre aleatoire des reponses QCM') }}</span>
             </label>
             <small class="help-text">
-                {{ _('Si active, les options de chaque QCM seront melangees pour chaque etudiant') }}
+                {{ _('Si active, les options de chaque QCM seront melangees pour chaque apprenant') }}
             </small>
         </div>
 

@@ -58,7 +58,7 @@ Description optionnelle du quiz ici.
 - [ ] CSS
 ```
 
-> **Note :** Si plusieurs options sont correctes, l'etudiant devra toutes les selectionner pour obtenir les points.
+> **Note :** Si plusieurs options sont correctes, l'apprenant devra toutes les selectionner pour obtenir les points.
 
 ---
 
@@ -74,7 +74,7 @@ Texte de la reponse modele ici...
 **Regles :**
 - Commencer par `## OUVERTE -`
 - La reponse attendue est precedee de `### Reponse attendue`
-- La reponse de l'etudiant sera evaluee par IA (Claude) en comparaison avec la reponse attendue
+- La reponse de l'apprenant sera evaluee par l'IA en comparaison avec la reponse attendue
 - L'IA attribue une note partielle selon la pertinence de la reponse
 
 **Exemple :**
@@ -129,7 +129,7 @@ Les images peuvent etre ajoutees dans les questions et les options QCM.
 
 **Dans les options :**
 ```markdown
-## QCM - Quel logo represente Python ? [1 points]
+## QCM - Quel logo represente Python ? [1 point]
 - [x] ![Logo Python](python_logo.png)
 - [ ] ![Logo Java](java_logo.png)
 - [ ] ![Logo Ruby](ruby_logo.png)
@@ -161,7 +161,7 @@ Les images peuvent etre ajoutees dans les questions et les options QCM.
 
 Ce quiz evalue vos connaissances de base en Python.
 
-## QCM - Quel mot-cle permet de definir une fonction en Python ? [1 points]
+## QCM - Quel mot-cle permet de definir une fonction en Python ? [1 point]
 - [ ] function
 - [x] def
 - [ ] func
@@ -174,7 +174,7 @@ Ce quiz evalue vos connaissances de base en Python.
 - [ ] str
 - [x] set
 
-## QCM - Quelle est la sortie de print(type(3.14)) ? [1 points]
+## QCM - Quelle est la sortie de print(type(3.14)) ? [1 point]
 - [ ] <class 'int'>
 - [x] <class 'float'>
 - [ ] <class 'str'>
@@ -209,7 +209,7 @@ def factorielle_iter(n):
         resultat *= i
     return resultat
 
-## QCM - Quel operateur permet de verifier l'egalite de valeur ? [1 points]
+## QCM - Quel operateur permet de verifier l'egalite de valeur ? [1 point]
 - [ ] =
 - [x] ==
 - [ ] ===
@@ -228,7 +228,7 @@ def factorielle_iter(n):
 
 ### Pour les Questions Ouvertes
 - Fournir une reponse attendue detaillee pour guider l'evaluation IA
-- Inclure les points cles que l'etudiant doit mentionner
+- Inclure les points cles que l'apprenant doit mentionner
 - Preciser si du code est attendu
 - Mentionner les variantes acceptables
 
@@ -249,7 +249,8 @@ Lors de la creation du quiz dans l'interface admin :
 |-----------|-------------|
 | **Limite de temps** | Duree maximale en minutes (optionnel) |
 | **Date de disponibilite** | Date/heure a partir de laquelle le quiz est accessible |
-| **Actif/Inactif** | Permet de masquer le quiz aux etudiants |
+| **Groupes** | Groupes qui voient le quiz (aucun groupe = visible par personne) |
+| **Actif/Inactif** | Permet de masquer le quiz aux apprenants (un nouveau quiz est actif) |
 
 ---
 

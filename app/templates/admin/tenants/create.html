@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Creer une Organisation') }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Creer un etablissement') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Creer une nouvelle organisation') }}</h1>
+<h1 class="mb-2">{{ _('Creer un nouvel etablissement') }}</h1>
 
 <div class="card">
-    <div class="card-header">{{ _("Informations de l'organisation") }}</div>
+    <div class="card-header">{{ _("Informations de l'etablissement") }}</div>
 
     <div class="info-box bg-gray mb-2">
-        <strong>{{ _('Information :') }}</strong> {{ _('Une organisation represente une entite cliente (ecole, universite, entreprise).') }}
+        <strong>{{ _('Information :') }}</strong> {{ _('Un etablissement represente une entite cliente (ecole, universite, entreprise, organisme de formation).') }}
         {{ _("Vous pouvez definir des limites d'utilisation et assigner des administrateurs dedies.") }}
     </div>
 
     <form method="POST">
         <div class="form-row">
             <div class="form-group flex-1">
-                <label class="form-label" for="name">{{ _("Nom de l'organisation") }} *</label>
+                <label class="form-label" for="name">{{ _("Nom de l'etablissement") }} *</label>
                 <input type="text" id="name" name="name" class="form-input"
                        placeholder="{{ _('Ex: Universite de Paris, Ecole ABC...') }}" required autofocus>
             </div>
@@ -31,7 +31,7 @@
         <div class="form-group">
             <label class="form-label" for="description">{{ _('Description') }}</label>
             <textarea id="description" name="description" class="form-textarea form-textarea-short"
-                      placeholder="{{ _("Description optionnelle de l'organisation...") }}"></textarea>
+                      placeholder="{{ _("Description optionnelle de l'etablissement...") }}"></textarea>
         </div>
 
         <div class="form-row">
@@ -83,7 +83,7 @@
                        value="0" min="0" style="width: 120px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="monthly_class_analyses">{{ _('Analyses classe / mois') }}</label>
+                <label class="form-label" for="monthly_class_analyses">{{ _('Analyses de groupe / mois') }}</label>
                 <input type="number" id="monthly_class_analyses" name="monthly_class_analyses" class="form-input"
                        value="0" min="0" style="width: 120px;">
             </div>
@@ -121,7 +121,7 @@
 
         <div class="actions">
             <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> {{ _("Creer l'organisation") }}
+                <i class="iconoir-plus"></i> {{ _("Creer l'etablissement") }}
             </button>
             <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
                 <i class="iconoir-xmark"></i> {{ _('Annuler') }}

@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import gzip
 import tarfile
+import re
 import shutil
 from datetime import datetime, timedelta
 from ftplib import FTP, FTP_TLS
@@ -15,6 +16,9 @@ logger = logging.getLogger(__name__)
 # Backup format: .tar.gz containing database.sql.gz and uploads/
 BACKUP_PREFIX = 'backup_'
 BACKUP_SUFFIX = '.tar.gz'
+SNAPSHOT_PREFIX = 'pre_restore_'  # automatic snapshot taken before each restore
+SNAPSHOTS_KEPT = 3
+BACKUP_NAME_RE = re.compile(r'(backup|pre_restore)_[\w\-]+\.(tar\.gz|sql\.gz)')
 
 
 class BackupManager:
@@ -304,16 +308,87 @@ class BackupManager:
                 self._cleanup_local(backup_path)
                 return result
             result['message'] = f"Backup completed and uploaded ({size} bytes)"
+            self._cleanup_local(backup_path)
         else:
-            result['message'] = f"Backup created locally ({size} bytes). FTP upload disabled."
-
-        # Cleanup local backup
-        self._cleanup_local(backup_path)
+            # No FTP: keep it on the server so it can be downloaded or restored
+            name = os.path.basename(self.keep_locally(backup_path))
+            self._cleanup_local_dir(settings.backup_retention_days)
+            result['message'] = f"Backup kept on the server: {name} ({size} bytes)"
 
         result['success'] = True
         self._update_backup_status(settings, 'success', result['message'], size)
 
         return result
+
+    # ==================== Local storage ====================
+
+    @staticmethod
+    def is_valid_backup_name(name):
+        return bool(name) and BACKUP_NAME_RE.fullmatch(name) is not None
+
+    def _local_dir(self):
+        from flask import current_app
+        path = os.path.abspath(current_app.config.get('BACKUP_LOCAL_DIR') or 'backups')
+        os.makedirs(path, exist_ok=True)
+        return path
+
+    def keep_locally(self, backup_path, prefix=BACKUP_PREFIX):
+        """Move a freshly created backup into the local backup folder. Returns its new path."""
+        name = os.path.basename(backup_path)
+        if prefix != BACKUP_PREFIX and name.startswith(BACKUP_PREFIX):
+            name = prefix + name[len(BACKUP_PREFIX):]
+        dest = os.path.join(self._local_dir(), name)
+        stem, ext = name.split('.', 1)
+        counter = 1
+        while os.path.exists(dest):  # two backups within the same second
+            dest = os.path.join(self._local_dir(), f'{stem}-{counter}.{ext}')
+            counter += 1
+        shutil.move(backup_path, dest)
+        try:
+            os.rmdir(os.path.dirname(backup_path))  # empty temp dir from create_backup
+        except OSError:
+            pass
+        return dest
+
+    def list_local_backups(self):
+        """Backups stored on the server, newest first."""
+        files = []
+        local_dir = self._local_dir()
+        for name in os.listdir(local_dir):
+            if not self.is_valid_backup_name(name):
+                continue
+            path = os.path.join(local_dir, name)
+            stat = os.stat(path)
+            files.append({
+                'name': name,
+                'size': stat.st_size,
+                'date': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M'),
+                'type': 'snapshot' if name.startswith(SNAPSHOT_PREFIX) else 'full',
+                'mtime': stat.st_mtime,
+            })
+        files.sort(key=lambda f: f['mtime'], reverse=True)
+        return files
+
+    def local_backup_path(self, name):
+        """Absolute path of a stored backup, or None (never escapes the backup folder)."""
+        if not self.is_valid_backup_name(name):
+            return None
+        path = os.path.join(self._local_dir(), name)
+        return path if os.path.isfile(path) else None
+
+    def _cleanup_local_dir(self, retention_days):
+        """Apply retention to stored backups and keep only the last few snapshots."""
+        backups = self.list_local_backups()
+        snapshots = [f for f in backups if f['type'] == 'snapshot']
+        doomed = snapshots[SNAPSHOTS_KEPT:]
+        if retention_days and retention_days > 0:
+            cutoff = (datetime.now() - timedelta(days=retention_days)).timestamp()
+            doomed += [f for f in backups if f['type'] != 'snapshot' and f['mtime'] < cutoff]
+        for f in doomed:
+            try:
+                os.remove(os.path.join(self._local_dir(), f['name']))
+            except OSError as e:
+                logger.warning(f"Could not remove old backup {f['name']}: {e}")
 
     def _cleanup_local(self, backup_path):
         """Remove local backup file and temp directory."""
@@ -514,12 +589,12 @@ class BackupManager:
                     pass
             return False, None, f"Download error: {str(e)}"
 
-    def restore_backup(self, backup_path):
+    def restore_backup(self, backup_path, snapshot=True):
         """
-        Restore from a backup file.
+        Restore from a backup file (.tar.gz full backup or legacy .sql.gz).
 
-        Args:
-            backup_path: Path to the backup file (.sql.gz or .tar.gz)
+        A snapshot of the current state is taken first and kept on the server;
+        if the restore fails midway, the snapshot is restored automatically.
 
         Returns:
             tuple: (success: bool, message: str)
@@ -528,13 +603,31 @@ class BackupManager:
             if not os.path.exists(backup_path):
                 return False, "Backup file not found"
 
-            # Determine format and extract if needed
-            if backup_path.endswith(BACKUP_SUFFIX):
-                # New format: .tar.gz with database + uploads
-                return self._restore_full_backup(backup_path)
-            else:
-                # Old format: .sql.gz database only
-                return self._restore_database_only(backup_path)
+            problem = self.check_backup_file(backup_path)
+            if problem:
+                return False, problem
+
+            snapshot_path = None
+            if snapshot:
+                ok, created, message, _ = self.create_backup()
+                if not ok:
+                    return False, f"Pre-restore snapshot failed, nothing was changed: {message}"
+                snapshot_path = self.keep_locally(created, prefix=SNAPSHOT_PREFIX)
+
+            ok, message = self._restore_file(backup_path)
+            # Prune old snapshots only now: the file being restored may be one of them
+            self._cleanup_local_dir(0)
+            if ok:
+                if snapshot_path:
+                    message += f". Previous state saved as {os.path.basename(snapshot_path)}"
+                return True, message
+
+            if snapshot_path:
+                rolled_back, rollback_message = self._restore_file(snapshot_path)
+                message += (". Previous state restored automatically" if rolled_back
+                            else f". ROLLBACK FAILED ({rollback_message}), restore "
+                                 f"{os.path.basename(snapshot_path)} manually")
+            return False, message
 
         except FileNotFoundError:
             msg = "mysql client not found. Is MySQL client installed?"
@@ -544,6 +637,37 @@ class BackupManager:
             msg = f"Restore error: {str(e)}"
             logger.error(msg)
             return False, msg
+
+    def _restore_file(self, backup_path):
+        if backup_path.endswith(BACKUP_SUFFIX):
+            return self._restore_full_backup(backup_path)
+        return self._restore_database_only(backup_path)
+
+    def check_backup_file(self, backup_path):
+        """Why this file can't be restored, or None. Checks it is a dump of this application."""
+        try:
+            if backup_path.endswith(BACKUP_SUFFIX):
+                with tarfile.open(backup_path, 'r:gz') as tar:
+                    member = tar.getmember('database.sql.gz')
+                    with tar.extractfile(member) as raw, gzip.open(raw, 'rb') as sql:
+                        return self._check_dump(sql)
+            with gzip.open(backup_path, 'rb') as sql:
+                return self._check_dump(sql)
+        except KeyError:
+            return "Archive missing database.sql.gz"
+        except (tarfile.TarError, OSError, EOFError) as e:
+            return f"Not a valid backup archive: {e}"
+
+    @staticmethod
+    def _check_dump(sql_stream):
+        required = {b'CREATE TABLE `users`', b'CREATE TABLE `quizzes`', b'CREATE TABLE `groups`'}
+        for line in sql_stream:
+            for marker in list(required):
+                if line.startswith(marker):
+                    required.discard(marker)
+            if not required:
+                return None
+        return "This file is not a backup of this application (tables users/quizzes/groups not found)"
 
     def _safe_extract_tar(self, tar, extract_dir):
         """
@@ -572,8 +696,8 @@ class BackupManager:
                 if not link_target.startswith(extract_dir + os.sep):
                     raise ValueError(f"Symlink traversal attempt detected: {member.name}")
 
-        # Safe to extract
-        tar.extractall(extract_dir)
+        # Safe to extract ('data' filter: no devices, no absolute paths, no escaping links)
+        tar.extractall(extract_dir, filter='data')
 
     def _restore_full_backup(self, backup_path):
         """
@@ -602,20 +726,22 @@ class BackupManager:
             else:
                 return False, "Backup archive missing database.sql.gz"
 
-            # Restore uploads folder
+            # Restore uploads folder. Replace its *content*: in Docker the folder
+            # itself is a bind mount and can't be moved (the pre-restore
+            # snapshot already holds the current files).
             uploads_in_archive = os.path.join(extract_dir, 'uploads')
             if os.path.isdir(uploads_in_archive):
                 uploads_dest = self._get_uploads_path()
+                os.makedirs(uploads_dest, exist_ok=True)
+                for entry in os.listdir(uploads_dest):
+                    entry_path = os.path.join(uploads_dest, entry)
+                    if os.path.isdir(entry_path) and not os.path.islink(entry_path):
+                        shutil.rmtree(entry_path)
+                    else:
+                        os.remove(entry_path)
 
-                # Backup existing uploads (just in case)
-                if os.path.isdir(uploads_dest):
-                    backup_existing = uploads_dest + '_backup_' + datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-                    logger.info(f"Moving existing uploads to {backup_existing}")
-                    shutil.move(uploads_dest, backup_existing)
-
-                # Copy restored uploads
                 logger.info(f"Restoring uploads to {uploads_dest}")
-                shutil.copytree(uploads_in_archive, uploads_dest)
+                shutil.copytree(uploads_in_archive, uploads_dest, dirs_exist_ok=True)
 
                 file_count = sum(len(files) for _, _, files in os.walk(uploads_dest))
                 logger.info(f"Restored {file_count} files to uploads folder")
@@ -638,6 +764,12 @@ class BackupManager:
         Returns:
             tuple: (success: bool, message: str)
         """
+        # Release this app's open transaction first: its metadata locks on the
+        # tables it has read (users, at least) would block the dump's DROP TABLE
+        # forever, while we wait for mysql to finish.
+        from app import db
+        db.session.remove()
+
         db_config = self._parse_database_url()
 
         # Build mysql command
@@ -656,30 +788,31 @@ class BackupManager:
 
         logger.info(f"Starting restore to database {db_config['database']}")
 
-        # Decompress and pipe to mysql
-        with gzip.open(sql_path, 'rb') as f:
+        # Decompress and stream to mysql. stderr goes to a temp file: an
+        # unread PIPE could fill up and block mysql while we're still writing.
+        with gzip.open(sql_path, 'rb') as f, tempfile.TemporaryFile() as err:
             process = subprocess.Popen(
                 cmd,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=err,
                 env=env
             )
-
-            # Stream decompressed data to mysql
-            while True:
-                chunk = f.read(8192)
-                if not chunk:
-                    break
-                process.stdin.write(chunk)
-
-            process.stdin.close()
+            try:
+                shutil.copyfileobj(f, process.stdin, 65536)
+            except BrokenPipeError:
+                pass  # mysql stopped early: its exit code and stderr tell why
+            finally:
+                process.stdin.close()
             process.wait()
 
-        if process.returncode != 0:
-            stderr = process.stderr.read().decode()
-            logger.error(f"mysql restore failed: {stderr}")
-            return False, f"Restore error: {stderr[:200]}"
+            if process.returncode != 0:
+                err.seek(0)
+                stderr = err.read().decode(errors='replace')
+                logger.error(f"mysql restore failed: {stderr}")
+                # Skip client warnings (e.g. SSL notices) to surface the actual error
+                errors = [line for line in stderr.splitlines() if line.startswith('ERROR')]
+                return False, f"Restore error: {(errors[0] if errors else stderr)[:200]}"
 
         logger.info("Database restore completed successfully")
         return True, "Database restored successfully"

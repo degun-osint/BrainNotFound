@@ -25,8 +25,13 @@ def sanitize_filename(text):
 # Rate limit error handler
 @auth_bp.errorhandler(429)
 def ratelimit_handler(e):
-    flash(_l('Trop de tentatives. Veuillez reessayer dans quelques minutes.'), 'error')
-    return redirect(request.url)
+    message = _l('Trop de tentatives. Veuillez reessayer dans quelques minutes.')
+    if request.method == 'POST':
+        # Limits only apply to POST here: going back to the (GET) form is safe
+        flash(message, 'error')
+        return redirect(request.url)
+    # Never redirect a limited GET to itself (endless redirect loop)
+    return str(message), 429
 
 
 def is_safe_url(target):
@@ -140,10 +145,9 @@ def register():
         else:
             # Validate join code
             group = Group.query.filter_by(join_code=join_code, is_active=True).first()
-            if not group:
-                flash(_l('Code de groupe invalide ou inactif'), 'error')
-            elif group.is_full():
-                flash(_l('Ce groupe a atteint sa limite de membres'), 'error')
+            join_error = group.join_error() if group else _l('Code de groupe invalide ou inactif')
+            if join_error:
+                flash(join_error, 'error')
             else:
                 user = User(
                     username=username,
@@ -152,7 +156,6 @@ def register():
                     email=email,
                     is_admin=False,
                     email_verified=False,  # Requires email verification
-                    group_id=group.id  # Legacy field
                 )
                 user.set_password(password)
                 db.session.add(user)
@@ -363,10 +366,10 @@ def join_group():
 
     if not group:
         flash(_l('Code de groupe invalide ou inactif'), 'error')
-    elif group.is_full():
-        flash(_l('Ce groupe a atteint sa limite de membres'), 'error')
     elif current_user.is_in_group(group):
         flash(_l('Vous etes deja membre de ce groupe'), 'warning')
+    elif group.join_error(current_user):
+        flash(group.join_error(current_user), 'error')
     else:
         current_user.add_to_group(group, role='member')
         db.session.commit()

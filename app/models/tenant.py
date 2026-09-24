@@ -2,6 +2,8 @@
 Modèle Tenant pour la gestion multi-tenant logique.
 Un tenant représente une organisation/client avec ses propres limites et admins.
 """
+import os
+
 from app import db
 from datetime import datetime
 import secrets
@@ -144,6 +146,14 @@ class Tenant(db.Model):
             db.Model.metadata.tables['groups'].c.tenant_id == self.id
         ).distinct().count()
 
+    def has_member(self, user):
+        """Check if a user already belongs to one of this tenant's groups."""
+        from app.models.user import user_groups
+        groups = db.Model.metadata.tables['groups']
+        return db.session.query(user_groups.c.user_id).join(
+            groups, groups.c.id == user_groups.c.group_id
+        ).filter(groups.c.tenant_id == self.id, user_groups.c.user_id == user.id).first() is not None
+
     def get_quizzes_count(self):
         """Compte le nombre de quiz dans ce tenant."""
         return self.quizzes.count()
@@ -156,36 +166,58 @@ class Tenant(db.Model):
 
     def can_add_user(self):
         """Vérifie si on peut ajouter un utilisateur."""
-        if self.max_users <= 0:
+        if not self.max_users or self.max_users <= 0:
             return True
         return self.get_users_count() < self.max_users
 
     def can_add_quiz(self):
         """Vérifie si on peut ajouter un quiz."""
-        if self.max_quizzes <= 0:
+        if not self.max_quizzes or self.max_quizzes <= 0:
             return True
         return self.get_quizzes_count() < self.max_quizzes
 
     def can_add_group(self):
         """Vérifie si on peut ajouter un groupe."""
-        if self.max_groups <= 0:
+        if not self.max_groups or self.max_groups <= 0:
             return True
         return self.get_groups_count() < self.max_groups
+
+    def get_storage_used_bytes(self):
+        """Taille des fichiers envoyes pour les quiz de ce tenant (images des questions)."""
+        from flask import current_app
+        from app.models.quiz import Quiz
+        root = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+        total = 0
+        for (quiz_id,) in db.session.query(Quiz.id).filter(Quiz.tenant_id == self.id):
+            folder = os.path.join(root, f'quiz-{quiz_id}')
+            for dirpath, _, files in os.walk(folder):
+                total += sum(os.path.getsize(os.path.join(dirpath, name)) for name in files)
+        return total
+
+    def can_store(self, extra_bytes):
+        """Verifie si on peut ajouter extra_bytes sans depasser max_storage_mb."""
+        if not self.max_storage_mb or self.max_storage_mb <= 0:
+            return True
+        return self.get_storage_used_bytes() + extra_bytes <= self.max_storage_mb * 1024 * 1024
 
     def get_usage_stats(self):
         """Retourne les statistiques d'utilisation."""
         return {
+            'storage': {
+                'current': round(self.get_storage_used_bytes() / (1024 * 1024), 1),
+                'max': self.max_storage_mb if self.max_storage_mb and self.max_storage_mb > 0 else None
+            },
             'users': {
                 'current': self.get_users_count(),
-                'max': self.max_users if self.max_users > 0 else None
+                'max': self.max_users if self.max_users and self.max_users > 0 else None
             },
             'quizzes': {
                 'current': self.get_quizzes_count(),
-                'max': self.max_quizzes if self.max_quizzes > 0 else None
+                'max': self.max_quizzes if self.max_quizzes and self.max_quizzes > 0 else None
             },
             'groups': {
                 'current': self.get_groups_count(),
-                'max': self.max_groups if self.max_groups > 0 else None
+                'max': self.max_groups if self.max_groups and self.max_groups > 0 else None
             }
         }
 
@@ -193,19 +225,21 @@ class Tenant(db.Model):
 
     def add_admin(self, user):
         """Ajoute un admin au tenant."""
+        from app.models.user import User
         if user not in self.admins.all():
             self.admins.append(user)
+            User.clear_role_cache()
 
     def remove_admin(self, user):
         """Retire un admin du tenant."""
+        from app.models.user import User
         if user in self.admins.all():
             self.admins.remove(user)
+            User.clear_role_cache()
 
     def is_admin(self, user):
         """Vérifie si un user est admin de ce tenant."""
-        if user.is_superadmin:
-            return True
-        return user in self.admins.all()
+        return user.is_admin_of_tenant(self.id)
 
     # ==================== Abonnement ====================
 
@@ -228,103 +262,97 @@ class Tenant(db.Model):
 
     # ==================== Usage mensuel IA ====================
 
-    def _check_reset_usage(self):
-        """Reset les compteurs si on est dans un nouveau mois."""
-        from datetime import date
-        today = date.today()
-        first_of_month = today.replace(day=1)
+    # Usage counters, keyed by kind: (limit column, counter column)
+    USAGE_FIELDS = {
+        'corrections': ('monthly_ai_corrections', 'used_ai_corrections'),
+        'generations': ('monthly_quiz_generations', 'used_quiz_generations'),
+        'analyses': ('monthly_class_analyses', 'used_class_analyses'),
+        'interviews': ('monthly_interviews', 'used_interviews'),
+    }
 
-        if self.usage_reset_date is None or self.usage_reset_date < first_of_month:
-            self.used_ai_corrections = 0
-            self.used_quiz_generations = 0
-            self.used_class_analyses = 0
-            self.used_interviews = 0
-            self.usage_reset_date = first_of_month
-            db.session.commit()
+    def _check_reset_usage(self):
+        """Reset the counters when a new month starts (atomic, no commit)."""
+        from datetime import date
+        first_of_month = date.today().replace(day=1)
+        if self.usage_reset_date is not None and self.usage_reset_date >= first_of_month:
+            return
+        # Conditional UPDATE: only one concurrent worker actually resets
+        Tenant.query.filter(
+            Tenant.id == self.id,
+            db.or_(Tenant.usage_reset_date.is_(None), Tenant.usage_reset_date < first_of_month)
+        ).update({
+            'used_ai_corrections': 0, 'used_quiz_generations': 0,
+            'used_class_analyses': 0, 'used_interviews': 0,
+            'usage_reset_date': first_of_month,
+        }, synchronize_session=False)
+        db.session.refresh(self)
+
+    def can_use(self, kind, count=1):
+        """Check subscription and monthly quota for an AI usage kind."""
+        if not self.is_subscription_active():
+            return False
+        limit_field, used_field = self.USAGE_FIELDS[kind]
+        limit = getattr(self, limit_field)
+        if not limit or limit <= 0:
+            return True  # None or 0 = unlimited
+        self._check_reset_usage()
+        return (getattr(self, used_field) or 0) + count <= limit
+
+    def increment_usage(self, kind, count=1):
+        """Atomically add to a usage counter and commit (safe with concurrent grading tasks)."""
+        self._check_reset_usage()
+        used_field = self.USAGE_FIELDS[kind][1]
+        column = getattr(Tenant, used_field)
+        Tenant.query.filter(Tenant.id == self.id).update(
+            {used_field: db.func.coalesce(column, 0) + count}, synchronize_session=False
+        )
+        db.session.commit()
+        db.session.refresh(self)
+        self.check_and_send_quota_alert()
 
     def can_use_ai_correction(self):
-        """Vérifie si on peut utiliser une correction IA."""
-        if not self.is_subscription_active():
-            return False
-        if self.monthly_ai_corrections is None or self.monthly_ai_corrections <= 0:
-            return True  # None ou 0 = illimité
-        self._check_reset_usage()
-        return self.used_ai_corrections < self.monthly_ai_corrections
+        return self.can_use('corrections')
 
     def can_generate_quiz(self):
-        """Vérifie si on peut générer un quiz."""
-        if not self.is_subscription_active():
-            return False
-        if self.monthly_quiz_generations is None or self.monthly_quiz_generations <= 0:
-            return True  # None ou 0 = illimité
-        self._check_reset_usage()
-        return self.used_quiz_generations < self.monthly_quiz_generations
+        return self.can_use('generations')
 
     def can_analyze_class(self):
-        """Vérifie si on peut faire une analyse de classe."""
-        if not self.is_subscription_active():
-            return False
-        if self.monthly_class_analyses is None or self.monthly_class_analyses <= 0:
-            return True  # None ou 0 = illimité
-        self._check_reset_usage()
-        return self.used_class_analyses < self.monthly_class_analyses
-
-    def increment_ai_corrections(self, count=1):
-        """Incrémente le compteur de corrections IA."""
-        self._check_reset_usage()
-        self.used_ai_corrections += count
-        db.session.commit()
-        self.check_and_send_quota_alert()
-
-    def increment_quiz_generations(self, count=1):
-        """Incrémente le compteur de générations de quiz."""
-        self._check_reset_usage()
-        self.used_quiz_generations += count
-        db.session.commit()
-        self.check_and_send_quota_alert()
-
-    def increment_class_analyses(self, count=1):
-        """Incrémente le compteur d'analyses de classe."""
-        self._check_reset_usage()
-        self.used_class_analyses += count
-        db.session.commit()
-        self.check_and_send_quota_alert()
+        return self.can_use('analyses')
 
     def can_use_interview(self):
-        """Vérifie si on peut faire un entretien IA."""
-        if not self.is_subscription_active():
-            return False
-        if self.monthly_interviews is None or self.monthly_interviews <= 0:
-            return True  # None ou 0 = illimité
-        self._check_reset_usage()
-        return self.used_interviews < self.monthly_interviews
+        return self.can_use('interviews')
+
+    def increment_ai_corrections(self, count=1):
+        self.increment_usage('corrections', count)
+
+    def increment_quiz_generations(self, count=1):
+        self.increment_usage('generations', count)
+
+    def increment_class_analyses(self, count=1):
+        self.increment_usage('analyses', count)
 
     def increment_interviews(self, count=1):
-        """Incrémente le compteur d'entretiens IA."""
-        self._check_reset_usage()
-        self.used_interviews += count
-        db.session.commit()
-        self.check_and_send_quota_alert()
+        self.increment_usage('interviews', count)
 
     def get_ai_usage_stats(self):
         """Retourne les statistiques d'utilisation IA."""
         self._check_reset_usage()
         return {
             'corrections': {
-                'used': self.used_ai_corrections,
-                'limit': self.monthly_ai_corrections if self.monthly_ai_corrections > 0 else None
+                'used': self.used_ai_corrections or 0,
+                'limit': self.monthly_ai_corrections if self.monthly_ai_corrections and self.monthly_ai_corrections > 0 else None
             },
             'generations': {
-                'used': self.used_quiz_generations,
-                'limit': self.monthly_quiz_generations if self.monthly_quiz_generations > 0 else None
+                'used': self.used_quiz_generations or 0,
+                'limit': self.monthly_quiz_generations if self.monthly_quiz_generations and self.monthly_quiz_generations > 0 else None
             },
             'analyses': {
-                'used': self.used_class_analyses,
-                'limit': self.monthly_class_analyses if self.monthly_class_analyses > 0 else None
+                'used': self.used_class_analyses or 0,
+                'limit': self.monthly_class_analyses if self.monthly_class_analyses and self.monthly_class_analyses > 0 else None
             },
             'interviews': {
-                'used': self.used_interviews,
-                'limit': self.monthly_interviews if self.monthly_interviews > 0 else None
+                'used': self.used_interviews or 0,
+                'limit': self.monthly_interviews if self.monthly_interviews and self.monthly_interviews > 0 else None
             }
         }
 
@@ -342,9 +370,10 @@ class Tenant(db.Model):
 
         # Calculer les quotas critiques
         critical_quotas = []
-        threshold = self.quota_alert_threshold
+        threshold = self.quota_alert_threshold if self.quota_alert_threshold is not None else 10
 
         def check_quota(name, used, limit):
+            used = used or 0
             if limit and limit > 0:
                 remaining_pct = ((limit - used) / limit) * 100
                 if remaining_pct <= threshold:

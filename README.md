@@ -1,12 +1,15 @@
 # BrainNotFound
 
-Plateforme d'évaluation en ligne open-source avec correction IA, mode examen anti-triche, analyse comportementale et support multi-organisations.
+Plateforme d'évaluation en ligne open-source avec correction IA, entretiens simulés, mode examen anti-triche et gestion multi-établissements, pour les écoles comme pour la formation en entreprise.
+
+Les nouveautés et les points à vérifier avant une mise à jour sont dans le [CHANGELOG](CHANGELOG.md).
 
 ## Fonctionnalités principales
 
 ### Évaluation via IA
 - **Questions QCM** : Réponses uniques ou multiples, correction automatique
-- **Questions ouvertes** : Correction par Claude (Anthropic) avec feedback personnalisé
+- **Questions ouvertes** : Correction par l'IA avec feedback personnalisé ; si l'IA ne peut pas corriger (quota atteint, refus), la réponse est laissée à l'intervenant
+- **Fournisseur d'IA au choix** : Claude (Anthropic, par défaut et recommandé) ou tout service compatible OpenAI (OpenAI, Mistral, Gemini, OpenRouter, Ollama en local...), réglable dans Paramètres sans redémarrage
 - **Sévérité configurable** : Indulgent, modéré ou strict selon le contexte
 - **Génération de quiz** : Création automatique depuis un PDF, DOCX, Markdown ou TXT
 - **Images dans les questions** : Support des images uploadées dans les quiz
@@ -19,10 +22,10 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
   - Raccourcis clavier bloqués (F12, Ctrl+U, etc.)
   - DevTools détectés
   - Copier-coller surveillé
-- **Randomisation** : Options QCM mélangées par étudiant
+- **Randomisation** : Options QCM mélangées pour chaque apprenant
 
 ### Entretiens conversationnels
-- **Personnages IA** : Créez des scénarios avec des personnages simulés par Claude
+- **Personnages IA** : Créez des scénarios avec des personnages simulés par l'IA
 - **Évaluation multi-critères** : Définissez des grilles d'évaluation personnalisées
 - **Cas pratiques** : Entretiens d'embauche, gestion de conflits, détection de biais cognitifs
 - **Feedback détaillé** : Analyse automatique de la conversation avec conseils d'amélioration
@@ -33,26 +36,23 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 - **Analyse de classe** : Patterns suspects, collusion potentielle
 - **Indicateurs** : Temps anormaux, corrélations focus/notes
 
-### Multi-organisations (tenants)
-- **Isolation des données** : Chaque organisation a ses propres groupes, quiz et utilisateurs
-- **Hiérarchie des rôles** :
-  - Superadmin : Gère toutes les organisations
-  - Admin organisation : Gère une organisation spécifique
-  - Admin groupe : Gère un groupe
-  - Membre : Utilisateur standard
-- **Quotas configurables** :
-  - Nombre max d'utilisateurs, quiz, groupes
-  - Espace de stockage
-  - Limites mensuelles IA (corrections, générations, analyses, entretiens)
-- **Alertes quota** : Notification email quand un quota approche sa limite
-- **Abonnements** : Date d'expiration optionnelle par organisation
+### Établissements, groupes et rôles
+- **Vocabulaire** : Établissement / Groupe / Intervenant / Apprenant
+- **Rôles** :
+  - Super-admin : gère toute la plateforme
+  - Admin d'établissement : gère les groupes, intervenants, apprenants et contenus de ses établissements
+  - Intervenant : gère les groupes où il a ce rôle (un rôle par groupe : on peut être intervenant dans un groupe et apprenant dans un autre)
+  - Apprenant : passe les quiz et entretiens des groupes dont il fait partie
+- **Page Groupe** : apprenants, intervenants, contenus assignés et taux de réponse, code d'accès, lien d'invitation
+- **Isolation** : chacun ne voit et ne modifie que son périmètre ; un contenu sans groupe n'est visible par aucun apprenant
+- **Quotas par établissement** : utilisateurs, groupes, quiz, stockage, limites mensuelles IA (corrections, générations, analyses, entretiens), alertes email, date d'expiration de l'abonnement
 
 ### Administration
-- **Multi-groupes** : Étudiants dans plusieurs groupes
-- **Import CSV** : Import en masse des utilisateurs
-- **Backup automatique** : Sauvegarde FTP planifiée (BDD + fichiers uploadés)
-- **Restauration** : Restauration complète depuis les backups FTP
-- **Paramètres** : Titre du site et email configurables
+- **Comptes** : création avec invitation par email (la personne choisit son mot de passe), import CSV, liens de réinitialisation
+- **Sauvegardes** : planifiées vers un FTP, ou à la demande (téléchargement, conservation sur le serveur)
+- **Restauration** : depuis le FTP, le serveur ou un fichier envoyé ; instantané automatique de l'état actuel et retour arrière en cas d'échec
+- **Suppression d'un établissement** avec son contenu, après sauvegarde automatique
+- **Paramètres** : titre du site, email, fournisseur et modèle d'IA
 - **Pages personnalisées** : Création de pages en Markdown (mentions légales, CGU, etc.)
 
 ### Internationalisation (i18n)
@@ -71,8 +71,23 @@ Plateforme d'évaluation en ligne open-source avec correction IA, mode examen an
 
 ### Prérequis
 - Docker et Docker Compose
-- Clé API Anthropic
-- Serveur SMTP pour les envois de mail
+- Une clé d'API Anthropic (ou d'un autre fournisseur compatible OpenAI, ou un serveur Ollama local)
+- Un serveur SMTP pour les envois de mail (invitations, réinitialisation de mot de passe)
+
+### Ressources serveur
+
+Mesures sur la pile Docker complète (application + MariaDB 12.3), avec un établissement de 600 apprenants et 6 000 copies :
+
+| | Au repos | En charge (20 utilisateurs en continu) |
+|---|---|---|
+| Application | ~100 Mo | ~125 Mo, 1 cœur |
+| MariaDB (config `docker/mariadb/low-memory.cnf`) | ~70 Mo | ~170 Mo |
+
+- **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go + données).
+- **Confortable** : 2 vCPU, 2 Go de RAM.
+- L'IA tourne chez le fournisseur (Anthropic...) : elle ne consomme rien localement, sauf avec un modèle local type Ollama, qui demande alors sa propre machine (GPU ou beaucoup de RAM).
+- Débit mesuré : ~90 pages admin par seconde en continu, une page servie en 10 à 50 ms. Une classe de 30 apprenants en génère quelques-unes par seconde.
+- L'application tourne sur un seul processus (nécessaire pour les WebSockets sans broker Redis) : plus de 2 cœurs n'apportent rien à l'application elle-même.
 
 ### Démarrage rapide
 
@@ -83,22 +98,25 @@ cd BrainNotFound
 
 # Configurer l'environnement
 cp .env.example .env
-# Éditer .env avec votre clé API
+# Éditer .env : SECRET_KEY, mots de passe MYSQL_*, ADMIN_DEFAULT_PASSWORD, clé d'API
 
 # Lancer
-./start.sh
-# ou: docker-compose up -d
+docker compose up -d --build
 ```
 
-Application accessible sur http://localhost:5000
+Application accessible sur http://localhost:5006. Au premier démarrage, la base est créée et les migrations s'appliquent automatiquement.
 
 ### Identifiants par défaut
 
-| Rôle | Username | Password |
-|------|----------|----------|
-| Superadmin | admin | admin123 |
+| Rôle | Identifiant | Mot de passe |
+|------|-------------|--------------|
+| Super-admin | admin | valeur de `ADMIN_DEFAULT_PASSWORD` (`admin123` si absente) |
 
-Code groupe de démo : `DEMO2024`
+Changez ce mot de passe dès la première connexion. Code du groupe de démo : `DEMO2024`.
+
+### Déploiement sur un serveur
+
+`deploy.sh` déploie sur un VPS par SSH (`VPS_HOST=... VPS_PATH=... ./deploy.sh`) : sauvegarde de la base avant tout envoi, synchronisation qui ne touche jamais aux `.env*`, `uploads/` et `backups/` du serveur, reconstruction sans couper le site, puis vérification que l'application répond. Détails et procédure manuelle : [docs/self-hosting.md](docs/self-hosting.md).
 
 ## Format des quiz
 
@@ -135,13 +153,25 @@ Documentation complète : `/docs/quiz-syntax` dans l'application.
 ```env
 # Obligatoire
 SECRET_KEY=cle-secrete-32-caracteres-minimum
+
+# Base de données (MariaDB ; le conteneur lit aussi les MYSQL_*)
+MYSQL_ROOT_PASSWORD=xxx
+MYSQL_DATABASE=brainnotfound
+MYSQL_USER=brainnotfound
+MYSQL_PASSWORD=xxx
+DATABASE_URL=mysql+pymysql://brainnotfound:xxx@db:3306/brainnotfound
+
+# Compte admin créé au premier démarrage
+ADMIN_DEFAULT_PASSWORD=xxx
+
+# IA : réglable aussi dans Paramètres (prioritaire, sans redémarrage)
 ANTHROPIC_API_KEY=sk-ant-xxx
-
-# Base de données
-DATABASE_URL=mysql+pymysql://user:pass@host:3306/db
-
-# Modèle Claude (optionnel)
-CLAUDE_MODEL=claude-sonnet-4-20250514
+CLAUDE_MODEL=claude-opus-5-5
+# Autre fournisseur compatible OpenAI (optionnel)
+# AI_PROVIDER=openai_compatible
+# AI_BASE_URL=http://ollama:11434/v1
+# AI_API_KEY=
+# AI_MODEL=llama3.1
 
 # Sécurité (production)
 ALLOWED_HOSTS=monsite.com
@@ -153,14 +183,13 @@ MAIL_USERNAME=noreply@example.com
 MAIL_PASSWORD=xxx
 ```
 
-### Backup FTP
+### Sauvegardes
 
-Configurable dans Admin > Paramètres :
-- Serveur FTP/FTPS avec chiffrement TLS
-- Fréquence : horaire, quotidienne, hebdomadaire
-- Rétention : suppression automatique des vieux backups
-- Contenu : base de données + fichiers uploadés (images, PDF)
-- Restauration : un clic depuis l'historique des backups
+Configurables dans Administration > Paramètres :
+- Sauvegarde automatique vers un serveur FTP/FTPS (fréquence horaire, quotidienne ou hebdomadaire, rétention en jours)
+- Sauvegarde à la demande : téléchargement direct, ou conservation dans `backups/` (volume Docker) sans FTP
+- Contenu : base de données + fichiers envoyés (images des quiz)
+- Restauration depuis le FTP, le serveur ou un fichier envoyé (confirmation par `RESTAURER`), avec instantané automatique de l'état actuel
 
 ## Personnalisation
 
@@ -200,14 +229,29 @@ private/                  # Vos personnalisations (non commitée)
 
 ```
 app/
-├── models/       # User, Group, Quiz, Question, Answer, Tenant, SiteSettings, Page
-├── routes/       # auth, admin, quiz, tenant, docs
+├── models/       # User, Group, Quiz, Question, Answer, Tenant, Interview, SiteSettings, Page
+├── routes/       # auth, admin, quiz, interview, tenant, docs
 ├── templates/    # Jinja2
 ├── static/       # CSS, JS
-└── utils/        # Parser Markdown, Grading IA, Backup, Anomaly detection
+└── utils/
+    ├── scope.py        # Périmètre d'un admin (établissements, groupes, contenus, utilisateurs)
+    ├── ai_client.py    # Accès unique au fournisseur d'IA
+    ├── deletion.py     # Suppression d'utilisateurs et d'établissements
+    ├── db_schema.py    # Mise à jour du schéma (démarrage, restauration)
+    └── ...             # Parser Markdown, correction IA, sauvegardes, détection d'anomalies
 
+docker/mariadb/   # Configuration MariaDB pour petits serveurs
 docs/             # Documentation Markdown intégrée
-migrations/       # Migrations Alembic
+migrations/       # Migrations Alembic (appliquées au démarrage)
+scripts/          # Migration au démarrage, restauration, étapes de déploiement
+tests/            # Tests pytest
+```
+
+### Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests          # SQLite en mémoire, ni base MariaDB ni clé d'API nécessaires
 ```
 
 ## Internationalisation
@@ -258,21 +302,23 @@ GRADING_PROMPT_TEMPLATE = {
 ## Technologies
 
 - **Backend** : Flask 3.x, SQLAlchemy, Flask-SocketIO, Flask-Babel
-- **Base de données** : MySQL 8.0
-- **IA** : Anthropic Claude API
-- **Temps réel** : WebSocket (gevent)
+- **Base de données** : MariaDB 12.3 LTS
+- **IA** : Anthropic Claude (par défaut), ou API compatible OpenAI
+- **Temps réel** : WebSocket (Flask-SocketIO, gevent, simple-websocket)
 - **Planification** : APScheduler
 - **Déploiement** : Docker, Gunicorn
 
 ## Sécurité
 
-- Mots de passe hashés (Werkzeug)
+- Mots de passe hashés (Werkzeug), sessions liées à l'identifiant unique du compte
 - Protection CSRF (Flask-WTF)
-- Rate limiting (Flask-Limiter)
+- Limitation des tentatives sur la connexion, l'inscription et la réinitialisation (Flask-Limiter)
 - Headers sécurité (X-Frame-Options, CSP, etc.)
-- Validation des hosts autorisés
-- Chiffrement des données sensibles (Fernet)
-- Isolation des organisations (multi-tenant)
+- Validation des hosts autorisés (`ALLOWED_HOSTS`)
+- Chiffrement des données sensibles en base (clé d'API, mot de passe FTP)
+- Isolation des établissements et des groupes, droits d'écriture limités aux rôles inférieurs
+- Contenus des apprenants délimités dans les prompts (protection contre l'injection de consignes)
+- `.env` jamais copié dans l'image Docker
 
 ## Documentation
 

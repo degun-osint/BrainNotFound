@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Gestion des Organisations') }} - {{ site_title }}{% endblock %}
+{% block title %}{{ _('Gestion des etablissements') }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Gestion des Organisations') }}</h1>
+<h1 class="mb-2">{{ _('Gestion des etablissements') }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
-        <span>{{ _('Liste des organisations') }}</span>
-        <a href="{{ url_for('tenant.create_tenant') }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer une nouvelle organisation') }}">
+        <span>{{ _('Liste des etablissements') }}</span>
+        <a href="{{ url_for('tenant.create_tenant') }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer un nouvel etablissement') }}">
             <i class="iconoir-plus"></i> {{ _('Nouveau') }}
         </a>
     </div>
@@ -51,21 +51,16 @@
                     <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                         <i class="iconoir-edit-pencil"></i>
                     </a>
-                    {% if tenant.groups.count() == 0 %}
-                    <form method="POST" action="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}"
-                          onsubmit="return confirmDelete(this, '{{ _('cette organisation') }}');" class="inline">
-                        <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
-                            <i class="iconoir-trash"></i>
-                        </button>
-                    </form>
-                    {% endif %}
+                    <a href="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
+                        <i class="iconoir-trash"></i>
+                    </a>
                 </div>
             </div>
             {% endfor %}
         </div>
     {% else %}
         <p class="text-center text-light p-2">
-            {{ _('Aucune organisation creee.') }} <a href="{{ url_for('tenant.create_tenant') }}">{{ _('Creez votre premiere organisation') }}</a>
+            {{ _('Aucun etablissement cree.') }} <a href="{{ url_for('tenant.create_tenant') }}">{{ _('Creez votre premier etablissement') }}</a>
         </p>
     {% endif %}
 </div>

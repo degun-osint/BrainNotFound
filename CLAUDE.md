@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BrainNotFound is a Flask-based web application for creating and evaluating quizzes with AI-powered grading. Teachers create quizzes in Markdown format, MCQ questions are graded automatically, and open-ended questions are graded by Claude AI with feedback.
 
-**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MySQL 8.0, Anthropic Claude API, Docker
+**Tech Stack**: Python 3.13, Flask 3.1, SQLAlchemy, MariaDB 12.3 LTS (MySQL-compatible), Anthropic Claude API, Docker
 
 ## Commands
 
@@ -19,12 +19,18 @@ BrainNotFound is a Flask-based web application for creating and evaluating quizz
 docker-compose up -d           # Start services
 docker-compose down            # Stop services
 docker-compose logs -f web     # View Flask logs
-docker-compose exec db mysql -u quizuser -pquizpassword quizdb  # Access database
+docker compose exec db mariadb -u quizuser -p quizdb  # Access database
 
 # Local development (no Docker)
 pip install -r requirements.txt
 export FLASK_APP=wsgi.py
 flask run
+```
+
+### Tests
+```bash
+pip install -r requirements-dev.txt
+pytest tests          # SQLite in memory, no MySQL/API key needed
 ```
 
 ### Configuration Verification
@@ -72,13 +78,13 @@ Quiz → [1:N] → Question
 Question → [1:N] → Answer
 ```
 
-## Claude AI Integration
+## LLM Integration
 
-Located in `app/utils/claude_grader.py`:
-- Model configurable via `CLAUDE_MODEL` env var (default: `claude-sonnet-4-20250514`)
-- Grading prompt compares student answer to expected answer
-- Returns score (0 to max_points) and constructive feedback in French
-- Handles API errors gracefully with logging
+All LLM calls go through `app/utils/ai_client.py` (`complete()`):
+- Providers: `anthropic` (default, recommended, keeps prompt caching) or `openai_compatible` (any Chat Completions server: OpenAI, Mistral, Gemini, OpenRouter, Ollama...)
+- Provider, base URL, model and API key are editable in Admin > Settings and read on every call (no restart); env vars are the fallback
+- Prompts are tuned for Claude; `parse_json()` tolerates chatty models
+- Grading prompt compares student answer to expected answer and returns `{score, feedback}` in French
 
 ## Environment Variables
 
@@ -86,11 +92,15 @@ Required in `.env`:
 - `SECRET_KEY` - Flask secret key
 - `ANTHROPIC_API_KEY` - For AI grading
 - `DATABASE_URL` - MySQL connection string
-- `CLAUDE_MODEL` - Claude model to use (default: `claude-sonnet-4-20250514`)
+- `CLAUDE_MODEL` - Claude model to use (default: `claude-opus-5-5`)
+- `AI_PROVIDER`, `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` - optional non-Anthropic provider
 
 ## Internationalization (i18n)
 
 The app supports French (default) and English via Flask-Babel.
+
+### UI vocabulary
+The app serves schools and corporate e-learning: say **Etablissement / Groupe / Intervenant / Apprenant** (EN: Organization / Group / Instructor / Learner). Never "classe", "professeur", "etudiant" or "tenant" in the UI. In code: tenant = etablissement, group admin (`user_groups.role == 'admin'`) = intervenant, member = apprenant.
 
 ### Key files
 - `babel.cfg` - Extraction configuration

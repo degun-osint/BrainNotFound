@@ -19,6 +19,10 @@
         <div class="stat-label">{{ _('Utilisateurs') }}</div>
     </div>
     <div class="stat-card">
+        <div class="stat-value">{{ stats.storage.current }}{% if stats.storage.max %}/{{ stats.storage.max }}{% endif %}</div>
+        <div class="stat-label">{{ _('Stockage (Mo)') }}</div>
+    </div>
+    <div class="stat-card">
         <div class="stat-value">{{ admins|length }}</div>
         <div class="stat-label">{{ _('Administrateurs') }}</div>
     </div>
@@ -35,7 +39,7 @@
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ ai_stats.analyses.used }}{% if ai_stats.analyses.limit %}/{{ ai_stats.analyses.limit }}{% endif %}</div>
-        <div class="stat-label">{{ _('Analyses classe (mois)') }}</div>
+        <div class="stat-label">{{ _('Analyses de groupe (mois)') }}</div>
     </div>
     <div class="stat-card">
         {% if tenant.subscription_expires_at %}
@@ -98,7 +102,7 @@
 {% if admins %}
 <div class="card mb-2">
     <div class="card-header flex justify-between items-center">
-        <span>{{ _('Administrateurs de l\'organisation') }}</span>
+        <span>{{ _('Administrateurs de l\'etablissement') }}</span>
         {% if current_user.is_superadmin %}
         <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
             <i class="iconoir-plus"></i> {{ _('Ajouter') }}
@@ -138,7 +142,7 @@
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Membres') }}">
+                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Membres') }}">
                         <i class="iconoir-group"></i>
                     </a>
                     <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
@@ -151,7 +155,7 @@
     </div>
     {% else %}
     <p class="text-center text-light p-2">
-        {{ _('Aucun groupe dans cette organisation.') }} <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">{{ _('Creer un groupe') }}</a>
+        {{ _('Aucun groupe dans cet etablissement.') }} <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">{{ _('Creer un groupe') }}</a>
     </p>
     {% endif %}
 </div>
@@ -159,7 +163,7 @@
 <div class="actions">
     {% if current_user.is_superadmin %}
     <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> {{ _('Retour aux organisations') }}
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux etablissements') }}
     </a>
     {% else %}
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">

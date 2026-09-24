@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import random
 import json
 from app import db, socketio
-from app.models.quiz import Quiz, Question, QuizResponse, Answer, quiz_groups
+from app.models.quiz import Quiz, Question, QuizResponse, Answer
 from app.models.group import Group
 from app.models.tenant import Tenant
 from app.models.interview import InterviewSession
@@ -115,16 +115,12 @@ def dashboard():
 
     available_quizzes = []
     if user_group_ids:
-        quizzes_with_groups = db.session.query(quiz_groups.c.quiz_id).distinct()
         quiz_query = Quiz.query.filter(
             Quiz.is_active == True,
             db.or_(Quiz.available_from == None, Quiz.available_from <= now),
             db.or_(Quiz.available_until == None, Quiz.available_until >= now),
             ~Quiz.id.in_(completed_quiz_ids),
-            db.or_(
-                Quiz.groups.any(Group.id.in_(user_group_ids)),
-                ~Quiz.id.in_(quizzes_with_groups)
-            )
+            Quiz.groups.any(Group.id.in_(user_group_ids))
         ).order_by(
             db.case((Quiz.available_until.is_(None), 1), else_=0),
             Quiz.available_until.asc(),
@@ -133,21 +129,17 @@ def dashboard():
         available_quizzes = quiz_query.all()
 
     # To-do: Available interviews not yet taken
-    from app.models.interview import Interview, interview_groups
+    from app.models.interview import Interview
     completed_interview_ids = [s.interview_id for s in interview_sessions]
 
     available_interviews = []
     if user_group_ids:
-        interviews_with_groups = db.session.query(interview_groups.c.interview_id).distinct()
         interview_query = Interview.query.filter(
             Interview.is_active == True,
             db.or_(Interview.available_from == None, Interview.available_from <= now),
             db.or_(Interview.available_until == None, Interview.available_until >= now),
             ~Interview.id.in_(completed_interview_ids),
-            db.or_(
-                Interview.groups.any(Group.id.in_(user_group_ids)),
-                ~Interview.id.in_(interviews_with_groups)
-            )
+            Interview.groups.any(Group.id.in_(user_group_ids))
         ).order_by(
             db.case((Interview.available_until.is_(None), 1), else_=0),
             Interview.available_until.asc(),
@@ -173,7 +165,6 @@ def quiz_list():
         return redirect(url_for('admin.dashboard'))
 
     now = datetime.now()
-    from app.models.quiz import quiz_groups
 
     # Get filter parameters
     filter_group_id = request.args.get('group', 0, type=int)
@@ -194,24 +185,8 @@ def quiz_list():
         db.or_(Quiz.available_until == None, Quiz.available_until >= now)
     )
 
-    # Filter by user's groups - show quizzes assigned to any of user's groups OR quizzes with no group assignment
-    if user_group_ids:
-        # Subquery to get quiz IDs that have ANY group assigned
-        quizzes_with_groups = db.session.query(quiz_groups.c.quiz_id).distinct()
-
-        # Quizzes assigned to any of user's groups OR quizzes with no groups (available to all)
-        base_query = base_query.filter(
-            db.or_(
-                Quiz.groups.any(Group.id.in_(user_group_ids)),
-                ~Quiz.id.in_(quizzes_with_groups)
-            )
-        )
-    else:
-        # User without groups - show only quizzes with no group restriction
-        quizzes_with_groups = db.session.query(quiz_groups.c.quiz_id).distinct()
-        base_query = base_query.filter(
-            ~Quiz.id.in_(quizzes_with_groups)
-        )
+    # Only quizzes assigned to one of the user's groups (no group = visible to no learner)
+    base_query = base_query.filter(Quiz.groups.any(Group.id.in_(user_group_ids)))
 
     # Apply group filter if selected
     if filter_group_id > 0 and filter_group_id in user_group_ids:
@@ -695,7 +670,7 @@ def grading(identifier):
         return redirect(url_for('quiz.quiz_list'))
 
     # If grading is already completed, redirect to results
-    if quiz_response.grading_status == QuizResponse.STATUS_COMPLETED:
+    if quiz_response.grading_status in (QuizResponse.STATUS_COMPLETED, QuizResponse.STATUS_REVIEW):
         return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     return render_template('quiz/grading.html', quiz_response=quiz_response)

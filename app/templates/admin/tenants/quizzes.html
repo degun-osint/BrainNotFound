@@ -3,7 +3,7 @@
 {% block title %}{{ _('Quiz de') }} {{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ _('Quiz du tenant') }}</h1>
+<h1 class="mb-2">{{ _("Quiz de l'etablissement") }}</h1>
 
 <div class="card">
     <div class="card-header flex justify-between items-center">
@@ -54,14 +54,14 @@
         </div>
     {% else %}
         <p class="text-center text-light p-2">
-            {{ _('Aucun quiz dans ce tenant.') }}
+            {{ _('Aucun quiz dans cet etablissement.') }}
         </p>
     {% endif %}
 </div>
 
 <div class="mt-2">
     <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary">
-        <i class="iconoir-arrow-left"></i> {{ _('Retour au tenant') }}
+        <i class="iconoir-arrow-left"></i> {{ _("Retour a l'etablissement") }}
     </a>
 </div>
 {% endblock %}

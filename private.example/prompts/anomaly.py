@@ -12,11 +12,11 @@ DONNEES:
 {context}
 
 Analyse:
-1. POINTS FORTS: ce que l'etudiant maitrise bien
+1. POINTS FORTS: ce que l'apprenant maitrise bien
 2. LACUNES: concepts a travailler (avec suggestions)
 3. OBSERVATIONS: temps/comportement inhabituels (sans accuser, juste factuel)
 
-Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
+Reponds uniquement en JSON valide (pas de texte avant/apres):
 {{
   "attention_level": "none|low|moderate|high",
   "confidence": 0.0-1.0,
@@ -46,11 +46,11 @@ DATA:
 {context}
 
 Analysis:
-1. STRENGTHS: what the student masters well
+1. STRENGTHS: what the learner masters well
 2. GAPS: concepts to work on (with suggestions)
 3. OBSERVATIONS: unusual timing/behavior (without accusations, just factual)
 
-Respond ONLY in valid JSON (no text before/after):
+Respond only in valid JSON (no text before/after):
 {{
   "attention_level": "none|low|moderate|high",
   "confidence": 0.0-1.0,
@@ -76,7 +76,7 @@ Respond ONLY in valid JSON (no text before/after):
 }
 
 CLASS_ANALYSIS_PROMPT_TEMPLATE = {
-    'fr': """Analyse ces resultats de classe pour aider l'enseignant.
+    'fr': """Analyse ces resultats de classe pour aider l'intervenant.
 
 DONNEES:
 {context}
@@ -87,7 +87,7 @@ Analyse:
 3. ETUDIANTS A ACCOMPAGNER: ceux en difficulte
 4. OBSERVATIONS: patterns inhabituels (factuels, sans accuser)
 
-Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
+Reponds uniquement en JSON valide (pas de texte avant/apres):
 {{
   "pedagogical_summary": "Resume en 3-4 phrases",
   "concepts_to_review": [
@@ -130,7 +130,7 @@ Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres):
   ]
 }}""",
 
-    'en': """Analyze these class results to help the teacher.
+    'en': """Analyze these class results to help the instructor.
 
 DATA:
 {context}
@@ -141,7 +141,7 @@ Analysis:
 3. STUDENTS NEEDING SUPPORT: those struggling
 4. OBSERVATIONS: unusual patterns (factual, no accusations)
 
-Respond ONLY in valid JSON (no text before/after):
+Respond only in valid JSON (no text before/after):
 {{
   "pedagogical_summary": "Summary in 3-4 sentences",
   "concepts_to_review": [
