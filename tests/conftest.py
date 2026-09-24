@@ -35,6 +35,9 @@ def client(app):
 def login(client):
     """Log a user in by writing the Flask-Login session directly."""
     def _login(user):
+        # The test app context outlives requests: drop Flask-Login's cached user
+        from flask import g
+        g.pop('_login_user', None)
         with client.session_transaction() as sess:
             sess['_user_id'] = user.get_id()
             sess['_fresh'] = True

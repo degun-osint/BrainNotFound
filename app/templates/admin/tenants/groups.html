@@ -39,7 +39,7 @@
                     <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Exporter resultats CSV') }}">
                         <i class="iconoir-download"></i>
                     </a>
-                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }}">
+                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }}">
                         <i class="iconoir-group"></i>
                     </a>
                     <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">

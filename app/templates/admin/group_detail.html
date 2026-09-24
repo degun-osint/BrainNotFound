@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center flex-wrap gap-sm mb-2">
+    <div>
+        <h1 class="mb-0">{{ group.name }}</h1>
+        <p class="text-light mb-0">
+            {% if group.tenant %}<i class="iconoir-building"></i> {{ group.tenant.name }} - {% endif %}
+            <span class="{{ 'text-success' if group.is_active else 'text-error' }}">{{ _('Actif') if group.is_active else _('Inactif') }}</span>
+            {% if group.description %} - {{ group.description }}{% endif %}
+        </p>
+    </div>
+    <div class="flex gap-sm flex-wrap">
+        <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-edit-pencil"></i> {{ _('Modifier') }}
+        </a>
+        <a href="{{ url_for('admin.email_group', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-mail"></i> {{ _('Envoyer un email') }}
+        </a>
+        <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-download"></i> {{ _('Exporter les resultats') }}
+        </a>
+    </div>
+</div>
+
+<!-- Access: join code, invitation link, capacity -->
+<div class="card mb-2">
+    <div class="card-header"><i class="iconoir-key"></i> {{ _('Acces au groupe') }}</div>
+    <div class="p-2 flex justify-between items-center flex-wrap gap-md">
+        <div>
+            <div class="mb-1">
+                {{ _("Code d'acces :") }}
+                <strong class="font-mono text-info" style="font-size: 1.25rem;">{{ group.join_code }}</strong>
+                <button type="button" class="btn btn-icon btn-small" onclick="copyToClipboard('{{ group.join_code }}')" data-tooltip="{{ _('Copier le code') }}">
+                    <i class="iconoir-copy"></i>
+                </button>
+            </div>
+            <div class="flex gap-sm flex-wrap">
+                <button type="button" class="btn btn-secondary btn-small" onclick="copyText({{ invite_url|tojson }}, {{ _('Lien d\'invitation copie')|tojson }})">
+                    <i class="iconoir-link"></i> {{ _("Copier le lien d'invitation") }}
+                </button>
+                <form method="POST" action="{{ url_for('admin.group_regenerate_code', identifier=group.get_url_identifier()) }}" class="inline"
+                      onsubmit="return confirm({{ _('Generer un nouveau code ? L\'ancien code et l\'ancien lien d\'invitation ne fonctionneront plus.')|tojson }});">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-secondary btn-small">
+                        <i class="iconoir-refresh"></i> {{ _('Nouveau code') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="flex gap-md">
+            <div class="text-center">
+                <span class="stat-value">{{ learners|length }}</span>
+                <span class="stat-label block">{{ _('Apprenant(s)') }}</span>
+            </div>
+            <div class="text-center">
+                <span class="stat-value">{{ instructors|length }}</span>
+                <span class="stat-label block">{{ _('Intervenant(s)') }}</span>
+            </div>
+            {% if group.max_members and group.max_members > 0 %}
+            <div class="text-center">
+                <span class="stat-value">{{ (learners|length) + (instructors|length) }}/{{ group.max_members }}</span>
+                <span class="stat-label block">{{ _('Places') }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="history-tabs mb-1" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="learners">{{ _('Apprenants') }} ({{ learners|length }})</button>
+    <button type="button" class="tab-btn" data-tab="instructors">{{ _('Intervenants') }} ({{ instructors|length }})</button>
+    <button type="button" class="tab-btn" data-tab="content">{{ _('Contenus') }} ({{ quizzes|length + interviews|length }})</button>
+</div>
+
+{% macro member_actions(user, is_instructor) %}
+    <div class="flex gap-sm flex-wrap">
+        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Notes') }}">
+            <i class="iconoir-stats-report"></i>
+        </a>
+        {% if manageable[user.id] %}
+        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+            <i class="iconoir-edit-pencil"></i>
+        </a>
+        {% if user.email.endswith('@imported.local') %}
+        <button type="button" class="btn btn-secondary btn-small btn-icon" onclick="copyResetLink({{ url_for('admin.user_reset_link', identifier=user.get_url_identifier())|tojson }})"
+                data-tooltip="{{ _('Copier un lien de mot de passe (pas d\'email reel)') }}">
+            <i class="iconoir-lock"></i>
+        </button>
+        {% else %}
+        <form method="POST" action="{{ url_for('admin.send_user_reset', identifier=user.get_url_identifier()) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Envoyer un lien pour choisir un mot de passe') }}">
+                <i class="iconoir-lock"></i>
+            </button>
+        </form>
+        {% endif %}
+        {% endif %}
+        {% if can_manage_roles and user.id != current_user.id %}
+        <form method="POST" action="{{ url_for('admin.group_set_role', identifier=group.get_url_identifier(), user_identifier=user.get_url_identifier()) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="role" value="{{ 'member' if is_instructor else 'admin' }}">
+            <button type="submit" class="btn btn-secondary btn-small btn-icon"
+                    data-tooltip="{{ _('Repasser apprenant') if is_instructor else _('Nommer intervenant du groupe') }}">
+                <i class="iconoir-{{ 'arrow-down' if is_instructor else 'arrow-up' }}"></i>
+            </button>
+        </form>
+        {% endif %}
+        {% if user.id != current_user.id and (current_user.is_superadmin or (is_instructor and can_manage_roles) or not is_instructor) %}
+        <form method="POST" action="{{ url_for('admin.group_remove_member', identifier=group.get_url_identifier(), user_identifier=user.get_url_identifier()) }}" class="inline"
+              onsubmit="return confirm({{ _('Retirer cette personne du groupe ? Son compte et ses resultats sont conserves.')|tojson }});">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Retirer du groupe') }}">
+                <i class="iconoir-user-xmark"></i>
+            </button>
+        </form>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+<!-- Learners -->
+<div class="card tab-panel" data-panel="learners">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>{{ _('Apprenants') }}</span>
+        <div class="flex gap-sm flex-wrap">
+            <a href="{{ url_for('admin.create_user', group=group.id) }}" class="btn btn-primary btn-small">
+                <i class="iconoir-plus"></i> {{ _('Nouvel apprenant') }}
+            </a>
+            <a href="{{ url_for('admin.import_users', group=group.id) }}" class="btn btn-secondary btn-small">
+                <i class="iconoir-upload"></i> {{ _('Importer (CSV)') }}
+            </a>
+        </div>
+    </div>
+    <div class="p-2">
+        <form method="POST" action="{{ url_for('admin.group_add_member', identifier=group.get_url_identifier()) }}" id="add-member-form" class="mb-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="user" id="add-member-user">
+            <label class="form-label" for="member-search">{{ _('Ajouter une personne existante') }}</label>
+            <input type="search" id="member-search" class="form-input" autocomplete="off"
+                   placeholder="{{ _('Nom, identifiant ou email (2 caracteres minimum)') }}">
+            <div id="member-results" class="mt-1"></div>
+        </form>
+
+        {% if learners %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Nom complet') }}</th>
+                    <th>{{ _('Identifiant') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Derniere connexion') }}</th>
+                    <th>{{ _('Quiz completes') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user, joined in learners %}
+                <tr>
+                    <td><a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">{{ user.full_name }}</a></td>
+                    <td class="text-light font-mono text-sm">{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{% if user.last_login %}{{ user.last_login|localtime }}{% else %}<span class="text-light">{{ _('Jamais') }}</span>{% endif %}</td>
+                    <td>{{ response_counts.get(user.id, 0) }}</td>
+                    <td>{{ member_actions(user, false) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center text-light p-2">
+            {{ _("Aucun apprenant pour l'instant. Partagez le code d'acces ou le lien d'invitation, ou ajoutez des personnes ci-dessus.") }}
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Instructors -->
+<div class="card tab-panel" data-panel="instructors" hidden>
+    <div class="card-header">{{ _('Intervenants') }}</div>
+    <div class="p-2">
+        <p class="text-light text-sm mt-0">
+            {{ _("Un intervenant gere ce groupe : ses apprenants, ses contenus et leurs resultats. Il n'a aucun droit sur les autres groupes.") }}
+            {% if can_manage_roles %}{{ _("Pour nommer un intervenant, ajoutez la personne au groupe puis utilisez la fleche dans l'onglet Apprenants.") }}{% endif %}
+        </p>
+        {% if instructors %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Nom complet') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Derniere connexion') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user, joined in instructors %}
+                <tr>
+                    <td class="font-medium">{{ user.full_name }}{% if user.id == current_user.id %} <span class="text-light">({{ _('vous') }})</span>{% endif %}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{% if user.last_login %}{{ user.last_login|localtime }}{% else %}<span class="text-light">{{ _('Jamais') }}</span>{% endif %}</td>
+                    <td>{{ member_actions(user, true) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center text-light p-2">{{ _('Aucun intervenant dans ce groupe.') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Content -->
+<div class="card tab-panel" data-panel="content" hidden>
+    <div class="card-header">{{ _('Contenus assignes') }}</div>
+    <div class="p-2">
+        <h4 class="mt-0">{{ _('Quiz') }}</h4>
+        {% if quizzes %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Titre') }}</th>
+                    <th>{{ _('Etat') }}</th>
+                    <th>{{ _('Reponses du groupe') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizzes %}
+                <tr>
+                    <td class="font-medium">{{ quiz.title }}</td>
+                    <td>
+                        {% if not quiz.is_active %}<span class="badge badge-default">{{ _('Inactif') }}</span>
+                        {% elif quiz.is_open() %}<span class="badge badge-success">{{ _('Ouvert') }}</span>
+                        {% else %}<span class="badge badge-warning">{{ _('Ferme') }}</span>{% endif %}
+                    </td>
+                    <td>{{ quiz_done.get(quiz.id, 0) }}/{{ learners|length }}</td>
+                    <td class="flex gap-sm">
+                        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), group=group.id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Resultats du groupe') }}">
+                            <i class="iconoir-stats-report"></i>
+                        </a>
+                        <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun quiz assigne a ce groupe.') }} <a href="{{ url_for('admin.create_quiz') }}">{{ _('Creer un quiz') }}</a></p>
+        {% endif %}
+
+        <h4>{{ _('Entretiens') }}</h4>
+        {% if interviews %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Titre') }}</th>
+                    <th>{{ _('Etat') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for interview in interviews %}
+                <tr>
+                    <td class="font-medium">{{ interview.title }}</td>
+                    <td>{% if interview.is_active %}<span class="badge badge-success">{{ _('Actif') }}</span>{% else %}<span class="badge badge-default">{{ _('Inactif') }}</span>{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir les sessions') }}">
+                            <i class="iconoir-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun entretien assigne a ce groupe.') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-2">
+    <a href="{{ url_for('admin.groups') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux groupes') }}
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyText(text, message) {
+    navigator.clipboard.writeText(text).then(() => Toast.show(message, 'success'));
+}
+
+async function copyResetLink(url) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content}
+    });
+    if (!response.ok) { Toast.show({{ _('Action impossible')|tojson }}, 'error'); return; }
+    const data = await response.json();
+    copyText(data.url, {{ _('Lien copie, valable')|tojson }} + ' ' + data.hours + ' h');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Tabs (remembered in the URL hash)
+    const buttons = document.querySelectorAll('.tab-btn[data-tab]');
+    function showTab(name) {
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+        document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+    }
+    buttons.forEach(b => b.addEventListener('click', () => { showTab(b.dataset.tab); history.replaceState(null, '', '#' + b.dataset.tab); }));
+    if (location.hash && document.querySelector('.tab-panel[data-panel="' + location.hash.slice(1) + '"]')) {
+        showTab(location.hash.slice(1));
+    }
+
+    // Search people to add
+    const search = document.getElementById('member-search');
+    const results = document.getElementById('member-results');
+    let timer = null;
+    search.addEventListener('input', function() {
+        clearTimeout(timer);
+        const q = this.value.trim();
+        if (q.length < 2) { results.innerHTML = ''; return; }
+        timer = setTimeout(async () => {
+            const response = await fetch({{ url_for('admin.group_candidates', identifier=group.get_url_identifier())|tojson }} + '?q=' + encodeURIComponent(q));
+            const users = await response.json();
+            results.innerHTML = '';
+            if (!users.length) {
+                results.innerHTML = '<p class="text-light text-sm">' + {{ _('Personne trouvee dans votre perimetre.')|tojson }} + '</p>';
+                return;
+            }
+            users.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center gap-sm mb-0';
+                const label = document.createElement('span');
+                label.textContent = u.name + ' (' + u.username + ', ' + u.email + ')';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-primary btn-small';
+                button.textContent = {{ _('Ajouter')|tojson }};
+                button.addEventListener('click', () => {
+                    document.getElementById('add-member-user').value = u.id;
+                    document.getElementById('add-member-form').submit();
+                });
+                row.append(label, button);
+                results.appendChild(row);
+            });
+        }, 250);
+    });
+});
+</script>
+{% endblock %}

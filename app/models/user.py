@@ -327,10 +327,10 @@ class User(UIDMixin, UserMixin, db.Model):
         self.verification_token_expires = datetime.utcnow() + timedelta(hours=24)
         return self.verification_token
 
-    def generate_reset_token(self):
-        """Generate password reset token valid for 1 hour."""
+    def generate_reset_token(self, hours=1):
+        """Generate password reset token (1 hour by default, longer when sent by an admin)."""
         self.reset_token = secrets.token_urlsafe(32)
-        self.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+        self.reset_token_expires = datetime.utcnow() + timedelta(hours=hours)
         return self.reset_token
 
     def clear_verification_token(self):

@@ -41,7 +41,7 @@
             {% for group in groups %}
             <div class="quiz-card">
                 <div class="quiz-info">
-                    <h3>{{ group.name }}</h3>
+                    <h3><a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="link-primary">{{ group.name }}</a></h3>
                     <div class="quiz-meta">
                         {{ _('Code:') }} <strong class="font-mono text-info">{{ group.join_code }}</strong> -
                         {% set count = member_counts.get(group.id, 0) %}
@@ -66,7 +66,7 @@
                     <a href="{{ url_for('admin.export_group_results', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Exporter résultats CSV') }}">
                         <i class="iconoir-download"></i>
                     </a>
-                    <a href="{{ url_for('admin.group_users', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }} ({{ member_counts.get(group.id, 0) }})">
+                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Utilisateurs') }} ({{ member_counts.get(group.id, 0) }})">
                         <i class="iconoir-group"></i>
                     </a>
                     <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">

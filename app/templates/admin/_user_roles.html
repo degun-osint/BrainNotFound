@@ -1,0 +1,93 @@
+{# Shared by create_user.html and edit_user.html #}
+
+{% macro global_role_picker(global_role, tenants, user_tenant_ids) %}
+<div class="form-group">
+    <label class="form-label">{{ _('Role global') }}</label>
+    <div class="radio-group">
+        <label class="radio-item">
+            <input type="radio" name="global_role" value="none" {{ 'checked' if global_role == 'none' }} onchange="toggleGlobalRole()">
+            <span>{{ _('Aucun : droits definis groupe par groupe') }}</span>
+        </label>
+        <label class="radio-item">
+            <input type="radio" name="global_role" value="tenant_admin" {{ 'checked' if global_role == 'tenant_admin' }} onchange="toggleGlobalRole()">
+            <span>{{ _("Administrateur d'etablissement") }}</span>
+        </label>
+        <label class="radio-item">
+            <input type="radio" name="global_role" value="superadmin" {{ 'checked' if global_role == 'superadmin' }} onchange="toggleGlobalRole()">
+            <span>{{ _('Super-administrateur') }}</span>
+        </label>
+    </div>
+    <small class="text-light">
+        {{ _("Super-admin : acces total. Admin d'etablissement : gere tous les groupes, intervenants et apprenants de ses etablissements.") }}
+    </small>
+</div>
+
+{% if tenants %}
+<div class="form-group" id="tenant-select" {% if global_role != 'tenant_admin' %}hidden{% endif %}>
+    <label class="form-label">{{ _('Etablissements a administrer') }}</label>
+    <div class="checkbox-list">
+        {% for tenant in tenants %}
+        <label class="checkbox-item">
+            <input type="checkbox" name="tenant_ids" value="{{ tenant.id }}" {{ 'checked' if tenant.id in user_tenant_ids }}>
+            <span>{{ tenant.name }}</span>
+        </label>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro group_roles_picker(groups, group_roles, can_set_instructor, global_role) %}
+<div class="form-group" id="group-select" {% if global_role != 'none' %}hidden{% endif %}>
+    <label class="form-label">{{ _('Groupes et roles') }}</label>
+    {% if groups %}
+    <table class="table table-small">
+        <thead>
+            <tr>
+                <th>{{ _('Groupe') }}</th>
+                <th>{{ _('Role dans le groupe') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            {% set current = group_roles.get(group.id) %}
+            <tr>
+                <td>
+                    {{ group.name }}
+                    {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="group_role_seen" value="{{ group.id }}">
+                    <select name="group_role_{{ group.id }}" class="form-select">
+                        <option value="" {{ 'selected' if not current }}>-</option>
+                        <option value="member" {{ 'selected' if current == 'member' }}>{{ _('Apprenant') }}</option>
+                        {% if can_set_instructor or current == 'admin' %}
+                        <option value="admin" {{ 'selected' if current == 'admin' }}>{{ _('Intervenant') }}</option>
+                        {% endif %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <small class="text-light">
+        {{ _("Un intervenant gere uniquement les groupes ou il a ce role. Une personne peut etre intervenant dans un groupe et apprenant dans un autre.") }}
+    </small>
+    {% else %}
+    <span class="text-light">{{ _('Aucun groupe disponible') }}</span>
+    {% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro roles_script() %}
+<script>
+function toggleGlobalRole() {
+    const role = document.querySelector('input[name="global_role"]:checked')?.value || 'none';
+    const tenantSelect = document.getElementById('tenant-select');
+    if (tenantSelect) tenantSelect.hidden = role !== 'tenant_admin';
+    document.getElementById('group-select').hidden = role !== 'none';
+}
+</script>
+{% endmacro %}

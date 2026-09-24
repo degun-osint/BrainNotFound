@@ -219,7 +219,7 @@ def test_tenant_admin_user_list_hides_superadmins(world, login):
     '/admin/users',
     '/admin/groups',
     '/admin/group/{g3a}/edit',
-    '/admin/group/{g3a}/users',
+    '/admin/group/{g3a}',
     '/admin/user/{eleve_3a}/edit',
     '/admin/user/{eleve_3a}/grades',
 ])

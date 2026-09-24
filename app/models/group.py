@@ -53,6 +53,11 @@ class Group(UIDMixin, db.Model):
             names.setdefault(user_id, []).append(name)
         return {uid: ', '.join(n) for uid, n in names.items()}
 
+    def regenerate_join_code(self):
+        """Replace the join code (e.g. after it leaked). Returns the new code."""
+        self.join_code = Group.generate_join_code()
+        return self.join_code
+
     def get_member_count(self):
         """Get the current number of members in this group."""
         from app.models.user import user_groups

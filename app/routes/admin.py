@@ -1375,34 +1375,212 @@ def delete_group(identifier):
     flash(_l('Groupe supprime avec succes'), 'success')
     return redirect(url_for('admin.groups'))
 
+# ==================== Group page (hub) ====================
+
+def _group_or_redirect(identifier):
+    """(group, None) if the current admin can manage it, else (None, redirect response)."""
+    group = Group.get_by_identifier(identifier)
+    if not group:
+        flash(_l('Groupe introuvable'), 'error')
+        return None, redirect(url_for('admin.groups'))
+    if not current_user.can_access_group(group):
+        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
+        return None, redirect(url_for('admin.groups'))
+    return group, None
+
+
+def _can_change_membership(target):
+    """Instructors add/remove learners; organization admins also manage instructors."""
+    return target.id != current_user.id and (
+        current_user.is_superadmin or target.role_rank < current_user.role_rank)
+
+
+@admin_bp.route('/group/<identifier>')
+@login_required
+@admin_required
+def group_detail(identifier):
+    """Everything about one group: learners, instructors, content, join code."""
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return error
+    if identifier != group.get_url_identifier():
+        return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()), code=301)
+
+    rows = db.session.query(User, user_groups.c.role, user_groups.c.joined_at).join(
+        user_groups, user_groups.c.user_id == User.id
+    ).filter(user_groups.c.group_id == group.id).order_by(User.last_name, User.first_name, User.username).all()
+    member_ids = [u.id for u, _, _ in rows]
+    learners = [(u, joined) for u, role, joined in rows if role != 'admin']
+    instructors = [(u, joined) for u, role, joined in rows if role == 'admin']
+
+    response_counts = dict(db.session.query(QuizResponse.user_id, db.func.count(QuizResponse.id)).filter(
+        QuizResponse.user_id.in_(member_ids)
+    ).group_by(QuizResponse.user_id).all()) if member_ids else {}
+
+    quizzes = group.quizzes.order_by(Quiz.created_at.desc()).all()
+    interviews = group.interviews.order_by(Interview.created_at.desc()).all()
+    learner_ids = [u.id for u, _ in learners]
+    # How many learners of this group answered each quiz
+    quiz_done = dict(db.session.query(QuizResponse.quiz_id, db.func.count(db.distinct(QuizResponse.user_id))).filter(
+        QuizResponse.quiz_id.in_([q.id for q in quizzes]), QuizResponse.user_id.in_(learner_ids)
+    ).group_by(QuizResponse.quiz_id).all()) if quizzes and learner_ids else {}
+
+    manageable = {u.id: current_user.can_manage_user(u) for u, _, _ in rows}
+    return render_template('admin/group_detail.html', group=group, learners=learners, instructors=instructors,
+                           response_counts=response_counts, quizzes=quizzes, interviews=interviews,
+                           quiz_done=quiz_done, manageable=manageable,
+                           can_manage_roles=current_user.role_rank >= 2,
+                           invite_url=url_for('auth.register', code=group.join_code, _external=True))
+
+
 @admin_bp.route('/group/<identifier>/users')
 @login_required
 @admin_required
 def group_users(identifier):
-    group = Group.get_by_identifier(identifier)
-    if not group:
-        flash(_l('Groupe introuvable'), 'error')
-        return redirect(url_for('admin.groups'))
+    """Former members page, now part of the group page."""
+    return redirect(url_for('admin.group_detail', identifier=identifier), code=301)
 
-    group_id = group.id  # Keep for queries
 
-    # Redirect to canonical URL if accessed by numeric ID
-    if identifier != group.get_url_identifier():
-        return redirect(url_for('admin.group_users', identifier=group.get_url_identifier()), code=301)
+@admin_bp.route('/group/<identifier>/candidates')
+@login_required
+@admin_required
+def group_candidates(identifier):
+    """Users in the admin's scope matching ?q=, not yet in the group (for the add box)."""
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return jsonify([]), 403
+    q = request.args.get('q', '').strip()
+    if len(q) < 2:
+        return jsonify([])
+    in_group = db.session.query(user_groups.c.user_id).filter(user_groups.c.group_id == group.id)
+    pattern = f'%{q}%'
+    users = scoped_users().filter(
+        ~User.id.in_(in_group),
+        User.is_admin == False,  # noqa: E712
+        db.or_(User.username.ilike(pattern), User.email.ilike(pattern),
+               User.first_name.ilike(pattern), User.last_name.ilike(pattern))
+    ).order_by(User.last_name, User.username).limit(15).all()
+    return jsonify([{'id': u.get_url_identifier(), 'name': u.full_name, 'username': u.username, 'email': u.email}
+                    for u in users if u.role_rank < 2])
 
-    # Check permission for group admins
-    if not current_user.is_superadmin and not current_user.is_admin_of_group(group_id):
-        flash(_l('Vous n\'avez pas acces a ce groupe'), 'error')
-        return redirect(url_for('admin.dashboard'))
 
-    # Get users from new many-to-many relationship
-    users = User.query.join(user_groups).filter(
-        user_groups.c.group_id == group_id
-    ).order_by(User.created_at.desc()).all()
-    response_counts = dict(db.session.query(QuizResponse.user_id, db.func.count(QuizResponse.id)).filter(
-        QuizResponse.user_id.in_([u.id for u in users])
-    ).group_by(QuizResponse.user_id).all()) if users else {}
-    return render_template('admin/group_users.html', group=group, users=users, response_counts=response_counts)
+@admin_bp.route('/group/<identifier>/members/add', methods=['POST'])
+@login_required
+@admin_required
+def group_add_member(identifier):
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return error
+    user = User.get_by_identifier(request.form.get('user', ''))
+    if (not user or not current_user.can_access_user(user) or user.role_rank >= 2
+            or not _can_change_membership(user)):
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
+    elif user.is_member_of_group(group.id):
+        flash(_l('%(name)s fait deja partie du groupe', name=user.full_name), 'info')
+    elif group.join_error(user):
+        flash(group.join_error(user), 'error')
+    else:
+        user.add_to_group(group, 'member')
+        db.session.commit()
+        flash(_l('%(name)s ajoute au groupe', name=user.full_name), 'success')
+    return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
+
+
+@admin_bp.route('/group/<identifier>/members/<user_identifier>/remove', methods=['POST'])
+@login_required
+@admin_required
+def group_remove_member(identifier, user_identifier):
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return error
+    user = User.get_by_identifier(user_identifier)
+    if not user or not user.is_member_of_group(group.id) or not _can_change_membership(user):
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
+    else:
+        user.remove_from_group(group)
+        db.session.commit()
+        flash(_l('%(name)s retire du groupe', name=user.full_name), 'success')
+    return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
+
+
+@admin_bp.route('/group/<identifier>/members/<user_identifier>/role', methods=['POST'])
+@login_required
+@admin_required
+def group_set_role(identifier, user_identifier):
+    """Make a member instructor of this group, or back to learner (organization admins only)."""
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return error
+    user = User.get_by_identifier(user_identifier)
+    role = request.form.get('role')
+    if (role not in ('admin', 'member') or current_user.role_rank < 2 or not user
+            or not user.is_member_of_group(group.id) or not _can_change_membership(user)):
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
+    else:
+        db.session.execute(user_groups.update().where(
+            user_groups.c.user_id == user.id, user_groups.c.group_id == group.id
+        ).values(role=role))
+        db.session.commit()
+        User.clear_role_cache()
+        flash(_l('Role mis a jour pour %(name)s', name=user.full_name), 'success')
+    return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
+
+
+@admin_bp.route('/group/<identifier>/regenerate-code', methods=['POST'])
+@login_required
+@admin_required
+def group_regenerate_code(identifier):
+    """New join code: the old code and invitation link stop working."""
+    group, error = _group_or_redirect(identifier)
+    if error:
+        return error
+    code = group.regenerate_join_code()
+    db.session.commit()
+    flash(_l('Nouveau code d\'acces : %(code)s. L\'ancien code et l\'ancien lien ne fonctionnent plus.', code=code),
+          'success')
+    return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
+
+
+# ==================== Password reset by an admin ====================
+
+def _manageable_user_or_none(identifier):
+    user = User.get_by_identifier(identifier)
+    return user if user and current_user.can_manage_user(user) else None
+
+
+@admin_bp.route('/user/<identifier>/send-reset', methods=['POST'])
+@login_required
+@admin_required
+def send_user_reset(identifier):
+    """Email the user a link to choose a new password (instead of the admin typing one)."""
+    from app.utils.email_sender import send_reset_email
+    user = _manageable_user_or_none(identifier)
+    if not user:
+        flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
+    elif user.email.endswith('@imported.local'):
+        flash(_l('%(name)s n\'a pas d\'adresse email reelle : copiez le lien et transmettez-le.',
+                 name=user.full_name), 'warning')
+    elif send_reset_email(user, by_admin=True):
+        db.session.commit()
+        flash(_l('Lien de reinitialisation envoye a %(email)s', email=user.email), 'success')
+    else:
+        flash(_l('Erreur lors de l\'envoi de l\'email.'), 'error')
+    return safe_redirect_referrer(url_for('admin.users'))
+
+
+@admin_bp.route('/user/<identifier>/reset-link', methods=['POST'])
+@login_required
+@admin_required
+def user_reset_link(identifier):
+    """Reset link to hand over directly (learners without a real email address)."""
+    from app.utils.email_sender import ADMIN_RESET_LINK_HOURS
+    user = _manageable_user_or_none(identifier)
+    if not user:
+        return jsonify({'error': 'forbidden'}), 403
+    token = user.generate_reset_token(hours=ADMIN_RESET_LINK_HOURS)
+    db.session.commit()
+    return jsonify({'url': url_for('auth.reset_password', token=token, _external=True),
+                    'hours': ADMIN_RESET_LINK_HOURS})
 
 
 @admin_bp.route('/group/<identifier>/export-results')
@@ -1553,7 +1731,7 @@ def email_group(identifier):
         if fail > 0:
             flash(_l('%(count)s email(s) echoue(s)', count=fail), 'warning')
 
-        return redirect(url_for('admin.group_users', identifier=group.get_url_identifier()))
+        return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
 
     return render_template('admin/email_group.html', group=group, users=users)
 
@@ -1685,100 +1863,129 @@ def user_grades(identifier):
     return render_template('admin/user_grades.html', user=user, responses=responses, stats=stats)
 
 # User management routes
+# ==================== User roles helpers ====================
+
+GLOBAL_ROLES = ('none', 'tenant_admin', 'superadmin')
+
+
+def read_group_roles(form):
+    """{group: 'member' | 'admin' | None} for the groups displayed in the form and in scope.
+
+    Only groups listed in group_role_seen are considered, so a group the form
+    didn't show is never touched.
+    """
+    wanted = {}
+    for group in validate_group_ids(form.getlist('group_role_seen'), active_only=False):
+        role = form.get(f'group_role_{group.id}')
+        wanted[group] = role if role in ('member', 'admin') else None
+    return wanted
+
+
+def apply_group_roles(user, wanted, can_set_instructor):
+    """Add, remove or change the user's role group by group. Returns error messages."""
+    errors = []
+    current = {row.group_id: row.role for row in db.session.execute(
+        user_groups.select().where(user_groups.c.user_id == user.id))}
+    for group, role in wanted.items():
+        cur = current.get(group.id)
+        if role == 'admin' and not can_set_instructor:
+            role = cur or 'member'  # only organization admins name instructors
+        if role == cur:
+            continue
+        if role is None:
+            user.remove_from_group(group)
+        elif cur is None:
+            error = group.join_error(user)
+            if error:
+                errors.append(f'{group.name} : {error}')
+                continue
+            user.add_to_group(group, role)
+        else:
+            db.session.execute(user_groups.update().where(
+                user_groups.c.user_id == user.id, user_groups.c.group_id == group.id
+            ).values(role=role))
+    User.clear_role_cache()
+    return errors
+
+
+def set_admin_tenants(user, tenant_ids):
+    """Superadmin only: organizations this user administers."""
+    user.admin_tenants = Tenant.query.filter(Tenant.id.in_(tenant_ids)).all() if tenant_ids else []
+    User.clear_role_cache()
+
+
+def _form_tenant_ids(form):
+    return [int(t) for t in form.getlist('tenant_ids') if t.isdigit()]
+
+
 @admin_bp.route('/user/create', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def create_user():
-    """Create a new user (admin or regular)."""
+    """Create a user: global role (superadmin only) and a role per group."""
+    import secrets
+    from app.utils.email_sender import send_reset_email
+
     groups = scoped_groups().all()
     tenants = get_accessible_tenants() if current_user.is_superadmin else []
+    can_set_instructor = current_user.role_rank >= 2
+    preselected = request.args.get('group', type=int)
 
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         first_name = request.form.get('first_name', '').strip()
         last_name = request.form.get('last_name', '').strip()
         email = request.form.get('email', '').strip()
-        password = request.form.get('password')
-        user_role = request.form.get('user_role', 'user')  # user, group_admin, tenant_admin, superadmin
-        group_ids = request.form.getlist('group_ids')
-        tenant_ids = request.form.getlist('tenant_ids')
+        password = request.form.get('password', '')
+        global_role = request.form.get('global_role', 'none') if current_user.is_superadmin else 'none'
+        if global_role not in GLOBAL_ROLES:
+            global_role = 'none'
+        tenant_ids = _form_tenant_ids(request.form) if global_role == 'tenant_admin' else []
+        wanted = {g: r for g, r in read_group_roles(request.form).items() if r} if global_role == 'none' else {}
+        join_errors = [f'{g.name} : {g.join_error()}' for g in wanted if g.join_error()]
 
-        # Determine role flags from radio selection
-        is_superadmin = (user_role == 'superadmin')
-        is_tenant_admin = (user_role == 'tenant_admin')
-        is_group_admin = (user_role == 'group_admin')
-
-        # Only superadmins can create superadmins or tenant admins
-        # Tenant admins can create group admins in their tenant
-        if not current_user.is_superadmin:
-            is_superadmin = False
-            is_tenant_admin = False
-            tenant_ids = []
-            # Tenant admins can create group admins, group admins cannot
-            if not current_user.is_tenant_admin:
-                is_group_admin = False
-
-        # Keep only groups in scope, and check they can take one more person
-        selected_groups = validate_group_ids(group_ids)
-        group_ids = [str(g.id) for g in selected_groups]
-        join_errors = [f'{g.name} : {g.join_error()}' for g in selected_groups if g.join_error()]
-
-        # Validation
-        if join_errors and not is_superadmin and not is_tenant_admin:
-            for error in join_errors:
-                flash(error, 'error')
-        elif not username or not email or not password:
-            flash(_l('Nom d\'utilisateur, email et mot de passe sont requis'), 'error')
+        if not username or not email:
+            flash(_l('Nom d\'utilisateur et email sont requis'), 'error')
         elif User.query.filter_by(username=username).first():
             flash(_l('Ce nom d\'utilisateur existe deja'), 'error')
         elif User.query.filter_by(email=email).first():
             flash(_l('Cette adresse email est deja utilisee'), 'error')
-        elif not group_ids and not is_superadmin and not is_tenant_admin:
+        elif global_role == 'none' and not wanted:
             flash(_l('Vous devez assigner au moins un groupe'), 'error')
-        elif is_tenant_admin and not tenant_ids:
+        elif global_role == 'tenant_admin' and not tenant_ids:
             flash(_l('Vous devez assigner au moins un tenant pour un admin de tenant'), 'error')
+        elif join_errors:
+            for error in join_errors:
+                flash(error, 'error')
         else:
-            user = User(
-                username=username,
-                first_name=first_name if first_name else None,
-                last_name=last_name if last_name else None,
-                email=email,
-                is_admin=is_superadmin
-            )
-            user.set_password(password)
+            user = User(username=username, first_name=first_name or None, last_name=last_name or None,
+                        email=email, is_admin=(global_role == 'superadmin'))
+            # No password typed: random one, the user chooses theirs through the invitation
+            user.set_password(password or secrets.token_urlsafe(32))
             db.session.add(user)
             db.session.flush()
-
-            # Add to groups with appropriate role (not for superadmin or tenant_admin)
-            if not is_superadmin and not is_tenant_admin:
-                for gid in group_ids:
-                    group = Group.query.get(int(gid))
-                    if group:
-                        role = 'admin' if is_group_admin else 'member'
-                        user.add_to_group(group, role)
-
-            # Add tenant admin relationships
-            if is_tenant_admin:
-                for tid in tenant_ids:
-                    tenant = Tenant.query.get(int(tid))
-                    if tenant:
-                        user.admin_tenants.append(tenant)
-
+            apply_group_roles(user, wanted, can_set_instructor)
+            if global_role == 'tenant_admin':
+                set_admin_tenants(user, tenant_ids)
             db.session.commit()
 
-            if is_superadmin:
-                role_name = 'super-administrateur'
-            elif is_tenant_admin:
-                role_name = 'administrateur de tenant'
-            elif is_group_admin:
-                role_name = 'administrateur de groupe'
-            else:
-                role_name = 'utilisateur'
-            flash(_l('%(role)s "%(username)s" cree avec succes', role=role_name.capitalize(), username=username), 'success')
+            flash(_l('Utilisateur "%(username)s" cree avec succes', username=username), 'success')
+            if not password:
+                if email.endswith('@imported.local'):
+                    flash(_l('Pas d\'email reel : copiez un lien de mot de passe depuis la page du groupe.'), 'warning')
+                elif send_reset_email(user, by_admin=True):
+                    db.session.commit()
+                    flash(_l('Invitation envoyee a %(email)s pour choisir un mot de passe.', email=email), 'info')
+                else:
+                    flash(_l('Erreur lors de l\'envoi de l\'email.'), 'error')
+            if preselected and len(wanted) == 1:
+                return redirect(url_for('admin.group_detail', identifier=next(iter(wanted)).get_url_identifier()))
             return redirect(url_for('admin.users'))
 
     return render_template('admin/create_user.html', groups=groups, tenants=tenants,
-                          is_superadmin=current_user.is_superadmin)
+                           is_superadmin=current_user.is_superadmin, can_set_instructor=can_set_instructor,
+                           group_roles={preselected: 'member'} if preselected else {}, user_tenant_ids=[],
+                           global_role='none')
 
 
 @admin_bp.route('/users/import', methods=['GET', 'POST'])
@@ -1913,8 +2120,6 @@ def edit_user(identifier):
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
-    user_id = user.id  # Keep for queries
-
     # Redirect to canonical URL if accessed by numeric ID
     if identifier != user.get_url_identifier():
         return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()), code=301)
@@ -1932,14 +2137,16 @@ def edit_user(identifier):
     groups = scoped_groups().all()
     tenants = get_accessible_tenants() if current_user.is_superadmin else []
 
-    # Get user's current groups with roles
-    user_group_roles = {}
-    for g in user.groups:
-        role = user.get_role_in_group(g.id)
-        user_group_roles[g.id] = role
-
-    # Get user's current tenant admin assignments
-    user_tenant_ids = [t.id for t in user.admin_tenants] if hasattr(user, 'admin_tenants') else []
+    user_group_roles = {row.group_id: row.role for row in db.session.execute(
+        user_groups.select().where(user_groups.c.user_id == user.id))}
+    user_tenant_ids = sorted(user.admin_tenant_ids())
+    can_set_instructor = current_user.role_rank >= 2
+    if user.is_superadmin:
+        global_role = 'superadmin'
+    elif user_tenant_ids:
+        global_role = 'tenant_admin'
+    else:
+        global_role = 'none'
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -1965,122 +2172,33 @@ def edit_user(identifier):
         last_name = request.form.get('last_name', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password')
-        is_superadmin = request.form.get('is_superadmin') == 'on'
-        is_tenant_admin = request.form.get('is_tenant_admin') == 'on'
-        is_group_admin = request.form.get('is_group_admin') == 'on'
-        selected_group_ids = request.form.getlist('group_ids')
-        selected_tenant_ids = request.form.getlist('tenant_ids')
 
-        # Non-superadmins cannot change superadmin/tenant_admin status
-        if not current_user.is_superadmin:
-            is_superadmin = user.is_superadmin  # Keep original value
-            is_tenant_admin = user.is_tenant_admin  # Keep original value
-            selected_tenant_ids = []  # Non-superadmins can't modify tenant assignments
-            # Tenant admins can modify group admin status, group admins cannot
-            if not current_user.is_tenant_admin:
-                is_group_admin = False
-
-        # Validation
         if not username or not email:
             flash(_l('Nom d\'utilisateur et email sont requis'), 'error')
-        elif User.query.filter(User.username == username, User.id != user_id).first():
+        elif User.query.filter(User.username == username, User.id != user.id).first():
             flash(_l('Ce nom d\'utilisateur existe deja'), 'error')
-        elif User.query.filter(User.email == email, User.id != user_id).first():
+        elif User.query.filter(User.email == email, User.id != user.id).first():
             flash(_l('Cette adresse email est deja utilisee'), 'error')
         else:
             user.username = username
-            user.first_name = first_name if first_name else None
-            user.last_name = last_name if last_name else None
+            user.first_name = first_name or None
+            user.last_name = last_name or None
             user.email = email
 
-            # Only superadmins can change superadmin status
+            # Global role: superadmins only
+            new_global_role = global_role
             if current_user.is_superadmin:
-                user.is_admin = is_superadmin
+                new_global_role = request.form.get('global_role', global_role)
+                if new_global_role not in GLOBAL_ROLES:
+                    new_global_role = global_role
+                user.is_admin = new_global_role == 'superadmin'
+                set_admin_tenants(user, _form_tenant_ids(request.form) if new_global_role == 'tenant_admin' else [])
 
-                # Update tenant admin assignments
-                if is_tenant_admin and not is_superadmin:
-                    # Get current tenant IDs
-                    current_tenant_ids = set(t.id for t in user.admin_tenants)
-                    new_tenant_ids = set(int(tid) for tid in selected_tenant_ids if tid)
+            # Roles per group (memberships outside the displayed groups are kept)
+            if new_global_role == 'none':
+                for error in apply_group_roles(user, read_group_roles(request.form), can_set_instructor):
+                    flash(error, 'error')
 
-                    # Remove from tenants no longer selected
-                    for tid in current_tenant_ids - new_tenant_ids:
-                        tenant = Tenant.query.get(tid)
-                        if tenant:
-                            user.admin_tenants.remove(tenant)
-
-                    # Add to newly selected tenants
-                    for tid in new_tenant_ids - current_tenant_ids:
-                        tenant = Tenant.query.get(tid)
-                        if tenant:
-                            user.admin_tenants.append(tenant)
-                elif not is_tenant_admin:
-                    # Remove from all tenants if no longer tenant admin
-                    user.admin_tenants = []
-
-            # Update group memberships
-            if not is_superadmin and not is_tenant_admin:
-                # Determine which groups we can modify
-                if current_user.is_superadmin:
-                    # Superadmin can modify all groups
-                    modifiable_group_ids = set(g.id for g in groups)
-                else:
-                    # Tenant/group admin can only modify their accessible groups
-                    modifiable_group_ids = set(g.id for g in current_user.get_accessible_groups())
-
-                # Get current groups the user is in
-                current_group_ids = set(g.id for g in user.groups)
-
-                # Groups to add (selected but not currently member)
-                groups_to_add = set(int(gid) for gid in selected_group_ids if gid) - current_group_ids
-                # Groups to remove (was member but no longer selected) - only from modifiable groups
-                groups_to_remove = (current_group_ids & modifiable_group_ids) - set(int(gid) for gid in selected_group_ids if gid)
-
-                # Add to new groups
-                for gid in groups_to_add:
-                    if gid in modifiable_group_ids:
-                        group = Group.query.get(gid)
-                        join_error = group.join_error(user) if group else None
-                        if join_error:
-                            flash(f'{group.name} : {join_error}', 'error')
-                        elif group:
-                            role = 'admin' if is_group_admin else 'member'
-                            user.add_to_group(group, role=role)
-
-                # Remove from deselected groups
-                for gid in groups_to_remove:
-                    group = Group.query.get(gid)
-                    if group:
-                        user.remove_from_group(group)
-
-                # Update roles for existing memberships if changing to/from group admin
-                # Superadmins and tenant admins can modify group admin roles
-                can_modify_roles = current_user.is_superadmin or current_user.is_tenant_admin
-                if can_modify_roles and is_group_admin:
-                    # Update role to admin for all selected groups within modifiable scope
-                    for gid in selected_group_ids:
-                        if gid:
-                            gid = int(gid)
-                            if gid in current_group_ids and gid in modifiable_group_ids:
-                                # Update existing membership role
-                                db.session.execute(
-                                    user_groups.update().where(
-                                        user_groups.c.user_id == user.id,
-                                        user_groups.c.group_id == gid
-                                    ).values(role='admin')
-                                )
-                elif can_modify_roles and not is_group_admin:
-                    # Demote to member for modifiable groups only
-                    for gid in modifiable_group_ids:
-                        if gid in current_group_ids:
-                            db.session.execute(
-                                user_groups.update().where(
-                                    user_groups.c.user_id == user.id,
-                                    user_groups.c.group_id == gid
-                                ).values(role='member')
-                            )
-
-            # Only update password if provided
             if password:
                 user.set_password(password)
 
@@ -2090,8 +2208,9 @@ def edit_user(identifier):
             return redirect(url_for('admin.users'))
 
     return render_template('admin/edit_user.html', user=user, groups=groups,
-                          user_group_roles=user_group_roles, tenants=tenants,
-                          user_tenant_ids=user_tenant_ids,
+                          group_roles=user_group_roles, tenants=tenants,
+                          user_tenant_ids=user_tenant_ids, global_role=global_role,
+                          can_set_instructor=can_set_instructor,
                           is_superadmin=current_user.is_superadmin)
 
 @admin_bp.route('/user/<identifier>/delete', methods=['POST'])
