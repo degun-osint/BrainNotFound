@@ -1,184 +1,177 @@
-# Groupes et Organisations
+# Établissements et groupes
 
-BrainNotFound propose une architecture multi-organisations pour gérer plusieurs entités sur une seule instance.
+Une seule instance de BrainNotFound peut accueillir plusieurs établissements, chacun avec ses groupes, ses intervenants, ses apprenants et ses contenus.
 
 ## Concepts
 
-### Organisation
+### Établissement
 
-Une **organisation** représente une entité indépendante :
-- Une école
-- Une entreprise
-- Un département
-- Une formation
+Un **établissement** est une entité indépendante : une école, une entreprise, un service, un organisme de formation. Il porte les quotas et l'abonnement, et regroupe :
 
-Chaque organisation a ses propres :
-- Groupes
-- Utilisateurs
-- Quiz (via les groupes)
+- ses groupes ;
+- les personnes membres de ces groupes ;
+- ses quiz et entretiens.
 
 ### Groupe
 
-Un **groupe** rassemble des utilisateurs au sein d'une organisation :
-- Une classe
-- Une promotion
-- Un projet
-- Une équipe
+Un **groupe** rassemble des personnes au sein d'un établissement : une classe, une promotion, une session de formation, une équipe. Chaque membre y a un rôle, **apprenant** ou **intervenant**.
 
-Les quiz sont assignés à des groupes pour contrôler l'accès.
+Les quiz et entretiens sont assignés à un ou plusieurs groupes. Un apprenant ne voit que les contenus de ses groupes ; un contenu sans groupe n'est visible par aucun apprenant (l'administration le signale par un badge « Aucun groupe »).
 
 ## Hiérarchie
 
 ```
 Instance BrainNotFound
-├── Organisation A (École Alpha)
+├── Établissement A (École Alpha)
 │   ├── Groupe L1 Info
-│   │   ├── Étudiant 1
-│   │   └── Étudiant 2
-│   ├── Groupe L2 Info
-│   └── Groupe L3 Info
-├── Organisation B (Entreprise Beta)
-│   ├── Groupe Formation Sécurité
-│   └── Groupe Formation Dev
-└── (Sans organisation)
-    └── Groupe Test
+│   │   ├── Intervenant : M. Martin
+│   │   ├── Apprenant 1
+│   │   └── Apprenant 2
+│   └── Groupe L2 Info
+└── Établissement B (Entreprise Beta)
+    ├── Groupe Formation Sécurité
+    └── Groupe Formation Dev
 ```
 
-## Gestion des organisations
+## Rôles
 
-> Réservé aux **super-administrateurs**
+Les droits se combinent sur deux niveaux.
 
-### Créer une organisation
+### Rôle global
 
-1. Menu **Organisations** > **Nouveau**
-2. Remplissez :
-   - **Nom** : identifiant de l'organisation
-   - **Description** : optionnel
-3. Cliquez sur **Créer**
+| Rôle | Droits |
+|------|--------|
+| **Super-administrateur** | Tout : établissements, utilisateurs, paramètres du site, sauvegardes, fournisseur d'IA |
+| **Administrateur d'établissement** | Tous les groupes, intervenants, apprenants et contenus des établissements qu'il administre |
+| **Aucun** | Droits définis groupe par groupe (cas de la plupart des comptes) |
 
-### Assigner un admin d'organisation
+### Rôle dans un groupe
 
-1. **Utilisateurs** > Modifier l'utilisateur
-2. Cochez **Administrateur d'organisation**
-3. Sélectionnez les organisations à administrer
-4. Sauvegardez
+| Rôle | Droits |
+|------|--------|
+| **Intervenant** | Gère ce groupe : ses apprenants, ses contenus et leurs résultats. Aucun droit sur les autres groupes. |
+| **Apprenant** | Passe les quiz et entretiens du groupe, consulte ses résultats. |
 
-L'admin d'organisation pourra :
-- Gérer les groupes de ses organisations
-- Gérer les utilisateurs de ses organisations
-- Créer des quiz pour ses organisations
+Le rôle s'attribue groupe par groupe : une même personne peut être intervenante dans un groupe et apprenante dans un autre (un formateur qui suit lui-même une formation, par exemple).
 
-## Gestion des groupes
+### Qui peut modifier qui
+
+Un intervenant peut modifier le profil de ses apprenants (nom, email, mot de passe, groupes) : un compte de rang inférieur, qui partage un groupe qu'il gère et dont tous les groupes sont dans son périmètre. Pour supprimer un compte, il faut gérer tous les groupes de ce compte. Personne ne peut modifier un compte de même rang ou de rang supérieur au sien, sauf le super-administrateur.
+
+## Gérer les établissements
+
+> Réservé aux super-administrateurs. Un administrateur d'établissement consulte la fiche de ses établissements et gère leurs groupes.
+
+### Créer un établissement
+
+1. Menu **Établissements** > **Nouveau**
+2. Renseignez le nom (le slug est généré s'il est laissé vide), le contact et, si besoin, les quotas et l'abonnement
+3. **Créer l'établissement**
+
+### Nommer un administrateur d'établissement
+
+Deux chemins :
+
+- depuis la fiche de l'établissement : **Gérer admins** > **Ajouter comme admin** ;
+- depuis la fiche d'un utilisateur : **Rôle global** > **Administrateur d'établissement**, puis cochez les établissements à administrer.
+
+### Rattacher un groupe à un établissement
+
+Un groupe se crée directement dans un établissement (**Nouveau groupe** depuis sa fiche, ou champ **Établissement** du formulaire). Un groupe « Sans établissement » se rattache via **Modifier** dans la liste des groupes. Un administrateur d'établissement ne peut déplacer un groupe que vers un établissement qu'il administre.
+
+### Désactiver ou supprimer
+
+**Désactiver** (case **Établissement actif** dans **Modifier**) : les données sont conservées, mais l'établissement n'accepte plus d'inscription et les fonctions IA sont coupées, comme à l'expiration de l'abonnement.
+
+**Supprimer** efface définitivement l'établissement, ses groupes, ses quiz et entretiens avec leurs résultats. La page de suppression détaille ce qui va disparaître et demande de taper le nom de l'établissement pour confirmer. Une sauvegarde complète est faite juste avant (visible dans **Paramètres**, préfixe `backup_avant_suppression_`).
+
+Une case, cochée par défaut, supprime aussi les comptes qui n'appartiennent qu'à cet établissement (apprenants, intervenants, administrateurs) avec leurs résultats. Les comptes rattachés à un autre établissement, et les super-administrateurs, sont conservés et simplement retirés. Les quiz et entretiens d'autres établissements assignés à ces groupes sont conservés : seule l'assignation disparaît.
+
+## Gérer un groupe
 
 ### Créer un groupe
 
 1. Menu **Groupes** > **Nouveau**
-2. Remplissez :
-   - **Nom** : nom du groupe
-   - **Description** : optionnel
-   - **Organisation** : sélectionnez l'organisation parente
-   - **Code d'accès** : généré ou personnalisé
-3. Cliquez sur **Créer**
+2. Renseignez le nom, l'établissement, une description et le nombre maximum de membres (0 = illimité)
+3. **Créer le groupe**
 
-### Code d'accès
+Seuls les administrateurs (d'établissement ou super) créent des groupes ; ils y nomment ensuite les intervenants.
 
-Le code permet aux utilisateurs de rejoindre un groupe :
-- Lors de l'inscription
-- Depuis leur profil
+### La page du groupe
 
-Format recommandé : 6-8 caractères alphanumériques majuscules.
+Un clic sur le nom d'un groupe ouvre sa page, qui rassemble tout :
 
-### Admin de groupe
+- **Apprenants** : liste, dernière connexion, quiz complétés ; création (**Nouvel apprenant**), import CSV, ajout d'une personne existante, retrait du groupe (le compte et ses résultats sont conservés) ;
+- **Intervenants** : pour nommer un intervenant, ajoutez la personne au groupe puis utilisez **Nommer intervenant du groupe** dans l'onglet Apprenants ; **Repasser apprenant** fait l'inverse ;
+- **Contenus** : quiz et entretiens assignés, avec le taux de réponse du groupe ;
+- **Accès au groupe** : code d'accès, lien d'invitation, **Nouveau code** ;
+- **Envoyer un email** au groupe, **Exporter les résultats** en CSV.
 
-Un utilisateur peut être **admin d'un groupe** sans être admin de toute l'organisation :
-1. Modifiez l'utilisateur
-2. Cochez **Administrateur de groupe**
-3. Sélectionnez les groupes à administrer
+### Code d'accès et lien d'invitation
 
-## Filtrage par contexte
+Chaque groupe a un code de 8 caractères, généré automatiquement. Il sert :
 
-### Sélecteur d'organisation (navbar)
+- à l'inscription (obligatoire : on ne peut pas s'inscrire sans code) ;
+- depuis **Mon profil**, pour rejoindre un groupe supplémentaire avec un compte existant.
 
-Les admins multi-organisations voient un sélecteur dans la barre de navigation :
-- **Toutes les organisations** : Vue globale
-- **Organisation X** : Filtre sur cette organisation uniquement
+Le lien d'invitation (`/register?code=CODE`) préremplit le code. **Nouveau code** invalide l'ancien code et l'ancien lien.
 
-Ce filtre s'applique à :
-- La liste des quiz
-- La liste des utilisateurs
-- La liste des groupes
+Un code est refusé si le groupe est inactif ou complet, ou si l'établissement a expiré, est désactivé ou a atteint son nombre maximum d'utilisateurs.
 
-### Filtres dans les listes
+### Invitations par email
 
-Chaque liste propose des filtres :
-- Par organisation
-- Par groupe
-- Par recherche texte
+Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable 72 heures. Depuis la page du groupe ou la fiche de l'utilisateur, un intervenant peut renvoyer ce lien (**Envoyer un lien pour choisir un mot de passe**) ou le copier pour un compte sans email réel.
 
-## Bonnes pratiques
+## Filtrer par établissement
 
-### Organisation
+Les administrateurs de plusieurs établissements voient un sélecteur dans la barre de navigation : **Tous les établissements**, ou un établissement en particulier. Le filtre s'applique aux listes de quiz, d'utilisateurs et de groupes.
 
-1. **Une organisation par entité** : École, entreprise, département
-2. **Un groupe par cohorte** : Classe, promotion, projet
-3. **Nommage cohérent** : `L3-Info-2024`, `Formation-Cyber-Q1`
+Chaque liste propose en plus une recherche et un filtre par groupe.
 
-### Permissions
+## Déplacer des personnes
 
-1. **Principe du moindre privilège** :
-   - Super-admin uniquement pour la gestion globale
-   - Admin d'organisation pour la gestion quotidienne
-   - Admin groupe pour les enseignants
+Dans **Utilisateurs**, cochez les personnes puis choisissez l'action : **Ajouter au groupe**, **Retirer du groupe** ou **Remplacer les groupes**. Le remplacement ne touche que les groupes de votre périmètre : une personne inscrite aussi dans un groupe que vous ne gérez pas y reste.
 
-2. **Séparation des données** :
-   - Les utilisateurs d'une organisation ne voient pas les autres organisations
-   - Les quiz sont isolés par groupe
+## Quotas et abonnement
 
-### Migration
+> Réglés par les super-administrateurs, dans la fiche de l'établissement.
 
-Pour déplacer des utilisateurs entre groupes :
-1. Modifiez chaque utilisateur
-2. Changez les groupes assignés
-3. Ou utilisez l'import CSV avec les nouveaux groupes
+### Limites
 
-## Quotas et limites
+| Limite | Effet quand elle est atteinte |
+|--------|-------------------------------|
+| **Max utilisateurs** | Plus d'inscription, de création ni d'import de compte dans l'établissement |
+| **Max groupes** | Plus de création de groupe |
+| **Max quiz** | Plus de création ni de duplication de quiz |
+| **Corrections IA / mois** | Les nouvelles réponses ouvertes passent « à corriger » : l'intervenant les note à la main, l'apprenant voit une note provisoire |
+| **Générations quiz / mois** | Générateur de quiz indisponible |
+| **Analyses de groupe / mois** | Analyse IA des résultats d'un groupe indisponible |
+| **Entretiens IA / mois** | Plus de nouvel entretien |
 
-> Réservé aux **super-administrateurs**
-
-### Limites configurables
-
-Chaque organisation peut avoir des limites :
-
-| Limite | Description |
-|--------|-------------|
-| **Max utilisateurs** | Nombre maximum d'utilisateurs dans l'organisation |
-| **Max quiz** | Nombre maximum de quiz actifs |
-| **Max groupes** | Nombre maximum de groupes |
-| **Corrections IA / mois** | Nombre de corrections de questions ouvertes |
-| **Générations quiz / mois** | Nombre de quiz générés par IA |
-| **Analyses classe / mois** | Nombre d'analyses de classe IA |
-| **Entretiens IA / mois** | Nombre d'entretiens conversationnels |
-
-Une valeur de **0** signifie **illimité**.
+La valeur **0** signifie **illimité**. Les compteurs mensuels repartent à zéro le premier du mois ; la fiche de l'établissement affiche l'usage du mois.
 
 ### Alertes quota
 
-Activez les alertes pour être prévenu quand un quota est presque atteint :
+1. **Établissements** > **Modifier**
+2. Section **Alertes quota** : cochez **Activer les alertes quota**
+3. Réglez le seuil (alerte quand il reste X % d'un quota, 10 % par défaut)
+4. Vérifiez l'**email du contact** : c'est lui qui reçoit l'alerte
 
-1. **Organisations** > Modifier l'organisation
-2. Section **Alertes quota**
-3. Cochez **Activer les alertes quota**
-4. Définissez le **seuil** (défaut : 10%)
-5. Assurez-vous qu'une **adresse de contact** est configurée
-
-Quand un quota atteint le seuil configuré :
-- Un email est envoyé à l'adresse de contact
-- L'email liste tous les quotas critiques
-- Une seule alerte est envoyée par mois
+L'email liste tous les quotas proches de leur limite. Une seule alerte est envoyée par mois.
 
 ### Abonnement
 
-Vous pouvez définir une **date d'expiration** pour l'organisation :
-- Après expiration, les utilisateurs ne peuvent plus accéder aux quiz
-- Les admins reçoivent un avertissement dans l'interface
-- Laisser vide pour un abonnement sans expiration
+La **date d'expiration** est facultative (vide = sans expiration). Une fois passée :
+
+- l'établissement n'accepte plus d'inscription ni d'ajout par code ;
+- les fonctions IA sont coupées (correction, génération, analyses, entretiens) ; les réponses ouvertes passent « à corriger » ;
+- les quiz restent accessibles et les QCM continuent d'être notés.
+
+La fiche de l'établissement affiche le nombre de jours restants.
+
+## Bonnes pratiques
+
+- **Un établissement par entité** qui a ses propres quotas ou ses propres administrateurs ; **un groupe par cohorte** (classe, promotion, session).
+- **Nommage cohérent** : `L3-Info-2026`, `Formation-Cyber-T1`.
+- **Moindre privilège** : super-administrateur pour l'exploitation de l'instance, administrateur d'établissement pour la gestion courante, intervenant pour les formateurs.
+- **Fin de session** : générez un nouveau code pour fermer les inscriptions au groupe, ou désactivez le groupe.

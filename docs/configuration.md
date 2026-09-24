@@ -1,67 +1,94 @@
 # Configuration
 
-Toutes les options de configuration de BrainNotFound.
+Toutes les options de configuration de BrainNotFound : variables d'environnement (fichier `.env`) et paramètres modifiables depuis l'interface.
 
 ## Variables d'environnement
 
-### Obligatoires
+Le fichier `.env` est lu par le conteneur de l'application (`env_file` dans `docker-compose.yml`). Il contient des secrets : ne le commitez jamais et ne le montez pas dans un conteneur.
 
-| Variable | Description | Exemple |
-|----------|-------------|---------|
-| `SECRET_KEY` | Clé secrète Flask (sessions, CSRF) | Chaîne aléatoire de 32+ caractères |
-| `DATABASE_URL` | URL de connexion MySQL | `mysql+pymysql://user:pass@host/db` |
-| `ANTHROPIC_API_KEY` | Clé API Anthropic pour la correction IA | `sk-ant-...` |
+### Indispensables
 
-### Optionnelles
+| Variable | Description |
+|----------|-------------|
+| `SECRET_KEY` | Clé secrète Flask (sessions, jetons CSRF, liens d'invitation). Chaîne aléatoire de 32 caractères ou plus. Sans elle, une clé temporaire est générée et toutes les sessions sautent au redémarrage. |
+| `DATABASE_URL` | Connexion à la base, par exemple `mysql+pymysql://quizuser:motdepasse@db:3306/quizdb` (MariaDB utilise le même pilote). |
+| `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` | Initialisation du conteneur MariaDB, à accorder avec `DATABASE_URL`. |
+| `ADMIN_DEFAULT_PASSWORD` | Mot de passe du compte `admin` créé au premier démarrage (`admin123` si absent). |
 
-#### Application
+### Intelligence artificielle
 
-| Variable | Description | Défaut |
-|----------|-------------|--------|
-| `FLASK_ENV` | Environnement (development/production) | `production` |
-| `CLAUDE_MODEL` | Modèle Claude à utiliser | `claude-opus-5-5` |
-| `ALLOWED_HOSTS` | Domaines autorisés (séparés par virgule) | Tous |
-
-#### Sessions et sécurité
+Toutes ces valeurs peuvent aussi être réglées dans **Paramètres**, qui ont la priorité. Le `.env` sert de valeur par défaut.
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
-| `SESSION_COOKIE_SECURE` | Cookies HTTPS uniquement | `false` |
-| `SESSION_COOKIE_HTTPONLY` | Cookies non accessibles en JS | `true` |
-| `PERMANENT_SESSION_LIFETIME` | Durée des sessions (secondes) | `3600` (1 heure) |
+| `ANTHROPIC_API_KEY` | Clé API Anthropic | aucune |
+| `CLAUDE_MODEL` | Modèle Claude | `claude-opus-5-5` |
+| `AI_PROVIDER` | `anthropic` ou `openai_compatible` | `anthropic` |
+| `AI_BASE_URL` | URL d'un service compatible OpenAI, par exemple `http://ollama:11434/v1` | aucune |
+| `AI_API_KEY` | Clé de ce service | aucune |
+| `AI_MODEL` | Modèle de ce service | aucun |
 
-#### Email
+Sans clé, l'application fonctionne mais les fonctions IA sont indisponibles : les réponses ouvertes passent « à corriger ».
+
+### Sécurité
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
-| `MAIL_SERVER` | Serveur SMTP | - |
+| `ALLOWED_HOSTS` | Noms d'hôte acceptés, séparés par des virgules. Toute autre valeur de l'en-tête `Host` reçoit une erreur 403. Sert aussi de liste d'origines pour les WebSockets. | vide = tous |
+| `SESSION_COOKIE_SECURE` | Cookie de session envoyé en HTTPS uniquement. À activer derrière HTTPS, jamais en HTTP simple (la connexion échouerait). | `false` |
+| `SETTINGS_ENCRYPTION_KEY` | Clé de chiffrement des secrets enregistrés en base (clé API, mot de passe FTP). Si absente, elle est dérivée de `SECRET_KEY`. | dérivée |
+| `FLASK_DEBUG` | Mode debug. Jamais en production. | `false` |
+
+Changer `SECRET_KEY` ou `SETTINGS_ENCRYPTION_KEY` rend illisibles les secrets déjà enregistrés en base : l'application revient alors aux valeurs du `.env`, et il faut ressaisir la clé API et le mot de passe FTP dans **Paramètres**.
+
+Non configurables par variable : cookie inaccessible au JavaScript, `SameSite=Lax`, session d'une heure, taille maximale d'un envoi de fichier de 16 Mo (hors restauration de sauvegarde).
+
+### Email
+
+Utilisé pour la vérification des adresses, les liens de mot de passe, les emails de groupe et les alertes de quota.
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `MAIL_SERVER` | Serveur SMTP | `localhost` |
 | `MAIL_PORT` | Port SMTP | `587` |
-| `MAIL_USE_TLS` | Utiliser TLS | `true` |
-| `MAIL_USERNAME` | Utilisateur SMTP | - |
-| `MAIL_PASSWORD` | Mot de passe SMTP | - |
-| `MAIL_DEFAULT_SENDER` | Expéditeur par défaut | `MAIL_USERNAME` |
+| `MAIL_USE_TLS` | STARTTLS | `true` |
+| `MAIL_USE_SSL` | SSL direct (port 465 en général) | `false` |
+| `MAIL_USERNAME` | Utilisateur SMTP | aucun |
+| `MAIL_PASSWORD` | Mot de passe SMTP | aucun |
+| `MAIL_DEFAULT_SENDER` | Expéditeur, par exemple `BrainNotFound <noreply@example.com>` | `noreply@localhost` |
 
-## Fichier .env
+### Sauvegardes
 
-Exemple complet :
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `BACKUP_LOCAL_DIR` | Dossier des sauvegardes conservées sur le serveur (sauvegardes manuelles sans FTP, états d'avant restauration, d'avant déploiement et d'avant suppression d'un établissement) | `backups` |
+| `BACKUP_MAX_UPLOAD_MB` | Taille maximale d'une sauvegarde envoyée depuis le navigateur pour restauration | `2048` |
+
+Derrière Nginx ou CloudPanel, relevez aussi `client_max_body_size` pour que la restauration depuis le navigateur passe.
+
+### Exemple de `.env`
 
 ```env
-# === Application ===
-SECRET_KEY=votre-cle-secrete-32-caracteres-minimum
-FLASK_ENV=production
+# Application
+SECRET_KEY=remplacez-par-une-cle-aleatoire-de-64-caracteres
+ADMIN_DEFAULT_PASSWORD=un-mot-de-passe-solide
 
-# === Base de données ===
-DATABASE_URL=mysql+pymysql://quizuser:quizpassword@db/quizdb
+# Base de données
+MYSQL_ROOT_PASSWORD=mot-de-passe-root
+MYSQL_DATABASE=quizdb
+MYSQL_USER=quizuser
+MYSQL_PASSWORD=mot-de-passe-base
+DATABASE_URL=mysql+pymysql://quizuser:mot-de-passe-base@db:3306/quizdb
 
-# === API Anthropic ===
-ANTHROPIC_API_KEY=sk-ant-api03-...
+# IA (modifiable ensuite dans Paramètres)
+ANTHROPIC_API_KEY=sk-ant-...
 CLAUDE_MODEL=claude-opus-5-5
 
-# === Sécurité ===
-ALLOWED_HOSTS=quiz.example.com,www.quiz.example.com
+# Sécurité
+ALLOWED_HOSTS=quiz.example.com
 SESSION_COOKIE_SECURE=true
 
-# === Email ===
+# Email
 MAIL_SERVER=smtp.example.com
 MAIL_PORT=587
 MAIL_USE_TLS=true
@@ -70,97 +97,101 @@ MAIL_PASSWORD=mot-de-passe-smtp
 MAIL_DEFAULT_SENDER=BrainNotFound <noreply@example.com>
 ```
 
-## Paramètres en base de données
+`.env.example` à la racine du dépôt liste toutes les variables.
 
-Certains paramètres sont stockés en base et modifiables depuis l'interface admin (**Paramètres**) :
+## Paramètres dans l'interface
 
-### Paramètres du site
+Les super-administrateurs règlent le reste dans **Paramètres** (icône engrenage). Les changements s'appliquent immédiatement, sans redémarrage.
 
-- **Nom du site** : Affiché dans la navbar et les emails
-- **Email de contact** : Pour les notifications administrateur
-- **Logo** : Image personnalisée (optionnel)
+### Identité du site
 
-### Paramètres de sécurité
+- **Nom du site** : affiché dans la barre de navigation et les titres de page
+- **Email de contact** : affiché pour le support et les notifications
+- **Pages personnalisées** : pages libres, affichables dans le menu ou le pied de page
 
-- **Vérification email** : Obliger la vérification des emails
-- **Expiration des invitations** : Durée de validité des codes d'accès
+### Intelligence artificielle
 
-### Sauvegardes automatiques (FTP)
+| Réglage | Description |
+|---------|-------------|
+| **Fournisseur** | Anthropic Claude (défaut) ou service compatible OpenAI |
+| **URL du fournisseur** | Pour un service compatible OpenAI : OpenAI, Mistral, Gemini, OpenRouter, Groq, Ollama en local... |
+| **Clé API** | Laisser vide pour conserver la clé actuelle. La page indique si elle vient de la base ou du `.env`. |
+| **Modèle** | Vide = modèle du `.env` |
 
-Les sauvegardes sont configurées depuis l'interface admin, pas via des variables d'environnement :
+**Tester et lister les modèles** vérifie la clé et remplit la liste des modèles réellement disponibles.
 
-| Paramètre | Description |
-|-----------|-------------|
-| **FTP activé** | Active/désactive les backups automatiques |
-| **Serveur FTP** | Adresse du serveur de sauvegarde |
-| **Fréquence** | Horaire, quotidien ou hebdomadaire |
-| **Heure** | Heure d'exécution (0-23) |
-| **Jour** | Jour de la semaine (pour les backups hebdomadaires) |
+Changer de fournisseur ou d'URL efface la clé enregistrée, pour qu'elle ne soit jamais envoyée à un autre serveur. Choisir Grok (URL `x.ai` ou modèle dont le nom contient `grok`, y compris via un agrégateur) demande une confirmation.
 
-## Modèles Claude
+Le réglage est global à l'instance : tous les établissements utilisent le même fournisseur.
 
-Modèles recommandés pour la correction IA (génération 5.x) :
+#### Modèles Claude
 
-| Modèle | Description |
-|--------|-------------|
+| Modèle | Usage |
+|--------|-------|
 | `claude-opus-5-5` | Défaut, recommandé : très bon rapport qualité / coût |
 | `claude-sonnet-5` | Plus économique, pour de gros volumes de corrections |
 | `claude-haiku-4-5` | Le plus rapide et le moins cher |
 | `claude-fable-5-1` | Le plus performant, au prix le plus élevé |
 
-Le modèle et la clé se règlent dans **Administration > Paramètres > Intelligence artificielle**, sans redémarrage ; le bouton « Tester et lister les modèles » affiche les modèles réellement disponibles pour votre clé. `CLAUDE_MODEL` dans `.env` sert de valeur par défaut.
+Sur les modèles 5.x, la réflexion est toujours active ; l'application fixe l'effort selon l'usage (`low` pour les répliques du personnage en entretien, `medium` ailleurs). Les modèles qui ne gèrent pas ce paramètre reçoivent la requête sans lui.
 
-Sur les modèles 5.x, la réflexion est toujours active et l'application fixe l'effort par usage (`low` pour les réponses du personnage en entretien, `medium` ailleurs). Les modèles plus anciens qui ne gèrent pas l'effort reçoivent la requête sans ce paramètre.
+#### Autres fournisseurs
+
+La qualité des corrections dépend beaucoup du modèle. Avant de l'ouvrir aux apprenants, testez un quiz avec questions ouvertes et un entretien sur le modèle choisi. Un modèle local (Ollama) évite d'envoyer les réponses des apprenants à un tiers, mais demande une machine bien plus puissante que l'application elle-même.
+
+### Sauvegardes
+
+| Réglage | Description |
+|---------|-------------|
+| **Sauvegardes automatiques** | Active l'envoi planifié vers un serveur FTP |
+| **Serveur FTP**, **Port**, **Nom d'utilisateur**, **Mot de passe**, **Chemin distant** | Destination ; **Tester la connexion** la vérifie |
+| **Fréquence** | Toutes les heures, quotidienne ou hebdomadaire |
+| **Heure (0-23)**, **Jour de la semaine** | Moment de l'exécution |
+| **Conservation (jours)** | Au-delà, les sauvegardes sont supprimées automatiquement (30 jours par défaut) |
+
+Une sauvegarde contient la base de données et les fichiers envoyés (images des quiz). Voir [Administration](admin-guide#sauvegarde-et-restauration) pour la restauration.
 
 ## Docker Compose
 
-### Variables d'environnement Docker
+### Services
 
-Le fichier `docker-compose.yml` utilise les variables de `.env` :
-
-```yaml
-services:
-  web:
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - DATABASE_URL=${DATABASE_URL}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-```
+| Service | Image | Rôle |
+|---------|-------|------|
+| `db` | `mariadb:12.3` | Base de données, avec des réglages mémoire réduits (`docker/mariadb/low-memory.cnf`) |
+| `web` | construite depuis le `Dockerfile` | Application (gunicorn, un worker gevent) |
 
 ### Volumes
 
-| Volume | Usage |
-|--------|-------|
-| `db_data` | Données MySQL persistantes |
-| `./uploads` | Fichiers uploadés (images quiz) |
-| `./backups` | Sauvegardes automatiques |
+| Volume | Contenu |
+|--------|---------|
+| `mariadb_data` | Données MariaDB |
+| `mysql_data` | Ancien volume MySQL, conservé tel quel après la migration (retour arrière possible) |
+| `./uploads` | Fichiers envoyés (images des quiz) |
+| `./backups` | Sauvegardes conservées sur le serveur |
 
 ### Ports
 
-| Port | Service | Production |
-|------|---------|------------|
-| `5000` | Application Flask | Via reverse proxy |
-| `3306` | MySQL | Non exposé |
+| Port hôte | Service | En production |
+|-----------|---------|---------------|
+| `5006` | Application | Derrière un reverse proxy HTTPS |
+| `3312` | MariaDB | À fermer au pare-feu, ou à retirer du `docker-compose.yml` |
 
-## Génération de SECRET_KEY
+## Générer une clé secrète
 
 ```bash
-# Python
-python -c "import secrets; print(secrets.token_hex(32))"
-
-# OpenSSL
+python3 -c "import secrets; print(secrets.token_hex(32))"
+# ou
 openssl rand -hex 32
-
-# /dev/urandom
-head -c 32 /dev/urandom | xxd -p
 ```
 
-## Validation de la configuration
+## Au démarrage
 
-Au démarrage, l'application vérifie :
+Le conteneur `web` attend que MariaDB soit prête (healthcheck de `docker-compose.yml`), puis son script de démarrage :
 
-1. `SECRET_KEY` est définie et suffisamment longue
-2. `DATABASE_URL` est valide et la connexion fonctionne
-3. `ANTHROPIC_API_KEY` est définie (warning si absente)
+1. applique les migrations de schéma (`scripts/migrate_db.py`) ;
+2. crée s'ils n'existent pas le compte `admin`, un « Groupe par défaut » (code `DEMO2024`) et les pages par défaut ;
+3. compile les traductions et lance gunicorn.
 
-Les erreurs de configuration sont affichées dans les logs.
+Sur une instance ouverte au public, générez un nouveau code pour le groupe par défaut, ou supprimez-le.
+
+Les erreurs (clé secrète absente, base injoignable, migration en échec) apparaissent dans `docker compose logs web`.

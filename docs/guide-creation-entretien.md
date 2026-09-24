@@ -22,11 +22,11 @@ Ce guide explique comment remplir le formulaire de creation d'entretien pour gen
 
 | Champ | Description | Exemple |
 |-------|-------------|---------|
-| **Titre** * | Nom affiche aux etudiants | "Entretien RPS - Collegue en difficulte" |
+| **Titre** * | Nom affiche aux apprenants | "Entretien RPS - Collegue en difficulte" |
 | **Description** | Contexte visible avant de commencer | "Simulation d'un echange avec un collegue montrant des signes de souffrance au travail" |
 | **Slug** | URL personnalisee (auto-generee si vide) | `rps-collegue-burnout` |
-| **Organisation** | Tenant associe (optionnel) | "Master RH 2024" |
-| **Groupes** | Restreindre l'acces (vide = tous) | Cocher les groupes concernes |
+| **Etablissement** | Etablissement de rattachement (quotas) | "Master RH 2024" |
+| **Groupes** | Groupes qui voient l'entretien (vide = visible par personne) | Cocher les groupes concernes |
 | **Disponibilite** | Periode d'ouverture | Du 15/01 au 30/01 |
 
 ---
@@ -34,12 +34,12 @@ Ce guide explique comment remplir le formulaire de creation d'entretien pour gen
 ## Etape 2 : Identite du personnage
 
 ### Nom du personnage
-Le prenom et nom du personnage que l'etudiant va rencontrer.
+Le prenom et nom du personnage que l'apprenant va rencontrer.
 - **Conseil** : Utiliser un nom realiste et neutre
 - **Exemple** : "Marie Dupont", "Thomas Martin"
 
 ### Role / Fonction
-Le poste ou la relation avec l'etudiant dans le scenario.
+Le poste ou la relation avec l'apprenant dans le scenario.
 - **Exemples** :
   - "Collegue developpeur senior"
   - "Candidat au poste de chef de projet"
@@ -59,8 +59,8 @@ L'historique et la situation professionnelle du personnage.
 
 ## Etape 3 : Situation et scenario
 
-### Ce que l'etudiant sait au depart
-Les informations dont dispose l'etudiant AVANT de commencer l'entretien.
+### Ce que l'apprenant sait au depart
+Les informations dont dispose l'apprenant AVANT de commencer l'entretien.
 - **A inclure** :
   - Observations visibles
   - Rumeurs ou informations de contexte
@@ -68,8 +68,8 @@ Les informations dont dispose l'etudiant AVANT de commencer l'entretien.
 - **Exemple** :
   > "Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines. Elle qui etait toujours souriante arrive maintenant en retard et evite les pauses cafe. Votre manager vous a demande de prendre de ses nouvelles."
 
-### Objectif de l'etudiant
-Ce que l'etudiant doit accomplir pendant l'entretien.
+### Objectif de l'apprenant
+Ce que l'apprenant doit accomplir pendant l'entretien.
 - **Formuler clairement** l'objectif pedagogique
 - **Exemple** :
   > "Engager une conversation bienveillante pour comprendre la situation de Marie et evaluer si elle a besoin d'aide, tout en respectant ses limites."
@@ -102,7 +102,7 @@ Ce que le personnage espere obtenir de l'echange (consciemment ou non).
   > "Elle aimerait pouvoir en parler mais attend qu'on lui tende la main de maniere bienveillante. Elle cherche une validation que ce qu'elle ressent est legitime, pas des solutions toutes faites."
 
 ### Comportements declencheurs
-Comment le personnage reagit a differentes approches de l'etudiant.
+Comment le personnage reagit a differentes approches de l'apprenant.
 - **Format recommande** : Trigger → Reaction
 - **Exemples** :
   > - "Se braque si on lui donne des conseils non sollicites ou si on minimise ses difficultes"
@@ -151,20 +151,20 @@ Indices: Reformulations, silences respectueux, questions de clarification,
 
 | Parametre | Defaut | Description |
 |-----------|--------|-------------|
-| **Max interactions** | 30 | Nombre max d'echanges (etudiant + IA) |
+| **Max interactions** | 30 | Nombre max d'echanges (apprenant + IA) |
 | **Duree max** | 30 min | Temps limite de la session |
 | **Statut actif** | Oui | L'entretien est-il accessible |
-| **L'etudiant peut terminer** | Oui | Bouton "Terminer" disponible |
+| **L'apprenant peut terminer** | Oui | Bouton "Terminer" disponible |
 | **L'IA peut terminer** | Oui | L'IA peut mettre fin si pertinent |
 
 ### Qui commence la conversation ?
 
 - **Le personnage (bot)** : Utilise le message d'ouverture - ideal pour initier un contexte
-- **L'etudiant** : L'etudiant doit faire le premier pas - teste la prise d'initiative
+- **L'apprenant** : L'apprenant doit faire le premier pas - teste la prise d'initiative
 
 ### Upload de fichier (optionnel)
 
-Permet de demander un document a l'etudiant avant l'entretien (ex: CV pour simulation de recrutement).
+Permet de demander un document a l'apprenant avant l'entretien (ex: CV pour simulation de recrutement).
 
 | Champ | Exemple |
 |-------|---------|
@@ -199,7 +199,7 @@ Le prompt complet qui definit le comportement de l'IA. En mode assiste, il est g
 
 1. **Coherence interne** : La personnalite, les reactions et les objectifs doivent s'aligner
 2. **Nuances** : Eviter les personnages trop binaires (tout gentil / tout mechant)
-3. **Evolution** : Prevoir comment le personnage change selon l'approche de l'etudiant
+3. **Evolution** : Prevoir comment le personnage change selon l'approche de l'apprenant
 4. **Details concrets** : Les petits details rendent le personnage credible
 
 ### Pour une evaluation juste
@@ -210,7 +210,7 @@ Le prompt complet qui definit le comportement de l'IA. En mode assiste, il est g
 
 ### Erreurs courantes a eviter
 
-- Personnage trop rigide qui ne reagit pas aux efforts de l'etudiant
+- Personnage trop rigide qui ne reagit pas aux efforts de l'apprenant
 - Objectifs contradictoires ou trop nombreux
 - Criteres vagues sans indices d'evaluation
 - Scenario trop complexe pour le temps imparti
@@ -222,20 +222,20 @@ Le prompt complet qui definit le comportement de l'IA. En mode assiste, il est g
 
 ### RPS - Collegue en burnout
 - **Personnage** : Collegue performant qui s'epuise
-- **Objectif etudiant** : Detecter les signaux et orienter vers l'aide
+- **Objectif apprenant** : Detecter les signaux et orienter vers l'aide
 - **Difficulte** : Le personnage minimise et refuse l'aide initialement
 
 ### Recrutement - Candidat atypique
 - **Personnage** : Candidat avec parcours non lineaire
-- **Objectif etudiant** : Explorer les competences au-dela du CV
+- **Objectif apprenant** : Explorer les competences au-dela du CV
 - **Difficulte** : Eviter les biais, poser des questions pertinentes
 
 ### Vente - Client hesitant
 - **Personnage** : Client interesse mais avec objections
-- **Objectif etudiant** : Comprendre les freins et adapter l'argumentaire
+- **Objectif apprenant** : Comprendre les freins et adapter l'argumentaire
 - **Difficulte** : Ne pas etre trop pushy, ecouter avant de convaincre
 
 ### Medical - Patient anxieux
 - **Personnage** : Patient avec symptomes vagues et inquietude
-- **Objectif etudiant** : Rassurer tout en faisant une anamnese complete
+- **Objectif apprenant** : Rassurer tout en faisant une anamnese complete
 - **Difficulte** : Equilibrer empathie et rigueur medicale

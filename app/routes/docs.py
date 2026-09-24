@@ -23,7 +23,7 @@ DOCS_STRUCTURE = [
         'pages': [
             {'slug': 'quiz-syntax', 'title': 'Syntaxe des quiz', 'icon': 'page-edit'},
             {'slug': 'admin-guide', 'title': 'Administration', 'icon': 'settings'},
-            {'slug': 'groups-tenants', 'title': 'Groupes & Tenants', 'icon': 'building'},
+            {'slug': 'groups-tenants', 'title': 'Établissements & groupes', 'icon': 'building'},
             {'slug': 'i18n', 'title': 'Langues (i18n)', 'icon': 'language'},
         ]
     },
