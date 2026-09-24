@@ -101,3 +101,44 @@ def test_send_reset_email_by_admin(world, login, monkeypatch):
     monkeypatch.setattr(email_sender, 'send_email_async', lambda msg: sent.append(msg))
     login(world['dir_a']).post(f"/admin/user/{gid(world, 'eleve_3a')}/send-reset")
     assert sent and 'administrateur' in sent[0].body and '72 heures' in sent[0].body
+
+
+# ==================== group <-> organization ====================
+
+def test_single_organization_is_shown_not_hidden(world, login):
+    html = login(world['dir_a']).get('/admin/group/create').get_data(as_text=True)
+    assert '<select id="tenant_id"' in html and 'Lycee A' in html
+
+
+def test_group_without_organization_is_refused(world, login):
+    login(world['root']).post('/admin/group/create', data={'name': 'Orphan'})
+    assert Group.query.filter_by(name='Orphan').first() is None
+
+
+def test_superadmin_without_any_organization_is_guided(app, login):
+    from tests.conftest import make_user
+    root = make_user('lonely_root', superadmin=True)
+    html = login(root).get('/admin/group/create').get_data(as_text=True)
+    assert 'Creer un etablissement' in html and 'disabled' in html
+
+
+def test_orphan_group_can_be_attached(world, login):
+    orphan = Group(name='Legacy', join_code='LEGACY01')
+    db.session.add(orphan)
+    db.session.commit()
+    client = login(world['root'])
+    assert 'Sans etablissement' in client.get('/admin/groups').get_data(as_text=True)
+
+    client.post(f'/admin/group/{orphan.get_url_identifier()}/edit',
+                data={'name': 'Legacy', 'tenant_id': world['lycee_a'].id})
+    assert db.session.get(Group, orphan.id).tenant_id == world['lycee_a'].id
+
+
+def test_new_learner_and_import_buttons_preselect_the_group(world, login):
+    client = login(world['prof_3a'])
+    gid_ = world['g3a'].id
+    create = client.get(f'/admin/user/create?group={gid_}')
+    imp = client.get(f'/admin/users/import?group={gid_}')
+    assert create.status_code == 200 and imp.status_code == 200
+    assert f'<option value="{gid_}" selected' in imp.get_data(as_text=True)
+    assert 'value="member" selected' in create.get_data(as_text=True)

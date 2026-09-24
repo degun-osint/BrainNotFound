@@ -1268,19 +1268,12 @@ def create_group():
             flash(_l('Le nom du groupe est requis'), 'error')
             return render_template('admin/create_group.html', tenants=tenants)
 
-        # Validate tenant selection for non-superadmins
-        if not current_user.is_superadmin:
-            valid_tenant_ids = [t.id for t in tenants]
-            if tenant_id and tenant_id not in valid_tenant_ids:
-                flash(_l('Vous ne pouvez creer des groupes que dans vos etablissements'), 'error')
-                return render_template('admin/create_group.html', tenants=tenants)
-
-        # Default to first available tenant if not specified
-        if not tenant_id and tenants:
-            tenant_id = tenants[0].id
-
-        tenant = db.session.get(Tenant, tenant_id) if tenant_id else None
-        if tenant and not tenant.can_add_group():
+        # Every group belongs to one of the organizations we administer
+        tenant = next((t for t in tenants if t.id == tenant_id), None)
+        if not tenant:
+            flash(_l('Choisissez un etablissement pour ce groupe'), 'error')
+            return render_template('admin/create_group.html', tenants=tenants)
+        if not tenant.can_add_group():
             flash(_l('Limite de groupes atteinte (%(max)s)', max=tenant.max_groups), 'error')
             return render_template('admin/create_group.html', tenants=tenants)
 

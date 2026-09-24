@@ -53,6 +53,8 @@
                         </span>
                         {% if group.tenant %}
                         - <span class="badge badge-info">{{ group.tenant.name }}</span>
+                        {% else %}
+                        - <span class="badge badge-warning" data-tooltip="{{ _('Rattachez-le a un etablissement via Modifier') }}">{{ _('Sans etablissement') }}</span>
                         {% endif %}
                     </div>
                     {% if group.description %}

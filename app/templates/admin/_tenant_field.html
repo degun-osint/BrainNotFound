@@ -1,0 +1,26 @@
+{# Organization of a group: always visible, so nobody creates an orphan group by accident #}
+{% macro tenant_field(tenants, selected_id, current_tenant=None) %}
+<div class="form-group">
+    <label class="form-label" for="tenant_id">{{ _('Etablissement') }} *</label>
+    {% if tenants %}
+    {% set selected_id = selected_id or (tenants[0].id if tenants|length == 1 else None) %}
+    <select id="tenant_id" name="tenant_id" class="form-select" required>
+        {% if not selected_id %}
+        <option value="" selected disabled>{{ _('Choisir un etablissement...') }}</option>
+        {% endif %}
+        {% for tenant in tenants %}
+        <option value="{{ tenant.id }}" {{ 'selected' if tenant.id == selected_id }}>{{ tenant.name }}</option>
+        {% endfor %}
+    </select>
+    {% elif current_tenant %}
+    <div><span class="badge badge-info"><i class="iconoir-building"></i> {{ current_tenant.name }}</span></div>
+    {% elif current_user.is_superadmin %}
+    <div class="alert alert-warning mb-0">
+        {{ _("Aucun etablissement n'existe encore : creez-en un avant de creer des groupes.") }}
+        <a href="{{ url_for('tenant.create_tenant') }}">{{ _('Creer un etablissement') }}</a>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mb-0">{{ _("Vous n'administrez aucun etablissement actif.") }}</div>
+    {% endif %}
+</div>
+{% endmacro %}

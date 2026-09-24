@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 10:31+0200\n"
+"POT-Creation-Date: 2026-09-24 10:43+0200\n"
 "PO-Revision-Date: 2024-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -50,7 +50,7 @@ msgstr ""
 msgid "Etablissement introuvable"
 msgstr ""
 
-#: app/routes/admin.py:135 app/routes/admin.py:1341
+#: app/routes/admin.py:135 app/routes/admin.py:1334
 msgid "Acces non autorise a cet etablissement"
 msgstr ""
 
@@ -97,7 +97,7 @@ msgstr ""
 #: app/routes/admin.py:417 app/routes/admin.py:575 app/routes/admin.py:616
 #: app/routes/admin.py:841 app/routes/admin.py:872 app/routes/admin.py:940
 #: app/routes/admin.py:974 app/routes/admin.py:1004 app/routes/admin.py:1073
-#: app/routes/admin.py:2686 app/routes/admin.py:2700 app/routes/quiz.py:235
+#: app/routes/admin.py:2679 app/routes/admin.py:2693 app/routes/quiz.py:235
 #: app/routes/quiz.py:245 app/routes/quiz.py:541
 msgid "Quiz introuvable"
 msgstr ""
@@ -105,8 +105,8 @@ msgstr ""
 #: app/routes/admin.py:426 app/routes/admin.py:584 app/routes/admin.py:627
 #: app/routes/admin.py:848 app/routes/admin.py:877 app/routes/admin.py:945
 #: app/routes/admin.py:983 app/routes/admin.py:1011 app/routes/admin.py:1078
-#: app/routes/admin.py:2429 app/routes/admin.py:2495 app/routes/admin.py:2617
-#: app/routes/admin.py:2695
+#: app/routes/admin.py:2422 app/routes/admin.py:2488 app/routes/admin.py:2610
+#: app/routes/admin.py:2688
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr ""
 
@@ -155,379 +155,379 @@ msgstr ""
 msgid "Vous n'avez pas la permission de creer des groupes"
 msgstr ""
 
-#: app/routes/admin.py:1268 app/routes/admin.py:1336
+#: app/routes/admin.py:1268 app/routes/admin.py:1329
 msgid "Le nom du groupe est requis"
 msgstr ""
 
-#: app/routes/admin.py:1275
-msgid "Vous ne pouvez creer des groupes que dans vos etablissements"
+#: app/routes/admin.py:1274
+msgid "Choisissez un etablissement pour ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1284 app/routes/admin.py:1344 app/routes/tenant.py:389
+#: app/routes/admin.py:1277 app/routes/admin.py:1337 app/routes/tenant.py:389
 #, python-format
 msgid "Limite de groupes atteinte (%(max)s)"
 msgstr ""
 
-#: app/routes/admin.py:1302
+#: app/routes/admin.py:1295
 #, python-format
 msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
 msgstr ""
 
-#: app/routes/admin.py:1313 app/routes/admin.py:1366 app/routes/admin.py:1387
-#: app/routes/admin.py:1412 app/routes/admin.py:1625 app/routes/admin.py:1722
+#: app/routes/admin.py:1306 app/routes/admin.py:1359 app/routes/admin.py:1380
+#: app/routes/admin.py:1405 app/routes/admin.py:1618 app/routes/admin.py:1715
 msgid "Groupe introuvable"
 msgstr ""
 
-#: app/routes/admin.py:1318 app/routes/admin.py:1371 app/routes/admin.py:1392
-#: app/routes/admin.py:1415 app/routes/admin.py:1632 app/routes/admin.py:1733
-#: app/routes/admin.py:2353
+#: app/routes/admin.py:1311 app/routes/admin.py:1364 app/routes/admin.py:1385
+#: app/routes/admin.py:1408 app/routes/admin.py:1625 app/routes/admin.py:1726
+#: app/routes/admin.py:2346
 msgid "Vous n'avez pas acces a ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1355
+#: app/routes/admin.py:1348
 msgid "Groupe mis a jour avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1378
+#: app/routes/admin.py:1371
 #, python-format
 msgid "Groupe %(status)s"
 msgstr ""
 
-#: app/routes/admin.py:1397
+#: app/routes/admin.py:1390
 msgid "Impossible de supprimer un groupe qui contient des utilisateurs"
 msgstr ""
 
-#: app/routes/admin.py:1403
+#: app/routes/admin.py:1396
 msgid "Groupe supprime avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1505 app/routes/admin.py:1526 app/routes/admin.py:1546
-#: app/routes/admin.py:1587 app/routes/admin.py:1884 app/routes/admin.py:2177
-#: app/routes/admin.py:2276 app/routes/admin.py:2433 app/routes/admin.py:2499
+#: app/routes/admin.py:1498 app/routes/admin.py:1519 app/routes/admin.py:1539
+#: app/routes/admin.py:1580 app/routes/admin.py:1877 app/routes/admin.py:2170
+#: app/routes/admin.py:2269 app/routes/admin.py:2426 app/routes/admin.py:2492
 msgid "Vous n'avez pas acces a cet utilisateur"
 msgstr ""
 
-#: app/routes/admin.py:1507
+#: app/routes/admin.py:1500
 #, python-format
 msgid "%(name)s fait deja partie du groupe"
 msgstr ""
 
-#: app/routes/admin.py:1513
+#: app/routes/admin.py:1506
 #, python-format
 msgid "%(name)s ajoute au groupe"
 msgstr ""
 
-#: app/routes/admin.py:1530
+#: app/routes/admin.py:1523
 #, python-format
 msgid "%(name)s retire du groupe"
 msgstr ""
 
-#: app/routes/admin.py:1553
+#: app/routes/admin.py:1546
 #, python-format
 msgid "Role mis a jour pour %(name)s"
 msgstr ""
 
-#: app/routes/admin.py:1567
+#: app/routes/admin.py:1560
 #, python-format
 msgid ""
 "Nouveau code d'acces : %(code)s. L'ancien code et l'ancien lien ne "
 "fonctionnent plus."
 msgstr ""
 
-#: app/routes/admin.py:1589
+#: app/routes/admin.py:1582
 #, python-format
 msgid ""
 "%(name)s n'a pas d'adresse email reelle : copiez le lien et transmettez-"
 "le."
 msgstr ""
 
-#: app/routes/admin.py:1593
+#: app/routes/admin.py:1586
 #, python-format
 msgid "Lien de reinitialisation envoye a %(email)s"
 msgstr ""
 
-#: app/routes/admin.py:1595 app/routes/admin.py:2023 app/routes/admin.py:2210
+#: app/routes/admin.py:1588 app/routes/admin.py:2016 app/routes/admin.py:2203
 msgid "Erreur lors de l'envoi de l'email."
 msgstr ""
 
-#: app/routes/admin.py:1748
+#: app/routes/admin.py:1741
 msgid "Le sujet et le message sont requis"
 msgstr ""
 
-#: app/routes/admin.py:1752
+#: app/routes/admin.py:1745
 msgid "Aucun utilisateur avec email dans ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1758
+#: app/routes/admin.py:1751
 #, python-format
 msgid "%(count)s email(s) envoye(s) avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1760
+#: app/routes/admin.py:1753
 #, python-format
 msgid "%(count)s email(s) echoue(s)"
 msgstr ""
 
-#: app/routes/admin.py:1826
+#: app/routes/admin.py:1819
 #, python-format
 msgid "Espace de stockage de l'etablissement plein (%(max)s Mo)"
 msgstr ""
 
-#: app/routes/admin.py:1873 app/routes/admin.py:2163 app/routes/admin.py:2266
+#: app/routes/admin.py:1866 app/routes/admin.py:2156 app/routes/admin.py:2259
 #: app/routes/tenant.py:313 app/routes/tenant.py:335
 msgid "Utilisateur introuvable"
 msgstr ""
 
-#: app/routes/admin.py:1991 app/routes/admin.py:2220
+#: app/routes/admin.py:1984 app/routes/admin.py:2213
 msgid "Nom d'utilisateur et email sont requis"
 msgstr ""
 
-#: app/routes/admin.py:1993 app/routes/admin.py:2222 app/routes/auth.py:137
+#: app/routes/admin.py:1986 app/routes/admin.py:2215 app/routes/auth.py:137
 msgid "Ce nom d'utilisateur existe deja"
 msgstr ""
 
-#: app/routes/admin.py:1995 app/routes/admin.py:2224 app/routes/auth.py:139
+#: app/routes/admin.py:1988 app/routes/admin.py:2217 app/routes/auth.py:139
 msgid "Cette adresse email est deja utilisee"
 msgstr ""
 
-#: app/routes/admin.py:1997
+#: app/routes/admin.py:1990
 msgid "Vous devez assigner au moins un groupe"
 msgstr ""
 
-#: app/routes/admin.py:1999
+#: app/routes/admin.py:1992
 msgid "Choisissez au moins un etablissement pour un admin d'etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2015
+#: app/routes/admin.py:2008
 #, python-format
 msgid "Utilisateur \"%(username)s\" cree avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2018
+#: app/routes/admin.py:2011
 msgid ""
 "Pas d'email reel : copiez un lien de mot de passe depuis la page du "
 "groupe."
 msgstr ""
 
-#: app/routes/admin.py:2021
+#: app/routes/admin.py:2014
 #, python-format
 msgid "Invitation envoyee a %(email)s pour choisir un mot de passe."
 msgstr ""
 
-#: app/routes/admin.py:2046 app/routes/admin.py:2051 app/routes/admin.py:2548
-#: app/routes/admin.py:3061
+#: app/routes/admin.py:2039 app/routes/admin.py:2044 app/routes/admin.py:2541
+#: app/routes/admin.py:3054
 msgid "Aucun fichier selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2058
+#: app/routes/admin.py:2051
 msgid "Veuillez selectionner un groupe par defaut"
 msgstr ""
 
-#: app/routes/admin.py:2065
+#: app/routes/admin.py:2058
 msgid "Groupe invalide"
 msgstr ""
 
-#: app/routes/admin.py:2137
+#: app/routes/admin.py:2130
 #, python-format
 msgid ""
 "%(count)s utilisateur(s) importe(s) avec succes dans le groupe "
 "\"%(group)s\""
 msgstr ""
 
-#: app/routes/admin.py:2139 app/routes/admin.py:2402
+#: app/routes/admin.py:2132 app/routes/admin.py:2395
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s)"
 msgstr ""
 
-#: app/routes/admin.py:2144
+#: app/routes/admin.py:2137
 #, python-format
 msgid "... et %(count)s autre(s) erreur(s)"
 msgstr ""
 
-#: app/routes/admin.py:2150 app/routes/interview.py:1415
+#: app/routes/admin.py:2143 app/routes/interview.py:1415
 #, python-format
 msgid "Erreur lors de l'import: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2172
+#: app/routes/admin.py:2165
 msgid "Vous ne pouvez pas modifier votre propre compte ici"
 msgstr ""
 
-#: app/routes/admin.py:2202
+#: app/routes/admin.py:2195
 #, python-format
 msgid "Email de %(username)s verifie manuellement."
 msgstr ""
 
-#: app/routes/admin.py:2208
+#: app/routes/admin.py:2201
 #, python-format
 msgid "Email de verification renvoye a %(email)s."
 msgstr ""
 
-#: app/routes/admin.py:2250
+#: app/routes/admin.py:2243
 #, python-format
 msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2271
+#: app/routes/admin.py:2264
 msgid "Vous ne pouvez pas supprimer votre propre compte"
 msgstr ""
 
-#: app/routes/admin.py:2283
+#: app/routes/admin.py:2276
 #, python-format
 msgid "Utilisateur \"%(username)s\" supprime avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2295 app/routes/admin.py:2339
+#: app/routes/admin.py:2288 app/routes/admin.py:2332
 #: app/templates/admin/users.html:351 app/templates/admin/users.html:378
 msgid "Aucun utilisateur selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2322
+#: app/routes/admin.py:2315
 #, python-format
 msgid "%(count)s utilisateur(s) supprime(s)"
 msgstr ""
 
-#: app/routes/admin.py:2324
+#: app/routes/admin.py:2317
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
 msgstr ""
 
-#: app/routes/admin.py:2343
+#: app/routes/admin.py:2336
 msgid "Aucun groupe selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2348
+#: app/routes/admin.py:2341
 msgid "Groupe non trouve"
 msgstr ""
 
-#: app/routes/admin.py:2400
+#: app/routes/admin.py:2393
 #, python-format
 msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
 msgstr ""
 
-#: app/routes/admin.py:2415 app/routes/admin.py:2486 app/routes/admin.py:2608
-#: app/routes/admin.py:2622
+#: app/routes/admin.py:2408 app/routes/admin.py:2479 app/routes/admin.py:2601
+#: app/routes/admin.py:2615
 msgid "Reponse introuvable"
 msgstr ""
 
-#: app/routes/admin.py:2469
+#: app/routes/admin.py:2462
 #, python-format
 msgid "Scores mis a jour pour %(name)s"
 msgstr ""
 
-#: app/routes/admin.py:2507
+#: app/routes/admin.py:2500
 #, python-format
 msgid ""
 "Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
 "quiz."
 msgstr ""
 
-#: app/routes/admin.py:2537
+#: app/routes/admin.py:2530
 msgid "Vous devez generer au moins une question"
 msgstr ""
 
-#: app/routes/admin.py:2542
+#: app/routes/admin.py:2535
 msgid "Veuillez selectionner un fichier"
 msgstr ""
 
-#: app/routes/admin.py:2552
+#: app/routes/admin.py:2545
 msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
 msgstr ""
 
-#: app/routes/admin.py:2561
+#: app/routes/admin.py:2554
 msgid ""
 "Le fichier ne contient pas assez de texte exploitable (minimum 100 "
 "caracteres)"
 msgstr ""
 
-#: app/routes/admin.py:2566
+#: app/routes/admin.py:2559
 msgid "Quota mensuel de generations IA atteint pour cet etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2588
+#: app/routes/admin.py:2581
 #, python-format
 msgid "Erreur lors de la generation: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2593
+#: app/routes/admin.py:2586
 #, python-format
 msgid "Erreur lors du traitement du fichier: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2651 app/routes/admin.py:2732
+#: app/routes/admin.py:2644 app/routes/admin.py:2725
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2803
+#: app/routes/admin.py:2796
 msgid "Parametres sauvegardes avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2829
+#: app/routes/admin.py:2822
 msgid "URL du fournisseur requise"
 msgstr ""
 
-#: app/routes/admin.py:2831
+#: app/routes/admin.py:2824
 msgid "Modele requis pour ce fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2833
+#: app/routes/admin.py:2826
 msgid "Configuration non enregistree : utilisation de Grok non confirmee"
 msgstr ""
 
-#: app/routes/admin.py:2882
+#: app/routes/admin.py:2875
 #, python-format
 msgid ""
 "Modele inconnu chez ce fournisseur : %(model)s. Configuration non "
 "modifiee."
 msgstr ""
 
-#: app/routes/admin.py:2901
+#: app/routes/admin.py:2894
 msgid "Cle API refusee par le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2903
+#: app/routes/admin.py:2896
 msgid "Impossible de joindre le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2907
+#: app/routes/admin.py:2900
 msgid "Configuration incomplete (cle ou URL manquante)"
 msgstr ""
 
-#: app/routes/admin.py:3027 app/routes/admin.py:3064
+#: app/routes/admin.py:3020 app/routes/admin.py:3057
 #: app/templates/admin/settings.html:351
 msgid "Tapez RESTAURER pour confirmer"
 msgstr ""
 
-#: app/routes/admin.py:3069
+#: app/routes/admin.py:3062
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr ""
 
-#: app/routes/admin.py:3119 app/routes/admin.py:3183
+#: app/routes/admin.py:3112 app/routes/admin.py:3176
 #: app/routes/interview.py:563
 msgid "Le titre est requis"
 msgstr ""
 
-#: app/routes/admin.py:3129 app/routes/admin.py:3193
+#: app/routes/admin.py:3122 app/routes/admin.py:3186
 msgid "Ce slug existe deja"
 msgstr ""
 
-#: app/routes/admin.py:3134 app/routes/admin.py:3198
+#: app/routes/admin.py:3127 app/routes/admin.py:3191
 msgid "Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
 msgstr ""
 
-#: app/routes/admin.py:3149
+#: app/routes/admin.py:3142
 msgid "Page creee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:3165 app/routes/admin.py:3226 app/routes/admin.py:3244
+#: app/routes/admin.py:3158 app/routes/admin.py:3219 app/routes/admin.py:3237
 msgid "Page introuvable"
 msgstr ""
 
-#: app/routes/admin.py:3211
+#: app/routes/admin.py:3204
 msgid "Page modifiee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:3231
+#: app/routes/admin.py:3224
 msgid "Page supprimee avec succes"
 msgstr ""
 
@@ -960,7 +960,7 @@ msgstr ""
 msgid "Groupes"
 msgstr ""
 
-#: app/templates/admin/dashboard.html:37 app/templates/admin/groups.html:69
+#: app/templates/admin/dashboard.html:37 app/templates/admin/groups.html:71
 #: app/templates/admin/tenants/groups.html:42
 #: app/templates/admin/tenants/list.html:36
 #: app/templates/admin/tenants/view.html:19 app/templates/base.html:54
@@ -1053,6 +1053,31 @@ msgstr ""
 
 #: app/templates/landing.html:54
 msgid "Plateforme d evaluation intelligente avec correction IA"
+msgstr ""
+
+#: app/templates/admin/_tenant_field.html:4
+#: app/templates/admin/interviews/wizard.html:262
+#: app/templates/quiz/list.html:88
+msgid "Etablissement"
+msgstr ""
+
+#: app/templates/admin/_tenant_field.html:9
+msgid "Choisir un etablissement..."
+msgstr ""
+
+#: app/templates/admin/_tenant_field.html:19
+msgid ""
+"Aucun etablissement n'existe encore : creez-en un avant de creer des "
+"groupes."
+msgstr ""
+
+#: app/templates/admin/_tenant_field.html:20
+#: app/templates/admin/tenants/create.html:3
+msgid "Creer un etablissement"
+msgstr ""
+
+#: app/templates/admin/_tenant_field.html:23
+msgid "Vous n'administrez aucun etablissement actif."
 msgstr ""
 
 #: app/templates/admin/_user_roles.html:5 app/templates/admin/edit_user.html:76
@@ -1313,62 +1338,50 @@ msgstr ""
 msgid "Erreur de connexion"
 msgstr ""
 
-#: app/templates/admin/create_group.html:3
+#: app/templates/admin/create_group.html:4
 msgid "Créer un groupe - BrainNotFound"
 msgstr ""
 
-#: app/templates/admin/create_group.html:6
+#: app/templates/admin/create_group.html:7
 msgid "Créer un nouveau groupe"
 msgstr ""
 
-#: app/templates/admin/create_group.html:9
-#: app/templates/admin/edit_group.html:9
+#: app/templates/admin/create_group.html:10
+#: app/templates/admin/edit_group.html:10
 #: app/templates/admin/tenants/create_group.html:9
 msgid "Informations du groupe"
 msgstr ""
 
-#: app/templates/admin/create_group.html:12
+#: app/templates/admin/create_group.html:13
 #: app/templates/admin/tenants/admins.html:12
 #: app/templates/admin/tenants/create.html:12
 #: app/templates/admin/tenants/create_group.html:12
 msgid "Information :"
 msgstr ""
 
-#: app/templates/admin/create_group.html:12
+#: app/templates/admin/create_group.html:13
 msgid "Un code unique sera généré automatiquement pour ce groupe."
 msgstr ""
 
-#: app/templates/admin/create_group.html:13
+#: app/templates/admin/create_group.html:14
 msgid ""
 "Les apprenants devront entrer ce code lors de l'inscription pour "
 "rejoindre le groupe."
 msgstr ""
 
-#: app/templates/admin/create_group.html:19
-#: app/templates/admin/edit_group.html:24
-#: app/templates/admin/interviews/wizard.html:262
-#: app/templates/quiz/list.html:88
-msgid "Etablissement"
-msgstr ""
-
-#: app/templates/admin/create_group.html:29
-#: app/templates/admin/edit_group.html:34 app/templates/quiz/list.html:39
-msgid "Rechercher un etablissement..."
-msgstr ""
-
-#: app/templates/admin/create_group.html:44
-#: app/templates/admin/edit_group.html:49
+#: app/templates/admin/create_group.html:21
+#: app/templates/admin/edit_group.html:26
 #: app/templates/admin/tenants/create_group.html:17
 msgid "Nom du groupe"
 msgstr ""
 
-#: app/templates/admin/create_group.html:46
+#: app/templates/admin/create_group.html:23
 #: app/templates/admin/tenants/create_group.html:19
 msgid "Ex: Master 2024-2025, Licence Info L3, Promo 2024..."
 msgstr ""
 
-#: app/templates/admin/create_group.html:50
-#: app/templates/admin/edit_group.html:55
+#: app/templates/admin/create_group.html:27
+#: app/templates/admin/edit_group.html:32
 #: app/templates/admin/interviews/wizard.html:248
 #: app/templates/admin/interviews/wizard.html:748
 #: app/templates/admin/tenants/create.html:32
@@ -1377,33 +1390,33 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: app/templates/admin/create_group.html:52
+#: app/templates/admin/create_group.html:29
 #: app/templates/admin/tenants/create_group.html:25
 msgid "Description optionnelle du groupe..."
 msgstr ""
 
-#: app/templates/admin/create_group.html:56
-#: app/templates/admin/edit_group.html:60
+#: app/templates/admin/create_group.html:33
+#: app/templates/admin/edit_group.html:37
 #: app/templates/admin/tenants/create_group.html:29
 msgid "Nombre maximum de membres"
 msgstr ""
 
-#: app/templates/admin/create_group.html:59
-#: app/templates/admin/edit_group.html:63
+#: app/templates/admin/create_group.html:36
+#: app/templates/admin/edit_group.html:40
 #: app/templates/admin/tenants/create.html:52
 #: app/templates/admin/tenants/create_group.html:32
 msgid "0 = illimite"
 msgstr ""
 
-#: app/templates/admin/create_group.html:64
+#: app/templates/admin/create_group.html:41
 #: app/templates/admin/tenants/create_group.html:37
 msgid "Creer le groupe"
 msgstr ""
 
-#: app/templates/admin/create_group.html:67
+#: app/templates/admin/create_group.html:44
 #: app/templates/admin/create_quiz.html:251
 #: app/templates/admin/create_user.html:49
-#: app/templates/admin/edit_group.html:71
+#: app/templates/admin/edit_group.html:48
 #: app/templates/admin/edit_page.html:138
 #: app/templates/admin/edit_quiz.html:254
 #: app/templates/admin/edit_response.html:115
@@ -1538,7 +1551,7 @@ msgstr ""
 #: app/templates/admin/create_quiz.html:153
 #: app/templates/admin/create_quiz.html:166
 #: app/templates/admin/dashboard.html:113
-#: app/templates/admin/edit_group.html:63
+#: app/templates/admin/edit_group.html:40
 #: app/templates/admin/edit_quiz.html:119
 #: app/templates/admin/edit_quiz.html:137
 #: app/templates/admin/edit_quiz.html:150 app/templates/admin/groups.html:48
@@ -1548,7 +1561,7 @@ msgid "membre(s)"
 msgstr ""
 
 #: app/templates/admin/create_quiz.html:146
-#: app/templates/admin/edit_quiz.html:130
+#: app/templates/admin/edit_quiz.html:130 app/templates/admin/groups.html:57
 msgid "Sans etablissement"
 msgstr ""
 
@@ -1825,11 +1838,11 @@ msgstr ""
 msgid "Nouvel Entretien"
 msgstr ""
 
-#: app/templates/admin/edit_group.html:3 app/templates/admin/edit_page.html:3
+#: app/templates/admin/edit_group.html:4 app/templates/admin/edit_page.html:3
 #: app/templates/admin/edit_quiz.html:3 app/templates/admin/edit_user.html:4
 #: app/templates/admin/group_detail.html:17
 #: app/templates/admin/group_detail.html:84
-#: app/templates/admin/group_detail.html:243 app/templates/admin/groups.html:72
+#: app/templates/admin/group_detail.html:243 app/templates/admin/groups.html:74
 #: app/templates/admin/interviews/list.html:121
 #: app/templates/admin/interviews/view.html:13
 #: app/templates/admin/interviews/wizard.html:3
@@ -1844,23 +1857,23 @@ msgstr ""
 msgid "Modifier"
 msgstr ""
 
-#: app/templates/admin/edit_group.html:6
+#: app/templates/admin/edit_group.html:7
 msgid "Modifier le groupe"
 msgstr ""
 
-#: app/templates/admin/edit_group.html:12
+#: app/templates/admin/edit_group.html:13
 msgid "Code du groupe :"
 msgstr ""
 
-#: app/templates/admin/edit_group.html:17
+#: app/templates/admin/edit_group.html:18
 msgid "Le code ne peut pas être modifié pour des raisons de sécurité."
 msgstr ""
 
-#: app/templates/admin/edit_group.html:63
+#: app/templates/admin/edit_group.html:40
 msgid "Actuellement :"
 msgstr ""
 
-#: app/templates/admin/edit_group.html:68
+#: app/templates/admin/edit_group.html:45
 #: app/templates/admin/edit_page.html:130
 #: app/templates/admin/edit_quiz.html:251
 #: app/templates/admin/edit_response.html:112
@@ -2165,7 +2178,7 @@ msgid "Email au groupe"
 msgstr ""
 
 #: app/templates/admin/email_group.html:6
-#: app/templates/admin/group_detail.html:20 app/templates/admin/groups.html:63
+#: app/templates/admin/group_detail.html:20 app/templates/admin/groups.html:65
 #: app/templates/admin/tenants/groups.html:36
 msgid "Envoyer un email"
 msgstr ""
@@ -2675,30 +2688,34 @@ msgstr ""
 msgid "Cree le"
 msgstr ""
 
-#: app/templates/admin/groups.html:66
+#: app/templates/admin/groups.html:57
+msgid "Rattachez-le a un etablissement via Modifier"
+msgstr ""
+
+#: app/templates/admin/groups.html:68
 msgid "Exporter résultats CSV"
 msgstr ""
 
-#: app/templates/admin/groups.html:76
+#: app/templates/admin/groups.html:78
 #: app/templates/admin/interviews/list.html:126
 #: app/templates/admin/quizzes.html:125
 #: app/templates/admin/tenants/groups.html:49
 msgid "Desactiver"
 msgstr ""
 
-#: app/templates/admin/groups.html:76
+#: app/templates/admin/groups.html:78
 #: app/templates/admin/interviews/list.html:126
 #: app/templates/admin/quizzes.html:125 app/templates/admin/settings.html:134
 #: app/templates/admin/tenants/groups.html:49
 msgid "Activer"
 msgstr ""
 
-#: app/templates/admin/groups.html:81
+#: app/templates/admin/groups.html:83
 #: app/templates/admin/tenants/groups.html:54
 msgid "ce groupe"
 msgstr ""
 
-#: app/templates/admin/groups.html:82
+#: app/templates/admin/groups.html:84
 #: app/templates/admin/interviews/list.html:133
 #: app/templates/admin/interviews/view.html:234
 #: app/templates/admin/pages.html:72 app/templates/admin/quiz_results.html:171
@@ -2710,16 +2727,16 @@ msgstr ""
 msgid "Supprimer"
 msgstr ""
 
-#: app/templates/admin/groups.html:92
+#: app/templates/admin/groups.html:94
 msgid "Aucun groupe disponible."
 msgstr ""
 
-#: app/templates/admin/groups.html:94 app/templates/admin/groups.html:98
+#: app/templates/admin/groups.html:96 app/templates/admin/groups.html:100
 #: app/templates/admin/tenants/groups.html:65
 msgid "Creez votre premier groupe"
 msgstr ""
 
-#: app/templates/admin/groups.html:107
+#: app/templates/admin/groups.html:109
 #: app/templates/admin/preview_quiz.html:131
 #: app/templates/admin/quiz_results.html:190
 #: app/templates/admin/tenants/list.html:75
@@ -4706,10 +4723,6 @@ msgstr ""
 msgid "Retour a l'etablissement"
 msgstr ""
 
-#: app/templates/admin/tenants/create.html:3
-msgid "Creer un etablissement"
-msgstr ""
-
 #: app/templates/admin/tenants/create.html:6
 #: app/templates/admin/tenants/list.html:11
 msgid "Creer un nouvel etablissement"
@@ -5727,6 +5740,10 @@ msgstr ""
 msgid "Repondus"
 msgstr ""
 
+#: app/templates/quiz/list.html:39
+msgid "Rechercher un etablissement..."
+msgstr ""
+
 #: app/templates/quiz/list.html:103
 msgid "Repondu"
 msgstr ""
@@ -6521,5 +6538,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Toutes les organisations"
+#~ msgstr ""
+
+#~ msgid "Vous ne pouvez creer des groupes que dans vos etablissements"
 #~ msgstr ""
 
