@@ -5,6 +5,23 @@ from app.utils.claude_grader import grade_open_question
 from flask import current_app
 
 
+def finish_grading(quiz_response, needs_review):
+    """End of AI grading: publish the grade, or leave the paper to a grader.
+
+    A paper waits for a grader when the AI could not grade an answer, or when
+    the quiz is in review mode (admin test papers are never held back).
+    Graders hear about it in the next digest email.
+    """
+    quiz = quiz_response.quiz
+    if needs_review or (quiz.needs_review and not quiz_response.is_test):
+        quiz_response.grading_status = QuizResponse.STATUS_REVIEW
+        quiz_response.review_reason = QuizResponse.REVIEW_AI if needs_review else QuizResponse.REVIEW_MODE
+        if not quiz_response.is_test:
+            quiz.mark_digest_pending()
+    else:
+        quiz_response.publish()
+
+
 def grade_quiz_async(app, response_id: int, answers_data: list):
     """
     Grade a quiz asynchronously and notify via WebSocket.
@@ -122,8 +139,7 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
             # Finalize grading - ADD open score to MCQ score (don't overwrite!)
             total_score = mcq_score + open_score
             quiz_response.total_score = total_score
-            quiz_response.grading_status = (QuizResponse.STATUS_REVIEW if needs_review
-                                            else QuizResponse.STATUS_COMPLETED)
+            finish_grading(quiz_response, needs_review)
             db.session.commit()
 
             current_app.logger.info(f"Grading complete for response {response_id}: MCQ={mcq_score}, Open={open_score}, Total={total_score}")
@@ -134,7 +150,7 @@ def grade_quiz_async(app, response_id: int, answers_data: list):
                 'total_score': total_score,
                 'max_score': quiz_response.max_score,
                 'percentage': (total_score / quiz_response.max_score * 100) if quiz_response.max_score > 0 else 0,
-                'needs_review': needs_review
+                'needs_review': quiz_response.grading_status == QuizResponse.STATUS_REVIEW
             }, room=room)
 
         except Exception as e:

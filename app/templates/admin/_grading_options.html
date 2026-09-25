@@ -1,0 +1,49 @@
+{# "Correction" section of the quiz forms: grading mode, graders, contest delay #}
+{% macro grading_options(quiz=None) %}
+{% set mode = request.form.get('grading_mode') or (quiz.grading_mode if quiz else 'direct') %}
+{% set days = request.form.get('contest_days') or (quiz.contest_days if quiz and quiz.contest_days is not none else 7) %}
+{% set selected = request.form.getlist('grader_ids')|map('int')|list if request.method == 'POST' else (quiz.graders|map(attribute='id')|list if quiz else []) %}
+{# The author grades anyway: not offered #}
+{% set author_id = quiz.created_by_id if quiz else current_user.id %}
+{% set candidates = grader_candidates()|rejectattr('id', 'equalto', author_id)|list %}
+
+<div class="card-header mt-1">{{ _('Correction') }}</div>
+
+<div class="form-group">
+    <label class="form-label">{{ _('Questions ouvertes') }}</label>
+    <div class="radio-group">
+        <label class="radio-item">
+            <input type="radio" name="grading_mode" value="direct" {{ 'checked' if mode != 'review' }}>
+            <span>{{ _("Correction IA directe : la note de l'IA est publiee tout de suite") }}</span>
+        </label>
+        <label class="radio-item">
+            <input type="radio" name="grading_mode" value="review" {{ 'checked' if mode == 'review' }}>
+            <span>{{ _("Revue par un correcteur : l'IA propose une note, provisoire pour l'apprenant jusqu'a validation") }}</span>
+        </label>
+    </div>
+    <small class="help-text">{{ _("Dans les deux cas, une copie que l'IA n'a pas pu corriger (quota, erreur) attend un correcteur.") }}</small>
+</div>
+
+<div class="form-group">
+    <label class="form-label">{{ _('Correcteurs') }}</label>
+    {% if candidates %}
+    <div class="checkbox-list">
+        {% for user in candidates %}
+        <label class="checkbox-item">
+            <input type="checkbox" name="grader_ids" value="{{ user.id }}" {{ 'checked' if user.id in selected }}>
+            <span>{{ user.full_name }} <small class="text-light">{{ user.email }}</small></span>
+        </label>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-light text-sm mb-0">{{ _('Aucun intervenant disponible.') }}</p>
+    {% endif %}
+    <small class="help-text">{{ _("En plus de l'auteur du quiz. Les correcteurs voient toutes les copies de ce quiz, les notent, les valident, traitent les contestations et recoivent un recapitulatif par email.") }}</small>
+</div>
+
+<div class="form-group">
+    <label class="form-label" for="contest_days">{{ _('Delai de contestation (jours)') }}</label>
+    <input type="number" id="contest_days" name="contest_days" class="form-input" min="0" max="365" value="{{ days }}" style="max-width: 8rem;">
+    <small class="help-text">{{ _("A partir de la publication de la note, l'apprenant peut contester chaque question une fois. 0 = pas de contestation.") }}</small>
+</div>
+{% endmacro %}

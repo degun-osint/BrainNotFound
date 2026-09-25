@@ -47,7 +47,7 @@ class User(UIDMixin, UserMixin, db.Model):
 
     # Relationships
     responses = db.relationship('QuizResponse', back_populates='user', lazy='dynamic',
-                               cascade='all, delete-orphan')
+                               cascade='all, delete-orphan', foreign_keys='QuizResponse.user_id')
 
     # New many-to-many relationship with groups
     groups = db.relationship('Group', secondary=user_groups,
@@ -296,6 +296,14 @@ class User(UIDMixin, UserMixin, db.Model):
     def can_access_quiz(self, quiz):
         """Check if this admin can access/manage a quiz."""
         return self._can_access_content(quiz)
+
+    def is_grader_of(self, quiz):
+        """Author or designated grader of the quiz: sees and grades all its papers."""
+        return self.id in quiz.grader_ids()
+
+    def can_grade_quiz(self, quiz):
+        """Results, score edits, validation, contests of a quiz."""
+        return self.is_grader_of(quiz) or self.can_access_quiz(quiz)
 
     def can_access_interview(self, interview):
         """Check if this admin can access/manage an interview and its sessions."""

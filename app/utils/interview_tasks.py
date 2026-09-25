@@ -183,11 +183,8 @@ def end_interview_by_limit(app, session: InterviewSession, room: str):
     }, room=room)
 
     # Trigger evaluation
-    socketio.start_background_task(
-        evaluate_interview_async,
-        app,
-        session.id
-    )
+    from app.tasks import evaluate_interview, run_task
+    run_task(evaluate_interview, session.id)
 
 
 def end_interview_by_ai(app, session: InterviewSession, room: str):
@@ -204,11 +201,8 @@ def end_interview_by_ai(app, session: InterviewSession, room: str):
     }, room=room)
 
     # Trigger evaluation
-    socketio.start_background_task(
-        evaluate_interview_async,
-        app,
-        session.id
-    )
+    from app.tasks import evaluate_interview, run_task
+    run_task(evaluate_interview, session.id)
 
 
 def end_interview_by_timeout(app, session: InterviewSession, room: str):
@@ -225,8 +219,5 @@ def end_interview_by_timeout(app, session: InterviewSession, room: str):
     }, room=room)
 
     # Trigger evaluation
-    socketio.start_background_task(
-        evaluate_interview_async,
-        app,
-        session.id
-    )
+    from app.tasks import evaluate_interview, run_task
+    run_task(evaluate_interview, session.id)

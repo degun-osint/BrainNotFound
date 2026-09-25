@@ -187,6 +187,7 @@ socket.on('grading_completed', function(data) {
         statusMsg.innerHTML = `
             <strong>{{ _('Correction terminee !') }}</strong><br>
             {{ _('Score:') }} ${data.total_score.toFixed(1)}/${data.max_score} (${data.percentage.toFixed(0)}%)
+            ${data.needs_review ? '<br><em>' + {{ _('Note provisoire, en attente de validation par un correcteur.')|tojson }} + '</em>' : ''}
         `;
 
         document.getElementById('current-question').innerHTML =

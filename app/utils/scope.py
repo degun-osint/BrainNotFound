@@ -245,3 +245,35 @@ def breadcrumb(tenant=None, group=None, *extra):
         items.append((group.name, url_for('admin.group_detail', identifier=group.get_url_identifier())))
     items.extend(extra)
     return items
+
+
+# ==================== Graders ====================
+
+def grader_candidates():
+    """Instructors and organization admins the current admin may name as quiz graders."""
+    instructors = db.session.query(user_groups.c.user_id).filter(
+        user_groups.c.role == 'admin', user_groups.c.group_id.in_(scoped_group_ids()))
+    conditions = [User.id.in_(instructors)]
+    tenant_ids = _scoped_tenant_ids(get_tenant_context())
+    tenant_admin_ids = db.session.query(tenant_admins.c.user_id)
+    if tenant_ids is None:
+        conditions.append(User.id.in_(tenant_admin_ids))
+    elif tenant_ids:
+        conditions.append(User.id.in_(tenant_admin_ids.filter(tenant_admins.c.tenant_id.in_(tenant_ids))))
+    return User.query.filter(db.or_(*conditions), User.is_admin == False).order_by(  # noqa: E712
+        User.last_name, User.first_name, User.username).all()
+
+
+def assign_graders(quiz, raw_ids):
+    """Set the quiz graders to the submitted ones among our candidates.
+
+    Graders we can't see (named by an admin of another scope) are kept.
+    """
+    candidates = {u.id: u for u in grader_candidates()}
+    wanted = {int(x) for x in raw_ids if str(x).strip().isdigit()} & candidates.keys()
+    for user in quiz.graders.all():
+        if user.id in candidates and user.id not in wanted:
+            quiz.graders.remove(user)
+    current = {u.id for u in quiz.graders}
+    for uid in wanted - current:
+        quiz.graders.append(candidates[uid])

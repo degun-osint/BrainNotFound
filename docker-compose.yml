@@ -23,8 +23,21 @@ services:
       retries: 10
       start_period: 10s
 
+  # Broker for background tasks and Socket.IO message queue; nothing to keep on disk
+  redis:
+    image: redis:8-alpine
+    container_name: quiz_redis
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   web:
     build: .
+    image: brainnotfound-app
     container_name: quiz_app
     # Loopback only: the host reverse proxy (Nginx, CloudPanel...) forwards to
     # it. APP_BIND=0.0.0.0 in .env to reach it directly (no HTTPS, not advised).
@@ -33,10 +46,35 @@ services:
     environment:
       - FLASK_ENV=production
       - TZ=Europe/Paris
+      - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
     depends_on:
       db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+    restart: unless-stopped
+
+  # AI grading, interviews, emails, digest and scheduled backups (Celery, same image)
+  worker:
+    image: brainnotfound-app  # built by the web service
+    pull_policy: never
+    # No container_name: several workers are possible (docker compose up -d --scale worker=3)
+    command: ["worker"]
+    environment:
+      - FLASK_ENV=production
+      - TZ=Europe/Paris
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      web:
+        condition: service_started
+      redis:
         condition: service_healthy
     volumes:
       - ./uploads:/app/uploads

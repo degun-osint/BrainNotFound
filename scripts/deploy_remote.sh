@@ -38,6 +38,12 @@ for i in $(seq 1 60); do
     echo -n "."; sleep 3
 done
 
+# Background worker (AI grading, emails): warn, the site itself is up
+if ! docker compose ps --status running --services | grep -x worker > /dev/null; then
+    echo "ATTENTION : le worker ne tourne pas (corrections IA et emails en attente)"
+    docker compose logs --tail=20 worker
+fi
+
 # A new database holds only the seeded admin: that's the MariaDB switch (or a
 # first install). Re-import what the previous version had.
 USERS=$(docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mariadb -N -uroot "$MYSQL_DATABASE" -e "SELECT COUNT(*) FROM users"' < /dev/null | tr -d '[:space:]')

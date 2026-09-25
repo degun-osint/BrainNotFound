@@ -364,13 +364,8 @@ def end_interview(identifier):
     db.session.commit()
 
     # Trigger evaluation in background
-    from app import socketio
-    from app.utils.interview_tasks import evaluate_interview_async
-    socketio.start_background_task(
-        evaluate_interview_async,
-        current_app._get_current_object(),
-        session.id
-    )
+    from app.tasks import evaluate_interview, run_task
+    run_task(evaluate_interview, session.id)
 
     return jsonify({'success': True, 'redirect': url_for('interview.evaluating', identifier=session.get_url_identifier())})
 
@@ -919,13 +914,8 @@ def admin_reevaluate_session(identifier, session_identifier):
     db.session.commit()
 
     # Run evaluation asynchronously
-    from app.utils.interview_tasks import evaluate_interview_async
-    from app import socketio
-    socketio.start_background_task(
-        evaluate_interview_async,
-        current_app._get_current_object(),
-        session.id
-    )
+    from app.tasks import evaluate_interview, run_task
+    run_task(evaluate_interview, session.id)
 
     flash(_l('Re-evaluation lancee. Veuillez patienter quelques secondes puis rafraichir la page.'), 'info')
     return redirect(url_for('interview.admin_session', identifier=interview.get_url_identifier(), session_identifier=session.get_url_identifier()))

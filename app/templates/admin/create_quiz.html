@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_grading_options.html" as go with context %}
 
 {% block title %}{{ _('Creer un quiz') }} - BrainNotFound{% endblock %}
 
@@ -208,6 +209,8 @@ Réponse modèle ici...{% endif %}</textarea>
                 {{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}
             </small>
         </div>
+
+        {{ go.grading_options() }}
 
         <div class="card-header mt-1">{{ _("Options d'affichage") }}</div>
 

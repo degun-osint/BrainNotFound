@@ -14,7 +14,9 @@ Mesures en charge, avec la configuration fournie :
 
 | Composant | Au repos | En charge |
 |-----------|----------|-----------|
-| Application | ~100 Mo | ~125 Mo, 1 cœur |
+| Application (`web`) | ~120 Mo | ~140 Mo, 1 cœur |
+| Tâches de fond (`worker`) | ~125 Mo | ~150 Mo |
+| Redis | ~12 Mo | ~15 Mo |
 | MariaDB (`docker/mariadb/low-memory.cnf`) | ~70 Mo | ~170 Mo |
 
 - **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go, plus les données).
@@ -101,7 +103,15 @@ Le compte `admin` et les données par défaut sont créés par `entrypoint.sh` d
 
 Les sauvegardes et restaurations depuis l'interface utilisent `mysqldump` et `mysql` : installez le client MariaDB sur le serveur.
 
-Gardez un seul worker : les notifications temps réel (Socket.IO) ne sont pas partagées entre plusieurs processus.
+Sans `REDIS_URL`, les corrections, entretiens et emails tournent dans le processus web, comme les tâches périodiques : gardez alors un seul worker gunicorn. Avec Redis, lancez aussi le worker Celery (un seul) :
+
+```bash
+celery -A celery_worker worker -P gevent --concurrency 20 --loglevel INFO
+```
+
+### Sans Redis ni worker (très petite machine)
+
+Dans `docker-compose.yml`, supprimez les services `redis` et `worker`, retirez `REDIS_URL` et la dépendance à `redis` du service `web`. Tout tourne alors dans le processus web, comme avant la version 2.2 : environ 140 Mo de moins, mais une grosse vague de corrections ralentit les pages.
 
 ## Mise en production
 
@@ -243,7 +253,8 @@ docker compose ps               # état et santé des conteneurs
 | Tout le monde est déconnecté à chaque redémarrage | `SECRET_KEY` absente du `.env` |
 | `web` ne démarre pas, erreur de base | `DATABASE_URL` et les variables `MYSQL_*` ne concordent pas ; vérifier `docker compose logs db` |
 | Réponses ouvertes toutes « à corriger » | Clé API absente ou invalide (**Paramètres > Tester et lister les modèles**), quota de l'établissement atteint ou abonnement expiré |
-| Correction lancée mais la page n'avance pas | Le reverse proxy ne transmet pas les WebSockets (`/socket.io`) |
+| Correction lancée mais la page n'avance pas | `docker compose logs worker` : le worker tourne-t-il, reçoit-il la tâche ? Sinon, le reverse proxy ne transmet pas les WebSockets (`/socket.io`) |
+| Emails ou récapitulatifs jamais envoyés | `docker compose logs worker` (les emails partent du worker) et variables `MAIL_*` |
 | Emails non reçus | Variables `MAIL_*` ; regarder `docker compose logs web` au moment de l'envoi |
 | Restauration refusée dès l'envoi | `client_max_body_size` du proxy, ou `BACKUP_MAX_UPLOAD_MB` |
 | Site injoignable sur `http://<serveur>:5006` | Normal : le port n'écoute que sur `127.0.0.1`. Passer par le reverse proxy, ou `APP_BIND=0.0.0.0` |

@@ -80,14 +80,16 @@ Mesures sur la pile Docker complète (application + MariaDB 12.3), avec un étab
 
 | | Au repos | En charge (20 utilisateurs en continu) |
 |---|---|---|
-| Application | ~100 Mo | ~125 Mo, 1 cœur |
+| Application (`web`) | ~120 Mo | ~140 Mo, 1 cœur |
+| Tâches de fond (`worker` : correction IA, entretiens, emails) | ~125 Mo | ~150 Mo |
+| Redis | ~12 Mo | ~15 Mo |
 | MariaDB (config `docker/mariadb/low-memory.cnf`) | ~70 Mo | ~170 Mo |
 
 - **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go + données).
 - **Confortable** : 2 vCPU, 2 Go de RAM.
 - L'IA tourne chez le fournisseur (Anthropic...) : elle ne consomme rien localement, sauf avec un modèle local type Ollama, qui demande alors sa propre machine (GPU ou beaucoup de RAM).
 - Débit mesuré : ~90 pages admin par seconde en continu, une page servie en 10 à 50 ms. Une classe de 30 apprenants en génère quelques-unes par seconde.
-- L'application tourne sur un seul processus (nécessaire pour les WebSockets sans broker Redis) : plus de 2 cœurs n'apportent rien à l'application elle-même.
+- Les corrections IA, les entretiens et les emails partent dans le conteneur `worker` (Celery, via Redis) : un examen de 400 copies rendues d'un coup ne ralentit plus les pages. Sur une toute petite machine, on peut s'en passer (voir `docs/self-hosting.md`).
 
 ### Démarrage rapide
 

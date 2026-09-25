@@ -42,10 +42,29 @@
     </div>
 </div>
 
-{% if to_review > 0 %}
-<div class="alert alert-warning mb-2">
-    <i class="iconoir-edit-pencil"></i>
-    <span><strong>{{ to_review }}</strong> {{ _("copie(s) a corriger : le quota mensuel de corrections IA a ete atteint. Ouvrez les resultats du quiz pour les noter.") }}</span>
+{% if grading_todo %}
+<div class="card mb-2">
+    <div class="card-header"><i class="iconoir-edit-pencil"></i> {{ _('Corrections a traiter') }}</div>
+    <div class="p-2 overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Quiz') }}</th>
+                    <th>{{ _("En attente d'un correcteur") }}</th>
+                    <th>{{ _('Contestations') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz, waiting, contests in grading_todo %}
+                <tr>
+                    <td class="font-medium">{{ quiz.title }}</td>
+                    <td>{% if waiting %}<a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), status='review') }}" class="badge badge-info">{{ waiting }}</a>{% else %}<span class="text-light">-</span>{% endif %}</td>
+                    <td>{% if contests %}<a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), status='contests') }}" class="badge badge-error">{{ contests }}</a>{% else %}<span class="text-light">-</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endif %}
 
