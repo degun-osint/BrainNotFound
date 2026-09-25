@@ -41,8 +41,6 @@ Mesures (test de charge, chaque conteneur bridé à 1 cœur, faux fournisseur d'
 | 250 | 135 ms | 230 ms | 66 % | 15 s | ~430 Mo |
 | 500 | 240 ms | 440 ms | 75 % | 15 à 30 s | ~460 Mo |
 
-Aucune erreur à aucun palier. Les cœurs de la machine de test sont plus rapides qu'un vCPU de VPS courant (compter 1,5 à 2 fois moins) : la grille garde cette marge.
-
 Ce qui limite, dans l'ordre :
 
 1. **Le fournisseur d'IA.** 500 copies avec 2 questions ouvertes, ce sont 1 000 appels en une ou deux minutes. Vérifiez les limites de votre compte (requêtes et jetons par minute) avant un gros examen : au-delà, les corrections sont ralenties par le fournisseur, pas par le serveur.
