@@ -2,7 +2,7 @@
 
 Les versions antérieures ne sont décrites que dans l'historique git.
 
-## [Non publié]
+## [2.2.0] - 2026-09-25
 
 ### Nouveautés
 
