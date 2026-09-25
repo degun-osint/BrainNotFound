@@ -2,6 +2,12 @@
 
 Les versions antérieures ne sont décrites que dans l'historique git.
 
+## [Non publié]
+
+### Corrections
+
+- Après une période sans activité de plus de 8 heures (une nuit calme), la première requête pouvait échouer avec une erreur 500 : MariaDB avait fermé la connexion restée ouverte dans le pool. Les connexions sont désormais vérifiées avant usage et renouvelées toutes les 30 minutes.
+
 ## [2.1.0] - 2026-09-25
 
 Navigation de l'administration : chaque objet a sa fiche, les doublons disparaissent.

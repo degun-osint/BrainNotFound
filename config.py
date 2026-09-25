@@ -31,6 +31,10 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _db_url
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # MariaDB drops idle connections after wait_timeout (8 h): test each pooled
+    # connection before use and renew it every 30 min, instead of failing the
+    # first request after a quiet night with "MySQL server has gone away"
+    SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True, 'pool_recycle': 1800}
     ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
     CLAUDE_MODEL = os.environ.get('CLAUDE_MODEL') or 'claude-opus-5-5'
     # Non-Anthropic LLM provider fallback (see app/utils/ai_client.py)
