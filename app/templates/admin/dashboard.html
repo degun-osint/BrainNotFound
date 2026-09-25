@@ -66,7 +66,7 @@
         {% for session in recent_interviews %}
         <div class="activity-item flex justify-between items-center gap-sm">
             <div class="flex-1">
-                <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="font-medium link-primary">
+                <a href="{{ url_for('admin.user_detail', identifier=session.user.get_url_identifier()) }}" class="font-medium link-primary">
                     {{ session.user.full_name }}
                 </a>
                 {{ _('a passe') }}
@@ -127,7 +127,7 @@
         {% for response in recent_responses %}
         <div class="activity-item flex justify-between items-center gap-sm">
             <div class="flex-1">
-                <a href="{{ url_for('admin.user_grades', identifier=response.user.get_url_identifier()) }}" class="font-medium link-primary">
+                <a href="{{ url_for('admin.user_detail', identifier=response.user.get_url_identifier()) }}" class="font-medium link-primary">
                     {{ response.user.full_name }}
                 </a>
                 {{ _('a soumis') }}

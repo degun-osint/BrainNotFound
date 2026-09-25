@@ -1860,47 +1860,68 @@ def serve_quiz_image(quiz_id, filename):
     upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], f'quiz-{quiz_id}')
     return send_from_directory(upload_dir, filename)
 
-@admin_bp.route('/user/<identifier>/grades')
+def _user_page_context(user):
+    """Everything the person page shows: memberships, results, edit form data."""
+    memberships = db.session.query(Group, user_groups.c.role).join(
+        user_groups, user_groups.c.group_id == Group.id
+    ).filter(user_groups.c.user_id == user.id).order_by(Group.name).all()
+
+    # Results: only content the viewer can see
+    responses = [r for r in QuizResponse.query.filter_by(user_id=user.id)
+                 .order_by(QuizResponse.submitted_at.desc()).all()
+                 if current_user.can_access_quiz(r.quiz)]
+    sessions = [s for s in InterviewSession.query.filter_by(user_id=user.id, is_test=False)
+                .order_by(InterviewSession.started_at.desc()).all()
+                if current_user.can_access_interview(s.interview)]
+    total = sum(r.total_score for r in responses)
+    max_total = sum(r.max_score for r in responses)
+    stats = {
+        'quiz_count': len(responses),
+        'interview_count': len(sessions),
+        'average_percentage': (total / max_total * 100) if max_total > 0 else 0.0,
+    }
+
+    can_edit = user.id != current_user.id and current_user.can_manage_user(user)
+    ctx = dict(user=user, memberships=memberships, admin_tenants=user.admin_tenants.order_by(Tenant.name).all(),
+               responses=responses, sessions=sessions, stats=stats, can_edit=can_edit,
+               can_delete=user.id != current_user.id and current_user.can_manage_user(user, for_delete=True))
+    if can_edit:
+        user_tenant_ids = sorted(user.admin_tenant_ids())
+        ctx.update(
+            groups=scoped_groups().all(),
+            tenants=get_accessible_tenants() if current_user.is_superadmin else [],
+            group_roles={g.id: role for g, role in memberships},
+            user_tenant_ids=user_tenant_ids,
+            global_role='superadmin' if user.is_superadmin else 'tenant_admin' if user_tenant_ids else 'none',
+            can_set_instructor=current_user.role_rank >= 2,
+            is_superadmin=current_user.is_superadmin,
+        )
+    return ctx
+
+
+@admin_bp.route('/user/<identifier>')
 @login_required
 @admin_required
-def user_grades(identifier):
-    """View all grades for a specific user."""
+def user_detail(identifier):
+    """Everything about one person: roles, groups, results, and the edit form."""
     user = User.get_by_identifier(identifier)
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
-
-    user_id = user.id  # Keep for queries
-
-    # Redirect to canonical URL if accessed by numeric ID
     if identifier != user.get_url_identifier():
-        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()), code=301)
-
-    # Check permission
-    if not current_user.is_superadmin and not current_user.can_access_user(user):
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier()), code=301)
+    if user.id != current_user.id and not current_user.can_access_user(user):
         flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
+    return render_template('admin/user_detail.html', **_user_page_context(user))
 
-    # Get all responses for this user
-    responses = QuizResponse.query.filter_by(user_id=user_id)\
-        .order_by(QuizResponse.submitted_at.desc()).all()
 
-    # Filter responses for group admins - only show quizzes they can access
-    if not current_user.is_superadmin:
-        responses = [r for r in responses if current_user.can_access_quiz(r.quiz)]
-
-    # Calculate statistics
-    stats = {
-        'quiz_count': len(responses),
-        'total_points': sum(r.total_score for r in responses),
-        'max_possible_points': sum(r.max_score for r in responses),
-        'average_percentage': 0.0
-    }
-
-    if stats['max_possible_points'] > 0:
-        stats['average_percentage'] = (stats['total_points'] / stats['max_possible_points']) * 100
-
-    return render_template('admin/user_grades.html', user=user, responses=responses, stats=stats)
+@admin_bp.route('/user/<identifier>/grades')
+@login_required
+@admin_required
+def user_grades(identifier):
+    """Former grades page, now a tab of the person page."""
+    return redirect(url_for('admin.user_detail', identifier=identifier, _anchor='results'), code=301)
 
 # User management routes
 # ==================== User roles helpers ====================
@@ -2153,16 +2174,14 @@ def import_users():
 @login_required
 @admin_required
 def edit_user(identifier):
-    """Edit an existing user."""
-    from app.models.user import user_groups
+    """Save the edit form of the person page (GET opens that page on the edit tab)."""
     user = User.get_by_identifier(identifier)
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
-    # Redirect to canonical URL if accessed by numeric ID
-    if identifier != user.get_url_identifier():
-        return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()), code=301)
+    if request.method == 'GET':
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
     # Prevent editing yourself to remove admin rights
     if user.id == current_user.id:
@@ -2174,11 +2193,6 @@ def edit_user(identifier):
         flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
-    groups = scoped_groups().all()
-    tenants = get_accessible_tenants() if current_user.is_superadmin else []
-
-    user_group_roles = {row.group_id: row.role for row in db.session.execute(
-        user_groups.select().where(user_groups.c.user_id == user.id))}
     user_tenant_ids = sorted(user.admin_tenant_ids())
     can_set_instructor = current_user.role_rank >= 2
     if user.is_superadmin:
@@ -2197,7 +2211,7 @@ def edit_user(identifier):
             user.clear_verification_token()
             db.session.commit()
             flash(_l('Email de %(username)s verifie manuellement.', username=user.username), 'success')
-            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
         elif action == 'resend_verification':
             if send_verification_email(user):
@@ -2205,7 +2219,7 @@ def edit_user(identifier):
                 flash(_l('Email de verification renvoye a %(email)s.', email=user.email), 'success')
             else:
                 flash(_l('Erreur lors de l\'envoi de l\'email.'), 'error')
-            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
         username = request.form.get('username', '').strip()
         first_name = request.form.get('first_name', '').strip()
@@ -2245,13 +2259,11 @@ def edit_user(identifier):
             db.session.commit()
             User.clear_role_cache()
             flash(_l('Utilisateur "%(username)s" mis a jour avec succes', username=username), 'success')
-            return redirect(url_for('admin.users'))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier()))
 
-    return render_template('admin/edit_user.html', user=user, groups=groups,
-                          group_roles=user_group_roles, tenants=tenants,
-                          user_tenant_ids=user_tenant_ids, global_role=global_role,
-                          can_set_instructor=can_set_instructor,
-                          is_superadmin=current_user.is_superadmin)
+    # Validation error: back on the edit tab
+    db.session.rollback()
+    return render_template('admin/user_detail.html', open_tab='edit', **_user_page_context(user))
 
 @admin_bp.route('/user/<identifier>/delete', methods=['POST'])
 @login_required
@@ -2505,8 +2517,8 @@ def delete_response(identifier):
 
     # Redirect back to the referring page
     referer = request.referrer
-    if referer and 'user_grades' in referer:
-        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()))
+    if referer and f'/admin/user/{user.get_url_identifier()}' in referer:
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='results'))
     return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
 

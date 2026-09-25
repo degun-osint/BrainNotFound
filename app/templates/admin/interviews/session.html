@@ -132,7 +132,7 @@
                 <tr>
                     <td class="text-light">{{ _('Apprenant') }}</td>
                     <td>
-                        <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary">
+                        <a href="{{ url_for('admin.user_detail', identifier=session.user.get_url_identifier()) }}" class="link-primary">
                             {{ session.user.full_name }}
                         </a>
                         ({{ session.user.username }})

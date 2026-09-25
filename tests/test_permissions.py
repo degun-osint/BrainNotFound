@@ -245,8 +245,7 @@ def test_tenant_admin_user_list_hides_superadmins(world, login):
     '/admin/groups',
     '/admin/group/{g3a}/edit',
     '/admin/group/{g3a}',
-    '/admin/user/{eleve_3a}/edit',
-    '/admin/user/{eleve_3a}/grades',
+    '/admin/user/{eleve_3a}',
 ])
 def test_admin_pages_render(world, login, actor, path):
     client = login(world[actor])

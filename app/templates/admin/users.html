@@ -182,7 +182,7 @@
                 </td>
                 <td>
                     {% if not user.is_admin %}
-                    <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
+                    <a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
                         {{ user.full_name }}
                     </a>
                     {% else %}
@@ -237,13 +237,8 @@
                 </td>
                 <td>
                     <div class="flex gap-sm flex-wrap">
-                        {% if not user.is_admin %}
-                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Notes') }}">
-                            <i class="iconoir-stats-report"></i>
-                        </a>
-                        {% endif %}
                         {% if meta[user.id].can_manage %}
-                        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                        <a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit') }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
                         {% if meta[user.id].can_delete %}

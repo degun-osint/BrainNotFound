@@ -157,7 +157,7 @@
                     <td>{% if admin.last_login %}{{ admin.last_login|localtime }}{% else %}<span class="text-light">{{ _('Jamais') }}</span>{% endif %}</td>
                     {% if current_user.is_superadmin %}
                     <td class="flex gap-sm">
-                        <a href="{{ url_for('admin.edit_user', identifier=admin.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                        <a href="{{ url_for('admin.user_detail', identifier=admin.get_url_identifier(), _anchor='edit') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
                         <form method="POST" action="{{ url_for('tenant.remove_admin', identifier=tenant.get_url_identifier(), user_identifier=admin.get_url_identifier()) }}" class="inline"

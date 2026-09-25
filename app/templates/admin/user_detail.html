@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% import "admin/_user_roles.html" as roles with context %}
+
+{% block title %}{{ user.full_name }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+{% set tab = open_tab or 'results' %}
+{% set instructor_count = memberships|selectattr(1, 'equalto', 'admin')|list|length %}
+{% set learner_count = memberships|length - instructor_count %}
+
+<div class="flex justify-between items-center flex-wrap gap-sm mb-2">
+    <div>
+        <h1 class="mb-0">{{ user.full_name }}{% if user.id == current_user.id %} <span class="text-light">({{ _('vous') }})</span>{% endif %}</h1>
+        <p class="text-light mb-0">
+            <span class="font-mono">{{ user.username }}</span> - {{ user.email }}
+            {% if not user.email_verified %}<span class="badge badge-warning">{{ _('Email non verifie') }}</span>{% endif %}
+        </p>
+        <div class="flex gap-sm flex-wrap mt-1">
+            {% if user.is_superadmin %}<span class="badge badge-error">{{ _('Super-administrateur') }}</span>{% endif %}
+            {% for tenant in admin_tenants %}<span class="badge badge-info"><i class="iconoir-building"></i> {{ _("Admin d'etablissement") }} : {{ tenant.name }}</span>{% endfor %}
+            {% if instructor_count %}<span class="badge badge-default">{{ _('Intervenant') }} ({{ instructor_count }})</span>{% endif %}
+            {% if learner_count %}<span class="badge badge-default">{{ _('Apprenant') }} ({{ learner_count }})</span>{% endif %}
+        </div>
+    </div>
+    {% if can_edit %}
+    <div class="flex gap-sm flex-wrap">
+        {% if user.email.endswith('@imported.local') %}
+        <button type="button" class="btn btn-secondary btn-small" onclick="copyResetLink({{ url_for('admin.user_reset_link', identifier=user.get_url_identifier())|tojson }})">
+            <i class="iconoir-lock"></i> {{ _('Copier un lien de mot de passe') }}
+        </button>
+        {% else %}
+        <form method="POST" action="{{ url_for('admin.send_user_reset', identifier=user.get_url_identifier()) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn-small">
+                <i class="iconoir-lock"></i> {{ _('Envoyer un lien pour choisir un mot de passe') }}
+            </button>
+        </form>
+        {% endif %}
+        {% if can_delete %}
+        <form method="POST" action="{{ url_for('admin.delete_user', identifier=user.get_url_identifier()) }}" class="inline"
+              onsubmit="return confirmDelete(this, {{ _('cet utilisateur et toutes ses donnees')|tojson }});">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-error btn-small">
+                <i class="iconoir-trash"></i> {{ _('Supprimer') }}
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="stats-grid mb-2">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.quiz_count }}</div>
+        <div class="stat-label">{{ _('Quiz completes') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(stats.average_percentage) }}%</div>
+        <div class="stat-label">{{ _('Moyenne generale') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.interview_count }}</div>
+        <div class="stat-label">{{ _('Entretiens') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value text-sm">{% if user.last_login %}{{ user.last_login|localtime }}{% else %}{{ _('Jamais') }}{% endif %}</div>
+        <div class="stat-label">{{ _('Derniere connexion') }}</div>
+    </div>
+</div>
+
+<div class="history-tabs mb-1" role="tablist">
+    <button type="button" class="tab-btn {{ 'active' if tab == 'results' }}" data-tab="results">{{ _('Resultats') }} ({{ responses|length + sessions|length }})</button>
+    <button type="button" class="tab-btn {{ 'active' if tab == 'groups' }}" data-tab="groups">{{ _('Groupes et roles') }} ({{ memberships|length }})</button>
+    {% if can_edit %}
+    <button type="button" class="tab-btn {{ 'active' if tab == 'edit' }}" data-tab="edit">{{ _('Modifier') }}</button>
+    {% endif %}
+</div>
+
+<!-- Results -->
+<div class="card tab-panel" data-panel="results" {{ 'hidden' if tab != 'results' }}>
+    <div class="card-header">{{ _('Quiz') }}</div>
+    <div class="p-2">
+        {% if responses %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Quiz') }}</th>
+                    <th>{{ _('Score') }}</th>
+                    <th>{{ _('Date') }}</th>
+                    <th>{{ _('Duree') }}</th>
+                    <th>{{ _('Statut') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                {% set pct = (response.total_score / response.max_score * 100) if response.max_score > 0 else 0 %}
+                <tr>
+                    <td class="font-medium">{{ response.quiz.title }}</td>
+                    <td>
+                        {{ "%.1f"|format(response.total_score) }} / {{ "%.1f"|format(response.max_score) }}
+                        <span class="score-{{ 'good' if pct >= 80 else 'medium' if pct >= 50 else 'bad' }}">({{ "%.0f"|format(pct) }}%)</span>
+                    </td>
+                    <td>{{ response.submitted_at|localtime }}</td>
+                    <td>
+                        {% if response.started_at and response.submitted_at %}
+                        {{ "%.0f"|format((response.submitted_at - response.started_at).total_seconds() / 60) }} min
+                        {% else %}-{% endif %}
+                    </td>
+                    <td class="flex gap-sm flex-wrap">
+                        {% if response.grading_status == 'review' %}<span class="badge badge-warning">{{ _('A corriger') }}</span>{% endif %}
+                        {% if response.is_late %}<span class="badge badge-error">{{ _('En retard') }}</span>{% endif %}
+                    </td>
+                    <td>
+                        <div class="flex gap-sm">
+                            <a href="{{ url_for('quiz.result', identifier=response.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir les reponses') }}">
+                                <i class="iconoir-eye"></i>
+                            </a>
+                            <a href="{{ url_for('admin.edit_response', identifier=response.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Editer les notes') }}">
+                                <i class="iconoir-edit-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_response', identifier=response.get_url_identifier()) }}" class="inline"
+                                  onsubmit="return confirmDelete(this, {{ _("cette reponse (l'utilisateur pourra repasser le quiz)")|tojson }});">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Supprimer') }}">
+                                    <i class="iconoir-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _("Cet utilisateur n'a pas encore complete de quiz.") }}</p>
+        {% endif %}
+
+        <h4>{{ _('Entretiens') }}</h4>
+        {% if sessions %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Entretien') }}</th>
+                    <th>{{ _('Score') }}</th>
+                    <th>{{ _('Date') }}</th>
+                    <th>{{ _('Echanges') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td class="font-medium">{{ s.interview.title }}</td>
+                    <td>
+                        {% if s.status == 'completed' %}{{ "%.1f"|format(s.total_score) }} / {{ "%.1f"|format(s.max_score) }}
+                        {% elif s.status == 'in_progress' %}<span class="badge badge-info">{{ _('En cours') }}</span>
+                        {% elif s.status == 'error' %}<span class="badge badge-error">{{ _('Erreur') }}</span>
+                        {% else %}<span class="badge badge-default">{{ _('Evaluation') }}</span>{% endif %}
+                    </td>
+                    <td>{{ s.started_at|localtime }}</td>
+                    <td>{{ s.interaction_count }}</td>
+                    <td>
+                        <a href="{{ url_for('interview.admin_session', identifier=s.interview.get_url_identifier(), session_identifier=s.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir la session') }}">
+                            <i class="iconoir-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun entretien pour le moment.') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Groups and roles -->
+<div class="card tab-panel" data-panel="groups" {{ 'hidden' if tab != 'groups' }}>
+    <div class="card-header">{{ _('Groupes et roles') }}</div>
+    <div class="p-2">
+        {% if memberships %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Groupe') }}</th>
+                    <th>{{ _('Etablissement') }}</th>
+                    <th>{{ _('Role dans le groupe') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group, role in memberships %}
+                <tr>
+                    <td><a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="link-primary font-medium">{{ group.name }}</a></td>
+                    <td>
+                        {% if group.tenant %}
+                        {% if current_user.is_superadmin or current_user.is_admin_of_tenant(group.tenant_id) %}
+                        <a href="{{ url_for('tenant.view_tenant', identifier=group.tenant.get_url_identifier()) }}">{{ group.tenant.name }}</a>
+                        {% else %}{{ group.tenant.name }}{% endif %}
+                        {% else %}<span class="text-light">{{ _('Sans etablissement') }}</span>{% endif %}
+                    </td>
+                    <td>{% if role == 'admin' %}<span class="badge badge-info">{{ _('Intervenant') }}</span>{% else %}<span class="badge badge-default">{{ _('Apprenant') }}</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun groupe.') }}</p>
+        {% endif %}
+
+        {% if admin_tenants %}
+        <h4>{{ _('Etablissements administres') }}</h4>
+        <div class="flex gap-sm flex-wrap">
+            {% for tenant in admin_tenants %}
+            <a href="{{ url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()) }}" class="badge badge-info"><i class="iconoir-building"></i> {{ tenant.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if can_edit %}
+<!-- Edit -->
+<div class="card tab-panel" data-panel="edit" {{ 'hidden' if tab != 'edit' }}>
+    <div class="card-header">{{ _("Modifier l'utilisateur") }}</div>
+    <form method="POST" action="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="p-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="grid-2 gap-md">
+            <div class="form-group">
+                <label class="form-label" for="first_name">{{ _('Prenom') }}</label>
+                <input type="text" id="first_name" name="first_name" class="form-input" value="{{ user.first_name or '' }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="last_name">{{ _('Nom') }}</label>
+                <input type="text" id="last_name" name="last_name" class="form-input" value="{{ user.last_name or '' }}">
+            </div>
+        </div>
+
+        <div class="grid-2 gap-md">
+            <div class="form-group">
+                <label class="form-label" for="username">{{ _("Nom d'utilisateur") }} *</label>
+                <input type="text" id="username" name="username" class="form-input" value="{{ user.username }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="email">{{ _('Email') }} *</label>
+                <input type="email" id="email" name="email" class="form-input" value="{{ user.email }}" required>
+            </div>
+        </div>
+
+        {% if not user.email_verified %}
+        <div class="alert alert-warning">
+            <strong><i class="iconoir-mail"></i> {{ _('Email non verifie') }}</strong>
+            <div class="flex gap-sm flex-wrap mt-1">
+                <button type="submit" name="action" value="verify_email" class="btn btn-success btn-small" formnovalidate>
+                    <i class="iconoir-check"></i> {{ _('Verifier manuellement') }}
+                </button>
+                <button type="submit" name="action" value="resend_verification" class="btn btn-secondary btn-small" formnovalidate>
+                    <i class="iconoir-send"></i> {{ _('Renvoyer email') }}
+                </button>
+            </div>
+            <small class="text-light block mt-1">{{ _("Verifier manuellement permet a l'utilisateur de se connecter sans cliquer sur le lien email.") }}</small>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label class="form-label" for="password">{{ _('Nouveau mot de passe') }}</label>
+            <input type="password" id="password" name="password" class="form-input" autocomplete="new-password"
+                   placeholder="{{ _('Laisser vide pour ne pas modifier') }}">
+        </div>
+
+        {% if is_superadmin %}
+        {{ roles.global_role_picker(global_role, tenants, user_tenant_ids) }}
+        {% else %}
+        <div class="form-group">
+            <label class="form-label">{{ _('Role global') }}</label>
+            <div>
+                {% if global_role == 'tenant_admin' %}<span class="badge badge-info">{{ _("Admin d'etablissement") }}</span>
+                {% else %}<span class="badge badge-default">{{ _('Aucun : droits definis groupe par groupe') }}</span>{% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {{ roles.group_roles_picker(groups, group_roles, can_set_instructor, global_role) }}
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="iconoir-check"></i> {{ _('Enregistrer') }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div class="mt-2">
+    <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
+        <i class="iconoir-arrow-left"></i> {{ _('Retour aux utilisateurs') }}
+    </a>
+</div>
+
+{% if can_edit %}{{ roles.roles_script() }}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyResetLink(url) {
+    fetch(url, {method: 'POST', headers: {'X-CSRFToken': getCSRFToken()}})
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => navigator.clipboard.writeText(data.url).then(() =>
+            Toast.show({{ _('Lien copie, valable')|tojson }} + ' ' + data.hours + ' h', 'success')))
+        .catch(() => Toast.show({{ _('Action impossible')|tojson }}, 'error'));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Tabs (remembered in the URL hash)
+    const buttons = document.querySelectorAll('.tab-btn[data-tab]');
+    function showTab(name) {
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+        document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+    }
+    buttons.forEach(b => b.addEventListener('click', () => { showTab(b.dataset.tab); history.replaceState(null, '', '#' + b.dataset.tab); }));
+    if (location.hash && document.querySelector('.tab-panel[data-panel="' + location.hash.slice(1) + '"]')) {
+        showTab(location.hash.slice(1));
+    }
+});
+</script>
+{% endblock %}

@@ -25,12 +25,20 @@ Le rôle d'intervenant ou d'apprenant s'attribue groupe par groupe. Détails : [
 
 Un compte créé par un intervenant ou un administrateur est considéré comme vérifié : pas besoin de confirmer l'email.
 
-### Modifier un utilisateur
+### La fiche d'une personne
 
-Un intervenant peut modifier ses apprenants : profil, mot de passe et groupes de son périmètre. Depuis la fiche, on peut aussi :
+Un clic sur un nom, dans la liste des utilisateurs, la page d'un groupe ou les résultats d'un quiz, ouvre la fiche de la personne. En haut, son identité et ses rôles (super-administrateur, établissements administrés, nombre de groupes comme intervenant ou apprenant), et quelques chiffres : quiz complétés, moyenne, entretiens, dernière connexion. Puis trois onglets :
 
-- **envoyer un lien pour choisir un mot de passe**, ou le copier pour le transmettre soi-même ;
-- confirmer manuellement l'email d'un compte dont la vérification est restée en attente (badge « Email non vérifié » dans la liste).
+- **Résultats** : ses copies de quiz (voir les réponses, éditer les notes, supprimer une copie pour qu'elle repasse le quiz) et ses sessions d'entretien, limitées aux contenus de votre périmètre ;
+- **Groupes et rôles** : chaque groupe avec son établissement et le rôle de la personne ;
+- **Modifier** : profil, mot de passe, rôle global, rôle groupe par groupe. L'onglet n'apparaît que si vous pouvez modifier ce compte.
+
+Un intervenant peut modifier ses apprenants : profil, mot de passe et groupes de son périmètre. En haut de la fiche, on peut aussi :
+
+- **envoyer un lien pour choisir un mot de passe**, ou le copier pour le transmettre soi-même (compte sans email réel) ;
+- **supprimer** le compte, si vous gérez tous ses groupes.
+
+Pour un compte dont l'email n'est pas vérifié (badge « Email non vérifié »), l'onglet **Modifier** permet de le confirmer à la main ou de renvoyer l'email de vérification.
 
 ### Import CSV
 

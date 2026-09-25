@@ -81,7 +81,7 @@
                 {% for response in responses %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('admin.user_grades', identifier=response.user.get_url_identifier()) }}" class="link-primary font-medium">
+                        <a href="{{ url_for('admin.user_detail', identifier=response.user.get_url_identifier()) }}" class="link-primary font-medium">
                             {{ response.user.full_name }}
                         </a>
                         <br>

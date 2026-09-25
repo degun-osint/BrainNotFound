@@ -131,7 +131,7 @@ Un code est refusé si le groupe est inactif ou complet, ou si l'établissement 
 
 ### Invitations par email
 
-Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable 72 heures. Depuis la page du groupe ou la fiche de l'utilisateur, un intervenant peut renvoyer ce lien (**Envoyer un lien pour choisir un mot de passe**) ou le copier pour un compte sans email réel.
+Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable 72 heures. Depuis la page du groupe ou la fiche de la personne, un intervenant peut renvoyer ce lien (**Envoyer un lien pour choisir un mot de passe**) ou le copier pour un compte sans email réel.
 
 ## Filtrer par établissement
 

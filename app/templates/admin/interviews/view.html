@@ -193,7 +193,7 @@
                     {% if session.is_test %}
                     <span class="badge badge-light">TEST</span>
                     {% endif %}
-                    <a href="{{ url_for('admin.user_grades', identifier=session.user.get_url_identifier()) }}" class="link-primary font-medium">
+                    <a href="{{ url_for('admin.user_detail', identifier=session.user.get_url_identifier()) }}" class="link-primary font-medium">
                         {{ session.user.full_name }}
                     </a>
                     <br><small class="text-light">{{ session.user.username }}</small>
