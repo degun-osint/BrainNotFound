@@ -23,7 +23,7 @@ from app.utils.scope import (
     get_tenant_context, get_accessible_tenants, set_tenant_context as set_scope_tenant,
     scoped_groups, scoped_group_ids, scoped_quizzes, scoped_interviews, scoped_users,
     scoped_user_ids, validate_group_ids, assign_groups, default_tenant_id, quota_tenant,
-    filter_content_status, CONTENT_STATUSES,
+    filter_content_status, CONTENT_STATUSES, breadcrumb,
 )
 from datetime import datetime
 from io import BytesIO
@@ -104,9 +104,9 @@ def superadmin_required(f):
 
 # ==================== Tenant Context Management ====================
 
-@admin_bp.context_processor
+@admin_bp.app_context_processor  # the navbar selector shows on every page, not only /admin ones
 def inject_tenant_context():
-    """Make tenant context available in all admin templates."""
+    """Navbar organization selector, on every page an admin sees."""
     if current_user.is_authenticated and current_user.is_any_admin:
         tenant_context = get_tenant_context()
         accessible_tenants = get_accessible_tenants()
@@ -1348,15 +1348,18 @@ def edit_group(identifier):
 
         if not name:
             flash(_l('Le nom du groupe est requis'), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
         # Moving a group is limited to the tenants we administer
         if tenant_id and tenant_id != group.tenant_id and tenant_id not in {t.id for t in tenants}:
             flash(_l('Acces non autorise a cet etablissement'), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
         if tenant_id and tenant_id != group.tenant_id and not db.session.get(Tenant, tenant_id).can_add_group():
             flash(_l('Limite de groupes atteinte (%(max)s)', max=db.session.get(Tenant, tenant_id).max_groups), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
         group.name = name
         group.description = request.form.get('description', '')
@@ -1369,7 +1372,8 @@ def edit_group(identifier):
         flash(_l('Groupe mis a jour avec succes'), 'success')
         return redirect(url_for('admin.groups'))
 
-    return render_template('admin/edit_group.html', group=group, tenants=tenants)
+    return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
 @admin_bp.route('/group/<identifier>/toggle', methods=['POST'])
 @login_required
@@ -1468,7 +1472,7 @@ def group_detail(identifier):
     ).group_by(QuizResponse.quiz_id).all()) if quizzes and learner_ids else {}
 
     manageable = {u.id: current_user.can_manage_user(u) for u, _, _ in rows}
-    return render_template('admin/group_detail.html', group=group, learners=learners, instructors=instructors,
+    return render_template('admin/group_detail.html', breadcrumb=breadcrumb(group.tenant, group), group=group, learners=learners, instructors=instructors,
                            response_counts=response_counts, quizzes=quizzes, interviews=interviews,
                            quiz_done=quiz_done, manageable=manageable,
                            can_manage_roles=current_user.role_rank >= 2,
@@ -1899,7 +1903,13 @@ def _user_page_context(user):
     }
 
     can_edit = user.id != current_user.id and current_user.can_manage_user(user)
-    ctx = dict(user=user, memberships=memberships, admin_tenants=user.admin_tenants.order_by(Tenant.name).all(),
+    # One group: Organization > Group > Person; otherwise Users > Person
+    if len(memberships) == 1 and current_user.can_access_group(memberships[0][0]):
+        group = memberships[0][0]
+        trail = breadcrumb(group.tenant, group, (user.full_name, None))
+    else:
+        trail = [(_l('Utilisateurs'), url_for('admin.users')), (user.full_name, None)]
+    ctx = dict(breadcrumb=trail, user=user, memberships=memberships, admin_tenants=user.admin_tenants.order_by(Tenant.name).all(),
                responses=responses, sessions=sessions, stats=stats, can_edit=can_edit,
                can_delete=user.id != current_user.id and current_user.can_manage_user(user, for_delete=True))
     if can_edit:

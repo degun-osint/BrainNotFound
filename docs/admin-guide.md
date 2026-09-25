@@ -2,6 +2,12 @@
 
 Ce guide couvre la gestion des utilisateurs, des quiz, des entretiens et des paramètres de la plateforme. Les établissements, groupes, rôles et quotas ont leur propre page : [Établissements et groupes](groups-tenants).
 
+## Se repérer
+
+Le menu donne accès au tableau de bord, aux évaluations (quiz, entretiens), aux établissements, aux groupes et aux utilisateurs. Le menu du compte, sous votre identifiant, regroupe le profil, les paramètres (super-administrateurs), le thème, la langue et la déconnexion.
+
+Les fiches Établissement, Groupe et Personne affichent en haut un fil d'Ariane (Établissements › Lycée › 3A › Personne) pour remonter d'un niveau sans repasser par le menu.
+
 ## Rôles en bref
 
 | Rôle | Périmètre |
@@ -215,7 +221,7 @@ Depuis la page de l'entretien : nombre de sessions et taux de complétion, score
 
 ## Paramètres du site
 
-> Réservés aux super-administrateurs : icône engrenage de la barre de navigation.
+> Réservés aux super-administrateurs : menu du compte (votre identifiant, en haut à droite) > **Paramètres**.
 
 ### Identité du site
 

@@ -102,7 +102,7 @@ MAIL_DEFAULT_SENDER=BrainNotFound <noreply@example.com>
 
 ## Paramètres dans l'interface
 
-Les super-administrateurs règlent le reste dans **Paramètres** (icône engrenage). Les changements s'appliquent immédiatement, sans redémarrage.
+Les super-administrateurs règlent le reste dans **Paramètres** (menu du compte, en haut à droite). Les changements s'appliquent immédiatement, sans redémarrage.
 
 ### Identité du site
 

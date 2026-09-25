@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 15:19+0200\n"
+"POT-Creation-Date: 2026-09-25 15:30+0200\n"
 "PO-Revision-Date: 2024-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/models/group.py:103 app/routes/auth.py:148 app/routes/auth.py:368
+#: app/models/group.py:103 app/routes/auth.py:154 app/routes/auth.py:374
 msgid "Code de groupe invalide ou inactif"
 msgstr ""
 
@@ -30,24 +30,24 @@ msgstr ""
 msgid "Cet etablissement n'accepte plus de nouvelles inscriptions"
 msgstr ""
 
-#: app/routes/admin.py:89 app/routes/interview.py:82
-#: app/routes/interview.py:349 app/routes/interview.py:414
-#: app/routes/interview.py:440 app/routes/interview.py:469
-#: app/routes/quiz.py:634 app/routes/quiz.py:669 app/routes/tenant.py:38
-#: app/routes/tenant.py:161
+#: app/routes/admin.py:89 app/routes/interview.py:60
+#: app/routes/interview.py:327 app/routes/interview.py:392
+#: app/routes/interview.py:418 app/routes/interview.py:447
+#: app/routes/quiz.py:634 app/routes/quiz.py:669 app/routes/tenant.py:39
+#: app/routes/tenant.py:162
 msgid "Acces non autorise"
 msgstr ""
 
-#: app/routes/admin.py:99 app/routes/tenant.py:25
+#: app/routes/admin.py:99 app/routes/tenant.py:26
 msgid "Acces reserve aux super-administrateurs"
 msgstr ""
 
-#: app/routes/admin.py:132 app/routes/tenant.py:158 app/routes/tenant.py:218
-#: app/routes/tenant.py:275
+#: app/routes/admin.py:132 app/routes/tenant.py:159 app/routes/tenant.py:220
+#: app/routes/tenant.py:277
 msgid "Etablissement introuvable"
 msgstr ""
 
-#: app/routes/admin.py:137 app/routes/admin.py:1355
+#: app/routes/admin.py:137 app/routes/admin.py:1356
 msgid "Acces non autorise a cet etablissement"
 msgstr ""
 
@@ -94,7 +94,7 @@ msgstr ""
 #: app/routes/admin.py:422 app/routes/admin.py:580 app/routes/admin.py:621
 #: app/routes/admin.py:846 app/routes/admin.py:877 app/routes/admin.py:945
 #: app/routes/admin.py:979 app/routes/admin.py:1009 app/routes/admin.py:1078
-#: app/routes/admin.py:2712 app/routes/admin.py:2726 app/routes/quiz.py:235
+#: app/routes/admin.py:2722 app/routes/admin.py:2736 app/routes/quiz.py:235
 #: app/routes/quiz.py:245 app/routes/quiz.py:541
 msgid "Quiz introuvable"
 msgstr ""
@@ -102,8 +102,8 @@ msgstr ""
 #: app/routes/admin.py:431 app/routes/admin.py:589 app/routes/admin.py:632
 #: app/routes/admin.py:853 app/routes/admin.py:882 app/routes/admin.py:950
 #: app/routes/admin.py:988 app/routes/admin.py:1016 app/routes/admin.py:1083
-#: app/routes/admin.py:2455 app/routes/admin.py:2521 app/routes/admin.py:2643
-#: app/routes/admin.py:2721
+#: app/routes/admin.py:2465 app/routes/admin.py:2531 app/routes/admin.py:2653
+#: app/routes/admin.py:2731
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr ""
 
@@ -160,7 +160,7 @@ msgstr ""
 msgid "Choisissez un etablissement pour ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1295 app/routes/admin.py:1358
+#: app/routes/admin.py:1295 app/routes/admin.py:1360
 #: app/templates/admin/tenants/view.html:81
 #, python-format
 msgid "Limite de groupes atteinte (%(max)s)"
@@ -171,361 +171,390 @@ msgstr ""
 msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
 msgstr ""
 
-#: app/routes/admin.py:1327 app/routes/admin.py:1380 app/routes/admin.py:1401
-#: app/routes/admin.py:1426 app/routes/admin.py:1639 app/routes/admin.py:1736
+#: app/routes/admin.py:1327 app/routes/admin.py:1384 app/routes/admin.py:1405
+#: app/routes/admin.py:1430 app/routes/admin.py:1643 app/routes/admin.py:1740
 msgid "Groupe introuvable"
 msgstr ""
 
-#: app/routes/admin.py:1332 app/routes/admin.py:1385 app/routes/admin.py:1406
-#: app/routes/admin.py:1429 app/routes/admin.py:1646 app/routes/admin.py:1747
-#: app/routes/admin.py:2379
+#: app/routes/admin.py:1332 app/routes/admin.py:1389 app/routes/admin.py:1410
+#: app/routes/admin.py:1433 app/routes/admin.py:1650 app/routes/admin.py:1751
+#: app/routes/admin.py:2389
 msgid "Vous n'avez pas acces a ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1369
+#: app/routes/admin.py:1352 app/routes/admin.py:1358 app/routes/admin.py:1362
+#: app/routes/admin.py:1376 app/templates/admin/edit_group.html:4
+#: app/templates/admin/edit_page.html:3 app/templates/admin/edit_quiz.html:3
+#: app/templates/admin/group_detail.html:17
+#: app/templates/admin/group_detail.html:81
+#: app/templates/admin/group_detail.html:240 app/templates/admin/groups.html:70
+#: app/templates/admin/interviews/list.html:87
+#: app/templates/admin/interviews/view.html:13
+#: app/templates/admin/interviews/wizard.html:3
+#: app/templates/admin/interviews/wizard.html:171
+#: app/templates/admin/pages.html:65 app/templates/admin/preview_quiz.html:18
+#: app/templates/admin/quizzes.html:80 app/templates/admin/tenants/edit.html:3
+#: app/templates/admin/tenants/list.html:48
+#: app/templates/admin/tenants/view.html:21
+#: app/templates/admin/tenants/view.html:109
+#: app/templates/admin/tenants/view.html:160
+#: app/templates/admin/tenants/view.html:218
+#: app/templates/admin/tenants/view.html:252
+#: app/templates/admin/user_detail.html:75 app/templates/admin/users.html:191
+msgid "Modifier"
+msgstr ""
+
+#: app/routes/admin.py:1372
 msgid "Groupe mis a jour avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1392
+#: app/routes/admin.py:1396
 #, python-format
 msgid "Groupe %(status)s"
 msgstr ""
 
-#: app/routes/admin.py:1411
+#: app/routes/admin.py:1415
 msgid "Impossible de supprimer un groupe qui contient des utilisateurs"
 msgstr ""
 
-#: app/routes/admin.py:1417
+#: app/routes/admin.py:1421
 msgid "Groupe supprime avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1519 app/routes/admin.py:1540 app/routes/admin.py:1560
-#: app/routes/admin.py:1601 app/routes/admin.py:1931 app/routes/admin.py:2210
-#: app/routes/admin.py:2302 app/routes/admin.py:2459 app/routes/admin.py:2525
+#: app/routes/admin.py:1523 app/routes/admin.py:1544 app/routes/admin.py:1564
+#: app/routes/admin.py:1605 app/routes/admin.py:1941 app/routes/admin.py:2220
+#: app/routes/admin.py:2312 app/routes/admin.py:2469 app/routes/admin.py:2535
 msgid "Vous n'avez pas acces a cet utilisateur"
 msgstr ""
 
-#: app/routes/admin.py:1521
+#: app/routes/admin.py:1525
 #, python-format
 msgid "%(name)s fait deja partie du groupe"
 msgstr ""
 
-#: app/routes/admin.py:1527
+#: app/routes/admin.py:1531
 #, python-format
 msgid "%(name)s ajoute au groupe"
 msgstr ""
 
-#: app/routes/admin.py:1544
+#: app/routes/admin.py:1548
 #, python-format
 msgid "%(name)s retire du groupe"
 msgstr ""
 
-#: app/routes/admin.py:1567
+#: app/routes/admin.py:1571
 #, python-format
 msgid "Role mis a jour pour %(name)s"
 msgstr ""
 
-#: app/routes/admin.py:1581
+#: app/routes/admin.py:1585
 #, python-format
 msgid ""
 "Nouveau code d'acces : %(code)s. L'ancien code et l'ancien lien ne "
 "fonctionnent plus."
 msgstr ""
 
-#: app/routes/admin.py:1603
+#: app/routes/admin.py:1607
 #, python-format
 msgid ""
 "%(name)s n'a pas d'adresse email reelle : copiez le lien et transmettez-"
 "le."
 msgstr ""
 
-#: app/routes/admin.py:1607
+#: app/routes/admin.py:1611
 #, python-format
 msgid "Lien de reinitialisation envoye a %(email)s"
 msgstr ""
 
-#: app/routes/admin.py:1609 app/routes/admin.py:2058 app/routes/admin.py:2238
+#: app/routes/admin.py:1613 app/routes/admin.py:2068 app/routes/admin.py:2248
 msgid "Erreur lors de l'envoi de l'email."
 msgstr ""
 
-#: app/routes/admin.py:1762
+#: app/routes/admin.py:1766
 msgid "Le sujet et le message sont requis"
 msgstr ""
 
-#: app/routes/admin.py:1766
+#: app/routes/admin.py:1770
 msgid "Aucun utilisateur avec email dans ce groupe"
 msgstr ""
 
-#: app/routes/admin.py:1772
+#: app/routes/admin.py:1776
 #, python-format
 msgid "%(count)s email(s) envoye(s) avec succes"
 msgstr ""
 
-#: app/routes/admin.py:1774
+#: app/routes/admin.py:1778
 #, python-format
 msgid "%(count)s email(s) echoue(s)"
 msgstr ""
 
-#: app/routes/admin.py:1840
+#: app/routes/admin.py:1844
 #, python-format
 msgid "Espace de stockage de l'etablissement plein (%(max)s Mo)"
 msgstr ""
 
-#: app/routes/admin.py:1926 app/routes/admin.py:2197 app/routes/admin.py:2292
-#: app/routes/tenant.py:345 app/routes/tenant.py:365
+#: app/routes/admin.py:1911 app/templates/admin/dashboard.html:37
+#: app/templates/admin/tenants/list.html:38
+#: app/templates/admin/tenants/view.html:39
+#: app/templates/admin/tenants/view.html:281 app/templates/base.html:57
+msgid "Utilisateurs"
+msgstr ""
+
+#: app/routes/admin.py:1936 app/routes/admin.py:2207 app/routes/admin.py:2302
+#: app/routes/tenant.py:347 app/routes/tenant.py:367
 msgid "Utilisateur introuvable"
 msgstr ""
 
-#: app/routes/admin.py:2026 app/routes/admin.py:2248
+#: app/routes/admin.py:2036 app/routes/admin.py:2258
 msgid "Nom d'utilisateur et email sont requis"
 msgstr ""
 
-#: app/routes/admin.py:2028 app/routes/admin.py:2250 app/routes/auth.py:142
+#: app/routes/admin.py:2038 app/routes/admin.py:2260 app/routes/auth.py:148
 msgid "Ce nom d'utilisateur existe deja"
 msgstr ""
 
-#: app/routes/admin.py:2030 app/routes/admin.py:2252 app/routes/auth.py:144
+#: app/routes/admin.py:2040 app/routes/admin.py:2262 app/routes/auth.py:150
 msgid "Cette adresse email est deja utilisee"
 msgstr ""
 
-#: app/routes/admin.py:2032
+#: app/routes/admin.py:2042
 msgid "Vous devez assigner au moins un groupe"
 msgstr ""
 
-#: app/routes/admin.py:2034
+#: app/routes/admin.py:2044
 msgid "Choisissez au moins un etablissement pour un admin d'etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2050
+#: app/routes/admin.py:2060
 #, python-format
 msgid "Utilisateur \"%(username)s\" cree avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2053
+#: app/routes/admin.py:2063
 msgid ""
 "Pas d'email reel : copiez un lien de mot de passe depuis la page du "
 "groupe."
 msgstr ""
 
-#: app/routes/admin.py:2056
+#: app/routes/admin.py:2066
 #, python-format
 msgid "Invitation envoyee a %(email)s pour choisir un mot de passe."
 msgstr ""
 
-#: app/routes/admin.py:2081 app/routes/admin.py:2086 app/routes/admin.py:2574
-#: app/routes/admin.py:3088
+#: app/routes/admin.py:2091 app/routes/admin.py:2096 app/routes/admin.py:2584
+#: app/routes/admin.py:3098
 msgid "Aucun fichier selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2093
+#: app/routes/admin.py:2103
 msgid "Veuillez selectionner un groupe par defaut"
 msgstr ""
 
-#: app/routes/admin.py:2100
+#: app/routes/admin.py:2110
 msgid "Groupe invalide"
 msgstr ""
 
-#: app/routes/admin.py:2172
+#: app/routes/admin.py:2182
 #, python-format
 msgid ""
 "%(count)s utilisateur(s) importe(s) avec succes dans le groupe "
 "\"%(group)s\""
 msgstr ""
 
-#: app/routes/admin.py:2174 app/routes/admin.py:2428
+#: app/routes/admin.py:2184 app/routes/admin.py:2438
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s)"
 msgstr ""
 
-#: app/routes/admin.py:2179
+#: app/routes/admin.py:2189
 #, python-format
 msgid "... et %(count)s autre(s) erreur(s)"
 msgstr ""
 
-#: app/routes/admin.py:2185 app/routes/interview.py:1417
+#: app/routes/admin.py:2195 app/routes/interview.py:1395
 #, python-format
 msgid "Erreur lors de l'import: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2205
+#: app/routes/admin.py:2215
 msgid "Vous ne pouvez pas modifier votre propre compte ici"
 msgstr ""
 
-#: app/routes/admin.py:2230
+#: app/routes/admin.py:2240
 #, python-format
 msgid "Email de %(username)s verifie manuellement."
 msgstr ""
 
-#: app/routes/admin.py:2236
+#: app/routes/admin.py:2246
 #, python-format
 msgid "Email de verification renvoye a %(email)s."
 msgstr ""
 
-#: app/routes/admin.py:2278
+#: app/routes/admin.py:2288
 #, python-format
 msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2297
+#: app/routes/admin.py:2307
 msgid "Vous ne pouvez pas supprimer votre propre compte"
 msgstr ""
 
-#: app/routes/admin.py:2309
+#: app/routes/admin.py:2319
 #, python-format
 msgid "Utilisateur \"%(username)s\" supprime avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2321 app/routes/admin.py:2365
+#: app/routes/admin.py:2331 app/routes/admin.py:2375
 #: app/templates/admin/users.html:296 app/templates/admin/users.html:323
 msgid "Aucun utilisateur selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2348
+#: app/routes/admin.py:2358
 #, python-format
 msgid "%(count)s utilisateur(s) supprime(s)"
 msgstr ""
 
-#: app/routes/admin.py:2350
+#: app/routes/admin.py:2360
 #, python-format
 msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
 msgstr ""
 
-#: app/routes/admin.py:2369
+#: app/routes/admin.py:2379
 msgid "Aucun groupe selectionne"
 msgstr ""
 
-#: app/routes/admin.py:2374
+#: app/routes/admin.py:2384
 msgid "Groupe non trouve"
 msgstr ""
 
-#: app/routes/admin.py:2426
+#: app/routes/admin.py:2436
 #, python-format
 msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
 msgstr ""
 
-#: app/routes/admin.py:2441 app/routes/admin.py:2512 app/routes/admin.py:2634
-#: app/routes/admin.py:2648
+#: app/routes/admin.py:2451 app/routes/admin.py:2522 app/routes/admin.py:2644
+#: app/routes/admin.py:2658
 msgid "Reponse introuvable"
 msgstr ""
 
-#: app/routes/admin.py:2495
+#: app/routes/admin.py:2505
 #, python-format
 msgid "Scores mis a jour pour %(name)s"
 msgstr ""
 
-#: app/routes/admin.py:2533
+#: app/routes/admin.py:2543
 #, python-format
 msgid ""
 "Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
 "quiz."
 msgstr ""
 
-#: app/routes/admin.py:2563
+#: app/routes/admin.py:2573
 msgid "Vous devez generer au moins une question"
 msgstr ""
 
-#: app/routes/admin.py:2568
+#: app/routes/admin.py:2578
 msgid "Veuillez selectionner un fichier"
 msgstr ""
 
-#: app/routes/admin.py:2578
+#: app/routes/admin.py:2588
 msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
 msgstr ""
 
-#: app/routes/admin.py:2587
+#: app/routes/admin.py:2597
 msgid ""
 "Le fichier ne contient pas assez de texte exploitable (minimum 100 "
 "caracteres)"
 msgstr ""
 
-#: app/routes/admin.py:2592
+#: app/routes/admin.py:2602
 msgid "Quota mensuel de generations IA atteint pour cet etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2614
+#: app/routes/admin.py:2624
 #, python-format
 msgid "Erreur lors de la generation: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2619
+#: app/routes/admin.py:2629
 #, python-format
 msgid "Erreur lors du traitement du fichier: %(error)s"
 msgstr ""
 
-#: app/routes/admin.py:2677 app/routes/admin.py:2758
+#: app/routes/admin.py:2687 app/routes/admin.py:2768
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr ""
 
-#: app/routes/admin.py:2829
+#: app/routes/admin.py:2839
 msgid "Parametres sauvegardes avec succes"
 msgstr ""
 
-#: app/routes/admin.py:2855
+#: app/routes/admin.py:2865
 msgid "URL du fournisseur requise"
 msgstr ""
 
-#: app/routes/admin.py:2857
+#: app/routes/admin.py:2867
 msgid "Modele requis pour ce fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2859
+#: app/routes/admin.py:2869
 msgid "Configuration non enregistree : utilisation de Grok non confirmee"
 msgstr ""
 
-#: app/routes/admin.py:2908
+#: app/routes/admin.py:2918
 #, python-format
 msgid ""
 "Modele inconnu chez ce fournisseur : %(model)s. Configuration non "
 "modifiee."
 msgstr ""
 
-#: app/routes/admin.py:2927
+#: app/routes/admin.py:2937
 msgid "Cle API refusee par le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2929
+#: app/routes/admin.py:2939
 msgid "Impossible de joindre le fournisseur"
 msgstr ""
 
-#: app/routes/admin.py:2933
+#: app/routes/admin.py:2943
 msgid "Configuration incomplete (cle ou URL manquante)"
 msgstr ""
 
-#: app/routes/admin.py:3054 app/routes/admin.py:3091
+#: app/routes/admin.py:3064 app/routes/admin.py:3101
 #: app/templates/admin/settings.html:351
 msgid "Tapez RESTAURER pour confirmer"
 msgstr ""
 
-#: app/routes/admin.py:3096
+#: app/routes/admin.py:3106
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr ""
 
-#: app/routes/admin.py:3146 app/routes/admin.py:3210
-#: app/routes/interview.py:565
+#: app/routes/admin.py:3156 app/routes/admin.py:3220
+#: app/routes/interview.py:543
 msgid "Le titre est requis"
 msgstr ""
 
-#: app/routes/admin.py:3156 app/routes/admin.py:3220
+#: app/routes/admin.py:3166 app/routes/admin.py:3230
 msgid "Ce slug existe deja"
 msgstr ""
 
-#: app/routes/admin.py:3161 app/routes/admin.py:3225
+#: app/routes/admin.py:3171 app/routes/admin.py:3235
 msgid "Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
 msgstr ""
 
-#: app/routes/admin.py:3176
+#: app/routes/admin.py:3186
 msgid "Page creee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:3192 app/routes/admin.py:3253 app/routes/admin.py:3271
+#: app/routes/admin.py:3202 app/routes/admin.py:3263 app/routes/admin.py:3281
 msgid "Page introuvable"
 msgstr ""
 
-#: app/routes/admin.py:3238
+#: app/routes/admin.py:3248
 msgid "Page modifiee avec succes"
 msgstr ""
 
-#: app/routes/admin.py:3258
+#: app/routes/admin.py:3268
 msgid "Page supprimee avec succes"
 msgstr ""
 
@@ -533,293 +562,293 @@ msgstr ""
 msgid "Trop de tentatives. Veuillez reessayer dans quelques minutes."
 msgstr ""
 
-#: app/routes/auth.py:103
+#: app/routes/auth.py:109
 msgid "Veuillez verifier votre adresse email avant de vous connecter."
 msgstr ""
 
-#: app/routes/auth.py:117
+#: app/routes/auth.py:123
 msgid "Identifiants incorrects"
 msgstr ""
 
-#: app/routes/auth.py:138
+#: app/routes/auth.py:144
 msgid "Tous les champs sont requis"
 msgstr ""
 
-#: app/routes/auth.py:140
+#: app/routes/auth.py:146
 msgid "Les mots de passe ne correspondent pas"
 msgstr ""
 
-#: app/routes/auth.py:173
+#: app/routes/auth.py:179
 msgid "Erreur lors de l'envoi de l'email de verification. Veuillez reessayer."
 msgstr ""
 
-#: app/routes/auth.py:181
+#: app/routes/auth.py:187
 msgid "Vous avez ete deconnecte."
 msgstr ""
 
-#: app/routes/auth.py:201
+#: app/routes/auth.py:207
 msgid ""
 "Votre adresse email a ete verifiee ! Vous pouvez maintenant vous "
 "connecter."
 msgstr ""
 
-#: app/routes/auth.py:203
+#: app/routes/auth.py:209
 msgid "Le lien de verification est invalide ou a expire."
 msgstr ""
 
-#: app/routes/auth.py:219 app/routes/auth.py:249
+#: app/routes/auth.py:225 app/routes/auth.py:255
 msgid "Veuillez entrer votre adresse email."
 msgstr ""
 
-#: app/routes/auth.py:226
+#: app/routes/auth.py:232
 msgid "Un nouvel email de verification a ete envoye."
 msgstr ""
 
-#: app/routes/auth.py:228
+#: app/routes/auth.py:234
 msgid "Erreur lors de l'envoi de l'email. Veuillez reessayer."
 msgstr ""
 
-#: app/routes/auth.py:231
+#: app/routes/auth.py:237
 msgid ""
 "Si cette adresse est associee a un compte non verifie, un email a ete "
 "envoye."
 msgstr ""
 
-#: app/routes/auth.py:258
+#: app/routes/auth.py:264
 msgid ""
 "Si cette adresse est associee a un compte, un email de reinitialisation a"
 " ete envoye."
 msgstr ""
 
-#: app/routes/auth.py:274
+#: app/routes/auth.py:280
 msgid "Le lien de reinitialisation est invalide ou a expire."
 msgstr ""
 
-#: app/routes/auth.py:282
+#: app/routes/auth.py:288
 msgid "Veuillez entrer un mot de passe."
 msgstr ""
 
-#: app/routes/auth.py:284
+#: app/routes/auth.py:290
 msgid "Les mots de passe ne correspondent pas."
 msgstr ""
 
-#: app/routes/auth.py:289
+#: app/routes/auth.py:295
 msgid ""
 "Votre mot de passe a ete reinitialise ! Vous pouvez maintenant vous "
 "connecter."
 msgstr ""
 
-#: app/routes/auth.py:310
+#: app/routes/auth.py:316
 msgid "Informations mises a jour."
 msgstr ""
 
-#: app/routes/auth.py:312
+#: app/routes/auth.py:318
 msgid "Le prenom et le nom sont requis."
 msgstr ""
 
-#: app/routes/auth.py:320
+#: app/routes/auth.py:326
 msgid "Mot de passe actuel incorrect."
 msgstr ""
 
-#: app/routes/auth.py:322
+#: app/routes/auth.py:328
 msgid "Veuillez entrer un nouveau mot de passe."
 msgstr ""
 
-#: app/routes/auth.py:324
+#: app/routes/auth.py:330
 msgid "Les nouveaux mots de passe ne correspondent pas."
 msgstr ""
 
-#: app/routes/auth.py:328
+#: app/routes/auth.py:334
 msgid "Mot de passe modifie avec succes."
 msgstr ""
 
-#: app/routes/auth.py:335 app/routes/auth.py:494
+#: app/routes/auth.py:341 app/routes/auth.py:500
 msgid "Mot de passe incorrect."
 msgstr ""
 
-#: app/routes/auth.py:337
+#: app/routes/auth.py:343
 msgid "Veuillez entrer une adresse email."
 msgstr ""
 
-#: app/routes/auth.py:339
+#: app/routes/auth.py:345
 msgid "Cette adresse email est deja utilisee."
 msgstr ""
 
-#: app/routes/auth.py:345
+#: app/routes/auth.py:351
 msgid "Un email de verification a ete envoye a votre nouvelle adresse."
 msgstr ""
 
-#: app/routes/auth.py:348
+#: app/routes/auth.py:354
 msgid "Erreur lors de l'envoi de l'email de verification."
 msgstr ""
 
-#: app/routes/auth.py:362
+#: app/routes/auth.py:368
 msgid "Veuillez entrer un code de groupe"
 msgstr ""
 
-#: app/routes/auth.py:370
+#: app/routes/auth.py:376
 msgid "Vous etes deja membre de ce groupe"
 msgstr ""
 
-#: app/routes/auth.py:376
+#: app/routes/auth.py:382
 #, python-format
 msgid "Vous avez rejoint le groupe \"%(group_name)s\""
 msgstr ""
 
-#: app/routes/auth.py:499
+#: app/routes/auth.py:505
 msgid "Veuillez taper SUPPRIMER pour confirmer."
 msgstr ""
 
-#: app/routes/auth.py:504
+#: app/routes/auth.py:510
 msgid ""
 "Les comptes super-administrateurs ne peuvent pas etre supprimes via cette"
 " interface."
 msgstr ""
 
-#: app/routes/auth.py:538
+#: app/routes/auth.py:544
 #, python-format
 msgid "Le compte \"%(username)s\" a ete supprime avec succes."
 msgstr ""
 
-#: app/routes/auth.py:546
+#: app/routes/auth.py:552
 msgid "Une erreur est survenue lors de la suppression du compte."
 msgstr ""
 
-#: app/routes/interview.py:164 app/routes/interview.py:175
-#: app/routes/interview.py:670 app/routes/interview.py:712
-#: app/routes/interview.py:841 app/routes/interview.py:860
-#: app/routes/interview.py:918 app/routes/interview.py:963
-#: app/routes/interview.py:1009 app/routes/interview.py:1077
-#: app/routes/interview.py:1097 app/routes/interview.py:1130
-#: app/routes/interview.py:1240
+#: app/routes/interview.py:142 app/routes/interview.py:153
+#: app/routes/interview.py:648 app/routes/interview.py:690
+#: app/routes/interview.py:819 app/routes/interview.py:838
+#: app/routes/interview.py:896 app/routes/interview.py:941
+#: app/routes/interview.py:987 app/routes/interview.py:1055
+#: app/routes/interview.py:1075 app/routes/interview.py:1108
+#: app/routes/interview.py:1218
 msgid "Entretien introuvable"
 msgstr ""
 
-#: app/routes/interview.py:186
+#: app/routes/interview.py:164
 msgid "Cet entretien n'est pas disponible actuellement"
 msgstr ""
 
-#: app/routes/interview.py:191 app/routes/interview.py:674
-#: app/routes/interview.py:716 app/routes/interview.py:845
-#: app/routes/interview.py:864 app/routes/interview.py:922
-#: app/routes/interview.py:967 app/routes/interview.py:1013
-#: app/routes/interview.py:1081 app/routes/interview.py:1101
-#: app/routes/interview.py:1136 app/routes/interview.py:1246
+#: app/routes/interview.py:169 app/routes/interview.py:652
+#: app/routes/interview.py:694 app/routes/interview.py:823
+#: app/routes/interview.py:842 app/routes/interview.py:900
+#: app/routes/interview.py:945 app/routes/interview.py:991
+#: app/routes/interview.py:1059 app/routes/interview.py:1079
+#: app/routes/interview.py:1114 app/routes/interview.py:1224
 msgid "Vous n'avez pas acces a cet entretien"
 msgstr ""
 
-#: app/routes/interview.py:206
+#: app/routes/interview.py:184
 msgid "Vous avez deja complete cet entretien"
 msgstr ""
 
-#: app/routes/interview.py:217
+#: app/routes/interview.py:195
 msgid ""
 "Quota d'entretiens IA atteint pour ce mois. Contactez votre "
 "administrateur."
 msgstr ""
 
-#: app/routes/interview.py:226 app/routes/interview.py:1036
+#: app/routes/interview.py:204 app/routes/interview.py:1014
 msgid "Veuillez telecharger un fichier"
 msgstr ""
 
-#: app/routes/interview.py:233 app/routes/interview.py:1043
+#: app/routes/interview.py:211 app/routes/interview.py:1021
 msgid "Impossible de lire le contenu du fichier"
 msgstr ""
 
-#: app/routes/interview.py:237 app/routes/interview.py:1047
+#: app/routes/interview.py:215 app/routes/interview.py:1025
 msgid "Erreur lors de la lecture du fichier"
 msgstr ""
 
-#: app/routes/interview.py:340 app/routes/interview.py:406
-#: app/routes/interview.py:432 app/routes/interview.py:460
+#: app/routes/interview.py:318 app/routes/interview.py:384
+#: app/routes/interview.py:410 app/routes/interview.py:438
 msgid "Session introuvable"
 msgstr ""
 
-#: app/routes/interview.py:474
+#: app/routes/interview.py:452
 msgid "Entretien non termine"
 msgstr ""
 
-#: app/routes/interview.py:496 app/routes/interview.py:998
+#: app/routes/interview.py:474 app/routes/interview.py:976
 msgid "Erreur lors de la generation du PDF"
 msgstr ""
 
-#: app/routes/interview.py:569
+#: app/routes/interview.py:547
 msgid "Le prompt systeme est requis"
 msgstr ""
 
-#: app/routes/interview.py:581 app/routes/interview.py:766
-#: app/routes/tenant.py:101
+#: app/routes/interview.py:559 app/routes/interview.py:744
+#: app/routes/tenant.py:102
 msgid "Ce slug est deja utilise"
 msgstr ""
 
-#: app/routes/interview.py:649
+#: app/routes/interview.py:627
 msgid "Entretien cree avec succes"
 msgstr ""
 
-#: app/routes/interview.py:805
+#: app/routes/interview.py:783
 msgid "Entretien mis a jour"
 msgstr ""
 
-#: app/routes/interview.py:849
+#: app/routes/interview.py:827
 msgid "Entretien supprime"
 msgstr ""
 
-#: app/routes/interview.py:869 app/routes/interview.py:873
-#: app/routes/interview.py:927 app/routes/interview.py:931
-#: app/routes/interview.py:972 app/routes/interview.py:976
-#: app/routes/interview.py:1106 app/routes/interview.py:1110
+#: app/routes/interview.py:847 app/routes/interview.py:851
+#: app/routes/interview.py:905 app/routes/interview.py:909
+#: app/routes/interview.py:950 app/routes/interview.py:954
+#: app/routes/interview.py:1084 app/routes/interview.py:1088
 msgid "Session non trouvee"
 msgstr ""
 
-#: app/routes/interview.py:907
+#: app/routes/interview.py:885
 msgid "Commentaire enregistre"
 msgstr ""
 
-#: app/routes/interview.py:952
+#: app/routes/interview.py:930
 msgid ""
 "Re-evaluation lancee. Veuillez patienter quelques secondes puis "
 "rafraichir la page."
 msgstr ""
 
-#: app/routes/interview.py:1058 app/routes/interview.py:1066
+#: app/routes/interview.py:1036 app/routes/interview.py:1044
 msgid "Session de test demarree"
 msgstr ""
 
-#: app/routes/interview.py:1085
+#: app/routes/interview.py:1063
 msgid "active"
 msgstr ""
 
-#: app/routes/interview.py:1085
+#: app/routes/interview.py:1063
 msgid "desactive"
 msgstr ""
 
-#: app/routes/interview.py:1086
+#: app/routes/interview.py:1064
 #, python-format
 msgid "Entretien %(status)s"
 msgstr ""
 
-#: app/routes/interview.py:1115
+#: app/routes/interview.py:1093
 msgid "Session supprimee"
 msgstr ""
 
-#: app/routes/interview.py:1323 app/routes/interview.py:1328
+#: app/routes/interview.py:1301 app/routes/interview.py:1306
 msgid "Aucun fichier selectionne."
 msgstr ""
 
-#: app/routes/interview.py:1332
+#: app/routes/interview.py:1310
 msgid "Le fichier doit etre au format JSON."
 msgstr ""
 
-#: app/routes/interview.py:1341
+#: app/routes/interview.py:1319
 msgid "Format de fichier invalide."
 msgstr ""
 
-#: app/routes/interview.py:1408
+#: app/routes/interview.py:1386
 #, python-format
 msgid "Entretien \"%(title)s\" importe avec succes ! Il est inactif par defaut."
 msgstr ""
 
-#: app/routes/interview.py:1412
+#: app/routes/interview.py:1390
 msgid "Erreur de lecture du fichier JSON."
 msgstr ""
 
@@ -851,78 +880,78 @@ msgstr ""
 msgid "Resultat introuvable"
 msgstr ""
 
-#: app/routes/tenant.py:47
+#: app/routes/tenant.py:48
 msgid "Le slug est requis"
 msgstr ""
 
-#: app/routes/tenant.py:49
+#: app/routes/tenant.py:50
 msgid "Le slug doit faire entre 3 et 50 caracteres"
 msgstr ""
 
-#: app/routes/tenant.py:51
+#: app/routes/tenant.py:52
 msgid ""
 "Le slug doit commencer par une lettre et ne contenir que des lettres "
 "minuscules, chiffres et tirets"
 msgstr ""
 
-#: app/routes/tenant.py:53
+#: app/routes/tenant.py:54
 msgid "Le slug ne peut pas contenir deux tirets consecutifs"
 msgstr ""
 
-#: app/routes/tenant.py:92
+#: app/routes/tenant.py:93
 msgid "Le nom est requis"
 msgstr ""
 
-#: app/routes/tenant.py:121
+#: app/routes/tenant.py:122
 msgid "Format de date invalide"
 msgstr ""
 
-#: app/routes/tenant.py:148
+#: app/routes/tenant.py:149
 #, python-format
 msgid "Etablissement \"%(name)s\" cree avec succes"
 msgstr ""
 
-#: app/routes/tenant.py:253
+#: app/routes/tenant.py:255
 msgid "Format de date d'expiration invalide"
 msgstr ""
 
-#: app/routes/tenant.py:259
+#: app/routes/tenant.py:261
 msgid "Etablissement mis a jour"
 msgstr ""
 
-#: app/routes/tenant.py:282
+#: app/routes/tenant.py:284
 msgid "Le nom saisi ne correspond pas : rien n'a ete supprime"
 msgstr ""
 
-#: app/routes/tenant.py:289
+#: app/routes/tenant.py:291
 #, python-format
 msgid "Sauvegarde prealable impossible, rien n'a ete supprime : %(error)s"
 msgstr ""
 
-#: app/routes/tenant.py:298
+#: app/routes/tenant.py:300
 #, python-format
 msgid "Etablissement \"%(name)s\" supprime (sauvegarde prealable : %(backup)s)"
 msgstr ""
 
-#: app/routes/tenant.py:347
+#: app/routes/tenant.py:349
 msgid "Un super-administrateur a deja acces a tous les etablissements"
 msgstr ""
 
-#: app/routes/tenant.py:351
+#: app/routes/tenant.py:353
 #, python-format
 msgid "%(username)s est maintenant admin de l'etablissement"
 msgstr ""
 
-#: app/routes/tenant.py:369
+#: app/routes/tenant.py:371
 #, python-format
 msgid "%(username)s n'est plus admin de l'etablissement"
 msgstr ""
 
-#: app/templates/admin/preview_quiz.html:21 app/templates/base.html:35
+#: app/templates/admin/preview_quiz.html:21 app/templates/base.html:36
 msgid "Dashboard"
 msgstr ""
 
-#: app/templates/base.html:38 app/templates/quiz/dashboard.html:12
+#: app/templates/base.html:39 app/templates/quiz/dashboard.html:12
 msgid "Evaluations"
 msgstr ""
 
@@ -932,7 +961,7 @@ msgstr ""
 #: app/templates/admin/tenants/view.html:192
 #: app/templates/admin/tenants/view.html:289
 #: app/templates/admin/user_detail.html:81
-#: app/templates/admin/user_detail.html:87 app/templates/base.html:43
+#: app/templates/admin/user_detail.html:87 app/templates/base.html:44
 #: app/templates/quiz/dashboard.html:20 app/templates/quiz/dashboard.html:193
 #: app/templates/quiz/dashboard.html:210
 msgid "Quiz"
@@ -944,20 +973,20 @@ msgstr ""
 #: app/templates/admin/interviews/list.html:8
 #: app/templates/admin/tenants/view.html:230
 #: app/templates/admin/user_detail.html:63
-#: app/templates/admin/user_detail.html:139 app/templates/base.html:46
-#: app/templates/base.html:82 app/templates/interview/list.html:3
+#: app/templates/admin/user_detail.html:139 app/templates/base.html:47
+#: app/templates/base.html:83 app/templates/interview/list.html:3
 #: app/templates/interview/list.html:8 app/templates/quiz/dashboard.html:24
 #: app/templates/quiz/dashboard.html:194
 msgid "Entretiens"
 msgstr ""
 
-#: app/templates/base.html:51 app/templates/base.html:53
+#: app/templates/base.html:52 app/templates/base.html:54 app/utils/scope.py:237
 msgid "Etablissements"
 msgstr ""
 
 #: app/templates/admin/_tenant_field.html:4 app/templates/admin/groups.html:35
 #: app/templates/admin/interviews/wizard.html:262
-#: app/templates/admin/user_detail.html:187 app/templates/base.html:53
+#: app/templates/admin/user_detail.html:187 app/templates/base.html:54
 #: app/templates/quiz/list.html:88
 msgid "Etablissement"
 msgstr ""
@@ -968,57 +997,51 @@ msgstr ""
 #: app/templates/admin/tenants/view.html:35
 #: app/templates/admin/tenants/view.html:66
 #: app/templates/admin/tenants/view.html:75
-#: app/templates/admin/tenants/view.html:285 app/templates/base.html:55
+#: app/templates/admin/tenants/view.html:285 app/templates/base.html:56
+#: app/utils/scope.py:243
 msgid "Groupes"
 msgstr ""
 
-#: app/templates/admin/dashboard.html:37
-#: app/templates/admin/tenants/list.html:38
-#: app/templates/admin/tenants/view.html:39
-#: app/templates/admin/tenants/view.html:281 app/templates/base.html:56
-msgid "Utilisateurs"
-msgstr ""
-
-#: app/templates/base.html:60
+#: app/templates/base.html:61
 msgid "Filtrer par etablissement"
 msgstr ""
 
-#: app/templates/base.html:62
+#: app/templates/base.html:63
 msgid "Tous"
 msgstr ""
 
-#: app/templates/base.html:67 app/templates/quiz/list.html:34
+#: app/templates/base.html:68 app/templates/quiz/list.html:34
 #: app/templates/quiz/list.html:42
 msgid "Tous les etablissements"
 msgstr ""
 
-#: app/templates/base.html:80
+#: app/templates/base.html:81
 msgid "Tableau de bord"
 msgstr ""
 
-#: app/templates/base.html:81 app/templates/quiz/list.html:10
+#: app/templates/base.html:82 app/templates/quiz/list.html:10
 msgid "Mes quiz"
 msgstr ""
 
 #: app/templates/auth/profile.html:3 app/templates/auth/profile.html:7
-#: app/templates/base.html:87 app/templates/quiz/dashboard.html:177
+#: app/templates/base.html:96 app/templates/quiz/dashboard.html:177
 msgid "Mon profil"
 msgstr ""
 
-#: app/templates/base.html:91
+#: app/templates/base.html:100
 msgid "Parametres"
 msgstr ""
 
-#: app/templates/base.html:93 app/templates/base.html:161
+#: app/templates/base.html:106 app/templates/base.html:174
 msgid "Theme"
 msgstr ""
 
-#: app/templates/base.html:98
-msgid "Langue"
+#: app/templates/base.html:117
+msgid "Deconnexion"
 msgstr ""
 
-#: app/templates/base.html:113
-msgid "Deconnexion"
+#: app/templates/base.html:129
+msgid "Fil d'Ariane"
 msgstr ""
 
 #: app/templates/landing.html:8 private.example/landing.html:8
@@ -1026,44 +1049,44 @@ msgstr ""
 msgid "Evaluation intelligente avec IA"
 msgstr ""
 
-#: app/templates/landing.html:9
+#: app/templates/landing.html:10
 msgid ""
 "Plateforme d evaluation intelligente : quiz en Markdown, entretiens IA, "
 "correction automatisee. Open-source."
 msgstr ""
 
-#: app/templates/landing.html:14 private.example/landing.html:24
+#: app/templates/landing.html:15 private.example/landing.html:24
 msgid "Evaluation intelligente"
 msgstr ""
 
-#: app/templates/landing.html:15 private.example/landing.html:25
+#: app/templates/landing.html:16 private.example/landing.html:25
 msgid "Quiz en Markdown, entretiens IA, correction par Claude."
 msgstr ""
 
-#: app/templates/landing.html:29
+#: app/templates/landing.html:30
 msgid "Plateforme d evaluation intelligente"
 msgstr ""
 
 #: app/templates/auth/login.html:31 app/templates/auth/register.html:61
-#: app/templates/landing.html:31 private.example/landing.html:50
+#: app/templates/landing.html:32 private.example/landing.html:50
 #: private.example/landing.html:61
 msgid "Se connecter"
 msgstr ""
 
-#: app/templates/landing.html:32 private.example/landing.html:51
+#: app/templates/landing.html:33 private.example/landing.html:51
 #: private.example/landing.html:62
 msgid "Creer un compte"
 msgstr ""
 
-#: app/templates/landing.html:42
+#: app/templates/landing.html:43
 msgid "Pour personnaliser cette page, copiez"
 msgstr ""
 
-#: app/templates/landing.html:42
+#: app/templates/landing.html:43
 msgid "vers"
 msgstr ""
 
-#: app/templates/landing.html:54
+#: app/templates/landing.html:55
 msgid "Plateforme d evaluation intelligente avec correction IA"
 msgstr ""
 
@@ -1420,7 +1443,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/admin/create_group.html:21
-#: app/templates/admin/edit_group.html:26
+#: app/templates/admin/edit_group.html:26 app/templates/admin/groups.html:34
+#: app/templates/admin/tenants/view.html:89
 msgid "Nom du groupe"
 msgstr ""
 
@@ -1742,9 +1766,8 @@ msgstr ""
 msgid "Prenom"
 msgstr ""
 
-#: app/templates/admin/create_user.html:17 app/templates/admin/groups.html:34
+#: app/templates/admin/create_user.html:17
 #: app/templates/admin/interviews/wizard.html:743
-#: app/templates/admin/tenants/view.html:89
 #: app/templates/admin/user_detail.html:234 app/templates/auth/profile.html:23
 #: app/templates/auth/register.html:18
 msgid "Nom"
@@ -1880,27 +1903,6 @@ msgstr ""
 
 #: app/templates/admin/dashboard.html:176
 msgid "Nouvel Entretien"
-msgstr ""
-
-#: app/templates/admin/edit_group.html:4 app/templates/admin/edit_page.html:3
-#: app/templates/admin/edit_quiz.html:3
-#: app/templates/admin/group_detail.html:17
-#: app/templates/admin/group_detail.html:81
-#: app/templates/admin/group_detail.html:240 app/templates/admin/groups.html:70
-#: app/templates/admin/interviews/list.html:87
-#: app/templates/admin/interviews/view.html:13
-#: app/templates/admin/interviews/wizard.html:3
-#: app/templates/admin/interviews/wizard.html:171
-#: app/templates/admin/pages.html:65 app/templates/admin/preview_quiz.html:18
-#: app/templates/admin/quizzes.html:80 app/templates/admin/tenants/edit.html:3
-#: app/templates/admin/tenants/list.html:48
-#: app/templates/admin/tenants/view.html:21
-#: app/templates/admin/tenants/view.html:109
-#: app/templates/admin/tenants/view.html:160
-#: app/templates/admin/tenants/view.html:218
-#: app/templates/admin/tenants/view.html:252
-#: app/templates/admin/user_detail.html:75 app/templates/admin/users.html:191
-msgid "Modifier"
 msgstr ""
 
 #: app/templates/admin/edit_group.html:7

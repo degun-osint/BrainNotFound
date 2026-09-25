@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.group import Group
 from app.models.quiz import Quiz, quiz_groups
 from app.models.interview import Interview, interview_groups
+from app.utils.scope import breadcrumb
 
 tenant_bp = Blueprint('tenant', __name__)
 
@@ -194,6 +195,7 @@ def view_tenant(identifier):
 
     return render_template(
         'admin/tenants/view.html',
+        breadcrumb=breadcrumb(tenant),
         tenant=tenant,
         stats=tenant.get_usage_stats(),
         ai_stats=tenant.get_ai_usage_stats(),

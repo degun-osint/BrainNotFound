@@ -835,6 +835,9 @@ function initMobileMenu() {
         navMenu.classList.toggle('active');
     });
 
+    // Mobile layout = the hamburger is shown (breakpoint defined once, in the CSS)
+    const isMobile = () => getComputedStyle(navToggle).display !== 'none';
+
     // Handle dropdowns in mobile
     const dropdowns = navMenu.querySelectorAll('.nav-dropdown, .tenant-dropdown');
     dropdowns.forEach(function(dropdown) {
@@ -842,7 +845,7 @@ function initMobileMenu() {
         if (btn) {
             btn.addEventListener('click', function(e) {
                 // Only handle in mobile view
-                if (window.innerWidth <= 1300) {
+                if (isMobile()) {
                     e.preventDefault();
                     e.stopPropagation();
                     dropdown.classList.toggle('active');
@@ -861,7 +864,7 @@ function initMobileMenu() {
 
     // Close menu on window resize to desktop
     window.addEventListener('resize', function() {
-        if (window.innerWidth > 1300) {
+        if (!isMobile()) {
             navToggle.classList.remove('active');
             navMenu.classList.remove('active');
             dropdowns.forEach(function(d) { d.classList.remove('active'); });

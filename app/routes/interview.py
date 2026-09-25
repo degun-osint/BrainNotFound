@@ -17,7 +17,7 @@ from app.models.group import Group
 from app.models.tenant import Tenant
 from app.utils.claude_interviewer import ClaudeInterviewer, get_criteria_templates
 from app.utils.scope import (
-    get_tenant_context, get_accessible_tenants, scoped_groups, scoped_interviews,
+    scoped_groups, scoped_interviews,
     validate_group_ids, assign_groups, default_tenant_id, filter_content_status, CONTENT_STATUSES,
 )
 import unicodedata
@@ -41,28 +41,6 @@ def sanitize_filename(text):
     # Replace multiple spaces/dashes with single
     text = re.sub(r'[\s\-]+', '_', text)
     return text.strip('_')
-
-
-# ============================================================================
-# Context Processor - Tenant Selector for Admin Pages
-# ============================================================================
-
-@interview_bp.context_processor
-def inject_tenant_context():
-    """Make tenant context available in all interview admin templates."""
-    if current_user.is_authenticated and current_user.is_any_admin:
-        tenant_context = get_tenant_context()
-        accessible_tenants = get_accessible_tenants()
-        return {
-            'tenant_context': tenant_context,
-            'accessible_tenants': accessible_tenants,
-            'show_tenant_selector': len(accessible_tenants) > 0
-        }
-    return {
-        'tenant_context': None,
-        'accessible_tenants': [],
-        'show_tenant_selector': False
-    }
 
 
 # ============================================================================

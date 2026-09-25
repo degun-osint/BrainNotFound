@@ -44,6 +44,12 @@ def is_safe_url(target):
     return test_url.scheme in ('', 'http', 'https') and ref_url.netloc == test_url.netloc or \
            (not test_url.scheme and not test_url.netloc)
 
+@auth_bp.route('/favicon.ico')
+def favicon():
+    """Browsers ask for /favicon.ico on pages that declare no icon."""
+    return redirect(url_for('static', filename='img/favicon.svg'), code=301)
+
+
 @auth_bp.route('/')
 def index():
     if current_user.is_authenticated:
