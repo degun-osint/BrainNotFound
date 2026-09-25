@@ -10,6 +10,14 @@ from .prompt_loader import get_interview_prompts
 from .ai_client import complete, wrap_untrusted, data_notice
 
 
+def _release_db_connection():
+    """End the (read-only) transaction before a slow AI call: the pooled connection
+    goes back to the pool instead of waiting seconds with it (many interviews at once
+    exhausted the pool). Session objects reload on next access."""
+    from app import db
+    db.session.commit()
+
+
 class ClaudeInterviewer:
     """Handle interview conversations and evaluations with Claude."""
 
@@ -117,6 +125,7 @@ class ClaudeInterviewer:
         # Build messages array from session history
         messages = self._build_conversation_context(session, user_message)
 
+        _release_db_connection()
         try:
             # cache_control is used by Anthropic and ignored by other providers
             # Conversational turn: low effort keeps the character responsive
@@ -200,6 +209,7 @@ class ClaudeInterviewer:
             criteria_json=criteria_json
         )
 
+        _release_db_connection()
         try:
             response_text = complete([{"role": "user", "content": prompt}],
                                      system=data_notice('entretien', self.lang), model=self.model, effort='medium')

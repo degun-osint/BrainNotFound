@@ -36,9 +36,21 @@ class AIConfigError(Exception):
 # ==================== Configuration ====================
 
 def _settings():
+    """Site settings, read in a short separate session.
+
+    complete() calls this right before waiting seconds for the AI: reading through
+    db.session would open a transaction and hold a pooled connection all that time
+    (with many papers graded at once, the pool ran dry).
+    """
+    from sqlalchemy.orm import Session
+    from app import db
     from app.models.settings import SiteSettings
     try:
-        return SiteSettings.get_settings()
+        with Session(db.engine, expire_on_commit=False) as session:
+            settings = session.query(SiteSettings).order_by(SiteSettings.id).first()
+            if settings is not None:
+                session.expunge(settings)
+            return settings
     except Exception:
         # Table missing (fresh DB before migrations) or DB unavailable
         return None
