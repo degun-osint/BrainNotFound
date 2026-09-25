@@ -2,6 +2,27 @@
 
 Les versions antérieures ne sont décrites que dans l'historique git.
 
+## [2.1.0] - 2026-09-25
+
+Navigation de l'administration : chaque objet a sa fiche, les doublons disparaissent.
+
+### Nouveautés
+
+- **Fiche Établissement** en onglets : groupes (avec apprenants et intervenants), administrateurs (nomination par recherche, retrait), contenus (badge « Aucun groupe »), quotas et abonnement. Les anciennes pages groupes, quiz et admins d'un établissement redirigent vers l'onglet correspondant.
+- **Fiche Personne** : identité, rôles, groupes, résultats aux quiz et aux entretiens, modification et suppression au même endroit. Les pages *Notes* et *Modifier* séparées redirigent vers la fiche ; tous les noms de personnes y mènent.
+- **Listes** Groupes, Utilisateurs, Quiz et Entretiens : même barre de filtres, rappel de l'établissement sélectionné ; filtre d'état (actifs, inactifs, sans groupe) pour les quiz et entretiens ; liste des groupes en tableau avec recherche.
+- **Menu du compte** (profil, paramètres, thème, langue, déconnexion) sous l'identifiant ; le menu principal ne se replie plus qu'en dessous de 1100 px.
+- **Fil d'Ariane** Établissements › Établissement › Groupe › Personne sur les fiches.
+- Un admin d'établissement a une entrée **Établissement** dans le menu, qui ouvre directement sa fiche.
+- Création d'un groupe : arrivée sur la page du groupe.
+
+### Corrections
+
+- Le jeton CSRF était ajouté aux formulaires de recherche et se retrouvait dans l'URL, l'historique et les journaux.
+- Le sélecteur d'établissement manquait sur les fiches Établissement.
+- Le menu débordait entre 1300 et ~1420 px de large pour un super-admin en français.
+- Tableaux des pages à onglets illisibles sur mobile ; favicon absent (erreur 404 à chaque page) ; quelques traductions anglaises fausses.
+
 ## [2.0.0] - 2026-09-24
 
 Refonte de l'administration : sécurité des permissions, page Groupe, rôles par groupe, sauvegardes restaurables, choix du fournisseur d'IA, passage à MariaDB.
