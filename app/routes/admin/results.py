@@ -10,6 +10,7 @@ from app.utils.scope import scoped_groups, scoped_group_ids, scoped_user_ids
 from datetime import datetime
 from app.routes.admin import admin_bp
 from app.routes.admin.common import admin_required, sanitize_filename
+from app.utils.learner_notifications import notify_contest_resolved, notify_grade_published
 
 
 RESULT_FILTERS = ('review', 'contests')
@@ -299,6 +300,7 @@ def edit_response(identifier):
 
     if request.method == 'POST':
         now = datetime.utcnow()
+        resolved = []
         for answer in answers:
             previous = answer.score or 0.0
             new_score = request.form.get(f'score_{answer.id}', type=float)
@@ -320,15 +322,21 @@ def edit_response(identifier):
                 contest.score_after = answer.score
                 contest.resolved_by_id = current_user.id
                 contest.resolved_at = now
+                resolved.append(contest)
 
         response.recompute_total()
         response.admin_comment = request.form.get('admin_comment', '').strip() or None
-        if request.form.get('action') == 'validate' and response.grading_status == QuizResponse.STATUS_REVIEW:
+        validated = request.form.get('action') == 'validate' and response.grading_status == QuizResponse.STATUS_REVIEW
+        if validated:
             response.publish(reviewer=current_user)
             flash(_l('Copie de %(name)s validee : la note est publiee.', name=user.full_name), 'success')
         else:
             flash(_l('Scores mis a jour pour %(name)s', name=user.full_name), 'success')
         db.session.commit()
+        if validated:
+            notify_grade_published(response)
+        for contest in resolved:
+            notify_contest_resolved(contest)
         return redirect(_results_url(quiz))
 
     return render_template('admin/edit_response.html', response=response, quiz=quiz, user=user,
@@ -347,6 +355,7 @@ def validate_response(identifier):
     if response.grading_status == QuizResponse.STATUS_REVIEW:
         response.publish(reviewer=current_user)
         db.session.commit()
+        notify_grade_published(response)
         flash(_l('Copie de %(name)s validee : la note est publiee.', name=response.user.full_name), 'success')
     return redirect(_results_url(response.quiz))
 
@@ -368,6 +377,8 @@ def validate_all_responses(identifier):
     for response in papers:
         response.publish(reviewer=current_user)
     db.session.commit()
+    for response in papers:
+        notify_grade_published(response)
     flash(_l('%(count)s copie(s) validee(s).', count=len(papers)), 'success')
     return redirect(_results_url(quiz))
 

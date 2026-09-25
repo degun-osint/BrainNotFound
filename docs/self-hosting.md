@@ -111,7 +111,7 @@ celery -A celery_worker worker -P gevent --concurrency 20 --loglevel INFO
 
 ### Sans Redis ni worker (très petite machine)
 
-Dans `docker-compose.yml`, supprimez les services `redis` et `worker`, retirez `REDIS_URL` et la dépendance à `redis` du service `web`. Tout tourne alors dans le processus web, comme avant la version 2.2 : environ 140 Mo de moins, mais une grosse vague de corrections ralentit les pages.
+Dans `docker-compose.yml`, supprimez les services `redis` et `worker`, retirez `REDIS_URL` et la dépendance à `redis` du service `web`. Tout tourne alors dans le processus web, comme avant la version 2.2.0 : environ 140 Mo de moins, mais une grosse vague de corrections ralentit les pages.
 
 ## Mise en production
 

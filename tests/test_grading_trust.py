@@ -291,3 +291,59 @@ def test_deleting_a_grader_keeps_the_quiz_and_their_work(app, world, content, ai
     db.session.commit()
     assert db.session.get(Quiz, content['quiz_a'].id).graders.count() == 0
     assert AnswerContest.query.one().resolved_by_id is None
+
+
+# ==================== emails to learners ====================
+
+@pytest.fixture
+def outbox(monkeypatch):
+    """Emails queued by the app (subject, recipients, body)."""
+    sent = []
+    monkeypatch.setattr('app.tasks.run_task', lambda task, *args: sent.append(args))
+    return sent
+
+
+def review_paper(app, world, content, learner='eleve_3a', notify=True):
+    quiz = content['quiz_a']
+    quiz.grading_mode = Quiz.GRADING_REVIEW
+    quiz.notify_learners = notify
+    db.session.commit()
+    response, answers = paper(world, quiz, learner)
+    return grade(app, response, answers), answers
+
+
+def test_learner_emailed_when_a_grader_validates(app, world, content, ai_grades, login, outbox):
+    response, _ = review_paper(app, world, content)
+    assert outbox == []  # grading itself sends nothing
+    login(world['prof_3a']).post(f'/admin/response/{response.get_url_identifier()}/validate')
+    subject, recipients, body = outbox[0][:3]
+    assert recipients == ['eleve_3a@test.local'] and 'Quiz Alpha' in subject
+    assert '3 / 4' in body and f'/quiz/result/{response.get_url_identifier()}' in body
+
+
+def test_no_learner_email_when_disabled_or_no_real_address(app, world, content, ai_grades, login, outbox):
+    response, _ = review_paper(app, world, content, notify=False)
+    login(world['prof_3a']).post(f'/admin/response/{response.get_url_identifier()}/validate')
+    world['eleve_ab'].email = 'eleve_ab@imported.local'
+    db.session.commit()
+    response, _ = review_paper(app, world, content, learner='eleve_ab')
+    login(world['prof_3a']).post(f'/admin/response/{response.get_url_identifier()}/validate')
+    assert outbox == []
+
+
+def test_validate_all_emails_each_learner(app, world, content, ai_grades, login, outbox):
+    for learner in ('eleve_3a', 'eleve_ab'):
+        review_paper(app, world, content, learner)
+    login(world['prof_3a']).post(f"/admin/quiz/{content['quiz_a'].get_url_identifier()}/validate-all")
+    assert sorted(args[1][0] for args in outbox) == ['eleve_3a@test.local', 'eleve_ab@test.local']
+
+
+def test_learner_emailed_when_a_contest_is_handled(app, world, content, ai_grades, login, outbox):
+    response, answers = published(world, content, app, ai_grades)
+    answer_id = answers[0]['answer_id']
+    contest(login(world['eleve_3a']), response, answer_id)
+    login(world['prof_3a']).post(f'/admin/response/{response.get_url_identifier()}/edit', data={
+        f'score_{answer_id}': '2', f'contest_{answer_id}': 'accept', f'contest_reply_{answer_id}': 'Bien argumente.'})
+    subject, recipients, body = outbox[0][:3]
+    assert recipients == ['eleve_3a@test.local'] and 'Contestation' in subject
+    assert 'acceptee' in body and '1.5 a 2' in body and 'Bien argumente.' in body

@@ -42,6 +42,7 @@ class Quiz(UIDMixin, db.Model):
     GRADING_REVIEW = 'review'
     grading_mode = db.Column(db.String(10), default=GRADING_DIRECT)
     contest_days = db.Column(db.Integer, default=7)  # Days to contest a grade once published (0 = no contest)
+    notify_learners = db.Column(db.Boolean, default=True)  # Email learners when a grader validates or handles a contest
     # Grouped email to graders: something happened since digest_pending_since, last email at digest_sent_at
     digest_pending_since = db.Column(db.DateTime, nullable=True)
     digest_sent_at = db.Column(db.DateTime, nullable=True)

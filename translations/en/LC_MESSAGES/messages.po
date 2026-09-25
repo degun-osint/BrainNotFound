@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 16:48+0200\n"
+"POT-Creation-Date: 2026-09-25 17:45+0200\n"
 "PO-Revision-Date: 2026-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: en <LL@li.org>\n"
@@ -200,20 +200,20 @@ msgid "Une erreur est survenue lors de la suppression du compte."
 msgstr "An error occurred while deleting the account."
 
 #: app/routes/admin/common.py:68 app/routes/interview.py:60
-#: app/routes/interview.py:327 app/routes/interview.py:392
-#: app/routes/interview.py:418 app/routes/interview.py:447
-#: app/routes/quiz.py:639 app/routes/quiz.py:666 app/routes/quiz.py:705
+#: app/routes/interview.py:327 app/routes/interview.py:387
+#: app/routes/interview.py:413 app/routes/interview.py:442
+#: app/routes/quiz.py:634 app/routes/quiz.py:661 app/routes/quiz.py:700
 #: app/routes/tenant.py:39 app/routes/tenant.py:162
 msgid "Acces non autorise"
 msgstr "Access denied"
 
 #: app/routes/interview.py:142 app/routes/interview.py:153
-#: app/routes/interview.py:648 app/routes/interview.py:690
-#: app/routes/interview.py:819 app/routes/interview.py:838
-#: app/routes/interview.py:896 app/routes/interview.py:941
-#: app/routes/interview.py:987 app/routes/interview.py:1055
-#: app/routes/interview.py:1075 app/routes/interview.py:1108
-#: app/routes/interview.py:1218
+#: app/routes/interview.py:643 app/routes/interview.py:685
+#: app/routes/interview.py:814 app/routes/interview.py:833
+#: app/routes/interview.py:891 app/routes/interview.py:931
+#: app/routes/interview.py:977 app/routes/interview.py:1045
+#: app/routes/interview.py:1065 app/routes/interview.py:1098
+#: app/routes/interview.py:1208
 msgid "Entretien introuvable"
 msgstr "Interview not found"
 
@@ -221,12 +221,12 @@ msgstr "Interview not found"
 msgid "Cet entretien n'est pas disponible actuellement"
 msgstr "This interview is not currently available"
 
-#: app/routes/interview.py:169 app/routes/interview.py:652
-#: app/routes/interview.py:694 app/routes/interview.py:823
-#: app/routes/interview.py:842 app/routes/interview.py:900
-#: app/routes/interview.py:945 app/routes/interview.py:991
-#: app/routes/interview.py:1059 app/routes/interview.py:1079
-#: app/routes/interview.py:1114 app/routes/interview.py:1224
+#: app/routes/interview.py:169 app/routes/interview.py:647
+#: app/routes/interview.py:689 app/routes/interview.py:818
+#: app/routes/interview.py:837 app/routes/interview.py:895
+#: app/routes/interview.py:935 app/routes/interview.py:981
+#: app/routes/interview.py:1049 app/routes/interview.py:1069
+#: app/routes/interview.py:1104 app/routes/interview.py:1214
 msgid "Vous n'avez pas acces a cet entretien"
 msgstr "You do not have access to this interview"
 
@@ -240,133 +240,133 @@ msgid ""
 msgstr ""
 "AI interview quota reached for this month. Contact your administrator."
 
-#: app/routes/interview.py:204 app/routes/interview.py:1014
+#: app/routes/interview.py:204 app/routes/interview.py:1004
 msgid "Veuillez telecharger un fichier"
 msgstr "Please upload a file"
 
-#: app/routes/interview.py:211 app/routes/interview.py:1021
+#: app/routes/interview.py:211 app/routes/interview.py:1011
 msgid "Impossible de lire le contenu du fichier"
 msgstr "Unable to read file content"
 
-#: app/routes/interview.py:215 app/routes/interview.py:1025
+#: app/routes/interview.py:215 app/routes/interview.py:1015
 msgid "Erreur lors de la lecture du fichier"
 msgstr "Error reading file"
 
-#: app/routes/interview.py:318 app/routes/interview.py:384
-#: app/routes/interview.py:410 app/routes/interview.py:438
+#: app/routes/interview.py:318 app/routes/interview.py:379
+#: app/routes/interview.py:405 app/routes/interview.py:433
 msgid "Session introuvable"
 msgstr "Session not found"
 
-#: app/routes/interview.py:452
+#: app/routes/interview.py:447
 msgid "Entretien non termine"
 msgstr "Interview not completed"
 
-#: app/routes/interview.py:474 app/routes/interview.py:976
+#: app/routes/interview.py:469 app/routes/interview.py:966
 msgid "Erreur lors de la generation du PDF"
 msgstr "Error generating PDF"
 
 #: app/routes/admin/pages.py:39 app/routes/admin/pages.py:103
-#: app/routes/interview.py:543
+#: app/routes/interview.py:538
 msgid "Le titre est requis"
 msgstr "Title is required"
 
-#: app/routes/interview.py:547
+#: app/routes/interview.py:542
 msgid "Le prompt systeme est requis"
 msgstr "System prompt is required"
 
-#: app/routes/interview.py:559 app/routes/interview.py:744
+#: app/routes/interview.py:554 app/routes/interview.py:739
 #: app/routes/tenant.py:102
 msgid "Ce slug est deja utilise"
 msgstr "This slug is already in use"
 
-#: app/routes/interview.py:627
+#: app/routes/interview.py:622
 msgid "Entretien cree avec succes"
 msgstr "Interview created successfully"
 
-#: app/routes/interview.py:783
+#: app/routes/interview.py:778
 msgid "Entretien mis a jour"
 msgstr "Interview updated"
 
-#: app/routes/interview.py:827
+#: app/routes/interview.py:822
 msgid "Entretien supprime"
 msgstr "Interview deleted"
 
-#: app/routes/interview.py:847 app/routes/interview.py:851
-#: app/routes/interview.py:905 app/routes/interview.py:909
-#: app/routes/interview.py:950 app/routes/interview.py:954
-#: app/routes/interview.py:1084 app/routes/interview.py:1088
+#: app/routes/interview.py:842 app/routes/interview.py:846
+#: app/routes/interview.py:900 app/routes/interview.py:904
+#: app/routes/interview.py:940 app/routes/interview.py:944
+#: app/routes/interview.py:1074 app/routes/interview.py:1078
 msgid "Session non trouvee"
 msgstr "Session not found"
 
-#: app/routes/interview.py:885
+#: app/routes/interview.py:880
 msgid "Commentaire enregistre"
 msgstr "Comment saved"
 
-#: app/routes/interview.py:930
+#: app/routes/interview.py:920
 msgid ""
 "Re-evaluation lancee. Veuillez patienter quelques secondes puis rafraichir "
 "la page."
 msgstr ""
 "Re-evaluation started. Please wait a few seconds then refresh the page."
 
-#: app/routes/interview.py:1036 app/routes/interview.py:1044
+#: app/routes/interview.py:1026 app/routes/interview.py:1034
 msgid "Session de test demarree"
 msgstr "Test session started"
 
-#: app/routes/interview.py:1063
+#: app/routes/interview.py:1053
 msgid "active"
 msgstr "activated"
 
-#: app/routes/interview.py:1063
+#: app/routes/interview.py:1053
 msgid "desactive"
 msgstr "deactivated"
 
-#: app/routes/interview.py:1064
+#: app/routes/interview.py:1054
 #, python-format
 msgid "Entretien %(status)s"
 msgstr "Interview %(status)s"
 
-#: app/routes/interview.py:1093
+#: app/routes/interview.py:1083
 msgid "Session supprimee"
 msgstr "Session deleted"
 
-#: app/routes/interview.py:1301 app/routes/interview.py:1306
+#: app/routes/interview.py:1291 app/routes/interview.py:1296
 msgid "Aucun fichier selectionne."
 msgstr "No file selected."
 
-#: app/routes/interview.py:1310
+#: app/routes/interview.py:1300
 msgid "Le fichier doit etre au format JSON."
 msgstr "File must be in JSON format."
 
-#: app/routes/interview.py:1319
+#: app/routes/interview.py:1309
 msgid "Format de fichier invalide."
 msgstr "Invalid file format."
 
-#: app/routes/interview.py:1386
+#: app/routes/interview.py:1376
 #, python-format
 msgid "Entretien \"%(title)s\" importe avec succes ! Il est inactif par defaut."
 msgstr "Interview \"%(title)s\" imported successfully! It is inactive by default."
 
-#: app/routes/interview.py:1390
+#: app/routes/interview.py:1380
 msgid "Erreur de lecture du fichier JSON."
 msgstr "Error reading JSON file."
 
-#: app/routes/admin/users.py:490 app/routes/interview.py:1395
+#: app/routes/admin/users.py:490 app/routes/interview.py:1385
 #, python-format
 msgid "Erreur lors de l'import: %(error)s"
 msgstr "Import error: %(error)s"
 
-#: app/routes/admin/quizzes.py:259 app/routes/admin/quizzes.py:420
-#: app/routes/admin/quizzes.py:461 app/routes/admin/quizzes.py:686
-#: app/routes/admin/quizzes.py:718 app/routes/admin/quizzes.py:791
-#: app/routes/admin/results.py:92 app/routes/admin/results.py:106
-#: app/routes/admin/results.py:147 app/routes/admin/results.py:216
-#: app/routes/admin/results.py:505 app/routes/admin/results.py:519
-#: app/routes/quiz.py:235 app/routes/quiz.py:245 app/routes/quiz.py:543
+#: app/routes/admin/quizzes.py:260 app/routes/admin/quizzes.py:421
+#: app/routes/admin/quizzes.py:461 app/routes/admin/quizzes.py:681
+#: app/routes/admin/quizzes.py:713 app/routes/admin/quizzes.py:787
+#: app/routes/admin/results.py:93 app/routes/admin/results.py:107
+#: app/routes/admin/results.py:148 app/routes/admin/results.py:211
+#: app/routes/admin/results.py:510 app/routes/admin/results.py:524
+#: app/routes/quiz.py:235 app/routes/quiz.py:245 app/routes/quiz.py:538
 msgid "Quiz introuvable"
 msgstr "Quiz not found"
 
-#: app/routes/quiz.py:256 app/routes/quiz.py:551
+#: app/routes/quiz.py:256 app/routes/quiz.py:546
 msgid "Ce quiz n'est plus disponible"
 msgstr "This quiz is no longer available"
 
@@ -378,40 +378,40 @@ msgstr "This quiz is not yet available"
 msgid "Ce quiz est ferme"
 msgstr "This quiz is closed"
 
-#: app/routes/quiz.py:270 app/routes/quiz.py:555
+#: app/routes/quiz.py:270 app/routes/quiz.py:550
 msgid "Ce quiz n'est pas disponible pour vos groupes"
 msgstr "This quiz is not available for your groups"
 
-#: app/routes/quiz.py:280 app/routes/quiz.py:564
+#: app/routes/quiz.py:280 app/routes/quiz.py:559
 msgid "Vous avez deja repondu a ce quiz"
 msgstr "You have already answered this quiz"
 
-#: app/routes/quiz.py:510
+#: app/routes/quiz.py:505
 msgid "Quiz soumis avec succes !"
 msgstr "Quiz submitted successfully!"
 
-#: app/routes/quiz.py:625 app/routes/quiz.py:694
+#: app/routes/quiz.py:620 app/routes/quiz.py:689
 msgid "Resultat introuvable"
 msgstr "Result not found"
 
-#: app/routes/quiz.py:673
+#: app/routes/quiz.py:668
 msgid "Question introuvable"
 msgstr "Question not found"
 
-#: app/routes/quiz.py:675
+#: app/routes/quiz.py:670
 msgid ""
 "Le delai de contestation est depasse, ou la note n'est pas encore publiee."
 msgstr "The contest period is over, or the grade is not published yet."
 
-#: app/routes/quiz.py:677
+#: app/routes/quiz.py:672
 msgid "Vous avez deja conteste cette question."
 msgstr "You already contested this question."
 
-#: app/routes/quiz.py:679
+#: app/routes/quiz.py:674
 msgid "Expliquez pourquoi vous contestez cette note."
 msgstr "Explain why you contest this grade."
 
-#: app/routes/quiz.py:684
+#: app/routes/quiz.py:679
 msgid "Contestation envoyee : un correcteur va la traiter."
 msgstr "Contest sent: a grader will review it."
 
@@ -590,7 +590,7 @@ msgid "Groupe supprime avec succes"
 msgstr "Group successfully removed"
 
 #: app/routes/admin/groups.py:299 app/routes/admin/groups.py:320
-#: app/routes/admin/groups.py:340 app/routes/admin/results.py:401
+#: app/routes/admin/groups.py:340 app/routes/admin/results.py:406
 #: app/routes/admin/users.py:154 app/routes/admin/users.py:238
 #: app/routes/admin/users.py:515 app/routes/admin/users.py:608
 msgid "Vous n'avez pas acces a cet utilisateur"
@@ -667,120 +667,120 @@ msgstr "Page successfully modified"
 msgid "Page supprimee avec succes"
 msgstr "Page successfully deleted"
 
-#: app/routes/admin/quizzes.py:107
+#: app/routes/admin/quizzes.py:108
 msgid "Vous devez assigner le quiz a au moins un groupe accessible"
 msgstr "You must assign the quiz to at least one accessible group"
 
-#: app/routes/admin/quizzes.py:113 app/routes/admin/quizzes.py:735
+#: app/routes/admin/quizzes.py:114 app/routes/admin/quizzes.py:730
 #, python-format
 msgid "Limite de quiz atteinte pour cet etablissement (%(max)s)"
 msgstr "Quiz limit reached for this organization (%(max)s)"
 
-#: app/routes/admin/quizzes.py:132
+#: app/routes/admin/quizzes.py:133
 msgid "Le contenu Markdown est requis"
 msgstr "Markdown content is required"
 
-#: app/routes/admin/quizzes.py:140
+#: app/routes/admin/quizzes.py:141
 msgid "Aucune question trouvee dans le Markdown"
 msgstr "No questions found in the Markdown"
 
-#: app/routes/admin/quizzes.py:165 app/routes/admin/quizzes.py:344
+#: app/routes/admin/quizzes.py:166 app/routes/admin/quizzes.py:345
 #, python-format
 msgid "Le slug \"%(slug)s\" est deja utilise"
 msgstr "The slug \"%(slug)s\" is already in use"
 
-#: app/routes/admin/quizzes.py:220
+#: app/routes/admin/quizzes.py:221
 #, python-format
 msgid "Quiz \"%(title)s\" cree avec succes !"
 msgstr "Quiz \"%(title)\" successfully created!"
 
-#: app/routes/admin/quizzes.py:226
+#: app/routes/admin/quizzes.py:227
 msgid "Erreur lors de la creation du quiz. Verifiez le format Markdown."
 msgstr "Error creating quiz. Check the Markdown format."
 
-#: app/routes/admin/quizzes.py:268 app/routes/admin/quizzes.py:429
-#: app/routes/admin/quizzes.py:472 app/routes/admin/quizzes.py:693
-#: app/routes/admin/quizzes.py:723 app/routes/admin/quizzes.py:796
-#: app/routes/admin/results.py:95 app/routes/admin/results.py:115
-#: app/routes/admin/results.py:154 app/routes/admin/results.py:221
-#: app/routes/admin/results.py:397 app/routes/admin/results.py:436
-#: app/routes/admin/results.py:514
+#: app/routes/admin/quizzes.py:269 app/routes/admin/quizzes.py:430
+#: app/routes/admin/quizzes.py:472 app/routes/admin/quizzes.py:688
+#: app/routes/admin/quizzes.py:718 app/routes/admin/quizzes.py:792
+#: app/routes/admin/results.py:96 app/routes/admin/results.py:116
+#: app/routes/admin/results.py:155 app/routes/admin/results.py:216
+#: app/routes/admin/results.py:402 app/routes/admin/results.py:441
+#: app/routes/admin/results.py:519
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr "You do not have access to this quiz."
 
-#: app/routes/admin/quizzes.py:300
+#: app/routes/admin/quizzes.py:301
 msgid "Le quiz doit rester assigne a au moins un de vos groupes"
 msgstr "The quiz must remain assigned to at least one of your groups."
 
-#: app/routes/admin/quizzes.py:402
+#: app/routes/admin/quizzes.py:403
 msgid "Quiz mis a jour avec succes !"
 msgstr "Quiz successfully updated!"
 
-#: app/routes/admin/quizzes.py:408
+#: app/routes/admin/quizzes.py:409
 msgid "Erreur lors de la mise a jour. Verifiez le format Markdown."
 msgstr "Error during update. Check the Markdown format."
 
-#: app/routes/admin/quizzes.py:651
+#: app/routes/admin/quizzes.py:646
 msgid "Test du quiz termine !"
 msgstr "Quiz test complete!"
 
-#: app/routes/admin/quizzes.py:707
+#: app/routes/admin/quizzes.py:702
 msgid "Quiz supprime avec succes"
 msgstr "Quiz successfully deleted"
 
-#: app/routes/admin/quizzes.py:781
+#: app/routes/admin/quizzes.py:777
 #, python-format
 msgid "Quiz duplique ! Le nouveau quiz \"%(title)s\" est desactive par defaut."
 msgstr "Duplicate quiz! The new quiz \"%(title)s\" is disabled by default."
 
-#: app/routes/admin/quizzes.py:802
+#: app/routes/admin/quizzes.py:798
 #, python-format
 msgid "Quiz %(status)s"
 msgstr "Quiz %(status)"
 
-#: app/routes/admin/quizzes.py:866
+#: app/routes/admin/quizzes.py:862
 #, python-format
 msgid "Espace de stockage de l'etablissement plein (%(max)s Mo)"
 msgstr "Organization storage is full (%(max)s MB)"
 
-#: app/routes/admin/quizzes.py:929
+#: app/routes/admin/quizzes.py:925
 msgid "Vous devez generer au moins une question"
 msgstr "You must generate at least one question"
 
-#: app/routes/admin/quizzes.py:934
+#: app/routes/admin/quizzes.py:930
 msgid "Veuillez selectionner un fichier"
 msgstr "Please select a file"
 
-#: app/routes/admin/quizzes.py:940 app/routes/admin/settings.py:322
+#: app/routes/admin/quizzes.py:936 app/routes/admin/settings.py:316
 #: app/routes/admin/users.py:386 app/routes/admin/users.py:391
 msgid "Aucun fichier selectionne"
 msgstr "No files selected"
 
-#: app/routes/admin/quizzes.py:944
+#: app/routes/admin/quizzes.py:940
 msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
 msgstr "Unsupported file format (PDF, DOCX, MD, TXT only)"
 
-#: app/routes/admin/quizzes.py:953
+#: app/routes/admin/quizzes.py:949
 msgid ""
 "Le fichier ne contient pas assez de texte exploitable (minimum 100 "
 "caracteres)"
 msgstr "The file does not contain enough usable text (minimum 100 characters)"
 
-#: app/routes/admin/quizzes.py:958
+#: app/routes/admin/quizzes.py:954
 msgid "Quota mensuel de generations IA atteint pour cet etablissement"
 msgstr "Monthly AI generation quota reached for this organization"
 
-#: app/routes/admin/quizzes.py:980
+#: app/routes/admin/quizzes.py:976
 #, python-format
 msgid "Erreur lors de la generation: %(error)s"
 msgstr "Error during generation: %(error)s"
 
-#: app/routes/admin/quizzes.py:985
+#: app/routes/admin/quizzes.py:981
 #, python-format
 msgid "Erreur lors du traitement du fichier: %(error)s"
 msgstr "Error processing file: %(error)s"
 
-#: app/routes/admin/results.py:198
+#: app/routes/admin/results.py:193
 #, python-format
 msgid ""
 "Re-correction lancee pour %(count)s copie(s). Les notes seront mises a jour "
@@ -789,86 +789,86 @@ msgstr ""
 "Re-correction initiated for %(count)s copy(ies). Grades will be updated "
 "progressively."
 
-#: app/routes/admin/results.py:200
+#: app/routes/admin/results.py:195
 msgid "Aucune question ouverte a re-corriger."
 msgstr "No open questions to be corrected again."
 
-#: app/routes/admin/results.py:272 app/routes/admin/results.py:388
-#: app/routes/admin/results.py:427 app/routes/admin/results.py:441
+#: app/routes/admin/results.py:267 app/routes/admin/results.py:393
+#: app/routes/admin/results.py:432 app/routes/admin/results.py:446
 msgid "Reponse introuvable"
 msgstr "Answer not found"
 
-#: app/routes/admin/results.py:278
+#: app/routes/admin/results.py:273
 msgid "Vous n'avez pas acces a cette copie"
 msgstr "You do not have access to this paper"
 
-#: app/routes/admin/results.py:334 app/routes/admin/results.py:356
+#: app/routes/admin/results.py:332 app/routes/admin/results.py:359
 #, python-format
 msgid "Copie de %(name)s validee : la note est publiee."
 msgstr "%(name)s's paper validated: the grade is published."
 
-#: app/routes/admin/results.py:336
+#: app/routes/admin/results.py:334
 #, python-format
 msgid "Scores mis a jour pour %(name)s"
 msgstr "Updated scores for %(name)s"
 
-#: app/routes/admin/results.py:377
+#: app/routes/admin/results.py:382
 #, python-format
 msgid "%(count)s copie(s) validee(s)."
 msgstr "%(count)s paper(s) validated."
 
-#: app/routes/admin/results.py:409
+#: app/routes/admin/results.py:414
 #, python-format
 msgid ""
 "Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
 "quiz."
 msgstr "Response from %(name)s deleted. The user can now retake the quiz."
 
-#: app/routes/admin/results.py:470 app/routes/admin/results.py:551
+#: app/routes/admin/results.py:475 app/routes/admin/results.py:556
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr "Monthly AI analysis quota reached for this organization"
 
-#: app/routes/admin/settings.py:63
+#: app/routes/admin/settings.py:57
 msgid "Parametres sauvegardes avec succes"
 msgstr "Settings saved successfully"
 
-#: app/routes/admin/settings.py:89
+#: app/routes/admin/settings.py:83
 msgid "URL du fournisseur requise"
 msgstr "Provider URL required"
 
-#: app/routes/admin/settings.py:91
+#: app/routes/admin/settings.py:85
 msgid "Modele requis pour ce fournisseur"
 msgstr "Model required for this provider"
 
-#: app/routes/admin/settings.py:93
+#: app/routes/admin/settings.py:87
 msgid "Configuration non enregistree : utilisation de Grok non confirmee"
 msgstr "Configuration not saved: use of Grok not confirmed"
 
-#: app/routes/admin/settings.py:142
+#: app/routes/admin/settings.py:136
 #, python-format
 msgid ""
 "Modele inconnu chez ce fournisseur : %(model)s. Configuration non modifiee."
 msgstr ""
 "Unknown model for this provider: %(model)s. Configuration not changed."
 
-#: app/routes/admin/settings.py:161
+#: app/routes/admin/settings.py:155
 msgid "Cle API refusee par le fournisseur"
 msgstr "API key rejected by the provider"
 
-#: app/routes/admin/settings.py:163
+#: app/routes/admin/settings.py:157
 msgid "Impossible de joindre le fournisseur"
 msgstr "Unable to reach the provider"
 
-#: app/routes/admin/settings.py:167
+#: app/routes/admin/settings.py:161
 msgid "Configuration incomplete (cle ou URL manquante)"
 msgstr "Incomplete configuration (missing key or URL)"
 
-#: app/routes/admin/settings.py:288 app/routes/admin/settings.py:325
+#: app/routes/admin/settings.py:282 app/routes/admin/settings.py:319
 #: app/templates/admin/settings.html:351
 msgid "Tapez RESTAURER pour confirmer"
 msgstr "Type RESTORE to confirm"
 
-#: app/routes/admin/settings.py:330
+#: app/routes/admin/settings.py:324
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr "Expected format: .tar.gz or .sql.gz"
 
@@ -1152,20 +1152,20 @@ msgstr "towards"
 msgid "Plateforme d evaluation intelligente avec correction IA"
 msgstr "Intelligent assessment platform with AI correction"
 
-#: app/templates/admin/_grading_options.html:10
+#: app/templates/admin/_grading_options.html:11
 msgid "Correction"
 msgstr "Grading"
 
-#: app/templates/admin/_grading_options.html:13
+#: app/templates/admin/_grading_options.html:14
 #: app/templates/admin/generate_quiz.html:44
 msgid "Questions ouvertes"
 msgstr "Open questions"
 
-#: app/templates/admin/_grading_options.html:17
+#: app/templates/admin/_grading_options.html:18
 msgid "Correction IA directe : la note de l'IA est publiee tout de suite"
 msgstr "Direct AI grading: the AI grade is published right away"
 
-#: app/templates/admin/_grading_options.html:21
+#: app/templates/admin/_grading_options.html:22
 msgid ""
 "Revue par un correcteur : l'IA propose une note, provisoire pour l'apprenant"
 " jusqu'a validation"
@@ -1173,7 +1173,7 @@ msgstr ""
 "Reviewed by a grader: the AI suggests a grade, provisional for the learner "
 "until validated"
 
-#: app/templates/admin/_grading_options.html:24
+#: app/templates/admin/_grading_options.html:25
 msgid ""
 "Dans les deux cas, une copie que l'IA n'a pas pu corriger (quota, erreur) "
 "attend un correcteur."
@@ -1181,15 +1181,15 @@ msgstr ""
 "Either way, a paper the AI could not grade (quota, error) waits for a "
 "grader."
 
-#: app/templates/admin/_grading_options.html:28
+#: app/templates/admin/_grading_options.html:29
 msgid "Correcteurs"
 msgstr "Graders"
 
-#: app/templates/admin/_grading_options.html:39
+#: app/templates/admin/_grading_options.html:40
 msgid "Aucun intervenant disponible."
 msgstr "No instructor available."
 
-#: app/templates/admin/_grading_options.html:41
+#: app/templates/admin/_grading_options.html:42
 msgid ""
 "En plus de l'auteur du quiz. Les correcteurs voient toutes les copies de ce "
 "quiz, les notent, les valident, traitent les contestations et recoivent un "
@@ -1198,17 +1198,31 @@ msgstr ""
 "In addition to the quiz author. Graders see every paper of this quiz, grade "
 "and validate them, handle contests and receive an email digest."
 
-#: app/templates/admin/_grading_options.html:45
+#: app/templates/admin/_grading_options.html:46
 msgid "Delai de contestation (jours)"
 msgstr "Contest period (days)"
 
-#: app/templates/admin/_grading_options.html:47
+#: app/templates/admin/_grading_options.html:48
 msgid ""
 "A partir de la publication de la note, l'apprenant peut contester chaque "
 "question une fois. 0 = pas de contestation."
 msgstr ""
 "Once the grade is published, the learner may contest each question once. 0 ="
 " no contest."
+
+#: app/templates/admin/_grading_options.html:54
+msgid "Prevenir les apprenants par email"
+msgstr "Notify learners by email"
+
+#: app/templates/admin/_grading_options.html:56
+msgid ""
+"Quand un correcteur valide leur copie (note definitive) et quand il traite "
+"leur contestation. Pas d'email en correction IA directe : la note s'affiche "
+"des la fin du quiz."
+msgstr ""
+"When a grader validates their paper (final grade) and when they handle their"
+" contest. No email with direct AI grading: the grade shows as soon as the "
+"quiz is submitted."
 
 #: app/templates/admin/_list_filters.html:28
 #: app/templates/admin/_list_filters.html:36
@@ -6487,6 +6501,77 @@ msgstr "Do you still want to submit?"
 #: app/templates/quiz/take_exam.html:1197
 msgid "Confirmation de soumission"
 msgstr "Submission Confirmation"
+
+#: app/utils/learner_notifications.py:27
+#, python-format
+msgid "Bonjour %(name)s,"
+msgstr "Hello %(name)s,"
+
+#: app/utils/learner_notifications.py:28
+msgid "Voir ma copie"
+msgstr "See my paper"
+
+#: app/utils/learner_notifications.py:29
+#, python-format
+msgid "Voir ma copie : %(link)s"
+msgstr "See my paper: %(link)s"
+
+#: app/utils/learner_notifications.py:49
+#, python-format
+msgid ""
+"Votre copie du quiz « %(quiz)s » a ete validee par un correcteur : votre "
+"note est definitive."
+msgstr ""
+"Your paper for the quiz \"%(quiz)s\" was validated by a grader: your grade "
+"is final."
+
+#: app/utils/learner_notifications.py:51
+#, python-format
+msgid "Note : %(score)s / %(max)s"
+msgstr "Grade: %(score)s / %(max)s"
+
+#: app/utils/learner_notifications.py:54
+#, python-format
+msgid ""
+"Si une note vous semble injuste, vous pouvez la contester question par "
+"question jusqu'au %(date)s."
+msgstr ""
+"If a grade seems unfair, you can contest it question by question until "
+"%(date)s."
+
+#: app/utils/learner_notifications.py:56
+#, python-format
+msgid "Note definitive : %(quiz)s"
+msgstr "Final grade: %(quiz)s"
+
+#: app/utils/learner_notifications.py:72
+#, python-format
+msgid ""
+"Votre contestation a ete acceptee : la note de cette question passe de "
+"%(before)s a %(after)s. Nouvelle note du quiz : %(total)s / %(max)s."
+msgstr ""
+"Your contest was accepted: the grade of this question goes from %(before)s "
+"to %(after)s. New quiz grade: %(total)s / %(max)s."
+
+#: app/utils/learner_notifications.py:77
+msgid ""
+"Votre contestation a ete examinee : la note de cette question est maintenue."
+msgstr "Your contest was reviewed: the grade of this question is kept."
+
+#: app/utils/learner_notifications.py:78
+#, python-format
+msgid "Quiz « %(quiz)s », question : %(question)s"
+msgstr "Quiz \"%(quiz)s\", question: %(question)s"
+
+#: app/utils/learner_notifications.py:81
+#, python-format
+msgid "Reponse du correcteur : %(reply)s"
+msgstr "Grader's reply: %(reply)s"
+
+#: app/utils/learner_notifications.py:82
+#, python-format
+msgid "Contestation traitee : %(quiz)s"
+msgstr "Contest handled: %(quiz)s"
 
 #: private.example/landing.html:9
 msgid ""
