@@ -14,6 +14,7 @@
             }
         })();
     </script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
     {% block extra_css %}{% endblock %}
@@ -49,6 +50,8 @@
                     </div>
                     {% if current_user.is_superadmin %}
                     <a href="{{ url_for('tenant.list_tenants') }}">{{ _('Etablissements') }}</a>
+                    {% elif current_user.is_tenant_admin %}
+                    <a href="{{ url_for('tenant.list_tenants') }}">{{ _('Etablissement') if current_user.admin_tenant_ids()|length == 1 else _('Etablissements') }}</a>
                     {% endif %}
                     <a href="{{ url_for('admin.groups') }}">{{ _('Groupes') }}</a>
                     <a href="{{ url_for('admin.users') }}">{{ _('Utilisateurs') }}</a>
@@ -82,35 +85,39 @@
                 {% for page in menu_pages %}
                 <a href="{{ url_for('auth.view_page', slug=page.slug) }}" {% if page.open_new_tab %}target="_blank"{% endif %}>{{ page.title }}</a>
                 {% endfor %}
-                <a href="{{ url_for('auth.profile') }}" class="nav-user" data-tooltip="{{ _('Mon profil') }}">
-                    <i class="iconoir-user"></i> {{ current_user.username }}
-                </a>
-                {% if current_user.is_superadmin %}
-                <a href="{{ url_for('admin.site_settings') }}" data-tooltip="{{ _('Parametres') }}"><i class="iconoir-settings"></i></a>
-                {% endif %}
-                <button type="button" class="theme-toggle" id="theme-toggle" data-tooltip="{{ _('Theme') }}">
-                    <i class="iconoir-sun-light" id="theme-icon-light"></i>
-                    <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
-                </button>
-                <div class="nav-dropdown lang-selector">
-                    <button type="button" class="nav-dropdown-btn" data-tooltip="{{ _('Langue') }}">
-                        <i class="iconoir-language"></i>
-                        <span>{{ get_locale()|upper }}</span>
+                <div class="nav-dropdown nav-account">
+                    <button type="button" class="nav-dropdown-btn nav-user">
+                        <i class="iconoir-user"></i>
+                        <span>{{ current_user.username|truncate(16, true, '…') }}</span>
+                        <i class="iconoir-nav-arrow-down"></i>
                     </button>
                     <div class="nav-dropdown-menu">
-                        <a href="{{ url_for('auth.set_language', lang='fr') }}"
-                           class="nav-dropdown-item {% if get_locale() == 'fr' %}active{% endif %}">
-                            <i class="iconoir-check" {% if get_locale() != 'fr' %}style="visibility: hidden;"{% endif %}></i> Francais
+                        <a href="{{ url_for('auth.profile') }}" class="nav-dropdown-item">
+                            <i class="iconoir-user"></i> {{ _('Mon profil') }}
                         </a>
-                        <a href="{{ url_for('auth.set_language', lang='en') }}"
-                           class="nav-dropdown-item {% if get_locale() == 'en' %}active{% endif %}">
-                            <i class="iconoir-check" {% if get_locale() != 'en' %}style="visibility: hidden;"{% endif %}></i> English
+                        {% if current_user.is_superadmin %}
+                        <a href="{{ url_for('admin.site_settings') }}" class="nav-dropdown-item">
+                            <i class="iconoir-settings"></i> {{ _('Parametres') }}
+                        </a>
+                        {% endif %}
+                        <button type="button" class="nav-dropdown-item theme-toggle" id="theme-toggle">
+                            <i class="iconoir-sun-light" id="theme-icon-light"></i>
+                            <i class="iconoir-half-moon" id="theme-icon-dark" style="display: none;"></i>
+                            {{ _('Theme') }}
+                        </button>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="{{ url_for('auth.set_language', lang='fr') }}" class="nav-dropdown-item {{ 'active' if get_locale() == 'fr' }}">
+                            <i class="iconoir-language"></i> Français
+                        </a>
+                        <a href="{{ url_for('auth.set_language', lang='en') }}" class="nav-dropdown-item {{ 'active' if get_locale() == 'en' }}">
+                            <i class="iconoir-language"></i> English
+                        </a>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="nav-dropdown-item">
+                            <i class="iconoir-log-out"></i> {{ _('Deconnexion') }}
                         </a>
                     </div>
                 </div>
-                <a href="{{ url_for('auth.logout') }}" class="btn-logout" data-tooltip="{{ _('Deconnexion') }}">
-                    <i class="iconoir-log-out"></i>
-                </a>
             </div>
         </div>
     </nav>
@@ -118,6 +125,14 @@
 
     <main class="main-content">
         <div class="container">
+            {% if breadcrumb and breadcrumb|length > 1 %}
+            <nav class="breadcrumb" aria-label="{{ _("Fil d'Ariane") }}">
+                {% for label, url in breadcrumb %}
+                {% if not loop.first %}<span class="breadcrumb-sep">›</span>{% endif %}
+                {% if url and not loop.last %}<a href="{{ url }}">{{ label }}</a>{% else %}<span>{{ label }}</span>{% endif %}
+                {% endfor %}
+            </nav>
+            {% endif %}
             {% block content %}{% endblock %}
         </div>
     </main>

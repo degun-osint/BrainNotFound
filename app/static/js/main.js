@@ -224,8 +224,10 @@ function injectCSRFTokens() {
     const csrfToken = getCSRFToken();
     if (!csrfToken) return;
 
-    // Add CSRF token to all forms that don't have it
+    // Add CSRF token to POST forms that don't have it (never to GET forms:
+    // the token would end up in the URL, history, logs and Referer)
     document.querySelectorAll('form').forEach(function(form) {
+        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'post') return;
         if (!form.querySelector('input[name="csrf_token"]')) {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -833,6 +835,9 @@ function initMobileMenu() {
         navMenu.classList.toggle('active');
     });
 
+    // Mobile layout = the hamburger is shown (breakpoint defined once, in the CSS)
+    const isMobile = () => getComputedStyle(navToggle).display !== 'none';
+
     // Handle dropdowns in mobile
     const dropdowns = navMenu.querySelectorAll('.nav-dropdown, .tenant-dropdown');
     dropdowns.forEach(function(dropdown) {
@@ -840,7 +845,7 @@ function initMobileMenu() {
         if (btn) {
             btn.addEventListener('click', function(e) {
                 // Only handle in mobile view
-                if (window.innerWidth <= 1300) {
+                if (isMobile()) {
                     e.preventDefault();
                     e.stopPropagation();
                     dropdown.classList.toggle('active');
@@ -859,7 +864,7 @@ function initMobileMenu() {
 
     // Close menu on window resize to desktop
     window.addEventListener('resize', function() {
-        if (window.innerWidth > 1300) {
+        if (!isMobile()) {
             navToggle.classList.remove('active');
             navMenu.classList.remove('active');
             dropdowns.forEach(function(d) { d.classList.remove('active'); });

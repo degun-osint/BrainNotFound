@@ -207,3 +207,41 @@ def quota_tenant():
         return tenant
     group = scoped_groups().filter(Group.tenant_id.isnot(None)).first()
     return group.tenant if group else None
+
+
+CONTENT_STATUSES = ('active', 'inactive', 'no_group')
+
+
+def filter_content_status(query, model, status):
+    """Narrow a quiz or interview query to ?status= (active, inactive, no group)."""
+    if status == 'active':
+        return query.filter(model.is_active == True)  # noqa: E712
+    if status == 'inactive':
+        return query.filter(model.is_active == False)  # noqa: E712
+    if status == 'no_group':
+        return query.filter(~model.groups.any())
+    return query
+
+
+# ==================== Breadcrumb ====================
+
+def breadcrumb(tenant=None, group=None, *extra):
+    """[(label, url)] trail for admin detail pages: Organizations > Organization > Group > extra.
+
+    Only links the viewer may open are kept as links; the last item is the current page.
+    """
+    from flask import url_for
+    from flask_babel import gettext as _
+    items = []
+    if current_user.is_superadmin or len(current_user.admin_tenant_ids()) > 1:
+        items.append((_('Etablissements'), url_for('tenant.list_tenants')))
+    if tenant:
+        can_open = current_user.is_superadmin or current_user.is_admin_of_tenant(tenant.id)
+        items.append((tenant.name, url_for('tenant.view_tenant', identifier=tenant.get_url_identifier())
+                      if can_open else None))
+    elif group is not None or extra:
+        items.append((_('Groupes'), url_for('admin.groups')))
+    if group is not None:
+        items.append((group.name, url_for('admin.group_detail', identifier=group.get_url_identifier())))
+    items.extend(extra)
+    return items

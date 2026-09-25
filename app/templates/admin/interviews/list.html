@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_list_filters.html" as lf with context %}
 
 {% block title %}{{ _('Entretiens') }} - {{ site_title }}{% endblock %}
 
@@ -19,52 +20,17 @@
 <div class="card">
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
         <span>{{ _('Mes Entretiens') }} ({{ interviews.total }} {{ _('entretien(s)') }})</span>
-        <form method="GET" class="flex gap-sm items-center flex-wrap">
-            <div class="searchable-select" data-autosubmit="true">
-                <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
-                <div class="searchable-select-trigger">
-                    <i class="iconoir-group"></i>
-                    <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}{{ _('Tous les groupes') }}{% endif %}</span>
-                    <i class="iconoir-nav-arrow-down"></i>
-                </div>
-                <div class="searchable-select-dropdown">
-                    <div class="searchable-select-search">
-                        <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
-                    </div>
-                    <div class="searchable-select-options">
-                        <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">{{ _('Tous les groupes') }}</div>
-                        {% for group in all_groups %}
-                        <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
-                            {{ group.name }}
-                            {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <input type="text" name="search" value="{{ search }}" placeholder="{{ _('Rechercher...') }}"
-                   class="form-input input-search">
-            <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Rechercher') }}">
-                <i class="iconoir-search"></i>
-            </button>
-            {% if search or filter_group_id %}
-            <a href="{{ url_for('interview.admin_list') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
-                <i class="iconoir-xmark"></i>
-            </a>
-            {% endif %}
-        </form>
+        {% call lf.filter_bar('interview.admin_list', search, search or filter_group_id or status) %}
+            {{ lf.group_filter(all_groups, filter_group_id) }}
+            {{ lf.choice_filter('status', status, 'filter', [('', _('Tous les etats')), ('active', _('Actifs')), ('inactive', _('Inactifs')), ('no_group', _('Sans groupe'))]) }}
+        {% endcall %}
     </div>
 
-    {% if search or filter_group_id %}
-    <div class="search-results-info">
-        <span class="text-light">
-            {% if filter_group_id %}{{ _('Groupe:') }} {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
-            {% if filter_group_id and search %} - {% endif %}
-            {% if search %}{{ _('Recherche:') }} "{{ search }}"{% endif %}
-            - {{ interviews.total }} {{ _('resultat(s)') }}
-        </span>
-    </div>
-    {% endif %}
+    {{ lf.results_info([
+        (_('Groupe :') ~ ' ' ~ (all_groups|selectattr('id', 'equalto', filter_group_id)|map(attribute='name')|first)) if filter_group_id else '',
+        {'active': _('Actifs'), 'inactive': _('Inactifs'), 'no_group': _('Sans groupe')}.get(status, ''),
+        (_('Recherche :') ~ ' "' ~ search ~ '"') if search else '',
+    ], interviews.total) }}
 
     {% if interviews.items %}
     <div class="quiz-grid">
@@ -142,7 +108,7 @@
     {% if interviews.pages > 1 %}
     <div class="pagination">
         {% if interviews.has_prev %}
-        <a href="{{ url_for('interview.admin_list', page=interviews.prev_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page precedente') }}">
+        <a href="{{ url_for('interview.admin_list', page=interviews.prev_num, search=search, group=filter_group_id, status=status) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page precedente') }}">
             <i class="iconoir-nav-arrow-left"></i>
         </a>
         {% endif %}
@@ -151,14 +117,14 @@
                 {% if page_num == interviews.page %}
                 <span class="btn btn-primary btn-small">{{ page_num }}</span>
                 {% else %}
-                <a href="{{ url_for('interview.admin_list', page=page_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
+                <a href="{{ url_for('interview.admin_list', page=page_num, search=search, group=filter_group_id, status=status) }}" class="btn btn-secondary btn-small">{{ page_num }}</a>
                 {% endif %}
             {% else %}
                 <span class="pagination-ellipsis">...</span>
             {% endif %}
         {% endfor %}
         {% if interviews.has_next %}
-        <a href="{{ url_for('interview.admin_list', page=interviews.next_num, search=search, group=filter_group_id) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page suivante') }}">
+        <a href="{{ url_for('interview.admin_list', page=interviews.next_num, search=search, group=filter_group_id, status=status) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Page suivante') }}">
             <i class="iconoir-nav-arrow-right"></i>
         </a>
         {% endif %}

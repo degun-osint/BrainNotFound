@@ -77,11 +77,8 @@
 
 {% macro member_actions(user, is_instructor) %}
     <div class="flex gap-sm flex-wrap">
-        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Notes') }}">
-            <i class="iconoir-stats-report"></i>
-        </a>
         {% if manageable[user.id] %}
-        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+        <a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
             <i class="iconoir-edit-pencil"></i>
         </a>
         {% if user.email.endswith('@imported.local') %}
@@ -158,7 +155,7 @@
             <tbody>
                 {% for user, joined in learners %}
                 <tr>
-                    <td><a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">{{ user.full_name }}</a></td>
+                    <td><a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">{{ user.full_name }}</a></td>
                     <td class="text-light font-mono text-sm">{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>{% if user.last_login %}{{ user.last_login|localtime }}{% else %}<span class="text-light">{{ _('Jamais') }}</span>{% endif %}</td>

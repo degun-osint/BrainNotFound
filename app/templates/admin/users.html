@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_list_filters.html" as lf with context %}
 
 {% block title %}{{ _('Utilisateurs - BrainNotFound') }}{% endblock %}
 
@@ -9,57 +10,12 @@
     <div class="card-header flex justify-between items-center flex-wrap gap-sm">
         <span>{{ _('Liste des utilisateurs') }}</span>
         <div class="flex gap-sm items-center flex-wrap">
-            <form method="GET" class="flex gap-sm items-center">
-                <div class="searchable-select" data-autosubmit="true">
-                    <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
-                    <div class="searchable-select-trigger">
-                        <i class="iconoir-group"></i>
-                        <span>{% if filter_group_id %}{% for g in all_groups %}{% if g.id == filter_group_id %}{{ g.name }}{% endif %}{% endfor %}{% else %}{{ _('Tous les groupes') }}{% endif %}</span>
-                        <i class="iconoir-nav-arrow-down"></i>
-                    </div>
-                    <div class="searchable-select-dropdown">
-                        <div class="searchable-select-search">
-                            <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
-                        </div>
-                        <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_group_id %}selected{% endif %}" data-value="0">{{ _('Tous les groupes') }}</div>
-                            {% for group in all_groups %}
-                            <div class="searchable-select-option {% if filter_group_id == group.id %}selected{% endif %}" data-value="{{ group.id }}">
-                                {{ group.name }}
-                                {% if group.tenant %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="searchable-select" data-autosubmit="true">
-                    <input type="hidden" name="role" value="{{ filter_role or '' }}">
-                    <div class="searchable-select-trigger">
-                        <i class="iconoir-user-badge-check"></i>
-                        <span>{% if filter_role == 'superadmin' %}{{ _('Super-Admin') }}{% elif filter_role == 'tenant_admin' %}{{ _("Admin d'etablissement") }}{% elif filter_role == 'group_admin' %}{{ _('Intervenant') }}{% elif filter_role == 'user' %}{{ _('Apprenant') }}{% else %}{{ _('Tous les rôles') }}{% endif %}</span>
-                        <i class="iconoir-nav-arrow-down"></i>
-                    </div>
-                    <div class="searchable-select-dropdown">
-                        <div class="searchable-select-options">
-                            <div class="searchable-select-option {% if not filter_role %}selected{% endif %}" data-value="">{{ _('Tous les rôles') }}</div>
-                            <div class="searchable-select-option {% if filter_role == 'superadmin' %}selected{% endif %}" data-value="superadmin">{{ _('Super-Admin') }}</div>
-                            <div class="searchable-select-option {% if filter_role == 'tenant_admin' %}selected{% endif %}" data-value="tenant_admin">{{ _("Admin d'etablissement") }}</div>
-                            <div class="searchable-select-option {% if filter_role == 'group_admin' %}selected{% endif %}" data-value="group_admin">{{ _('Intervenant') }}</div>
-                            <div class="searchable-select-option {% if filter_role == 'user' %}selected{% endif %}" data-value="user">{{ _('Apprenant') }}</div>
-                        </div>
-                    </div>
-                </div>
-                <input type="text" name="search" value="{{ search }}" placeholder="{{ _('Rechercher...') }}"
-                       class="form-input input-search">
-                <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Rechercher') }}">
-                    <i class="iconoir-search"></i>
-                </button>
-                {% if search or filter_group_id or filter_role %}
-                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
-                    <i class="iconoir-xmark"></i>
-                </a>
-                {% endif %}
-            </form>
+            {% call lf.filter_bar('admin.users', search, search or filter_group_id or filter_role) %}
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+                <input type="hidden" name="dir" value="{{ sort_dir }}">
+                {{ lf.group_filter(all_groups, filter_group_id) }}
+                {{ lf.choice_filter('role', filter_role, 'user-badge-check', [('', _('Tous les rôles')), ('superadmin', _('Super-Admin')), ('tenant_admin', _("Admin d'etablissement")), ('group_admin', _('Intervenant')), ('user', _('Apprenant'))]) }}
+            {% endcall %}
             <a href="{{ url_for('admin.import_users') }}" class="btn btn-secondary btn-small" data-tooltip="{{ _('Importer depuis CSV') }}">
                 <i class="iconoir-upload"></i> {{ _('Import') }}
             </a>
@@ -69,18 +25,12 @@
         </div>
     </div>
 
-    {% if search or filter_group_id or filter_role %}
-    <div class="search-results-info">
-        <span class="text-light">
-            {% if filter_group_id %}{{ _('Groupe:') }} {{ all_groups|selectattr('id', 'eq', filter_group_id)|map(attribute='name')|first }}{% endif %}
-            {% if filter_group_id and filter_role %} - {% endif %}
-            {% if filter_role %}{{ _('Rôle:') }} {% if filter_role == 'superadmin' %}{{ _('Super-Admin') }}{% elif filter_role == 'tenant_admin' %}{{ _("Admin d'etablissement") }}{% elif filter_role == 'group_admin' %}{{ _('Intervenant') }}{% elif filter_role == 'user' %}{{ _('Apprenant') }}{% endif %}{% endif %}
-            {% if (filter_group_id or filter_role) and search %} - {% endif %}
-            {% if search %}{{ _('Recherche:') }} "{{ search }}"{% endif %}
-            - {{ pagination.total }} {{ _('resultat(s)') }}
-        </span>
-    </div>
-    {% endif %}
+    {% set role_labels = {'superadmin': _('Super-Admin'), 'tenant_admin': _("Admin d'etablissement"), 'group_admin': _('Intervenant'), 'user': _('Apprenant')} %}
+    {{ lf.results_info([
+        (_('Groupe :') ~ ' ' ~ (all_groups|selectattr('id', 'equalto', filter_group_id)|map(attribute='name')|first)) if filter_group_id else '',
+        (_('Role :') ~ ' ' ~ role_labels[filter_role]) if filter_role else '',
+        (_('Recherche :') ~ ' "' ~ search ~ '"') if search else '',
+    ], pagination.total) }}
 
     <!-- Bulk Actions Toolbar -->
     <div id="bulk-actions-bar" class="bulk-actions-bar" style="display: none;">
@@ -182,7 +132,7 @@
                 </td>
                 <td>
                     {% if not user.is_admin %}
-                    <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
+                    <a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier()) }}" class="link-primary font-medium">
                         {{ user.full_name }}
                     </a>
                     {% else %}
@@ -237,13 +187,8 @@
                 </td>
                 <td>
                     <div class="flex gap-sm flex-wrap">
-                        {% if not user.is_admin %}
-                        <a href="{{ url_for('admin.user_grades', identifier=user.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Notes') }}">
-                            <i class="iconoir-stats-report"></i>
-                        </a>
-                        {% endif %}
                         {% if meta[user.id].can_manage %}
-                        <a href="{{ url_for('admin.edit_user', identifier=user.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                        <a href="{{ url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit') }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
                             <i class="iconoir-edit-pencil"></i>
                         </a>
                         {% if meta[user.id].can_delete %}

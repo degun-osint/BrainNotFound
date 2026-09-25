@@ -23,6 +23,7 @@ from app.utils.scope import (
     get_tenant_context, get_accessible_tenants, set_tenant_context as set_scope_tenant,
     scoped_groups, scoped_group_ids, scoped_quizzes, scoped_interviews, scoped_users,
     scoped_user_ids, validate_group_ids, assign_groups, default_tenant_id, quota_tenant,
+    filter_content_status, CONTENT_STATUSES, breadcrumb,
 )
 from datetime import datetime
 from io import BytesIO
@@ -103,9 +104,9 @@ def superadmin_required(f):
 
 # ==================== Tenant Context Management ====================
 
-@admin_bp.context_processor
+@admin_bp.app_context_processor  # the navbar selector shows on every page, not only /admin ones
 def inject_tenant_context():
-    """Make tenant context available in all admin templates."""
+    """Navbar organization selector, on every page an admin sees."""
     if current_user.is_authenticated and current_user.is_any_admin:
         tenant_context = get_tenant_context()
         accessible_tenants = get_accessible_tenants()
@@ -225,8 +226,9 @@ def quiz_list():
     per_page = 20
     search = request.args.get('search', '', type=str).strip()
     filter_group_id = request.args.get('group', 0, type=int)
+    status = request.args.get('status', '')
 
-    query = scoped_quizzes()
+    query = filter_content_status(scoped_quizzes(), Quiz, status)
     if search:
         query = query.filter(Quiz.title.ilike(f'%{search}%'))
     if filter_group_id > 0:
@@ -239,8 +241,10 @@ def quiz_list():
         quizzes=quizzes,
         search=search,
         all_groups=scoped_groups().all(),
-        filter_group_id=filter_group_id
+        filter_group_id=filter_group_id,
+        status=status if status in CONTENT_STATUSES else '',
     )
+
 
 
 @admin_bp.route('/quiz/create', methods=['GET', 'POST'])
@@ -1242,8 +1246,21 @@ def users_list_meta(users):
 @login_required
 @admin_required
 def groups():
-    all_groups = scoped_groups(active_only=False).order_by(None).order_by(Group.created_at.desc()).all()
-    return render_template('admin/groups.html', groups=all_groups)
+    search = request.args.get('search', '', type=str).strip()
+    status = request.args.get('status', '')
+    query = scoped_groups(active_only=False)
+    if search:
+        query = query.filter(db.or_(Group.name.ilike(f'%{search}%'), Group.join_code.ilike(f'%{search}%')))
+    if status == 'active':
+        query = query.filter(Group.is_active == True)  # noqa: E712
+    elif status == 'inactive':
+        query = query.filter(Group.is_active == False)  # noqa: E712
+    else:
+        status = ''
+    all_groups = query.all()
+    learner_counts, instructor_counts = Group.role_counts(all_groups)
+    return render_template('admin/groups.html', groups=all_groups, search=search, status=status,
+                           learner_counts=learner_counts, instructor_counts=instructor_counts)
 
 @admin_bp.route('/group/create', methods=['GET', 'POST'])
 @login_required
@@ -1294,9 +1311,12 @@ def create_group():
         db.session.commit()
 
         flash(_l('Groupe "%(name)s" cree avec le code : %(code)s', name=name, code=join_code), 'success')
-        return redirect(url_for('admin.groups'))
+        return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
 
-    return render_template('admin/create_group.html', tenants=tenants)
+    # ?tenant=<uid>: coming from an organization page
+    wanted = Tenant.get_by_identifier(request.args.get('tenant', '')) if request.args.get('tenant') else None
+    selected_tenant_id = wanted.id if wanted and wanted in tenants else None
+    return render_template('admin/create_group.html', tenants=tenants, selected_tenant_id=selected_tenant_id)
 
 @admin_bp.route('/group/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
@@ -1328,15 +1348,18 @@ def edit_group(identifier):
 
         if not name:
             flash(_l('Le nom du groupe est requis'), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
         # Moving a group is limited to the tenants we administer
         if tenant_id and tenant_id != group.tenant_id and tenant_id not in {t.id for t in tenants}:
             flash(_l('Acces non autorise a cet etablissement'), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
         if tenant_id and tenant_id != group.tenant_id and not db.session.get(Tenant, tenant_id).can_add_group():
             flash(_l('Limite de groupes atteinte (%(max)s)', max=db.session.get(Tenant, tenant_id).max_groups), 'error')
-            return render_template('admin/edit_group.html', group=group, tenants=tenants)
+            return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
         group.name = name
         group.description = request.form.get('description', '')
@@ -1349,7 +1372,8 @@ def edit_group(identifier):
         flash(_l('Groupe mis a jour avec succes'), 'success')
         return redirect(url_for('admin.groups'))
 
-    return render_template('admin/edit_group.html', group=group, tenants=tenants)
+    return render_template('admin/edit_group.html', group=group, tenants=tenants,
+                                   breadcrumb=breadcrumb(group.tenant, group, (_l('Modifier'), None)))
 
 @admin_bp.route('/group/<identifier>/toggle', methods=['POST'])
 @login_required
@@ -1448,7 +1472,7 @@ def group_detail(identifier):
     ).group_by(QuizResponse.quiz_id).all()) if quizzes and learner_ids else {}
 
     manageable = {u.id: current_user.can_manage_user(u) for u, _, _ in rows}
-    return render_template('admin/group_detail.html', group=group, learners=learners, instructors=instructors,
+    return render_template('admin/group_detail.html', breadcrumb=breadcrumb(group.tenant, group), group=group, learners=learners, instructors=instructors,
                            response_counts=response_counts, quizzes=quizzes, interviews=interviews,
                            quiz_done=quiz_done, manageable=manageable,
                            can_manage_roles=current_user.role_rank >= 2,
@@ -1857,47 +1881,74 @@ def serve_quiz_image(quiz_id, filename):
     upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], f'quiz-{quiz_id}')
     return send_from_directory(upload_dir, filename)
 
-@admin_bp.route('/user/<identifier>/grades')
+def _user_page_context(user):
+    """Everything the person page shows: memberships, results, edit form data."""
+    memberships = db.session.query(Group, user_groups.c.role).join(
+        user_groups, user_groups.c.group_id == Group.id
+    ).filter(user_groups.c.user_id == user.id).order_by(Group.name).all()
+
+    # Results: only content the viewer can see
+    responses = [r for r in QuizResponse.query.filter_by(user_id=user.id)
+                 .order_by(QuizResponse.submitted_at.desc()).all()
+                 if current_user.can_access_quiz(r.quiz)]
+    sessions = [s for s in InterviewSession.query.filter_by(user_id=user.id, is_test=False)
+                .order_by(InterviewSession.started_at.desc()).all()
+                if current_user.can_access_interview(s.interview)]
+    total = sum(r.total_score for r in responses)
+    max_total = sum(r.max_score for r in responses)
+    stats = {
+        'quiz_count': len(responses),
+        'interview_count': len(sessions),
+        'average_percentage': (total / max_total * 100) if max_total > 0 else 0.0,
+    }
+
+    can_edit = user.id != current_user.id and current_user.can_manage_user(user)
+    # One group: Organization > Group > Person; otherwise Users > Person
+    if len(memberships) == 1 and current_user.can_access_group(memberships[0][0]):
+        group = memberships[0][0]
+        trail = breadcrumb(group.tenant, group, (user.full_name, None))
+    else:
+        trail = [(_l('Utilisateurs'), url_for('admin.users')), (user.full_name, None)]
+    ctx = dict(breadcrumb=trail, user=user, memberships=memberships, admin_tenants=user.admin_tenants.order_by(Tenant.name).all(),
+               responses=responses, sessions=sessions, stats=stats, can_edit=can_edit,
+               can_delete=user.id != current_user.id and current_user.can_manage_user(user, for_delete=True))
+    if can_edit:
+        user_tenant_ids = sorted(user.admin_tenant_ids())
+        ctx.update(
+            groups=scoped_groups().all(),
+            tenants=get_accessible_tenants() if current_user.is_superadmin else [],
+            group_roles={g.id: role for g, role in memberships},
+            user_tenant_ids=user_tenant_ids,
+            global_role='superadmin' if user.is_superadmin else 'tenant_admin' if user_tenant_ids else 'none',
+            can_set_instructor=current_user.role_rank >= 2,
+            is_superadmin=current_user.is_superadmin,
+        )
+    return ctx
+
+
+@admin_bp.route('/user/<identifier>')
 @login_required
 @admin_required
-def user_grades(identifier):
-    """View all grades for a specific user."""
+def user_detail(identifier):
+    """Everything about one person: roles, groups, results, and the edit form."""
     user = User.get_by_identifier(identifier)
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
-
-    user_id = user.id  # Keep for queries
-
-    # Redirect to canonical URL if accessed by numeric ID
     if identifier != user.get_url_identifier():
-        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()), code=301)
-
-    # Check permission
-    if not current_user.is_superadmin and not current_user.can_access_user(user):
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier()), code=301)
+    if user.id != current_user.id and not current_user.can_access_user(user):
         flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
+    return render_template('admin/user_detail.html', **_user_page_context(user))
 
-    # Get all responses for this user
-    responses = QuizResponse.query.filter_by(user_id=user_id)\
-        .order_by(QuizResponse.submitted_at.desc()).all()
 
-    # Filter responses for group admins - only show quizzes they can access
-    if not current_user.is_superadmin:
-        responses = [r for r in responses if current_user.can_access_quiz(r.quiz)]
-
-    # Calculate statistics
-    stats = {
-        'quiz_count': len(responses),
-        'total_points': sum(r.total_score for r in responses),
-        'max_possible_points': sum(r.max_score for r in responses),
-        'average_percentage': 0.0
-    }
-
-    if stats['max_possible_points'] > 0:
-        stats['average_percentage'] = (stats['total_points'] / stats['max_possible_points']) * 100
-
-    return render_template('admin/user_grades.html', user=user, responses=responses, stats=stats)
+@admin_bp.route('/user/<identifier>/grades')
+@login_required
+@admin_required
+def user_grades(identifier):
+    """Former grades page, now a tab of the person page."""
+    return redirect(url_for('admin.user_detail', identifier=identifier, _anchor='results'), code=301)
 
 # User management routes
 # ==================== User roles helpers ====================
@@ -2150,16 +2201,14 @@ def import_users():
 @login_required
 @admin_required
 def edit_user(identifier):
-    """Edit an existing user."""
-    from app.models.user import user_groups
+    """Save the edit form of the person page (GET opens that page on the edit tab)."""
     user = User.get_by_identifier(identifier)
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
         return redirect(url_for('admin.users'))
 
-    # Redirect to canonical URL if accessed by numeric ID
-    if identifier != user.get_url_identifier():
-        return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()), code=301)
+    if request.method == 'GET':
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
     # Prevent editing yourself to remove admin rights
     if user.id == current_user.id:
@@ -2171,11 +2220,6 @@ def edit_user(identifier):
         flash(_l('Vous n\'avez pas acces a cet utilisateur'), 'error')
         return redirect(url_for('admin.users'))
 
-    groups = scoped_groups().all()
-    tenants = get_accessible_tenants() if current_user.is_superadmin else []
-
-    user_group_roles = {row.group_id: row.role for row in db.session.execute(
-        user_groups.select().where(user_groups.c.user_id == user.id))}
     user_tenant_ids = sorted(user.admin_tenant_ids())
     can_set_instructor = current_user.role_rank >= 2
     if user.is_superadmin:
@@ -2194,7 +2238,7 @@ def edit_user(identifier):
             user.clear_verification_token()
             db.session.commit()
             flash(_l('Email de %(username)s verifie manuellement.', username=user.username), 'success')
-            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
         elif action == 'resend_verification':
             if send_verification_email(user):
@@ -2202,7 +2246,7 @@ def edit_user(identifier):
                 flash(_l('Email de verification renvoye a %(email)s.', email=user.email), 'success')
             else:
                 flash(_l('Erreur lors de l\'envoi de l\'email.'), 'error')
-            return redirect(url_for('admin.edit_user', identifier=user.get_url_identifier()))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='edit'))
 
         username = request.form.get('username', '').strip()
         first_name = request.form.get('first_name', '').strip()
@@ -2242,13 +2286,11 @@ def edit_user(identifier):
             db.session.commit()
             User.clear_role_cache()
             flash(_l('Utilisateur "%(username)s" mis a jour avec succes', username=username), 'success')
-            return redirect(url_for('admin.users'))
+            return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier()))
 
-    return render_template('admin/edit_user.html', user=user, groups=groups,
-                          group_roles=user_group_roles, tenants=tenants,
-                          user_tenant_ids=user_tenant_ids, global_role=global_role,
-                          can_set_instructor=can_set_instructor,
-                          is_superadmin=current_user.is_superadmin)
+    # Validation error: back on the edit tab
+    db.session.rollback()
+    return render_template('admin/user_detail.html', open_tab='edit', **_user_page_context(user))
 
 @admin_bp.route('/user/<identifier>/delete', methods=['POST'])
 @login_required
@@ -2502,8 +2544,8 @@ def delete_response(identifier):
 
     # Redirect back to the referring page
     referer = request.referrer
-    if referer and 'user_grades' in referer:
-        return redirect(url_for('admin.user_grades', identifier=user.get_url_identifier()))
+    if referer and f'/admin/user/{user.get_url_identifier()}' in referer:
+        return redirect(url_for('admin.user_detail', identifier=user.get_url_identifier(), _anchor='results'))
     return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
 
 

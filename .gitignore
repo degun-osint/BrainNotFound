@@ -65,3 +65,6 @@ private/
 
 # Server-side backups and pre-restore snapshots
 backups/
+
+# Compiled translations (pybabel compile at container start)
+*.mo

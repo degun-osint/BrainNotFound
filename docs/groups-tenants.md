@@ -60,6 +60,17 @@ Un intervenant peut modifier le profil de ses apprenants (nom, email, mot de pas
 
 ## Gérer les établissements
 
+### La fiche de l'établissement
+
+Un clic sur le nom d'un établissement ouvre sa fiche, qui rassemble tout, en onglets :
+
+- **Groupes** : liste avec code d'accès, nombre d'apprenants et d'intervenants, et **Nouveau groupe** ;
+- **Administrateurs** : liste, ajout par recherche, retrait (réservé aux super-administrateurs) ;
+- **Contenus** : quiz et entretiens de l'établissement, avec le badge « Aucun groupe » pour ceux qu'aucun apprenant ne voit ;
+- **Quotas et abonnement** : usage des limites fixes et des quotas IA du mois.
+
+Un administrateur d'établissement retrouve sa fiche dans le menu **Établissement** ; s'il en administre plusieurs, le menu affiche leur liste.
+
 > Réservé aux super-administrateurs. Un administrateur d'établissement consulte la fiche de ses établissements et gère leurs groupes.
 
 ### Créer un établissement
@@ -72,7 +83,7 @@ Un intervenant peut modifier le profil de ses apprenants (nom, email, mot de pas
 
 Deux chemins :
 
-- depuis la fiche de l'établissement : **Gérer admins** > **Ajouter comme admin** ;
+- depuis la fiche de l'établissement, onglet **Administrateurs** : cherchez la personne par nom, identifiant ou email, puis **Nommer admin** ;
 - depuis la fiche d'un utilisateur : **Rôle global** > **Administrateur d'établissement**, puis cochez les établissements à administrer.
 
 ### Rattacher un groupe à un établissement
@@ -120,13 +131,21 @@ Un code est refusé si le groupe est inactif ou complet, ou si l'établissement 
 
 ### Invitations par email
 
-Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable 72 heures. Depuis la page du groupe ou la fiche de l'utilisateur, un intervenant peut renvoyer ce lien (**Envoyer un lien pour choisir un mot de passe**) ou le copier pour un compte sans email réel.
+Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable 72 heures. Depuis la page du groupe ou la fiche de la personne, un intervenant peut renvoyer ce lien (**Envoyer un lien pour choisir un mot de passe**) ou le copier pour un compte sans email réel.
 
 ## Filtrer par établissement
 
-Les administrateurs de plusieurs établissements voient un sélecteur dans la barre de navigation : **Tous les établissements**, ou un établissement en particulier. Le filtre s'applique aux listes de quiz, d'utilisateurs et de groupes.
+Les administrateurs de plusieurs établissements voient un sélecteur dans la barre de navigation : **Tous les établissements**, ou un établissement en particulier. Le filtre s'applique aux quatre listes (groupes, utilisateurs, quiz, entretiens), qui le rappellent au-dessus des résultats avec un lien **Voir tous les établissements**.
 
-Chaque liste propose en plus une recherche et un filtre par groupe.
+Les listes ont la même barre de filtres :
+
+| Liste | Filtres |
+|-------|---------|
+| **Groupes** | État (actifs, inactifs), recherche par nom ou code d'accès |
+| **Utilisateurs** | Groupe, rôle, recherche par nom, identifiant ou email ; tri par colonne |
+| **Quiz**, **Entretiens** | Groupe, état (actifs, inactifs, sans groupe), recherche par titre |
+
+Le filtre « Sans groupe » retrouve les contenus qu'aucun apprenant ne peut voir.
 
 ## Déplacer des personnes
 

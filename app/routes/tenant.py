@@ -11,7 +11,9 @@ from app import db
 from app.models.tenant import Tenant, tenant_admins
 from app.models.user import User
 from app.models.group import Group
-from app.models.quiz import Quiz
+from app.models.quiz import Quiz, quiz_groups
+from app.models.interview import Interview, interview_groups
+from app.utils.scope import breadcrumb
 
 tenant_bp = Blueprint('tenant', __name__)
 
@@ -57,10 +59,16 @@ def validate_slug(slug):
 
 @tenant_bp.route('/list')
 @login_required
-@superadmin_required
+@tenant_admin_required
 def list_tenants():
-    """Liste tous les tenants (superadmin only)."""
-    tenants = Tenant.query.order_by(Tenant.name).all()
+    """All organizations for a superadmin; one's own for an organization admin
+    (straight to its page when there is only one)."""
+    if current_user.is_superadmin:
+        tenants = Tenant.query.order_by(Tenant.name).all()
+    else:
+        tenants = current_user.admin_tenants.order_by(Tenant.name).all()
+        if len(tenants) == 1:
+            return redirect(url_for('tenant.view_tenant', identifier=tenants[0].get_url_identifier()))
     return render_template('admin/tenants/list.html', tenants=tenants)
 
 
@@ -144,42 +152,61 @@ def create_tenant():
     return render_template('admin/tenants/create.html')
 
 
+def _tenant_or_redirect(identifier, endpoint='tenant.view_tenant'):
+    """(tenant, None) if the organization exists and is ours, else (None, redirect)."""
+    tenant = Tenant.get_by_identifier(identifier)
+    if not tenant:
+        flash(_l('Etablissement introuvable'), 'error')
+        return None, redirect(url_for('admin.dashboard'))
+    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
+        flash(_l('Acces non autorise'), 'error')
+        return None, redirect(url_for('admin.dashboard'))
+    return tenant, None
+
+
+def _tenant_page(tenant, tab):
+    """The organization page, opened on a tab (former sub-pages redirect here)."""
+    return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier(), _anchor=tab))
+
+
 @tenant_bp.route('/<identifier>')
 @login_required
 @tenant_admin_required
 def view_tenant(identifier):
-    """Voir les détails d'un tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Redirect if accessed by old numeric ID
+    """Everything about one organization: groups, admins, content, quotas."""
+    tenant, error = _tenant_or_redirect(identifier)
+    if error:
+        return error
     if identifier != tenant.get_url_identifier():
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()), code=301)
 
-    # Vérifier accès
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash(_l('Acces non autorise'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Stats
-    stats = tenant.get_usage_stats()
-    ai_stats = tenant.get_ai_usage_stats()
-
-    # Admins du tenant
-    admins = tenant.admins.all()
-
-    # Groupes du tenant
     groups = tenant.groups.order_by(Group.name).all()
+    learner_counts, instructor_counts = Group.role_counts(groups)
+
+    quizzes = tenant.quizzes.order_by(Quiz.created_at.desc()).all()
+    interviews = Interview.query.filter_by(tenant_id=tenant.id).order_by(Interview.created_at.desc()).all()
+    # Content no learner can see (no group)
+    quiz_ids = [q.id for q in quizzes]
+    interview_ids = [i.id for i in interviews]
+    quizzes_with_group = {r[0] for r in db.session.query(quiz_groups.c.quiz_id).filter(
+        quiz_groups.c.quiz_id.in_(quiz_ids))} if quiz_ids else set()
+    interviews_with_group = {r[0] for r in db.session.query(interview_groups.c.interview_id).filter(
+        interview_groups.c.interview_id.in_(interview_ids))} if interview_ids else set()
 
     return render_template(
         'admin/tenants/view.html',
+        breadcrumb=breadcrumb(tenant),
         tenant=tenant,
-        stats=stats,
-        ai_stats=ai_stats,
-        admins=admins,
-        groups=groups
+        stats=tenant.get_usage_stats(),
+        ai_stats=tenant.get_ai_usage_stats(),
+        admins=tenant.admins.order_by(User.last_name, User.username).all(),
+        groups=groups,
+        learner_counts=learner_counts,
+        instructor_counts=instructor_counts,
+        quizzes=quizzes,
+        interviews=interviews,
+        quizzes_with_group=quizzes_with_group,
+        interviews_with_group=interviews_with_group,
     )
 
 
@@ -275,210 +302,100 @@ def delete_tenant(identifier):
     return redirect(url_for('tenant.list_tenants'))
 
 
-# ==================== Gestion des admins de tenant ====================
+# ==================== Organization admins ====================
 
 @tenant_bp.route('/<identifier>/admins')
 @login_required
-@superadmin_required
+@tenant_admin_required
 def manage_admins(identifier):
-    """Gérer les admins d'un tenant."""
+    """Former admins page, now a tab of the organization page."""
+    tenant, error = _tenant_or_redirect(identifier)
+    return error or _tenant_page(tenant, 'admins')
+
+
+@tenant_bp.route('/<identifier>/admins/candidates')
+@login_required
+@superadmin_required
+def admin_candidates(identifier):
+    """People matching ?q= who could become admin of this organization (for the add box)."""
     tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('tenant.list_tenants'))
-
-    # Redirect if accessed by old numeric ID
-    if identifier != tenant.get_url_identifier():
-        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()), code=301)
-
-    admins = tenant.admins.all()
-
-    # Utilisateurs disponibles (non admin de ce tenant, email vérifié)
-    admin_ids = [a.id for a in admins]
-    query = User.query.filter(User.email_verified == True)
-    if admin_ids:
-        query = query.filter(User.id.notin_(admin_ids))
-    available_users = query.order_by(User.username).limit(50).all()
-
-    return render_template(
-        'admin/tenants/admins.html',
-        tenant=tenant,
-        admins=admins,
-        available_users=available_users
-    )
+    q = request.args.get('q', '').strip()
+    if not tenant or len(q) < 2:
+        return jsonify([])
+    current_admins = db.session.query(tenant_admins.c.user_id).filter(tenant_admins.c.tenant_id == tenant.id)
+    pattern = f'%{q}%'
+    users = User.query.filter(
+        ~User.id.in_(current_admins),
+        User.is_admin == False,  # noqa: E712  (superadmins already see everything)
+        db.or_(User.username.ilike(pattern), User.email.ilike(pattern),
+               User.first_name.ilike(pattern), User.last_name.ilike(pattern))
+    ).order_by(User.last_name, User.username).limit(15).all()
+    return jsonify([{'id': u.get_url_identifier(), 'name': u.full_name, 'username': u.username, 'email': u.email}
+                    for u in users])
 
 
 @tenant_bp.route('/<identifier>/admins/add', methods=['POST'])
 @login_required
 @superadmin_required
 def add_admin(identifier):
-    """Ajouter un admin au tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('tenant.list_tenants'))
-
-    user_id = request.form.get('user_id', type=int)
-
-    if not user_id:
-        flash(_l('Utilisateur non specifie'), 'error')
-        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
-
-    user = User.query.get(user_id)
+    """Make someone admin of the organization."""
+    tenant, error = _tenant_or_redirect(identifier)
+    if error:
+        return error
+    user = User.get_by_identifier(request.form.get('user', ''))
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
-        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
-
-    tenant.add_admin(user)
-    db.session.commit()
-
-    flash(_l("%(username)s est maintenant admin de l'etablissement", username=user.username), 'success')
-    return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
+    elif user.is_superadmin:
+        flash(_l('Un super-administrateur a deja acces a tous les etablissements'), 'info')
+    else:
+        tenant.add_admin(user)
+        db.session.commit()
+        flash(_l("%(username)s est maintenant admin de l'etablissement", username=user.full_name), 'success')
+    return _tenant_page(tenant, 'admins')
 
 
 @tenant_bp.route('/<identifier>/admins/<user_identifier>/remove', methods=['POST'])
 @login_required
 @superadmin_required
 def remove_admin(identifier, user_identifier):
-    """Retirer un admin du tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('tenant.list_tenants'))
-
+    """Remove someone from the organization admins (the account stays)."""
+    tenant, error = _tenant_or_redirect(identifier)
+    if error:
+        return error
     user = User.get_by_identifier(user_identifier)
     if not user:
         flash(_l('Utilisateur introuvable'), 'error')
-        return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
-
-    tenant.remove_admin(user)
-    db.session.commit()
-
-    flash(_l('%(username)s n\'est plus admin de l\'etablissement', username=user.username), 'info')
-    return redirect(url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()))
+    else:
+        tenant.remove_admin(user)
+        db.session.commit()
+        flash(_l('%(username)s n\'est plus admin de l\'etablissement', username=user.full_name), 'info')
+    return _tenant_page(tenant, 'admins')
 
 
-# ==================== Routes Tenant Admin ====================
+# ==================== Former sub-pages ====================
 
 @tenant_bp.route('/<identifier>/groups')
 @login_required
 @tenant_admin_required
 def tenant_groups(identifier):
-    """Liste des groupes d'un tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Redirect if accessed by old numeric ID
-    if identifier != tenant.get_url_identifier():
-        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()), code=301)
-
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash(_l('Acces non autorise'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    groups = tenant.groups.order_by(Group.name).all()
-    return render_template('admin/tenants/groups.html', tenant=tenant, groups=groups)
+    """Former groups page, now a tab of the organization page."""
+    tenant, error = _tenant_or_redirect(identifier)
+    return error or _tenant_page(tenant, 'groups')
 
 
-@tenant_bp.route('/<identifier>/groups/create', methods=['GET', 'POST'])
+@tenant_bp.route('/<identifier>/groups/create')
 @login_required
 @tenant_admin_required
 def create_group_in_tenant(identifier):
-    """Créer un groupe dans un tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Redirect if accessed by old numeric ID
-    if identifier != tenant.get_url_identifier():
-        return redirect(url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()), code=301)
-
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash(_l('Acces non autorise'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Vérifier limite
-    if not tenant.can_add_group():
-        flash(_l('Limite de groupes atteinte (%(max)s)', max=tenant.max_groups), 'error')
-        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
-
-    if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        description = request.form.get('description', '').strip()
-        max_members = request.form.get('max_members', 0, type=int)
-
-        if not name:
-            flash(_l('Le nom est requis'), 'error')
-            return render_template('admin/tenants/create_group.html', tenant=tenant)
-
-        group = Group(
-            name=name,
-            description=description,
-            max_members=max_members,
-            join_code=Group.generate_join_code(),
-            tenant_id=tenant.id
-        )
-        db.session.add(group)
-        db.session.commit()
-
-        flash(_l('Groupe "%(name)s" cree avec succes', name=name), 'success')
-        return redirect(url_for('tenant.tenant_groups', identifier=tenant.get_url_identifier()))
-
-    return render_template('admin/tenants/create_group.html', tenant=tenant)
+    """Former creation form: the group form, with this organization selected."""
+    tenant, error = _tenant_or_redirect(identifier)
+    return error or redirect(url_for('admin.create_group', tenant=tenant.get_url_identifier()))
 
 
 @tenant_bp.route('/<identifier>/quizzes')
 @login_required
 @tenant_admin_required
 def tenant_quizzes(identifier):
-    """Liste des quiz d'un tenant."""
-    tenant = Tenant.get_by_identifier(identifier)
-    if not tenant:
-        flash(_l('Etablissement introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Redirect if accessed by old numeric ID
-    if identifier != tenant.get_url_identifier():
-        return redirect(url_for('tenant.tenant_quizzes', identifier=tenant.get_url_identifier()), code=301)
-
-    if not current_user.is_superadmin and not current_user.is_admin_of_tenant(tenant.id):
-        flash(_l('Acces non autorise'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    quizzes = tenant.quizzes.order_by(Quiz.created_at.desc()).all()
-    return render_template('admin/tenants/quizzes.html', tenant=tenant, quizzes=quizzes)
-
-
-# ==================== API ====================
-
-@tenant_bp.route('/api/search-users')
-@login_required
-@superadmin_required
-def search_users():
-    """API pour rechercher des utilisateurs (pour ajouter comme admin)."""
-    query = request.args.get('q', '').strip()
-    if len(query) < 2:
-        return jsonify([])
-
-    users = User.query.filter(
-        db.or_(
-            User.username.ilike(f'%{query}%'),
-            User.email.ilike(f'%{query}%'),
-            User.first_name.ilike(f'%{query}%'),
-            User.last_name.ilike(f'%{query}%')
-        ),
-        User.email_verified == True
-    ).limit(10).all()
-
-    return jsonify([
-        {
-            'id': u.id,
-            'username': u.username,
-            'email': u.email,
-            'full_name': u.full_name
-        }
-        for u in users
-    ])
+    """Former quiz page, now a tab of the organization page."""
+    tenant, error = _tenant_or_redirect(identifier)
+    return error or _tenant_page(tenant, 'content')

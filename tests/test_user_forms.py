@@ -21,7 +21,8 @@ def edit(client, user, **fields):
 def test_forms_render(world, login, actor):
     client = login(world[actor])
     assert client.get('/admin/user/create').status_code == 200
-    assert client.get(f"/admin/user/{world['eleve_3a'].get_url_identifier()}/edit").status_code == 200
+    html = client.get(f"/admin/user/{world['eleve_3a'].get_url_identifier()}").get_data(as_text=True)
+    assert 'data-panel="edit"' in html
 
 
 def test_organization_admin_sets_roles_group_by_group(world, login):
