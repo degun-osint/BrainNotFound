@@ -2,6 +2,16 @@
 
 Les versions antérieures ne sont décrites que dans l'historique git.
 
+## [Non publié]
+
+### Corrections (trouvées par un test de charge jusqu'à 500 apprenants simultanés)
+
+- **Salles de classe derrière une seule IP** : les limites anti-abus étaient comptées par adresse IP seule ; 30 apprenants d'un même établissement ne pouvaient pas se connecter dans la même minute (10 connexions/min), ni s'inscrire ensemble (5/min), ni choisir leur mot de passe après une invitation. Limite serrée désormais par IP et compte (contre la force brute), plafond large par IP.
+- **Corrections en masse** : chaque correction gardait une connexion à la base pendant l'attente de l'IA ; au-delà de 15 copies corrigées en même temps, les suivantes attendaient puis échouaient (sur 250 copies à 100 corrections en parallèle : 84 en erreur, 19 bloquées « en attente »). La connexion est rendue pendant l'appel à l'IA (y compris la lecture des paramètres d'IA et dans les entretiens) : 250 et 500 copies corrigées sans erreur, notes publiées en 15 à 30 s.
+- Une correction interrompue par un souci de base est reprise automatiquement (5 essais), sans recorriger les réponses déjà notées.
+- Une réponse de QCM altérée provoquait une erreur 500.
+- Documentation : grille de dimensionnement selon le nombre d'apprenants simultanés.
+
 ## [2.2.0] - 2026-09-25
 
 ### Nouveautés
