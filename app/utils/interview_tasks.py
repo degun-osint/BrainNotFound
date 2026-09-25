@@ -80,13 +80,19 @@ def evaluate_interview_async(app, session_id: int):
 
         except Exception as e:
             app.logger.error(f"Interview evaluation error: {str(e)}")
+            db.session.rollback()
 
             # Update session status to error
-            session = InterviewSession.query.get(session_id)
-            if session:
-                session.status = InterviewSession.STATUS_ERROR
-                session.ai_summary = f"Erreur lors de l'evaluation: {str(e)}"
-                db.session.commit()
+            try:
+                session = InterviewSession.query.get(session_id)
+                if session:
+                    session.status = InterviewSession.STATUS_ERROR
+                    session.ai_summary = f"Erreur lors de l'evaluation: {str(e)}"
+                    db.session.commit()
+            except Exception as db_error:
+                db.session.rollback()
+                session = None
+                app.logger.error(f"Could not mark interview session {session_id} as failed: {db_error}")
 
             socketio.emit('evaluation_error', {
                 'session_id': session_id,
@@ -166,6 +172,7 @@ def process_interview_message_async(app, session_id: int, user_content: str, roo
 
         except Exception as e:
             app.logger.error(f"Interview message error: {str(e)}")
+            db.session.rollback()
             socketio.emit('error', {'message': str(e)}, room=room)
 
 

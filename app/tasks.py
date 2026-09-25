@@ -53,10 +53,28 @@ def run_task(task, *args):
 
 # ==================== Tasks ====================
 
-@shared_task(name='app.tasks.grade_quiz')
-def grade_quiz(response_id, answers_data):
+MAX_DB_RETRIES = 5
+
+
+def _retry_on_db_error(task, run):
+    """Run run(retryable); on a transient database error, retry the task with a backoff.
+
+    The last attempt (or a direct call, without a worker) is not retryable: the
+    work records its own failure instead of raising.
+    """
+    from app.utils.grading_tasks import TRANSIENT_DB_ERRORS
+    retryable = not task.request.called_directly and task.request.retries < MAX_DB_RETRIES
+    try:
+        run(retryable)
+    except TRANSIENT_DB_ERRORS as e:
+        raise task.retry(exc=e, countdown=min(60, 5 * 2 ** task.request.retries), max_retries=MAX_DB_RETRIES)
+
+
+@shared_task(bind=True, name='app.tasks.grade_quiz')
+def grade_quiz(self, response_id, answers_data):
     from app.utils.grading_tasks import grade_quiz_async
-    grade_quiz_async(current_app._get_current_object(), response_id, answers_data)
+    app = current_app._get_current_object()
+    _retry_on_db_error(self, lambda retryable: grade_quiz_async(app, response_id, answers_data, retryable))
 
 
 @shared_task(name='app.tasks.evaluate_interview')

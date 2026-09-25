@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 import unicodedata
 import re
+from flask_limiter.util import get_remote_address
 from app import db, limiter
 from app.models.user import User
 from app.models.group import Group
@@ -91,8 +92,27 @@ def set_language(lang):
     return redirect(url_for('auth.index'))
 
 
+# Rate limits. A whole class or training room shares one public IP (school NAT):
+# limiting per IP only would lock out 20 of 30 learners logging in together.
+# So the tight limit is per IP *and* account (brute force), and a loose per-IP
+# ceiling still stops floods.
+
+def _ip_and(field):
+    """Limiter key: client IP + a form field (username, email), case-insensitive."""
+    def key():
+        value = (request.form.get(field) or '').strip().lower()[:100]
+        return f'{get_remote_address()}|{field}={value}'
+    return key
+
+
+def _ip_and_path():
+    """Limiter key: client IP + URL (the reset link token)."""
+    return f'{get_remote_address()}|{request.path}'
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute", methods=["POST"])
+@limiter.limit("10 per minute", methods=["POST"], key_func=_ip_and('username'))
+@limiter.limit("1000 per minute", methods=["POST"])  # a whole exam hall can share one IP
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('auth.index'))
@@ -125,7 +145,8 @@ def login():
     return render_template('auth/login.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
-@limiter.limit("5 per minute", methods=["POST"])
+@limiter.limit("5 per minute", methods=["POST"], key_func=_ip_and('email'))
+@limiter.limit("60 per minute", methods=["POST"])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('auth.index'))
@@ -212,7 +233,8 @@ def verify_email(token):
 
 
 @auth_bp.route('/resend-verification', methods=['GET', 'POST'])
-@limiter.limit("3 per minute", methods=["POST"])
+@limiter.limit("3 per minute", methods=["POST"], key_func=_ip_and('email'))
+@limiter.limit("30 per minute", methods=["POST"])
 def resend_verification():
     """Resend verification email."""
     if current_user.is_authenticated:
@@ -242,7 +264,8 @@ def resend_verification():
 
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
-@limiter.limit("3 per minute", methods=["POST"])
+@limiter.limit("3 per minute", methods=["POST"], key_func=_ip_and('email'))
+@limiter.limit("30 per minute", methods=["POST"])
 def forgot_password():
     """Request password reset."""
     if current_user.is_authenticated:
@@ -268,7 +291,8 @@ def forgot_password():
 
 
 @auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
-@limiter.limit("5 per minute", methods=["POST"])
+@limiter.limit("5 per minute", methods=["POST"], key_func=_ip_and_path)
+@limiter.limit("60 per minute", methods=["POST"])
 def reset_password(token):
     """Reset password with token."""
     if current_user.is_authenticated:

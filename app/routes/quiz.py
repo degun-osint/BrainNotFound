@@ -438,7 +438,7 @@ def take(identifier):
             if question.question_type == 'mcq':
                 # Get selected options
                 selected = request.form.getlist(f'question_{question.id}')
-                selected_indices = [int(i) for i in selected]
+                selected_indices = [int(i) for i in selected if i.isdigit()]  # ignore tampered values
 
                 # Grade MCQ immediately
                 correct_set = set(question.correct_answers)

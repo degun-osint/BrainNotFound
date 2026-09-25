@@ -92,7 +92,7 @@ Mesures sur la pile Docker complète (application + MariaDB 12.3), avec un étab
 - **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go + données).
 - **Confortable** : 2 vCPU, 2 Go de RAM.
 - L'IA tourne chez le fournisseur (Anthropic...) : elle ne consomme rien localement, sauf avec un modèle local type Ollama, qui demande alors sa propre machine (GPU ou beaucoup de RAM).
-- Débit mesuré : ~90 pages admin par seconde en continu, une page servie en 10 à 50 ms. Une classe de 30 apprenants en génère quelques-unes par seconde.
+- Testé en charge jusqu'à 500 apprenants passant un examen en même temps : pages en moins de 250 ms, notes publiées en 15 à 30 s, aucune erreur. Grille de dimensionnement (vCPU, RAM, réglages) selon le nombre d'apprenants simultanés : section « Dimensionnement » de [docs/self-hosting.md](docs/self-hosting.md).
 - Les corrections IA, les entretiens et les emails partent dans le conteneur `worker` (Celery, via Redis) : un examen de 400 copies rendues d'un coup ne ralentit plus les pages. Sur une toute petite machine, on peut s'en passer (voir `docs/self-hosting.md`).
 
 ### Démarrage rapide

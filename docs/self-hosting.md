@@ -22,6 +22,33 @@ Mesures en charge, avec la configuration fournie :
 - **Minimum** : 1 vCPU, 1 Go de RAM, 3 Go de disque (images Docker ~1,3 Go, plus les données).
 - **Confortable** : 2 vCPU, 2 Go de RAM.
 
+### Dimensionnement selon le nombre d'apprenants simultanés
+
+« Simultanés » : en train de passer un examen au même moment (connexion dans la même minute, sauvegarde de la progression toutes les 15 s, rendu de la copie, attente de la note). Le nombre total d'inscrits compte peu : 600 apprenants et 6 000 copies tiennent en quelques Mo.
+
+| Apprenants simultanés | vCPU | RAM | `CELERY_CONCURRENCY` |
+|-----------------------|------|-----|----------------------|
+| jusqu'à 100 | 1 | 1 Go (2 Go conseillés) | 20 (défaut) |
+| 100 à 300 | 2 | 2 Go | 50 |
+| 300 à 500 | 4 | 4 Go | 100 |
+| plus de 500 | voir ci-dessous | | |
+
+Mesures (test de charge, chaque conteneur bridé à 1 cœur, faux fournisseur d'IA répondant en 6 s, quiz de 10 questions dont 2 ouvertes, apprenants tous derrière la même IP comme dans une salle) :
+
+| Apprenants | Pages, 95 % sous | Pire page | CPU `web` (pic) | Note publiée après le rendu | RAM totale |
+|------------|------------------|-----------|-----------------|-----------------------------|------------|
+| 100 | 90 ms | 140 ms | 35 % d'un cœur | 25 à 35 s | ~410 Mo |
+| 250 | 135 ms | 230 ms | 66 % | 15 s | ~430 Mo |
+| 500 | 240 ms | 440 ms | 75 % | 15 à 30 s | ~460 Mo |
+
+Ce qui limite, dans l'ordre :
+
+1. **Le fournisseur d'IA.** 500 copies avec 2 questions ouvertes, ce sont 1 000 appels en une ou deux minutes. Vérifiez les limites de votre compte (requêtes et jetons par minute) avant un gros examen : au-delà, les corrections sont ralenties par le fournisseur, pas par le serveur.
+2. **Le processus `web`**, qui n'utilise qu'un cœur. Le pic est la vague de connexions en début d'examen ; faire entrer les apprenants sur 2 ou 3 minutes l'aplatit. Au-delà de 500 apprenants simultanés sur un VPS courant, il faut plusieurs conteneurs `web` derrière un répartiteur de charge avec affinité de session (non fourni ni testé), ou un processeur plus rapide.
+3. **`CELERY_CONCURRENCY`** : le nombre de copies corrigées en parallèle. Délai de publication d'une vague de copies ≈ copies × questions ouvertes × temps de réponse de l'IA ÷ `CELERY_CONCURRENCY`. Il coûte très peu de mémoire (un seul processus gevent).
+
+Les entretiens n'ont pas été testés en charge : chaque message de l'apprenant est un appel à l'IA de quelques secondes, et un entretien actif en envoie un toutes les 30 à 60 s ; 100 entretiens simultanés restent dans les réglages par défaut.
+
 L'IA tourne chez le fournisseur et ne consomme rien localement, sauf avec un modèle local (Ollama), qui demande sa propre machine.
 
 La configuration de MariaDB fournie limite le cache à 64 Mo : c'est largement assez pour un établissement de plusieurs centaines d'apprenants. Une grosse instance peut relever `innodb_buffer_pool_size` ou retirer ce fichier du `docker-compose.yml`.
