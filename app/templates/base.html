@@ -49,6 +49,8 @@
                     </div>
                     {% if current_user.is_superadmin %}
                     <a href="{{ url_for('tenant.list_tenants') }}">{{ _('Etablissements') }}</a>
+                    {% elif current_user.is_tenant_admin %}
+                    <a href="{{ url_for('tenant.list_tenants') }}">{{ _('Etablissement') if current_user.admin_tenant_ids()|length == 1 else _('Etablissements') }}</a>
                     {% endif %}
                     <a href="{{ url_for('admin.groups') }}">{{ _('Groupes') }}</a>
                     <a href="{{ url_for('admin.users') }}">{{ _('Utilisateurs') }}</a>

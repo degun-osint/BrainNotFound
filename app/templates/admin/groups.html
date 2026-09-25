@@ -9,30 +9,10 @@
 <div class="card">
     <div class="card-header flex justify-between items-center">
         <span>{{ _('Liste des groupes') }}</span>
-        {% if current_user.is_superadmin %}
+        {% if current_user.is_superadmin or current_user.is_tenant_admin %}
         <a href="{{ url_for('admin.create_group') }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer un nouveau groupe') }}">
             <i class="iconoir-plus"></i> {{ _('Nouveau') }}
         </a>
-        {% elif current_user.is_tenant_admin %}
-            {% set user_tenants = current_user.admin_tenants.all() %}
-            {% if user_tenants|length == 1 %}
-            <a href="{{ url_for('tenant.create_group_in_tenant', identifier=user_tenants[0].get_url_identifier()) }}" class="btn btn-primary btn-small" data-tooltip="{{ _('Creer un groupe dans') }} {{ user_tenants[0].name }}">
-                <i class="iconoir-plus"></i> {{ _('Nouveau') }}
-            </a>
-            {% else %}
-            <div class="dropdown">
-                <button class="btn btn-primary btn-small dropdown-toggle" data-tooltip="{{ _('Creer un nouveau groupe') }}">
-                    <i class="iconoir-plus"></i> {{ _('Nouveau') }} <i class="iconoir-nav-arrow-down"></i>
-                </button>
-                <div class="dropdown-menu">
-                    {% for tenant in user_tenants %}
-                    <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}" class="dropdown-item">
-                        {{ tenant.name }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
         {% endif %}
     </div>
 
@@ -92,13 +72,8 @@
     {% else %}
         <p class="text-center text-light p-2">
             {{ _('Aucun groupe disponible.') }}
-            {% if current_user.is_superadmin %}
+            {% if current_user.is_superadmin or current_user.is_tenant_admin %}
             <a href="{{ url_for('admin.create_group') }}">{{ _('Creez votre premier groupe') }}</a>
-            {% elif current_user.is_tenant_admin %}
-                {% set user_tenants = current_user.admin_tenants.all() %}
-                {% if user_tenants|length == 1 %}
-                <a href="{{ url_for('tenant.create_group_in_tenant', identifier=user_tenants[0].get_url_identifier()) }}">{{ _('Creez votre premier groupe') }}</a>
-                {% endif %}
             {% endif %}
         </p>
     {% endif %}

@@ -3,43 +3,44 @@
 {% block title %}{{ tenant.name }} - {{ site_title }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-2">{{ tenant.name }}</h1>
+<div class="flex justify-between items-center flex-wrap gap-sm mb-2">
+    <div>
+        <h1 class="mb-0">{{ tenant.name }}</h1>
+        <p class="text-light mb-0">
+            <span class="{{ 'text-success' if tenant.is_active else 'text-error' }}">{{ _('Actif') if tenant.is_active else _('Inactif') }}</span>
+            {% if tenant.contact_name or tenant.contact_email %}
+            - {{ _('Contact :') }} {{ tenant.contact_name or '' }}
+            {% if tenant.contact_email %}<a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a>{% endif %}
+            {% endif %}
+            {% if tenant.description %} - {{ tenant.description }}{% endif %}
+        </p>
+    </div>
+    {% if current_user.is_superadmin %}
+    <div class="flex gap-sm flex-wrap">
+        <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-edit-pencil"></i> {{ _('Modifier') }}
+        </a>
+        <a href="{{ url_for('tenant.delete_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-error btn-small">
+            <i class="iconoir-trash"></i> {{ _('Supprimer') }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% macro usage(current, max) %}{{ current }}{% if max %}<span class="text-light">/{{ max }}</span>{% endif %}{% endmacro %}
 
 <div class="stats-grid mb-2">
     <div class="stat-card">
-        <div class="stat-value">{{ stats.groups.current }}{% if stats.groups.max %}/{{ stats.groups.max }}{% endif %}</div>
+        <div class="stat-value">{{ usage(stats.groups.current, stats.groups.max) }}</div>
         <div class="stat-label">{{ _('Groupes') }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">{{ stats.quizzes.current }}{% if stats.quizzes.max %}/{{ stats.quizzes.max }}{% endif %}</div>
-        <div class="stat-label">{{ _('Quiz') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.users.current }}{% if stats.users.max %}/{{ stats.users.max }}{% endif %}</div>
+        <div class="stat-value">{{ usage(stats.users.current, stats.users.max) }}</div>
         <div class="stat-label">{{ _('Utilisateurs') }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">{{ stats.storage.current }}{% if stats.storage.max %}/{{ stats.storage.max }}{% endif %}</div>
-        <div class="stat-label">{{ _('Stockage (Mo)') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ admins|length }}</div>
-        <div class="stat-label">{{ _('Administrateurs') }}</div>
-    </div>
-</div>
-
-<div class="stats-grid mb-2">
-    <div class="stat-card">
-        <div class="stat-value">{{ ai_stats.corrections.used }}{% if ai_stats.corrections.limit %}/{{ ai_stats.corrections.limit }}{% endif %}</div>
-        <div class="stat-label">{{ _('Corrections IA (mois)') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ ai_stats.generations.used }}{% if ai_stats.generations.limit %}/{{ ai_stats.generations.limit }}{% endif %}</div>
-        <div class="stat-label">{{ _('Generations quiz (mois)') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ ai_stats.analyses.used }}{% if ai_stats.analyses.limit %}/{{ ai_stats.analyses.limit }}{% endif %}</div>
-        <div class="stat-label">{{ _('Analyses de groupe (mois)') }}</div>
+        <div class="stat-value">{{ usage(stats.quizzes.current, stats.quizzes.max) }}</div>
+        <div class="stat-label">{{ _('Quiz') }}</div>
     </div>
     <div class="stat-card">
         {% if tenant.subscription_expires_at %}
@@ -50,11 +51,8 @@
             {% elif days == 0 %}
                 <div class="stat-value text-warning">{{ _('Expire') }}</div>
                 <div class="stat-label">{{ _('aujourd\'hui') }}</div>
-            {% elif days <= 30 %}
-                <div class="stat-value text-warning">{{ days }}j</div>
-                <div class="stat-label">{{ _('avant expiration') }}</div>
             {% else %}
-                <div class="stat-value text-success">{{ days }}j</div>
+                <div class="stat-value {{ 'text-warning' if days <= 30 else 'text-success' }}">{{ days }}j</div>
                 <div class="stat-label">{{ _('avant expiration') }}</div>
             {% endif %}
         {% else %}
@@ -64,103 +62,272 @@
     </div>
 </div>
 
-<div class="card mb-2">
-    <div class="card-header flex justify-between items-center">
-        <span>{{ _('Informations') }}</span>
-        <div class="flex gap-sm">
-            {% if current_user.is_superadmin %}
-            <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
-                <i class="iconoir-user-crown"></i> {{ _('Gerer admins') }}
-            </a>
-            <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small">
-                <i class="iconoir-edit-pencil"></i> {{ _('Modifier') }}
-            </a>
-            {% endif %}
-        </div>
-    </div>
-    <div class="p-2">
-        <div class="info-grid">
-            <div><strong>{{ _('Slug:') }}</strong> <span class="font-mono text-info">{{ tenant.slug }}</span></div>
-            <div><strong>{{ _('Statut:') }}</strong> <span class="{{ 'text-success' if tenant.is_active else 'text-error' }}">{{ _('Actif') if tenant.is_active else _('Inactif') }}</span></div>
-            {% if tenant.contact_name %}
-            <div><strong>{{ _('Contact:') }}</strong> {{ tenant.contact_name }}</div>
-            {% endif %}
-            {% if tenant.contact_email %}
-            <div><strong>{{ _('Email:') }}</strong> <a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a></div>
-            {% endif %}
-            <div><strong>{{ _('Cree le:') }}</strong> {{ tenant.created_at|localtime }}</div>
-        </div>
-        {% if tenant.description %}
-        <div class="mt-2">
-            <strong>{{ _('Description:') }}</strong>
-            <p class="text-light mt-1">{{ tenant.description }}</p>
-        </div>
-        {% endif %}
-    </div>
+<div class="history-tabs mb-1" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="groups">{{ _('Groupes') }} ({{ groups|length }})</button>
+    <button type="button" class="tab-btn" data-tab="admins">{{ _('Administrateurs') }} ({{ admins|length }})</button>
+    <button type="button" class="tab-btn" data-tab="content">{{ _('Contenus') }} ({{ quizzes|length + interviews|length }})</button>
+    <button type="button" class="tab-btn" data-tab="quotas">{{ _('Quotas et abonnement') }}</button>
 </div>
 
-{% if admins %}
-<div class="card mb-2">
-    <div class="card-header flex justify-between items-center">
-        <span>{{ _('Administrateurs de l\'etablissement') }}</span>
-        {% if current_user.is_superadmin %}
-        <a href="{{ url_for('tenant.manage_admins', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
-            <i class="iconoir-plus"></i> {{ _('Ajouter') }}
-        </a>
-        {% endif %}
-    </div>
-    <div class="p-2">
-        <div class="flex gap-sm flex-wrap">
-            {% for admin in admins %}
-            <span class="badge">
-                <i class="iconoir-user"></i> {{ admin.full_name or admin.username }}
-            </span>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div class="card mb-2">
-    <div class="card-header flex justify-between items-center">
-        <span>{{ _('Groupes') }} ({{ groups|length }})</span>
-        <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small">
+<!-- Groups -->
+<div class="card tab-panel" data-panel="groups">
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>{{ _('Groupes') }}</span>
+        {% if tenant.can_add_group() %}
+        <a href="{{ url_for('admin.create_group', tenant=tenant.get_url_identifier()) }}" class="btn btn-primary btn-small">
             <i class="iconoir-plus"></i> {{ _('Nouveau groupe') }}
         </a>
+        {% else %}
+        <span class="badge badge-warning">{{ _('Limite de groupes atteinte (%(max)s)', max=tenant.max_groups) }}</span>
+        {% endif %}
     </div>
-    {% if groups %}
     <div class="p-2">
-        <div class="quiz-grid">
-            {% for group in groups %}
-            <div class="quiz-card">
-                <div class="quiz-info">
-                    <h3>{{ group.name }}</h3>
-                    <div class="quiz-meta">
-                        {{ _('Code:') }} <strong class="font-mono text-info">{{ group.join_code }}</strong> -
-                        {{ group.get_member_count() }}{% if group.max_members and group.max_members > 0 %}/{{ group.max_members }}{% endif %} {{ _('membre(s)') }} -
-                        <span class="{{ 'text-success' if group.is_active else 'text-error' }}">{{ _('Actif') if group.is_active else _('Inactif') }}</span>
-                    </div>
-                </div>
-                <div class="quiz-actions">
-                    <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Membres') }}">
-                        <i class="iconoir-group"></i>
-                    </a>
-                    <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-primary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
-                        <i class="iconoir-edit-pencil"></i>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+        {% if groups %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Nom') }}</th>
+                    <th>{{ _("Code d'acces") }}</th>
+                    <th>{{ _('Apprenants') }}</th>
+                    <th>{{ _('Intervenants') }}</th>
+                    <th>{{ _('Etat') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td><a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="link-primary font-medium">{{ group.name }}</a></td>
+                    <td class="font-mono text-info">{{ group.join_code }}</td>
+                    <td>{{ learner_counts.get(group.id, 0) }}{% if group.max_members and group.max_members > 0 %}<span class="text-light">/{{ group.max_members }}</span>{% endif %}</td>
+                    <td>{{ instructor_counts.get(group.id, 0) }}</td>
+                    <td>{% if group.is_active %}<span class="badge badge-success">{{ _('Actif') }}</span>{% else %}<span class="badge badge-default">{{ _('Inactif') }}</span>{% endif %}</td>
+                    <td class="flex gap-sm">
+                        <a href="{{ url_for('admin.group_detail', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Ouvrir le groupe') }}">
+                            <i class="iconoir-group"></i>
+                        </a>
+                        <a href="{{ url_for('admin.edit_group', identifier=group.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center text-light p-2">{{ _('Aucun groupe dans cet etablissement.') }}</p>
+        {% endif %}
     </div>
-    {% else %}
-    <p class="text-center text-light p-2">
-        {{ _('Aucun groupe dans cet etablissement.') }} <a href="{{ url_for('tenant.create_group_in_tenant', identifier=tenant.get_url_identifier()) }}">{{ _('Creer un groupe') }}</a>
-    </p>
-    {% endif %}
 </div>
 
-<div class="actions">
+<!-- Admins -->
+<div class="card tab-panel" data-panel="admins" hidden>
+    <div class="card-header">{{ _("Administrateurs de l'etablissement") }}</div>
+    <div class="p-2">
+        <p class="text-light text-sm mt-0">
+            {{ _("Les administrateurs d'un etablissement gerent ses groupes, ses intervenants, ses apprenants et ses contenus. Les superadmins ont automatiquement acces a tous les etablissements.") }}
+        </p>
+
+        {% if current_user.is_superadmin %}
+        <form method="POST" action="{{ url_for('tenant.add_admin', identifier=tenant.get_url_identifier()) }}" id="add-admin-form" class="mb-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="user" id="add-admin-user">
+            <label class="form-label" for="admin-search">{{ _('Ajouter un administrateur') }}</label>
+            <input type="search" id="admin-search" class="form-input" autocomplete="off"
+                   placeholder="{{ _('Nom, identifiant ou email (2 caracteres minimum)') }}">
+            <div id="admin-results" class="mt-1"></div>
+        </form>
+        {% endif %}
+
+        {% if admins %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Nom complet') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Derniere connexion') }}</th>
+                    {% if current_user.is_superadmin %}<th>{{ _('Actions') }}</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in admins %}
+                <tr>
+                    <td class="font-medium">{{ admin.full_name }}{% if admin.id == current_user.id %} <span class="text-light">({{ _('vous') }})</span>{% endif %}</td>
+                    <td>{{ admin.email }}</td>
+                    <td>{% if admin.last_login %}{{ admin.last_login|localtime }}{% else %}<span class="text-light">{{ _('Jamais') }}</span>{% endif %}</td>
+                    {% if current_user.is_superadmin %}
+                    <td class="flex gap-sm">
+                        <a href="{{ url_for('admin.edit_user', identifier=admin.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('tenant.remove_admin', identifier=tenant.get_url_identifier(), user_identifier=admin.get_url_identifier()) }}" class="inline"
+                              onsubmit="return confirm({{ _('Retirer cette personne des administrateurs ? Son compte est conserve.')|tojson }});">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-error btn-small btn-icon" data-tooltip="{{ _('Retirer des administrateurs') }}">
+                                <i class="iconoir-user-xmark"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center text-light p-2">{{ _('Aucun administrateur specifique. Seuls les superadmins peuvent gerer cet etablissement.') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Content -->
+<div class="card tab-panel" data-panel="content" hidden>
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>{{ _("Contenus de l'etablissement") }}</span>
+        <div class="flex gap-sm flex-wrap">
+            <a href="{{ url_for('admin.create_quiz') }}" class="btn btn-primary btn-small"><i class="iconoir-plus"></i> {{ _('Nouveau quiz') }}</a>
+            <a href="{{ url_for('interview.admin_create') }}" class="btn btn-secondary btn-small"><i class="iconoir-plus"></i> {{ _('Nouvel entretien') }}</a>
+        </div>
+    </div>
+    <div class="p-2">
+        <h4 class="mt-0">{{ _('Quiz') }}</h4>
+        {% if quizzes %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Titre') }}</th>
+                    <th>{{ _('Etat') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizzes %}
+                <tr>
+                    <td class="font-medium">
+                        {{ quiz.title }}
+                        {% if quiz.id not in quizzes_with_group %}<span class="badge badge-warning" data-tooltip="{{ _('Invisible pour les apprenants') }}">{{ _('Aucun groupe') }}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if not quiz.is_active %}<span class="badge badge-default">{{ _('Inactif') }}</span>
+                        {% elif quiz.is_open() %}<span class="badge badge-success">{{ _('Ouvert') }}</span>
+                        {% else %}<span class="badge badge-warning">{{ _('Ferme') }}</span>{% endif %}
+                    </td>
+                    <td class="flex gap-sm">
+                        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Resultats') }}">
+                            <i class="iconoir-stats-report"></i>
+                        </a>
+                        <a href="{{ url_for('admin.edit_quiz', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun quiz dans cet etablissement.') }}</p>
+        {% endif %}
+
+        <h4>{{ _('Entretiens') }}</h4>
+        {% if interviews %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ _('Titre') }}</th>
+                    <th>{{ _('Etat') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for interview in interviews %}
+                <tr>
+                    <td class="font-medium">
+                        {{ interview.title }}
+                        {% if interview.id not in interviews_with_group %}<span class="badge badge-warning" data-tooltip="{{ _('Invisible pour les apprenants') }}">{{ _('Aucun groupe') }}</span>{% endif %}
+                    </td>
+                    <td>{% if interview.is_active %}<span class="badge badge-success">{{ _('Actif') }}</span>{% else %}<span class="badge badge-default">{{ _('Inactif') }}</span>{% endif %}</td>
+                    <td class="flex gap-sm">
+                        <a href="{{ url_for('interview.admin_view', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Voir les sessions') }}">
+                            <i class="iconoir-eye"></i>
+                        </a>
+                        <a href="{{ url_for('interview.admin_edit', identifier=interview.get_url_identifier()) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Modifier') }}">
+                            <i class="iconoir-edit-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-light">{{ _('Aucun entretien dans cet etablissement.') }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quotas -->
+<div class="card tab-panel" data-panel="quotas" hidden>
+    <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+        <span>{{ _('Quotas et abonnement') }}</span>
+        {% if current_user.is_superadmin %}
+        <a href="{{ url_for('tenant.edit_tenant', identifier=tenant.get_url_identifier()) }}" class="btn btn-secondary btn-small">
+            <i class="iconoir-edit-pencil"></i> {{ _('Modifier les quotas') }}
+        </a>
+        {% endif %}
+    </div>
+    <div class="p-2">
+        <h4 class="mt-0">{{ _('Limites fixes') }}</h4>
+        <div class="stats-grid mb-2">
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(stats.users.current, stats.users.max) }}</div>
+                <div class="stat-label">{{ _('Utilisateurs') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(stats.groups.current, stats.groups.max) }}</div>
+                <div class="stat-label">{{ _('Groupes') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(stats.quizzes.current, stats.quizzes.max) }}</div>
+                <div class="stat-label">{{ _('Quiz') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(stats.storage.current, stats.storage.max) }}</div>
+                <div class="stat-label">{{ _('Stockage (Mo)') }}</div>
+            </div>
+        </div>
+
+        <h4>{{ _('Usage IA ce mois') }}</h4>
+        <div class="stats-grid mb-2">
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(ai_stats.corrections.used, ai_stats.corrections.limit) }}</div>
+                <div class="stat-label">{{ _('Corrections IA') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(ai_stats.generations.used, ai_stats.generations.limit) }}</div>
+                <div class="stat-label">{{ _('Generations quiz') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(ai_stats.analyses.used, ai_stats.analyses.limit) }}</div>
+                <div class="stat-label">{{ _('Analyses de groupe') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ usage(ai_stats.interviews.used, ai_stats.interviews.limit) }}</div>
+                <div class="stat-label">{{ _('Entretiens IA') }}</div>
+            </div>
+        </div>
+        <p class="text-light text-sm">
+            {{ _('Sans limite affichee : illimite.') }}
+            {% if tenant.quota_alert_enabled %}
+            {{ _('Alerte par email a %(email)s quand il reste %(pct)s %% d\'un quota.', email=tenant.contact_email or '-', pct=tenant.quota_alert_threshold) }}
+            {% endif %}
+        </p>
+
+        {% if current_user.is_superadmin and tenant.internal_notes %}
+        <h4>{{ _('Notes internes') }}</h4>
+        <p class="text-light" style="white-space: pre-line;">{{ tenant.internal_notes }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-2">
     {% if current_user.is_superadmin %}
     <a href="{{ url_for('tenant.list_tenants') }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> {{ _('Retour aux etablissements') }}
@@ -173,12 +340,55 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 0.75rem;
-}
-</style>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tabs (remembered in the URL hash)
+    const buttons = document.querySelectorAll('.tab-btn[data-tab]');
+    function showTab(name) {
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+        document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+    }
+    buttons.forEach(b => b.addEventListener('click', () => { showTab(b.dataset.tab); history.replaceState(null, '', '#' + b.dataset.tab); }));
+    if (location.hash && document.querySelector('.tab-panel[data-panel="' + location.hash.slice(1) + '"]')) {
+        showTab(location.hash.slice(1));
+    }
+
+    // Search people to make admin
+    const search = document.getElementById('admin-search');
+    if (!search) return;
+    const results = document.getElementById('admin-results');
+    let timer = null;
+    search.addEventListener('input', function() {
+        clearTimeout(timer);
+        const q = this.value.trim();
+        if (q.length < 2) { results.innerHTML = ''; return; }
+        timer = setTimeout(async () => {
+            const response = await fetch({{ url_for('tenant.admin_candidates', identifier=tenant.get_url_identifier())|tojson }} + '?q=' + encodeURIComponent(q));
+            const users = await response.json();
+            results.innerHTML = '';
+            if (!users.length) {
+                results.innerHTML = '<p class="text-light text-sm">' + {{ _('Aucune personne trouvee.')|tojson }} + '</p>';
+                return;
+            }
+            users.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center gap-sm mb-0';
+                const label = document.createElement('span');
+                label.textContent = u.name + ' (' + u.username + ', ' + u.email + ')';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-primary btn-small';
+                button.textContent = {{ _('Nommer admin')|tojson }};
+                button.addEventListener('click', () => {
+                    document.getElementById('add-admin-user').value = u.id;
+                    document.getElementById('add-admin-form').submit();
+                });
+                row.append(label, button);
+                results.appendChild(row);
+            });
+        }, 250);
+    });
+});
+</script>
 {% endblock %}

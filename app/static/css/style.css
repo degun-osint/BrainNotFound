@@ -1925,6 +1925,9 @@ a.tenant-option {
 .overflow-auto { overflow: auto; }
 .overflow-x-auto { overflow-x: auto; }
 
+/* Tables in tabbed pages (group, organization) scroll instead of overflowing on phones */
+.tab-panel > .p-2 { overflow-x: auto; }
+
 /* Cursor */
 .cursor-pointer { cursor: pointer; }
 .cursor-default { cursor: default; }

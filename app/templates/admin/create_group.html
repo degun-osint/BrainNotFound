@@ -15,7 +15,7 @@
     </div>
 
     <form method="POST">
-        {{ tf.tenant_field(tenants, (request.form.get('tenant_id')|int) or (tenant_context.id if tenant_context else None), None) }}
+        {{ tf.tenant_field(tenants, (request.form.get('tenant_id')|int) or selected_tenant_id or (tenant_context.id if tenant_context else None), None) }}
 
         <div class="form-group">
             <label class="form-label" for="name">{{ _('Nom du groupe') }} *</label>

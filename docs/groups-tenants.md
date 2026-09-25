@@ -60,6 +60,17 @@ Un intervenant peut modifier le profil de ses apprenants (nom, email, mot de pas
 
 ## Gérer les établissements
 
+### La fiche de l'établissement
+
+Un clic sur le nom d'un établissement ouvre sa fiche, qui rassemble tout, en onglets :
+
+- **Groupes** : liste avec code d'accès, nombre d'apprenants et d'intervenants, et **Nouveau groupe** ;
+- **Administrateurs** : liste, ajout par recherche, retrait (réservé aux super-administrateurs) ;
+- **Contenus** : quiz et entretiens de l'établissement, avec le badge « Aucun groupe » pour ceux qu'aucun apprenant ne voit ;
+- **Quotas et abonnement** : usage des limites fixes et des quotas IA du mois.
+
+Un administrateur d'établissement retrouve sa fiche dans le menu **Établissement** ; s'il en administre plusieurs, le menu affiche leur liste.
+
 > Réservé aux super-administrateurs. Un administrateur d'établissement consulte la fiche de ses établissements et gère leurs groupes.
 
 ### Créer un établissement
@@ -72,7 +83,7 @@ Un intervenant peut modifier le profil de ses apprenants (nom, email, mot de pas
 
 Deux chemins :
 
-- depuis la fiche de l'établissement : **Gérer admins** > **Ajouter comme admin** ;
+- depuis la fiche de l'établissement, onglet **Administrateurs** : cherchez la personne par nom, identifiant ou email, puis **Nommer admin** ;
 - depuis la fiche d'un utilisateur : **Rôle global** > **Administrateur d'établissement**, puis cochez les établissements à administrer.
 
 ### Rattacher un groupe à un établissement

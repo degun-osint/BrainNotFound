@@ -1294,9 +1294,12 @@ def create_group():
         db.session.commit()
 
         flash(_l('Groupe "%(name)s" cree avec le code : %(code)s', name=name, code=join_code), 'success')
-        return redirect(url_for('admin.groups'))
+        return redirect(url_for('admin.group_detail', identifier=group.get_url_identifier()))
 
-    return render_template('admin/create_group.html', tenants=tenants)
+    # ?tenant=<uid>: coming from an organization page
+    wanted = Tenant.get_by_identifier(request.args.get('tenant', '')) if request.args.get('tenant') else None
+    selected_tenant_id = wanted.id if wanted and wanted in tenants else None
+    return render_template('admin/create_group.html', tenants=tenants, selected_tenant_id=selected_tenant_id)
 
 @admin_bp.route('/group/<identifier>/edit', methods=['GET', 'POST'])
 @login_required
