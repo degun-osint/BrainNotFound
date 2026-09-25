@@ -40,6 +40,21 @@ class Group(UIDMixin, db.Model):
         return dict(rows)
 
     @staticmethod
+    def role_counts(groups):
+        """({group_id: learners}, {group_id: instructors}) for several groups in a single query."""
+        from app.models.user import user_groups
+        ids = [g.id for g in groups]
+        learners, instructors = {}, {}
+        if ids:
+            rows = db.session.query(user_groups.c.group_id, user_groups.c.role, db.func.count()).filter(
+                user_groups.c.group_id.in_(ids)
+            ).group_by(user_groups.c.group_id, user_groups.c.role).all()
+            for group_id, role, count in rows:
+                target = instructors if role == 'admin' else learners
+                target[group_id] = target.get(group_id, 0) + count
+        return learners, instructors
+
+    @staticmethod
     def names_by_user(user_ids):
         """{user_id: 'Group A, Group B'} for several users in a single query."""
         from app.models.user import user_groups

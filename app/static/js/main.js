@@ -224,8 +224,10 @@ function injectCSRFTokens() {
     const csrfToken = getCSRFToken();
     if (!csrfToken) return;
 
-    // Add CSRF token to all forms that don't have it
+    // Add CSRF token to POST forms that don't have it (never to GET forms:
+    // the token would end up in the URL, history, logs and Referer)
     document.querySelectorAll('form').forEach(function(form) {
+        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'post') return;
         if (!form.querySelector('input[name="csrf_token"]')) {
             const input = document.createElement('input');
             input.type = 'hidden';

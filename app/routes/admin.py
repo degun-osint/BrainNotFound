@@ -23,6 +23,7 @@ from app.utils.scope import (
     get_tenant_context, get_accessible_tenants, set_tenant_context as set_scope_tenant,
     scoped_groups, scoped_group_ids, scoped_quizzes, scoped_interviews, scoped_users,
     scoped_user_ids, validate_group_ids, assign_groups, default_tenant_id, quota_tenant,
+    filter_content_status, CONTENT_STATUSES,
 )
 from datetime import datetime
 from io import BytesIO
@@ -225,8 +226,9 @@ def quiz_list():
     per_page = 20
     search = request.args.get('search', '', type=str).strip()
     filter_group_id = request.args.get('group', 0, type=int)
+    status = request.args.get('status', '')
 
-    query = scoped_quizzes()
+    query = filter_content_status(scoped_quizzes(), Quiz, status)
     if search:
         query = query.filter(Quiz.title.ilike(f'%{search}%'))
     if filter_group_id > 0:
@@ -239,8 +241,10 @@ def quiz_list():
         quizzes=quizzes,
         search=search,
         all_groups=scoped_groups().all(),
-        filter_group_id=filter_group_id
+        filter_group_id=filter_group_id,
+        status=status if status in CONTENT_STATUSES else '',
     )
+
 
 
 @admin_bp.route('/quiz/create', methods=['GET', 'POST'])
@@ -1242,8 +1246,21 @@ def users_list_meta(users):
 @login_required
 @admin_required
 def groups():
-    all_groups = scoped_groups(active_only=False).order_by(None).order_by(Group.created_at.desc()).all()
-    return render_template('admin/groups.html', groups=all_groups)
+    search = request.args.get('search', '', type=str).strip()
+    status = request.args.get('status', '')
+    query = scoped_groups(active_only=False)
+    if search:
+        query = query.filter(db.or_(Group.name.ilike(f'%{search}%'), Group.join_code.ilike(f'%{search}%')))
+    if status == 'active':
+        query = query.filter(Group.is_active == True)  # noqa: E712
+    elif status == 'inactive':
+        query = query.filter(Group.is_active == False)  # noqa: E712
+    else:
+        status = ''
+    all_groups = query.all()
+    learner_counts, instructor_counts = Group.role_counts(all_groups)
+    return render_template('admin/groups.html', groups=all_groups, search=search, status=status,
+                           learner_counts=learner_counts, instructor_counts=instructor_counts)
 
 @admin_bp.route('/group/create', methods=['GET', 'POST'])
 @login_required

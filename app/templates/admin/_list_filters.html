@@ -1,0 +1,80 @@
+{# Filter bar shared by the admin lists (quiz, interviews, groups, users) #}
+
+{# A dropdown filter. options: [(value, label), ...], the first one meaning "no filter" #}
+{% macro choice_filter(name, value, icon, options) %}
+{% set current = options|selectattr(0, 'equalto', value)|first or options[0] %}
+<div class="searchable-select" data-autosubmit="true">
+    <input type="hidden" name="{{ name }}" value="{{ value }}">
+    <div class="searchable-select-trigger">
+        <i class="iconoir-{{ icon }}"></i>
+        <span>{{ current[1] }}</span>
+        <i class="iconoir-nav-arrow-down"></i>
+    </div>
+    <div class="searchable-select-dropdown">
+        <div class="searchable-select-options">
+            {% for option_value, label in options %}
+            <div class="searchable-select-option {{ 'selected' if option_value == value }}" data-value="{{ option_value }}">{{ label }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro group_filter(all_groups, filter_group_id) %}
+<div class="searchable-select" data-autosubmit="true">
+    <input type="hidden" name="group" value="{{ filter_group_id or 0 }}">
+    <div class="searchable-select-trigger">
+        <i class="iconoir-group"></i>
+        <span>{{ (all_groups|selectattr('id', 'equalto', filter_group_id)|map(attribute='name')|first) if filter_group_id else _('Tous les groupes') }}</span>
+        <i class="iconoir-nav-arrow-down"></i>
+    </div>
+    <div class="searchable-select-dropdown">
+        <div class="searchable-select-search">
+            <input type="text" placeholder="{{ _('Rechercher un groupe...') }}">
+        </div>
+        <div class="searchable-select-options">
+            <div class="searchable-select-option {{ 'selected' if not filter_group_id }}" data-value="0">{{ _('Tous les groupes') }}</div>
+            {% for group in all_groups %}
+            <div class="searchable-select-option {{ 'selected' if filter_group_id == group.id }}" data-value="{{ group.id }}">
+                {{ group.name }}
+                {% if group.tenant and not tenant_context %}<small class="text-light"> - {{ group.tenant.name }}</small>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  The whole bar. Extra filters go in the call block:
+    {% call lf.filter_bar('admin.quiz_list', search, filtered) %}{{ lf.choice_filter(...) }}{% endcall %}
+#}
+{% macro filter_bar(endpoint, search, filtered) %}
+<form method="GET" class="flex gap-sm items-center flex-wrap">
+    {{ caller() }}
+    <input type="search" name="search" value="{{ search }}" placeholder="{{ _('Rechercher...') }}" class="form-input input-search">
+    <button type="submit" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Rechercher') }}">
+        <i class="iconoir-search"></i>
+    </button>
+    {% if filtered %}
+    <a href="{{ url_for(endpoint) }}" class="btn btn-secondary btn-small btn-icon" data-tooltip="{{ _('Effacer filtres') }}">
+        <i class="iconoir-xmark"></i>
+    </a>
+    {% endif %}
+</form>
+{% endmacro %}
+
+{# "Organization: X - Group: Y - Search: "z" - N result(s)", shown when something narrows the list #}
+{% macro results_info(parts, total) %}
+{% set parts = ([_('Etablissement :') ~ ' ' ~ tenant_context.name] if tenant_context else []) + parts|select|list %}
+{% if parts %}
+<div class="search-results-info">
+    <span class="text-light">
+        {{ parts|join(' - ') }} - {{ total }} {{ _('resultat(s)') }}
+        {% if tenant_context %}
+        - <a href="{{ url_for('admin.clear_tenant_context') }}">{{ _('Voir tous les etablissements') }}</a>
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+{% endmacro %}

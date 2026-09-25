@@ -207,3 +207,17 @@ def quota_tenant():
         return tenant
     group = scoped_groups().filter(Group.tenant_id.isnot(None)).first()
     return group.tenant if group else None
+
+
+CONTENT_STATUSES = ('active', 'inactive', 'no_group')
+
+
+def filter_content_status(query, model, status):
+    """Narrow a quiz or interview query to ?status= (active, inactive, no group)."""
+    if status == 'active':
+        return query.filter(model.is_active == True)  # noqa: E712
+    if status == 'inactive':
+        return query.filter(model.is_active == False)  # noqa: E712
+    if status == 'no_group':
+        return query.filter(~model.groups.any())
+    return query

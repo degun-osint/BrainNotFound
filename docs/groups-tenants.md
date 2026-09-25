@@ -135,9 +135,17 @@ Un compte créé sans mot de passe reçoit un lien pour choisir le sien, valable
 
 ## Filtrer par établissement
 
-Les administrateurs de plusieurs établissements voient un sélecteur dans la barre de navigation : **Tous les établissements**, ou un établissement en particulier. Le filtre s'applique aux listes de quiz, d'utilisateurs et de groupes.
+Les administrateurs de plusieurs établissements voient un sélecteur dans la barre de navigation : **Tous les établissements**, ou un établissement en particulier. Le filtre s'applique aux quatre listes (groupes, utilisateurs, quiz, entretiens), qui le rappellent au-dessus des résultats avec un lien **Voir tous les établissements**.
 
-Chaque liste propose en plus une recherche et un filtre par groupe.
+Les listes ont la même barre de filtres :
+
+| Liste | Filtres |
+|-------|---------|
+| **Groupes** | État (actifs, inactifs), recherche par nom ou code d'accès |
+| **Utilisateurs** | Groupe, rôle, recherche par nom, identifiant ou email ; tri par colonne |
+| **Quiz**, **Entretiens** | Groupe, état (actifs, inactifs, sans groupe), recherche par titre |
+
+Le filtre « Sans groupe » retrouve les contenus qu'aucun apprenant ne peut voir.
 
 ## Déplacer des personnes
 

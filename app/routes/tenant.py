@@ -9,7 +9,7 @@ import os
 import re
 from app import db
 from app.models.tenant import Tenant, tenant_admins
-from app.models.user import User, user_groups
+from app.models.user import User
 from app.models.group import Group
 from app.models.quiz import Quiz, quiz_groups
 from app.models.interview import Interview, interview_groups
@@ -180,15 +180,7 @@ def view_tenant(identifier):
         return redirect(url_for('tenant.view_tenant', identifier=tenant.get_url_identifier()), code=301)
 
     groups = tenant.groups.order_by(Group.name).all()
-    group_ids = [g.id for g in groups]
-    learner_counts, instructor_counts = {}, {}
-    if group_ids:
-        rows = db.session.query(user_groups.c.group_id, user_groups.c.role, db.func.count()).filter(
-            user_groups.c.group_id.in_(group_ids)
-        ).group_by(user_groups.c.group_id, user_groups.c.role).all()
-        for group_id, role, count in rows:
-            target = instructor_counts if role == 'admin' else learner_counts
-            target[group_id] = target.get(group_id, 0) + count
+    learner_counts, instructor_counts = Group.role_counts(groups)
 
     quizzes = tenant.quizzes.order_by(Quiz.created_at.desc()).all()
     interviews = Interview.query.filter_by(tenant_id=tenant.id).order_by(Interview.created_at.desc()).all()

@@ -18,7 +18,7 @@ from app.models.tenant import Tenant
 from app.utils.claude_interviewer import ClaudeInterviewer, get_criteria_templates
 from app.utils.scope import (
     get_tenant_context, get_accessible_tenants, scoped_groups, scoped_interviews,
-    validate_group_ids, assign_groups, default_tenant_id,
+    validate_group_ids, assign_groups, default_tenant_id, filter_content_status, CONTENT_STATUSES,
 )
 import unicodedata
 
@@ -511,8 +511,9 @@ def admin_list():
     per_page = 20
     filter_group_id = request.args.get('group', 0, type=int)
     search = request.args.get('search', '').strip()
+    status = request.args.get('status', '')
 
-    query = scoped_interviews()
+    query = filter_content_status(scoped_interviews(), Interview, status)
 
     # Apply group filter
     if filter_group_id:
@@ -542,7 +543,8 @@ def admin_list():
         interviews=interviews,
         all_groups=all_groups,
         filter_group_id=filter_group_id,
-        search=search
+        search=search,
+        status=status if status in CONTENT_STATUSES else '',
     )
 
 
