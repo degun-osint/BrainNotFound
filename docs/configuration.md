@@ -67,7 +67,7 @@ Utilisé pour la vérification des adresses, les liens de mot de passe, les emai
 | `REDIS_URL` | Redis pour Celery et Socket.IO. Fixé à `redis://redis:6379/0` dans `docker-compose.yml`. Vide : tout tourne dans le processus web. | vide |
 | `CELERY_CONCURRENCY` | Tâches menées en parallèle par le worker (surtout des attentes de l'IA) | `20` |
 
-Un seul conteneur `worker` : c'est lui qui porte le battement des tâches périodiques ; à plusieurs, elles tourneraient en double.
+Pour corriger davantage de copies en même temps, montez d'abord `CELERY_CONCURRENCY` (50, 100) : une correction attend surtout la réponse de l'IA, un seul worker en mène beaucoup de front ; la vraie limite est souvent le débit autorisé par le fournisseur d'IA. On peut aussi lancer plusieurs workers (`docker compose up -d --scale worker=3`, environ 125 Mo chacun) : un verrou Redis garantit que le battement ne tourne qu'une fois.
 
 ### Sauvegardes
 

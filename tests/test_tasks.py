@@ -126,3 +126,28 @@ def test_tick_survives_a_failing_job(app, monkeypatch):
     monkeypatch.setattr('app.utils.backup_scheduler.run_backup_if_due', lambda: calls.append('backup'))
     tasks.tick()
     assert calls == ['backup']
+
+
+def test_only_one_worker_runs_each_tick(app, monkeypatch):
+    """With Redis, workers race for a lock: the tick runs once per period."""
+    import redis
+    from app import tasks
+    store = {}
+
+    class FakeRedis:
+        def set(self, key, value, nx=False, ex=None):
+            if nx and key in store:
+                return None
+            store[key] = value
+            return True
+    monkeypatch.setattr(redis.Redis, 'from_url', staticmethod(lambda url: FakeRedis()))
+    runs = []
+    monkeypatch.setattr('app.utils.grading_digest.send_due_digests', lambda: runs.append('digest'))
+    monkeypatch.setattr('app.utils.backup_scheduler.run_backup_if_due', lambda: None)
+    app.config['REDIS_URL'] = 'redis://redis:6379/0'
+    try:
+        tasks.tick()  # worker 1
+        tasks.tick()  # worker 2, same period
+    finally:
+        app.config['REDIS_URL'] = ''
+    assert runs == ['digest']

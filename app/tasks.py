@@ -81,9 +81,21 @@ def send_email(subject, recipients, body, html=None, sender=None):
         logger.error(f'Failed to send email "{subject}" to {recipients}: {e}')
 
 
+def _claim_tick():
+    """With several workers, only the one that takes this Redis lock runs the tick."""
+    url = current_app.config.get('REDIS_URL')
+    if not url:
+        return True  # single process: nothing to share
+    import redis
+    # Expires a bit before the next tick, so a crashed worker doesn't block the following ones
+    return bool(redis.Redis.from_url(url).set('brainnotfound:tick', '1', nx=True, ex=TICK_SECONDS - 30))
+
+
 @shared_task(name='app.tasks.tick')
 def tick():
     """Every TICK_SECONDS: grader digests, and the scheduled backup when it is due."""
+    if not _claim_tick():
+        return
     from app.utils.grading_digest import send_due_digests
     from app.utils.backup_scheduler import run_backup_if_due
     for job in (send_due_digests, run_backup_if_due):
@@ -96,8 +108,8 @@ def tick():
 def start_tick_loop():
     """Run tick() every TICK_SECONDS in a background greenlet of this process.
 
-    Started by the Celery worker when Redis is configured (a single worker container:
-    Celery beat can't share a gevent worker), otherwise by the web process.
+    Started by every Celery worker when Redis is configured (Celery beat can't share a
+    gevent worker; a Redis lock makes one worker run each tick), otherwise by the web process.
     """
     from app import socketio
 

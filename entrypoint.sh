@@ -5,7 +5,7 @@ export FLASK_APP=wsgi:app
 
 # Background worker (docker compose service `worker`): AI grading, interviews,
 # emails, and the periodic tick (app/tasks.py). Migrations are the web's job.
-# Keep a single worker container: the tick loop runs in each worker.
+# Several worker containers are fine: a Redis lock makes one of them run each tick.
 if [ "$1" = "worker" ]; then
     echo "Starting Celery worker..."
     exec celery -A celery_worker worker -P gevent --concurrency "${CELERY_CONCURRENCY:-20}" --loglevel INFO

@@ -63,7 +63,7 @@ services:
   worker:
     image: brainnotfound-app  # built by the web service
     pull_policy: never
-    container_name: quiz_worker
+    # No container_name: several workers are possible (docker compose up -d --scale worker=3)
     command: ["worker"]
     environment:
       - FLASK_ENV=production
