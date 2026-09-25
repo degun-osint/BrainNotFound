@@ -46,7 +46,8 @@ pytest tests          # SQLite in memory, no MySQL/API key needed
 
 ### Flask Factory Pattern
 The app uses the factory pattern in `app/__init__.py`. Key components:
-- **Blueprints**: `auth_bp` (login/register), `admin_bp` (/admin routes), `quiz_bp` (/quiz routes)
+- **Blueprints**: `auth_bp` (login/register), `admin_bp` (/admin routes), `quiz_bp` (/quiz routes), `tenant_bp` (/admin/tenants), `interview_bp` (/interview)
+- `admin_bp` is the package `app/routes/admin/`, one module per area (common, dashboard, quizzes, results, groups, users, settings, pages); a new admin route goes in the module of its area, shared helpers in `common.py`
 - **Models**: User, Group, Quiz, Question, QuizResponse, Answer
 - **Utils**: `markdown_parser.py` (quiz parsing), `claude_grader.py` (AI grading)
 

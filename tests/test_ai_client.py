@@ -183,8 +183,8 @@ def save(client, **fields):
 
 
 def test_settings_save_key_encrypted_and_never_display_it(app, world, login, monkeypatch):
-    from app.routes import admin
-    monkeypatch.setattr(admin, 'check_ai_model', lambda *a, **k: None)
+    from app.routes.admin import settings as admin_settings
+    monkeypatch.setattr(admin_settings, 'check_ai_model', lambda *a, **k: None)
     client = login(world['root'])
 
     save(client, ai_api_key='sk-ant-secret-9876', ai_model='some-model')
@@ -197,8 +197,8 @@ def test_settings_save_key_encrypted_and_never_display_it(app, world, login, mon
 
 
 def test_switching_provider_drops_the_saved_key(app, world, login, monkeypatch):
-    from app.routes import admin
-    monkeypatch.setattr(admin, 'check_ai_model', lambda *a, **k: None)
+    from app.routes.admin import settings as admin_settings
+    monkeypatch.setattr(admin_settings, 'check_ai_model', lambda *a, **k: None)
     client = login(world['root'])
     save(client, ai_api_key='sk-ant-secret-9876')
 
@@ -210,8 +210,8 @@ def test_switching_provider_drops_the_saved_key(app, world, login, monkeypatch):
 
 
 def test_grok_requires_confirmation(app, world, login, monkeypatch):
-    from app.routes import admin
-    monkeypatch.setattr(admin, 'check_ai_model', lambda *a, **k: None)
+    from app.routes.admin import settings as admin_settings
+    monkeypatch.setattr(admin_settings, 'check_ai_model', lambda *a, **k: None)
     client = login(world['root'])
     grok = dict(ai_provider='openai_compatible', ai_base_url='https://api.x.ai/v1', ai_model='grok-4')
 
