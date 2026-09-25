@@ -4,6 +4,8 @@ services:
     # mysql_data volume is left untouched, see docs/self-hosting.md to migrate.
     image: mariadb:12.3
     container_name: quiz_db
+    # Back up after a server reboot (the app waits for it, see scripts/migrate_db.py)
+    restart: unless-stopped
     # The MariaDB image reads MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, MYSQL_USER
     # and MYSQL_PASSWORD from .env as they are (MARIADB_* aliases)
     env_file:

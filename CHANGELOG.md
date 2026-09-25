@@ -7,6 +7,7 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 ### Corrections
 
 - Après une période sans activité de plus de 8 heures (une nuit calme), la première requête pouvait échouer avec une erreur 500 : MariaDB avait fermé la connexion restée ouverte dans le pool. Les connexions sont désormais vérifiées avant usage et renouvelées toutes les 30 minutes.
+- Après un redémarrage du serveur, la base de données ne repartait pas toute seule (pas de politique de redémarrage), et l'application plantait en boucle si elle démarrait avant la base. La base redémarre désormais avec le serveur, et l'application l'attend jusqu'à 90 secondes.
 
 ## [2.1.0] - 2026-09-25
 
