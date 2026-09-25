@@ -102,6 +102,7 @@ La suppression efface le compte et tous ses résultats (quiz et entretiens). Il 
 | **Sévérité de la correction IA** | Gentil, Modéré ou Sévère |
 | **Ton des retours** | Neutre, jovial, taquin, encourageant, sarcastique ou professoral |
 | **Slug** | Adresse lisible du quiz (lettres minuscules, chiffres, tirets) |
+| **Correction** | IA directe, ou revue par un correcteur ; correcteurs ; délai de contestation (voir ci-dessous) |
 
 Un nouveau quiz est **actif** dès sa création. **Dupliquer** crée une copie inactive, sans dates de disponibilité, pour la relire avant de la publier.
 
@@ -119,9 +120,42 @@ La page **Résultats** d'un quiz liste les copies, filtrables par groupe, avec l
 - **Télécharger les résultats** : CSV avec nom, prénom, identifiant, email, groupes, score, pourcentage, date de soumission et retard.
 - **Analyse détaillée** d'une copie, et **Analyse du groupe** : synthèse IA des points forts et des lacunes (quota « Analyses de groupe »).
 
-### Copies « à corriger »
+### Mode de correction
 
-Quand l'IA ne peut pas noter une réponse ouverte (quota de corrections atteint, abonnement expiré, refus ou erreur du fournisseur), la copie passe au statut **À corriger** au lieu de recevoir 0. L'apprenant voit une note provisoire ; l'intervenant note la réponse depuis **Éditer les notes**, ou relance **Re-corriger** une fois le problème réglé. La page des résultats signale les copies en attente.
+Chaque quiz choisit comment les questions ouvertes sont notées (section **Correction** du formulaire) :
+
+- **Correction IA directe** : la note de l'IA est publiée dès la fin de la correction.
+- **Revue par un correcteur** : l'IA propose une note, que l'apprenant voit comme **provisoire**. La copie est **À valider** tant qu'un correcteur ne l'a pas relue.
+
+Un quiz sans question ouverte est noté mécaniquement : sa note est toujours publiée tout de suite.
+
+Dans les deux modes, une copie que l'IA n'a pas pu noter (quota de corrections atteint, abonnement expiré, refus ou erreur du fournisseur) passe **À corriger** au lieu de recevoir 0 : les réponses concernées valent 0 pour l'instant et attendent un correcteur.
+
+### Correcteurs
+
+L'auteur du quiz est correcteur d'office. On peut en désigner d'autres parmi les intervenants et administrateurs d'établissement de son périmètre. Un correcteur voit **toutes** les copies du quiz, même d'apprenants de groupes qu'il ne gère pas, peut les noter, les valider et traiter les contestations. Il n'a pas d'autre droit sur ces apprenants.
+
+### Valider les copies
+
+Sur la page des résultats, un bandeau indique les copies en attente et les contestations ; le filtre **En attente d'un correcteur** ou **Contestations à traiter** les isole.
+
+- **Valider la note proposée** (icône coche) publie une copie telle que l'IA l'a notée.
+- **Valider les copies notées par l'IA** publie d'un coup toutes les copies **À valider**. Les copies **À corriger** sont laissées de côté : leurs réponses non notées seraient publiées avec 0.
+- **Éditer les notes**, puis **Enregistrer et valider**, pour ajuster avant de publier. **Enregistrer sans valider** garde la copie en attente.
+
+La note est publiée au moment de la validation, avec le nom du correcteur ; le délai de contestation part de là.
+
+### Contestations
+
+Si le quiz a un délai de contestation (7 jours par défaut, 0 pour désactiver), l'apprenant peut, une fois la note publiée, contester **chaque question une fois**, en expliquant pourquoi. Une note encore provisoire ne se conteste pas : elle doit d'abord être validée.
+
+Le correcteur traite la contestation depuis **Éditer les notes** : **Accepter** (la note devient celle du champ Score) ou **Refuser** (la note est maintenue), avec une réponse à l'apprenant. L'apprenant voit la décision et la réponse sur sa copie.
+
+**Re-corriger** relance l'IA sur toutes les copies du quiz et écrase les notes, y compris celles modifiées à la main ou après contestation ; en mode revue, les copies repassent **À valider**.
+
+### Récapitulatif par email
+
+L'auteur et les correcteurs reçoivent un email quand des copies attendent ou qu'une contestation arrive, **au plus un par quiz toutes les 30 minutes** (réglable avec `GRADER_DIGEST_MINUTES`). Il résume ce qui attend et donne le lien vers les résultats si `PUBLIC_URL` est configurée (voir [Configuration](configuration#email)). Le tableau de bord liste aussi les quiz concernés, dans **Corrections à traiter**.
 
 ## Générateur de quiz par IA
 

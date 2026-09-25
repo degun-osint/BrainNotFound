@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 15:30+0200\n"
+"POT-Creation-Date: 2026-09-25 16:48+0200\n"
 "PO-Revision-Date: 2026-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: en <LL@li.org>\n"
@@ -30,535 +30,6 @@ msgstr "This group has reached its member limit"
 msgid "Cet etablissement n'accepte plus de nouvelles inscriptions"
 msgstr "This organization is not accepting new registrations"
 
-#: app/routes/admin.py:89 app/routes/interview.py:60
-#: app/routes/interview.py:327 app/routes/interview.py:392
-#: app/routes/interview.py:418 app/routes/interview.py:447
-#: app/routes/quiz.py:634 app/routes/quiz.py:669 app/routes/tenant.py:39
-#: app/routes/tenant.py:162
-msgid "Acces non autorise"
-msgstr "Access denied"
-
-#: app/routes/admin.py:99 app/routes/tenant.py:26
-msgid "Acces reserve aux super-administrateurs"
-msgstr "Access restricted to super-administrators"
-
-#: app/routes/admin.py:132 app/routes/tenant.py:159 app/routes/tenant.py:220
-#: app/routes/tenant.py:277
-msgid "Etablissement introuvable"
-msgstr "Organization not found"
-
-#: app/routes/admin.py:137 app/routes/admin.py:1356
-msgid "Acces non autorise a cet etablissement"
-msgstr "Access denied to this organization"
-
-#: app/routes/admin.py:141
-#, python-format
-msgid "Contexte: %(name)s"
-msgstr "Context: %(name)s"
-
-#: app/routes/admin.py:153
-msgid "Contexte : tous les etablissements"
-msgstr "Context: all organizations"
-
-#: app/routes/admin.py:273
-msgid "Vous devez assigner le quiz a au moins un groupe accessible"
-msgstr "You must assign the quiz to at least one accessible group"
-
-#: app/routes/admin.py:279 app/routes/admin.py:894
-#, python-format
-msgid "Limite de quiz atteinte pour cet etablissement (%(max)s)"
-msgstr "Quiz limit reached for this organization (%(max)s)"
-
-#: app/routes/admin.py:298
-msgid "Le contenu Markdown est requis"
-msgstr "Markdown content is required"
-
-#: app/routes/admin.py:306
-msgid "Aucune question trouvee dans le Markdown"
-msgstr "No questions found in the Markdown"
-
-#: app/routes/admin.py:331 app/routes/admin.py:507
-#, python-format
-msgid "Le slug \"%(slug)s\" est deja utilise"
-msgstr "The slug \"%(slug)s\" is already in use"
-
-#: app/routes/admin.py:384
-#, python-format
-msgid "Quiz \"%(title)s\" cree avec succes !"
-msgstr "Quiz \"%(title)\" successfully created!"
-
-#: app/routes/admin.py:390
-msgid "Erreur lors de la creation du quiz. Verifiez le format Markdown."
-msgstr "Error creating quiz. Check the Markdown format."
-
-#: app/routes/admin.py:422 app/routes/admin.py:580 app/routes/admin.py:621
-#: app/routes/admin.py:846 app/routes/admin.py:877 app/routes/admin.py:945
-#: app/routes/admin.py:979 app/routes/admin.py:1009 app/routes/admin.py:1078
-#: app/routes/admin.py:2722 app/routes/admin.py:2736 app/routes/quiz.py:235
-#: app/routes/quiz.py:245 app/routes/quiz.py:541
-msgid "Quiz introuvable"
-msgstr "Quiz not found"
-
-#: app/routes/admin.py:431 app/routes/admin.py:589 app/routes/admin.py:632
-#: app/routes/admin.py:853 app/routes/admin.py:882 app/routes/admin.py:950
-#: app/routes/admin.py:988 app/routes/admin.py:1016 app/routes/admin.py:1083
-#: app/routes/admin.py:2465 app/routes/admin.py:2531 app/routes/admin.py:2653
-#: app/routes/admin.py:2731
-msgid "Vous n'avez pas acces a ce quiz"
-msgstr "You do not have access to this quiz."
-
-#: app/routes/admin.py:463
-msgid "Le quiz doit rester assigne a au moins un de vos groupes"
-msgstr "The quiz must remain assigned to at least one of your groups."
-
-#: app/routes/admin.py:562
-msgid "Quiz mis a jour avec succes !"
-msgstr "Quiz successfully updated!"
-
-#: app/routes/admin.py:568
-msgid "Erreur lors de la mise a jour. Verifiez le format Markdown."
-msgstr "Error during update. Check the Markdown format."
-
-#: app/routes/admin.py:811
-msgid "Test du quiz termine !"
-msgstr "Quiz test complete!"
-
-#: app/routes/admin.py:867
-msgid "Quiz supprime avec succes"
-msgstr "Quiz successfully deleted"
-
-#: app/routes/admin.py:936
-#, python-format
-msgid "Quiz duplique ! Le nouveau quiz \"%(title)s\" est desactive par defaut."
-msgstr "Duplicate quiz! The new quiz \"%(title)s\" is disabled by default."
-
-#: app/routes/admin.py:956
-#, python-format
-msgid "Quiz %(status)s"
-msgstr "Quiz %(status)"
-
-#: app/routes/admin.py:1060
-#, python-format
-msgid ""
-"Re-correction lancee pour %(count)s copie(s). Les notes seront mises a jour "
-"progressivement."
-msgstr ""
-"Re-correction initiated for %(count)s copy(ies). Grades will be updated "
-"progressively."
-
-#: app/routes/admin.py:1062
-msgid "Aucune question ouverte a re-corriger."
-msgstr "No open questions to be corrected again."
-
-#: app/routes/admin.py:1276
-msgid "Vous n'avez pas la permission de creer des groupes"
-msgstr "You do not have permission to create groups"
-
-#: app/routes/admin.py:1286 app/routes/admin.py:1350
-msgid "Le nom du groupe est requis"
-msgstr "The group name is required"
-
-#: app/routes/admin.py:1292
-msgid "Choisissez un etablissement pour ce groupe"
-msgstr "Choose an organization for this group"
-
-#: app/routes/admin.py:1295 app/routes/admin.py:1360
-#: app/templates/admin/tenants/view.html:81
-#, python-format
-msgid "Limite de groupes atteinte (%(max)s)"
-msgstr "Group limit reached (%(max))"
-
-#: app/routes/admin.py:1313
-#, python-format
-msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
-msgstr "Group \"%(name)s\" created with the code: %(code)s"
-
-#: app/routes/admin.py:1327 app/routes/admin.py:1384 app/routes/admin.py:1405
-#: app/routes/admin.py:1430 app/routes/admin.py:1643 app/routes/admin.py:1740
-msgid "Groupe introuvable"
-msgstr "Group not found"
-
-#: app/routes/admin.py:1332 app/routes/admin.py:1389 app/routes/admin.py:1410
-#: app/routes/admin.py:1433 app/routes/admin.py:1650 app/routes/admin.py:1751
-#: app/routes/admin.py:2389
-msgid "Vous n'avez pas acces a ce groupe"
-msgstr "You do not have access to this group"
-
-#: app/routes/admin.py:1352 app/routes/admin.py:1358 app/routes/admin.py:1362
-#: app/routes/admin.py:1376 app/templates/admin/edit_group.html:4
-#: app/templates/admin/edit_page.html:3 app/templates/admin/edit_quiz.html:3
-#: app/templates/admin/group_detail.html:17
-#: app/templates/admin/group_detail.html:81
-#: app/templates/admin/group_detail.html:240
-#: app/templates/admin/groups.html:70
-#: app/templates/admin/interviews/list.html:87
-#: app/templates/admin/interviews/view.html:13
-#: app/templates/admin/interviews/wizard.html:3
-#: app/templates/admin/interviews/wizard.html:171
-#: app/templates/admin/pages.html:65 app/templates/admin/preview_quiz.html:18
-#: app/templates/admin/quizzes.html:80 app/templates/admin/tenants/edit.html:3
-#: app/templates/admin/tenants/list.html:48
-#: app/templates/admin/tenants/view.html:21
-#: app/templates/admin/tenants/view.html:109
-#: app/templates/admin/tenants/view.html:160
-#: app/templates/admin/tenants/view.html:218
-#: app/templates/admin/tenants/view.html:252
-#: app/templates/admin/user_detail.html:75 app/templates/admin/users.html:191
-msgid "Modifier"
-msgstr "Edit"
-
-#: app/routes/admin.py:1372
-msgid "Groupe mis a jour avec succes"
-msgstr "Group successfully updated"
-
-#: app/routes/admin.py:1396
-#, python-format
-msgid "Groupe %(status)s"
-msgstr "Group % (status)"
-
-#: app/routes/admin.py:1415
-msgid "Impossible de supprimer un groupe qui contient des utilisateurs"
-msgstr "It is not possible to delete a group that contains users"
-
-#: app/routes/admin.py:1421
-msgid "Groupe supprime avec succes"
-msgstr "Group successfully removed"
-
-#: app/routes/admin.py:1523 app/routes/admin.py:1544 app/routes/admin.py:1564
-#: app/routes/admin.py:1605 app/routes/admin.py:1941 app/routes/admin.py:2220
-#: app/routes/admin.py:2312 app/routes/admin.py:2469 app/routes/admin.py:2535
-msgid "Vous n'avez pas acces a cet utilisateur"
-msgstr "You do not have access to this user"
-
-#: app/routes/admin.py:1525
-#, python-format
-msgid "%(name)s fait deja partie du groupe"
-msgstr "%(name)s is already in the group"
-
-#: app/routes/admin.py:1531
-#, python-format
-msgid "%(name)s ajoute au groupe"
-msgstr "%(name)s added to the group"
-
-#: app/routes/admin.py:1548
-#, python-format
-msgid "%(name)s retire du groupe"
-msgstr "%(name)s removed from the group"
-
-#: app/routes/admin.py:1571
-#, python-format
-msgid "Role mis a jour pour %(name)s"
-msgstr "Role updated for %(name)s"
-
-#: app/routes/admin.py:1585
-#, python-format
-msgid ""
-"Nouveau code d'acces : %(code)s. L'ancien code et l'ancien lien ne "
-"fonctionnent plus."
-msgstr "New access code: %(code)s. The old code and link no longer work."
-
-#: app/routes/admin.py:1607
-#, python-format
-msgid ""
-"%(name)s n'a pas d'adresse email reelle : copiez le lien et transmettez-le."
-msgstr "%(name)s has no real email address: copy the link and hand it over."
-
-#: app/routes/admin.py:1611
-#, python-format
-msgid "Lien de reinitialisation envoye a %(email)s"
-msgstr "Password link sent to %(email)s"
-
-#: app/routes/admin.py:1613 app/routes/admin.py:2068 app/routes/admin.py:2248
-msgid "Erreur lors de l'envoi de l'email."
-msgstr "Error sending email."
-
-#: app/routes/admin.py:1766
-msgid "Le sujet et le message sont requis"
-msgstr "The subject and message are required"
-
-#: app/routes/admin.py:1770
-msgid "Aucun utilisateur avec email dans ce groupe"
-msgstr "No users with email addresses are in this group."
-
-#: app/routes/admin.py:1776
-#, python-format
-msgid "%(count)s email(s) envoye(s) avec succes"
-msgstr "%(count)s email(s) sent successfully"
-
-#: app/routes/admin.py:1778
-#, python-format
-msgid "%(count)s email(s) echoue(s)"
-msgstr "%(count)s email(s) failed(s)"
-
-#: app/routes/admin.py:1844
-#, python-format
-msgid "Espace de stockage de l'etablissement plein (%(max)s Mo)"
-msgstr "Organization storage is full (%(max)s MB)"
-
-#: app/routes/admin.py:1911 app/templates/admin/dashboard.html:37
-#: app/templates/admin/tenants/list.html:38
-#: app/templates/admin/tenants/view.html:39
-#: app/templates/admin/tenants/view.html:281 app/templates/base.html:57
-msgid "Utilisateurs"
-msgstr "Users"
-
-#: app/routes/admin.py:1936 app/routes/admin.py:2207 app/routes/admin.py:2302
-#: app/routes/tenant.py:347 app/routes/tenant.py:367
-msgid "Utilisateur introuvable"
-msgstr "User not found"
-
-#: app/routes/admin.py:2036 app/routes/admin.py:2258
-msgid "Nom d'utilisateur et email sont requis"
-msgstr "Username and email are required"
-
-#: app/routes/admin.py:2038 app/routes/admin.py:2260 app/routes/auth.py:148
-msgid "Ce nom d'utilisateur existe deja"
-msgstr "This username already exists"
-
-#: app/routes/admin.py:2040 app/routes/admin.py:2262 app/routes/auth.py:150
-msgid "Cette adresse email est deja utilisee"
-msgstr "This email address is already in use"
-
-#: app/routes/admin.py:2042
-msgid "Vous devez assigner au moins un groupe"
-msgstr "You must assign at least one group"
-
-#: app/routes/admin.py:2044
-msgid "Choisissez au moins un etablissement pour un admin d'etablissement"
-msgstr "Choose at least one organization for an organization admin"
-
-#: app/routes/admin.py:2060
-#, python-format
-msgid "Utilisateur \"%(username)s\" cree avec succes"
-msgstr "User \"%(username)s\" created"
-
-#: app/routes/admin.py:2063
-msgid ""
-"Pas d'email reel : copiez un lien de mot de passe depuis la page du groupe."
-msgstr "No real email address: copy a password link from the group page."
-
-#: app/routes/admin.py:2066
-#, python-format
-msgid "Invitation envoyee a %(email)s pour choisir un mot de passe."
-msgstr "Invitation sent to %(email)s to choose a password."
-
-#: app/routes/admin.py:2091 app/routes/admin.py:2096 app/routes/admin.py:2584
-#: app/routes/admin.py:3098
-msgid "Aucun fichier selectionne"
-msgstr "No files selected"
-
-#: app/routes/admin.py:2103
-msgid "Veuillez selectionner un groupe par defaut"
-msgstr "Please select a default group"
-
-#: app/routes/admin.py:2110
-msgid "Groupe invalide"
-msgstr "Invalid group"
-
-#: app/routes/admin.py:2182
-#, python-format
-msgid ""
-"%(count)s utilisateur(s) importe(s) avec succes dans le groupe \"%(group)s\""
-msgstr "%(count)s user(s) successfully imported into the group \"%(group)s"
-
-#: app/routes/admin.py:2184 app/routes/admin.py:2438
-#, python-format
-msgid "%(count)s utilisateur(s) ignore(s)"
-msgstr "%(count)s user(s) ignored(s)"
-
-#: app/routes/admin.py:2189
-#, python-format
-msgid "... et %(count)s autre(s) erreur(s)"
-msgstr "... and %(count)s other error(s)"
-
-#: app/routes/admin.py:2195 app/routes/interview.py:1395
-#, python-format
-msgid "Erreur lors de l'import: %(error)s"
-msgstr "Import error: %(error)s"
-
-#: app/routes/admin.py:2215
-msgid "Vous ne pouvez pas modifier votre propre compte ici"
-msgstr "You cannot edit your own account here"
-
-#: app/routes/admin.py:2240
-#, python-format
-msgid "Email de %(username)s verifie manuellement."
-msgstr "Email from %(username)s checked manually."
-
-#: app/routes/admin.py:2246
-#, python-format
-msgid "Email de verification renvoye a %(email)s."
-msgstr "Verification email returns %(email)s."
-
-#: app/routes/admin.py:2288
-#, python-format
-msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
-msgstr "User \"%(username)s\" successfully updated"
-
-#: app/routes/admin.py:2307
-msgid "Vous ne pouvez pas supprimer votre propre compte"
-msgstr "You cannot delete your own account"
-
-#: app/routes/admin.py:2319
-#, python-format
-msgid "Utilisateur \"%(username)s\" supprime avec succes"
-msgstr "User \"%(username)s\" successfully deleted"
-
-#: app/routes/admin.py:2331 app/routes/admin.py:2375
-#: app/templates/admin/users.html:296 app/templates/admin/users.html:323
-msgid "Aucun utilisateur selectionne"
-msgstr "No user selected"
-
-#: app/routes/admin.py:2358
-#, python-format
-msgid "%(count)s utilisateur(s) supprime(s)"
-msgstr "%(count)s user(s) deleted(s)"
-
-#: app/routes/admin.py:2360
-#, python-format
-msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
-msgstr "%(count)s user(s) ignored (no permission)"
-
-#: app/routes/admin.py:2379
-msgid "Aucun groupe selectionne"
-msgstr "No group selected"
-
-#: app/routes/admin.py:2384
-msgid "Groupe non trouve"
-msgstr "Group not found"
-
-#: app/routes/admin.py:2436
-#, python-format
-msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
-msgstr "%(count)s user(s) %(action)s group \"%(group)s"
-
-#: app/routes/admin.py:2451 app/routes/admin.py:2522 app/routes/admin.py:2644
-#: app/routes/admin.py:2658
-msgid "Reponse introuvable"
-msgstr "Answer not found"
-
-#: app/routes/admin.py:2505
-#, python-format
-msgid "Scores mis a jour pour %(name)s"
-msgstr "Updated scores for %(name)s"
-
-#: app/routes/admin.py:2543
-#, python-format
-msgid ""
-"Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
-"quiz."
-msgstr "Response from %(name)s deleted. The user can now retake the quiz."
-
-#: app/routes/admin.py:2573
-msgid "Vous devez generer au moins une question"
-msgstr "You must generate at least one question"
-
-#: app/routes/admin.py:2578
-msgid "Veuillez selectionner un fichier"
-msgstr "Please select a file"
-
-#: app/routes/admin.py:2588
-msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
-msgstr "Unsupported file format (PDF, DOCX, MD, TXT only)"
-
-#: app/routes/admin.py:2597
-msgid ""
-"Le fichier ne contient pas assez de texte exploitable (minimum 100 "
-"caracteres)"
-msgstr "The file does not contain enough usable text (minimum 100 characters)"
-
-#: app/routes/admin.py:2602
-msgid "Quota mensuel de generations IA atteint pour cet etablissement"
-msgstr "Monthly AI generation quota reached for this organization"
-
-#: app/routes/admin.py:2624
-#, python-format
-msgid "Erreur lors de la generation: %(error)s"
-msgstr "Error during generation: %(error)s"
-
-#: app/routes/admin.py:2629
-#, python-format
-msgid "Erreur lors du traitement du fichier: %(error)s"
-msgstr "Error processing file: %(error)s"
-
-#: app/routes/admin.py:2687 app/routes/admin.py:2768
-msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
-msgstr "Monthly AI analysis quota reached for this organization"
-
-#: app/routes/admin.py:2839
-msgid "Parametres sauvegardes avec succes"
-msgstr "Settings saved successfully"
-
-#: app/routes/admin.py:2865
-msgid "URL du fournisseur requise"
-msgstr "Provider URL required"
-
-#: app/routes/admin.py:2867
-msgid "Modele requis pour ce fournisseur"
-msgstr "Model required for this provider"
-
-#: app/routes/admin.py:2869
-msgid "Configuration non enregistree : utilisation de Grok non confirmee"
-msgstr "Configuration not saved: use of Grok not confirmed"
-
-#: app/routes/admin.py:2918
-#, python-format
-msgid ""
-"Modele inconnu chez ce fournisseur : %(model)s. Configuration non modifiee."
-msgstr ""
-"Unknown model for this provider: %(model)s. Configuration not changed."
-
-#: app/routes/admin.py:2937
-msgid "Cle API refusee par le fournisseur"
-msgstr "API key rejected by the provider"
-
-#: app/routes/admin.py:2939
-msgid "Impossible de joindre le fournisseur"
-msgstr "Unable to reach the provider"
-
-#: app/routes/admin.py:2943
-msgid "Configuration incomplete (cle ou URL manquante)"
-msgstr "Incomplete configuration (missing key or URL)"
-
-#: app/routes/admin.py:3064 app/routes/admin.py:3101
-#: app/templates/admin/settings.html:351
-msgid "Tapez RESTAURER pour confirmer"
-msgstr "Type RESTORE to confirm"
-
-#: app/routes/admin.py:3106
-msgid "Format attendu : .tar.gz ou .sql.gz"
-msgstr "Expected format: .tar.gz or .sql.gz"
-
-#: app/routes/admin.py:3156 app/routes/admin.py:3220
-#: app/routes/interview.py:543
-msgid "Le titre est requis"
-msgstr "Title is required"
-
-#: app/routes/admin.py:3166 app/routes/admin.py:3230
-msgid "Ce slug existe deja"
-msgstr "This slug already exists"
-
-#: app/routes/admin.py:3171 app/routes/admin.py:3235
-msgid ""
-"Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
-msgstr "The slug can only contain lowercase letters, numbers, and dashes."
-
-#: app/routes/admin.py:3186
-msgid "Page creee avec succes"
-msgstr "Page successfully created"
-
-#: app/routes/admin.py:3202 app/routes/admin.py:3263 app/routes/admin.py:3281
-msgid "Page introuvable"
-msgstr "Page not found"
-
-#: app/routes/admin.py:3248
-msgid "Page modifiee avec succes"
-msgstr "Page successfully modified"
-
-#: app/routes/admin.py:3268
-msgid "Page supprimee avec succes"
-msgstr "Page successfully deleted"
-
 #: app/routes/auth.py:28
 msgid "Trop de tentatives. Veuillez reessayer dans quelques minutes."
 msgstr "Too many attempts. Please try again in a few minutes."
@@ -578,6 +49,16 @@ msgstr "All fields are required"
 #: app/routes/auth.py:146
 msgid "Les mots de passe ne correspondent pas"
 msgstr "Passwords do not match"
+
+#: app/routes/admin/users.py:333 app/routes/admin/users.py:555
+#: app/routes/auth.py:148
+msgid "Ce nom d'utilisateur existe deja"
+msgstr "This username already exists"
+
+#: app/routes/admin/users.py:335 app/routes/admin/users.py:557
+#: app/routes/auth.py:150
+msgid "Cette adresse email est deja utilisee"
+msgstr "This email address is already in use"
 
 #: app/routes/auth.py:179
 msgid "Erreur lors de l'envoi de l'email de verification. Veuillez reessayer."
@@ -718,6 +199,14 @@ msgstr "Account \"%(username)s\" has been successfully deleted."
 msgid "Une erreur est survenue lors de la suppression du compte."
 msgstr "An error occurred while deleting the account."
 
+#: app/routes/admin/common.py:68 app/routes/interview.py:60
+#: app/routes/interview.py:327 app/routes/interview.py:392
+#: app/routes/interview.py:418 app/routes/interview.py:447
+#: app/routes/quiz.py:639 app/routes/quiz.py:666 app/routes/quiz.py:705
+#: app/routes/tenant.py:39 app/routes/tenant.py:162
+msgid "Acces non autorise"
+msgstr "Access denied"
+
 #: app/routes/interview.py:142 app/routes/interview.py:153
 #: app/routes/interview.py:648 app/routes/interview.py:690
 #: app/routes/interview.py:819 app/routes/interview.py:838
@@ -775,6 +264,11 @@ msgstr "Interview not completed"
 #: app/routes/interview.py:474 app/routes/interview.py:976
 msgid "Erreur lors de la generation du PDF"
 msgstr "Error generating PDF"
+
+#: app/routes/admin/pages.py:39 app/routes/admin/pages.py:103
+#: app/routes/interview.py:543
+msgid "Le titre est requis"
+msgstr "Title is required"
 
 #: app/routes/interview.py:547
 msgid "Le prompt systeme est requis"
@@ -857,7 +351,22 @@ msgstr "Interview \"%(title)s\" imported successfully! It is inactive by default
 msgid "Erreur de lecture du fichier JSON."
 msgstr "Error reading JSON file."
 
-#: app/routes/quiz.py:256 app/routes/quiz.py:549
+#: app/routes/admin/users.py:490 app/routes/interview.py:1395
+#, python-format
+msgid "Erreur lors de l'import: %(error)s"
+msgstr "Import error: %(error)s"
+
+#: app/routes/admin/quizzes.py:259 app/routes/admin/quizzes.py:420
+#: app/routes/admin/quizzes.py:461 app/routes/admin/quizzes.py:686
+#: app/routes/admin/quizzes.py:718 app/routes/admin/quizzes.py:791
+#: app/routes/admin/results.py:92 app/routes/admin/results.py:106
+#: app/routes/admin/results.py:147 app/routes/admin/results.py:216
+#: app/routes/admin/results.py:505 app/routes/admin/results.py:519
+#: app/routes/quiz.py:235 app/routes/quiz.py:245 app/routes/quiz.py:543
+msgid "Quiz introuvable"
+msgstr "Quiz not found"
+
+#: app/routes/quiz.py:256 app/routes/quiz.py:551
 msgid "Ce quiz n'est plus disponible"
 msgstr "This quiz is no longer available"
 
@@ -869,21 +378,46 @@ msgstr "This quiz is not yet available"
 msgid "Ce quiz est ferme"
 msgstr "This quiz is closed"
 
-#: app/routes/quiz.py:270 app/routes/quiz.py:553
+#: app/routes/quiz.py:270 app/routes/quiz.py:555
 msgid "Ce quiz n'est pas disponible pour vos groupes"
 msgstr "This quiz is not available for your groups"
 
-#: app/routes/quiz.py:280 app/routes/quiz.py:562
+#: app/routes/quiz.py:280 app/routes/quiz.py:564
 msgid "Vous avez deja repondu a ce quiz"
 msgstr "You have already answered this quiz"
 
-#: app/routes/quiz.py:508
+#: app/routes/quiz.py:510
 msgid "Quiz soumis avec succes !"
 msgstr "Quiz submitted successfully!"
 
-#: app/routes/quiz.py:623 app/routes/quiz.py:658
+#: app/routes/quiz.py:625 app/routes/quiz.py:694
 msgid "Resultat introuvable"
 msgstr "Result not found"
+
+#: app/routes/quiz.py:673
+msgid "Question introuvable"
+msgstr "Question not found"
+
+#: app/routes/quiz.py:675
+msgid ""
+"Le delai de contestation est depasse, ou la note n'est pas encore publiee."
+msgstr "The contest period is over, or the grade is not published yet."
+
+#: app/routes/quiz.py:677
+msgid "Vous avez deja conteste cette question."
+msgstr "You already contested this question."
+
+#: app/routes/quiz.py:679
+msgid "Expliquez pourquoi vous contestez cette note."
+msgstr "Explain why you contest this grade."
+
+#: app/routes/quiz.py:684
+msgid "Contestation envoyee : un correcteur va la traiter."
+msgstr "Contest sent: a grader will review it."
+
+#: app/routes/admin/common.py:79 app/routes/tenant.py:26
+msgid "Acces reserve aux super-administrateurs"
+msgstr "Access restricted to super-administrators"
 
 #: app/routes/tenant.py:48
 msgid "Le slug est requis"
@@ -918,6 +452,11 @@ msgstr "Invalid date format"
 msgid "Etablissement \"%(name)s\" cree avec succes"
 msgstr "Organization \"%(name)s\" created"
 
+#: app/routes/admin/common.py:110 app/routes/tenant.py:159
+#: app/routes/tenant.py:220 app/routes/tenant.py:277
+msgid "Etablissement introuvable"
+msgstr "Organization not found"
+
 #: app/routes/tenant.py:255
 msgid "Format de date d'expiration invalide"
 msgstr "Invalid expiration date format"
@@ -940,6 +479,12 @@ msgstr "Backup failed, nothing was deleted: %(error)s"
 msgid "Etablissement \"%(name)s\" supprime (sauvegarde prealable : %(backup)s)"
 msgstr "Organization \"%(name)s\" deleted (backup taken first: %(backup)s)"
 
+#: app/routes/admin/users.py:233 app/routes/admin/users.py:502
+#: app/routes/admin/users.py:598 app/routes/tenant.py:347
+#: app/routes/tenant.py:367
+msgid "Utilisateur introuvable"
+msgstr "User not found"
+
 #: app/routes/tenant.py:349
 msgid "Un super-administrateur a deja acces a tous les etablissements"
 msgstr "A superadmin already has access to every organization"
@@ -954,6 +499,509 @@ msgstr "%(username)s is now an admin of the organization"
 msgid "%(username)s n'est plus admin de l'etablissement"
 msgstr "%(username)s is no longer an admin of the organization"
 
+#: app/routes/admin/common.py:115 app/routes/admin/groups.py:131
+msgid "Acces non autorise a cet etablissement"
+msgstr "Access denied to this organization"
+
+#: app/routes/admin/common.py:119
+#, python-format
+msgid "Contexte: %(name)s"
+msgstr "Context: %(name)s"
+
+#: app/routes/admin/common.py:131
+msgid "Contexte : tous les etablissements"
+msgstr "Context: all organizations"
+
+#: app/routes/admin/groups.py:50
+msgid "Vous n'avez pas la permission de creer des groupes"
+msgstr "You do not have permission to create groups"
+
+#: app/routes/admin/groups.py:60 app/routes/admin/groups.py:125
+msgid "Le nom du groupe est requis"
+msgstr "The group name is required"
+
+#: app/routes/admin/groups.py:66
+msgid "Choisissez un etablissement pour ce groupe"
+msgstr "Choose an organization for this group"
+
+#: app/routes/admin/groups.py:69 app/routes/admin/groups.py:135
+#: app/templates/admin/tenants/view.html:81
+#, python-format
+msgid "Limite de groupes atteinte (%(max)s)"
+msgstr "Group limit reached (%(max))"
+
+#: app/routes/admin/groups.py:87
+#, python-format
+msgid "Groupe \"%(name)s\" cree avec le code : %(code)s"
+msgstr "Group \"%(name)s\" created with the code: %(code)s"
+
+#: app/routes/admin/groups.py:102 app/routes/admin/groups.py:160
+#: app/routes/admin/groups.py:182 app/routes/admin/groups.py:206
+#: app/routes/admin/groups.py:377 app/routes/admin/groups.py:474
+msgid "Groupe introuvable"
+msgstr "Group not found"
+
+#: app/routes/admin/groups.py:107 app/routes/admin/groups.py:165
+#: app/routes/admin/groups.py:187 app/routes/admin/groups.py:209
+#: app/routes/admin/groups.py:384 app/routes/admin/groups.py:485
+#: app/routes/admin/users.py:685
+msgid "Vous n'avez pas acces a ce groupe"
+msgstr "You do not have access to this group"
+
+#: app/routes/admin/groups.py:127 app/routes/admin/groups.py:133
+#: app/routes/admin/groups.py:137 app/routes/admin/groups.py:151
+#: app/templates/admin/edit_group.html:4 app/templates/admin/edit_page.html:3
+#: app/templates/admin/edit_quiz.html:4
+#: app/templates/admin/group_detail.html:17
+#: app/templates/admin/group_detail.html:81
+#: app/templates/admin/group_detail.html:240
+#: app/templates/admin/groups.html:70
+#: app/templates/admin/interviews/list.html:87
+#: app/templates/admin/interviews/view.html:13
+#: app/templates/admin/interviews/wizard.html:3
+#: app/templates/admin/interviews/wizard.html:171
+#: app/templates/admin/pages.html:65 app/templates/admin/preview_quiz.html:18
+#: app/templates/admin/quizzes.html:80 app/templates/admin/tenants/edit.html:3
+#: app/templates/admin/tenants/list.html:48
+#: app/templates/admin/tenants/view.html:21
+#: app/templates/admin/tenants/view.html:109
+#: app/templates/admin/tenants/view.html:160
+#: app/templates/admin/tenants/view.html:218
+#: app/templates/admin/tenants/view.html:252
+#: app/templates/admin/user_detail.html:75 app/templates/admin/users.html:191
+msgid "Modifier"
+msgstr "Edit"
+
+#: app/routes/admin/groups.py:147
+msgid "Groupe mis a jour avec succes"
+msgstr "Group successfully updated"
+
+#: app/routes/admin/groups.py:172
+#, python-format
+msgid "Groupe %(status)s"
+msgstr "Group % (status)"
+
+#: app/routes/admin/groups.py:192
+msgid "Impossible de supprimer un groupe qui contient des utilisateurs"
+msgstr "It is not possible to delete a group that contains users"
+
+#: app/routes/admin/groups.py:198
+msgid "Groupe supprime avec succes"
+msgstr "Group successfully removed"
+
+#: app/routes/admin/groups.py:299 app/routes/admin/groups.py:320
+#: app/routes/admin/groups.py:340 app/routes/admin/results.py:401
+#: app/routes/admin/users.py:154 app/routes/admin/users.py:238
+#: app/routes/admin/users.py:515 app/routes/admin/users.py:608
+msgid "Vous n'avez pas acces a cet utilisateur"
+msgstr "You do not have access to this user"
+
+#: app/routes/admin/groups.py:301
+#, python-format
+msgid "%(name)s fait deja partie du groupe"
+msgstr "%(name)s is already in the group"
+
+#: app/routes/admin/groups.py:307
+#, python-format
+msgid "%(name)s ajoute au groupe"
+msgstr "%(name)s added to the group"
+
+#: app/routes/admin/groups.py:324
+#, python-format
+msgid "%(name)s retire du groupe"
+msgstr "%(name)s removed from the group"
+
+#: app/routes/admin/groups.py:347
+#, python-format
+msgid "Role mis a jour pour %(name)s"
+msgstr "Role updated for %(name)s"
+
+#: app/routes/admin/groups.py:361
+#, python-format
+msgid ""
+"Nouveau code d'acces : %(code)s. L'ancien code et l'ancien lien ne "
+"fonctionnent plus."
+msgstr "New access code: %(code)s. The old code and link no longer work."
+
+#: app/routes/admin/groups.py:500
+msgid "Le sujet et le message sont requis"
+msgstr "The subject and message are required"
+
+#: app/routes/admin/groups.py:504
+msgid "Aucun utilisateur avec email dans ce groupe"
+msgstr "No users with email addresses are in this group."
+
+#: app/routes/admin/groups.py:510
+#, python-format
+msgid "%(count)s email(s) envoye(s) avec succes"
+msgstr "%(count)s email(s) sent successfully"
+
+#: app/routes/admin/groups.py:512
+#, python-format
+msgid "%(count)s email(s) echoue(s)"
+msgstr "%(count)s email(s) failed(s)"
+
+#: app/routes/admin/pages.py:49 app/routes/admin/pages.py:113
+msgid "Ce slug existe deja"
+msgstr "This slug already exists"
+
+#: app/routes/admin/pages.py:54 app/routes/admin/pages.py:118
+msgid ""
+"Le slug ne peut contenir que des lettres minuscules, chiffres et tirets"
+msgstr "The slug can only contain lowercase letters, numbers, and dashes."
+
+#: app/routes/admin/pages.py:69
+msgid "Page creee avec succes"
+msgstr "Page successfully created"
+
+#: app/routes/admin/pages.py:85 app/routes/admin/pages.py:146
+#: app/routes/admin/pages.py:164
+msgid "Page introuvable"
+msgstr "Page not found"
+
+#: app/routes/admin/pages.py:131
+msgid "Page modifiee avec succes"
+msgstr "Page successfully modified"
+
+#: app/routes/admin/pages.py:151
+msgid "Page supprimee avec succes"
+msgstr "Page successfully deleted"
+
+#: app/routes/admin/quizzes.py:107
+msgid "Vous devez assigner le quiz a au moins un groupe accessible"
+msgstr "You must assign the quiz to at least one accessible group"
+
+#: app/routes/admin/quizzes.py:113 app/routes/admin/quizzes.py:735
+#, python-format
+msgid "Limite de quiz atteinte pour cet etablissement (%(max)s)"
+msgstr "Quiz limit reached for this organization (%(max)s)"
+
+#: app/routes/admin/quizzes.py:132
+msgid "Le contenu Markdown est requis"
+msgstr "Markdown content is required"
+
+#: app/routes/admin/quizzes.py:140
+msgid "Aucune question trouvee dans le Markdown"
+msgstr "No questions found in the Markdown"
+
+#: app/routes/admin/quizzes.py:165 app/routes/admin/quizzes.py:344
+#, python-format
+msgid "Le slug \"%(slug)s\" est deja utilise"
+msgstr "The slug \"%(slug)s\" is already in use"
+
+#: app/routes/admin/quizzes.py:220
+#, python-format
+msgid "Quiz \"%(title)s\" cree avec succes !"
+msgstr "Quiz \"%(title)\" successfully created!"
+
+#: app/routes/admin/quizzes.py:226
+msgid "Erreur lors de la creation du quiz. Verifiez le format Markdown."
+msgstr "Error creating quiz. Check the Markdown format."
+
+#: app/routes/admin/quizzes.py:268 app/routes/admin/quizzes.py:429
+#: app/routes/admin/quizzes.py:472 app/routes/admin/quizzes.py:693
+#: app/routes/admin/quizzes.py:723 app/routes/admin/quizzes.py:796
+#: app/routes/admin/results.py:95 app/routes/admin/results.py:115
+#: app/routes/admin/results.py:154 app/routes/admin/results.py:221
+#: app/routes/admin/results.py:397 app/routes/admin/results.py:436
+#: app/routes/admin/results.py:514
+msgid "Vous n'avez pas acces a ce quiz"
+msgstr "You do not have access to this quiz."
+
+#: app/routes/admin/quizzes.py:300
+msgid "Le quiz doit rester assigne a au moins un de vos groupes"
+msgstr "The quiz must remain assigned to at least one of your groups."
+
+#: app/routes/admin/quizzes.py:402
+msgid "Quiz mis a jour avec succes !"
+msgstr "Quiz successfully updated!"
+
+#: app/routes/admin/quizzes.py:408
+msgid "Erreur lors de la mise a jour. Verifiez le format Markdown."
+msgstr "Error during update. Check the Markdown format."
+
+#: app/routes/admin/quizzes.py:651
+msgid "Test du quiz termine !"
+msgstr "Quiz test complete!"
+
+#: app/routes/admin/quizzes.py:707
+msgid "Quiz supprime avec succes"
+msgstr "Quiz successfully deleted"
+
+#: app/routes/admin/quizzes.py:781
+#, python-format
+msgid "Quiz duplique ! Le nouveau quiz \"%(title)s\" est desactive par defaut."
+msgstr "Duplicate quiz! The new quiz \"%(title)s\" is disabled by default."
+
+#: app/routes/admin/quizzes.py:802
+#, python-format
+msgid "Quiz %(status)s"
+msgstr "Quiz %(status)"
+
+#: app/routes/admin/quizzes.py:866
+#, python-format
+msgid "Espace de stockage de l'etablissement plein (%(max)s Mo)"
+msgstr "Organization storage is full (%(max)s MB)"
+
+#: app/routes/admin/quizzes.py:929
+msgid "Vous devez generer au moins une question"
+msgstr "You must generate at least one question"
+
+#: app/routes/admin/quizzes.py:934
+msgid "Veuillez selectionner un fichier"
+msgstr "Please select a file"
+
+#: app/routes/admin/quizzes.py:940 app/routes/admin/settings.py:322
+#: app/routes/admin/users.py:386 app/routes/admin/users.py:391
+msgid "Aucun fichier selectionne"
+msgstr "No files selected"
+
+#: app/routes/admin/quizzes.py:944
+msgid "Format de fichier non supporte (PDF, DOCX, MD, TXT uniquement)"
+msgstr "Unsupported file format (PDF, DOCX, MD, TXT only)"
+
+#: app/routes/admin/quizzes.py:953
+msgid ""
+"Le fichier ne contient pas assez de texte exploitable (minimum 100 "
+"caracteres)"
+msgstr "The file does not contain enough usable text (minimum 100 characters)"
+
+#: app/routes/admin/quizzes.py:958
+msgid "Quota mensuel de generations IA atteint pour cet etablissement"
+msgstr "Monthly AI generation quota reached for this organization"
+
+#: app/routes/admin/quizzes.py:980
+#, python-format
+msgid "Erreur lors de la generation: %(error)s"
+msgstr "Error during generation: %(error)s"
+
+#: app/routes/admin/quizzes.py:985
+#, python-format
+msgid "Erreur lors du traitement du fichier: %(error)s"
+msgstr "Error processing file: %(error)s"
+
+#: app/routes/admin/results.py:198
+#, python-format
+msgid ""
+"Re-correction lancee pour %(count)s copie(s). Les notes seront mises a jour "
+"progressivement."
+msgstr ""
+"Re-correction initiated for %(count)s copy(ies). Grades will be updated "
+"progressively."
+
+#: app/routes/admin/results.py:200
+msgid "Aucune question ouverte a re-corriger."
+msgstr "No open questions to be corrected again."
+
+#: app/routes/admin/results.py:272 app/routes/admin/results.py:388
+#: app/routes/admin/results.py:427 app/routes/admin/results.py:441
+msgid "Reponse introuvable"
+msgstr "Answer not found"
+
+#: app/routes/admin/results.py:278
+msgid "Vous n'avez pas acces a cette copie"
+msgstr "You do not have access to this paper"
+
+#: app/routes/admin/results.py:334 app/routes/admin/results.py:356
+#, python-format
+msgid "Copie de %(name)s validee : la note est publiee."
+msgstr "%(name)s's paper validated: the grade is published."
+
+#: app/routes/admin/results.py:336
+#, python-format
+msgid "Scores mis a jour pour %(name)s"
+msgstr "Updated scores for %(name)s"
+
+#: app/routes/admin/results.py:377
+#, python-format
+msgid "%(count)s copie(s) validee(s)."
+msgstr "%(count)s paper(s) validated."
+
+#: app/routes/admin/results.py:409
+#, python-format
+msgid ""
+"Reponse de %(name)s supprimee. L'utilisateur peut maintenant repasser le "
+"quiz."
+msgstr "Response from %(name)s deleted. The user can now retake the quiz."
+
+#: app/routes/admin/results.py:470 app/routes/admin/results.py:551
+msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
+msgstr "Monthly AI analysis quota reached for this organization"
+
+#: app/routes/admin/settings.py:63
+msgid "Parametres sauvegardes avec succes"
+msgstr "Settings saved successfully"
+
+#: app/routes/admin/settings.py:89
+msgid "URL du fournisseur requise"
+msgstr "Provider URL required"
+
+#: app/routes/admin/settings.py:91
+msgid "Modele requis pour ce fournisseur"
+msgstr "Model required for this provider"
+
+#: app/routes/admin/settings.py:93
+msgid "Configuration non enregistree : utilisation de Grok non confirmee"
+msgstr "Configuration not saved: use of Grok not confirmed"
+
+#: app/routes/admin/settings.py:142
+#, python-format
+msgid ""
+"Modele inconnu chez ce fournisseur : %(model)s. Configuration non modifiee."
+msgstr ""
+"Unknown model for this provider: %(model)s. Configuration not changed."
+
+#: app/routes/admin/settings.py:161
+msgid "Cle API refusee par le fournisseur"
+msgstr "API key rejected by the provider"
+
+#: app/routes/admin/settings.py:163
+msgid "Impossible de joindre le fournisseur"
+msgstr "Unable to reach the provider"
+
+#: app/routes/admin/settings.py:167
+msgid "Configuration incomplete (cle ou URL manquante)"
+msgstr "Incomplete configuration (missing key or URL)"
+
+#: app/routes/admin/settings.py:288 app/routes/admin/settings.py:325
+#: app/templates/admin/settings.html:351
+msgid "Tapez RESTAURER pour confirmer"
+msgstr "Type RESTORE to confirm"
+
+#: app/routes/admin/settings.py:330
+msgid "Format attendu : .tar.gz ou .sql.gz"
+msgstr "Expected format: .tar.gz or .sql.gz"
+
+#: app/routes/admin/users.py:156
+#, python-format
+msgid ""
+"%(name)s n'a pas d'adresse email reelle : copiez le lien et transmettez-le."
+msgstr "%(name)s has no real email address: copy the link and hand it over."
+
+#: app/routes/admin/users.py:160
+#, python-format
+msgid "Lien de reinitialisation envoye a %(email)s"
+msgstr "Password link sent to %(email)s"
+
+#: app/routes/admin/users.py:162 app/routes/admin/users.py:363
+#: app/routes/admin/users.py:543
+msgid "Erreur lors de l'envoi de l'email."
+msgstr "Error sending email."
+
+#: app/routes/admin/users.py:208 app/templates/admin/dashboard.html:37
+#: app/templates/admin/tenants/list.html:38
+#: app/templates/admin/tenants/view.html:39
+#: app/templates/admin/tenants/view.html:281 app/templates/base.html:57
+msgid "Utilisateurs"
+msgstr "Users"
+
+#: app/routes/admin/users.py:331 app/routes/admin/users.py:553
+msgid "Nom d'utilisateur et email sont requis"
+msgstr "Username and email are required"
+
+#: app/routes/admin/users.py:337
+msgid "Vous devez assigner au moins un groupe"
+msgstr "You must assign at least one group"
+
+#: app/routes/admin/users.py:339
+msgid "Choisissez au moins un etablissement pour un admin d'etablissement"
+msgstr "Choose at least one organization for an organization admin"
+
+#: app/routes/admin/users.py:355
+#, python-format
+msgid "Utilisateur \"%(username)s\" cree avec succes"
+msgstr "User \"%(username)s\" created"
+
+#: app/routes/admin/users.py:358
+msgid ""
+"Pas d'email reel : copiez un lien de mot de passe depuis la page du groupe."
+msgstr "No real email address: copy a password link from the group page."
+
+#: app/routes/admin/users.py:361
+#, python-format
+msgid "Invitation envoyee a %(email)s pour choisir un mot de passe."
+msgstr "Invitation sent to %(email)s to choose a password."
+
+#: app/routes/admin/users.py:398
+msgid "Veuillez selectionner un groupe par defaut"
+msgstr "Please select a default group"
+
+#: app/routes/admin/users.py:405
+msgid "Groupe invalide"
+msgstr "Invalid group"
+
+#: app/routes/admin/users.py:477
+#, python-format
+msgid ""
+"%(count)s utilisateur(s) importe(s) avec succes dans le groupe \"%(group)s\""
+msgstr "%(count)s user(s) successfully imported into the group \"%(group)s"
+
+#: app/routes/admin/users.py:479 app/routes/admin/users.py:734
+#, python-format
+msgid "%(count)s utilisateur(s) ignore(s)"
+msgstr "%(count)s user(s) ignored(s)"
+
+#: app/routes/admin/users.py:484
+#, python-format
+msgid "... et %(count)s autre(s) erreur(s)"
+msgstr "... and %(count)s other error(s)"
+
+#: app/routes/admin/users.py:510
+msgid "Vous ne pouvez pas modifier votre propre compte ici"
+msgstr "You cannot edit your own account here"
+
+#: app/routes/admin/users.py:535
+#, python-format
+msgid "Email de %(username)s verifie manuellement."
+msgstr "Email from %(username)s checked manually."
+
+#: app/routes/admin/users.py:541
+#, python-format
+msgid "Email de verification renvoye a %(email)s."
+msgstr "Verification email returns %(email)s."
+
+#: app/routes/admin/users.py:583
+#, python-format
+msgid "Utilisateur \"%(username)s\" mis a jour avec succes"
+msgstr "User \"%(username)s\" successfully updated"
+
+#: app/routes/admin/users.py:603
+msgid "Vous ne pouvez pas supprimer votre propre compte"
+msgstr "You cannot delete your own account"
+
+#: app/routes/admin/users.py:615
+#, python-format
+msgid "Utilisateur \"%(username)s\" supprime avec succes"
+msgstr "User \"%(username)s\" successfully deleted"
+
+#: app/routes/admin/users.py:627 app/routes/admin/users.py:671
+#: app/templates/admin/users.html:296 app/templates/admin/users.html:323
+msgid "Aucun utilisateur selectionne"
+msgstr "No user selected"
+
+#: app/routes/admin/users.py:654
+#, python-format
+msgid "%(count)s utilisateur(s) supprime(s)"
+msgstr "%(count)s user(s) deleted(s)"
+
+#: app/routes/admin/users.py:656
+#, python-format
+msgid "%(count)s utilisateur(s) ignore(s) (pas de permission)"
+msgstr "%(count)s user(s) ignored (no permission)"
+
+#: app/routes/admin/users.py:675
+msgid "Aucun groupe selectionne"
+msgstr "No group selected"
+
+#: app/routes/admin/users.py:680
+msgid "Groupe non trouve"
+msgstr "Group not found"
+
+#: app/routes/admin/users.py:732
+#, python-format
+msgid "%(count)s utilisateur(s) %(action)s groupe \"%(group)s\""
+msgstr "%(count)s user(s) %(action)s group \"%(group)s"
+
 #: app/templates/admin/preview_quiz.html:21 app/templates/base.html:36
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -962,6 +1010,7 @@ msgstr "Dashboard"
 msgid "Evaluations"
 msgstr "Evaluations"
 
+#: app/templates/admin/dashboard.html:52
 #: app/templates/admin/group_detail.html:215
 #: app/templates/admin/quizzes.html:4 app/templates/admin/quizzes.html:8
 #: app/templates/admin/tenants/list.html:39
@@ -976,7 +1025,7 @@ msgid "Quiz"
 msgstr "Quiz"
 
 #: app/templates/admin/dashboard.html:29
-#: app/templates/admin/dashboard.html:172
+#: app/templates/admin/dashboard.html:191
 #: app/templates/admin/group_detail.html:252
 #: app/templates/admin/interviews/list.html:4
 #: app/templates/admin/interviews/list.html:8
@@ -1002,7 +1051,7 @@ msgid "Etablissement"
 msgstr "Organization"
 
 #: app/templates/admin/dashboard.html:33
-#: app/templates/admin/dashboard.html:180
+#: app/templates/admin/dashboard.html:199
 #: app/templates/admin/interviews/wizard.html:277
 #: app/templates/admin/tenants/list.html:40
 #: app/templates/admin/tenants/view.html:35
@@ -1103,9 +1152,67 @@ msgstr "towards"
 msgid "Plateforme d evaluation intelligente avec correction IA"
 msgstr "Intelligent assessment platform with AI correction"
 
+#: app/templates/admin/_grading_options.html:10
+msgid "Correction"
+msgstr "Grading"
+
+#: app/templates/admin/_grading_options.html:13
+#: app/templates/admin/generate_quiz.html:44
+msgid "Questions ouvertes"
+msgstr "Open questions"
+
+#: app/templates/admin/_grading_options.html:17
+msgid "Correction IA directe : la note de l'IA est publiee tout de suite"
+msgstr "Direct AI grading: the AI grade is published right away"
+
+#: app/templates/admin/_grading_options.html:21
+msgid ""
+"Revue par un correcteur : l'IA propose une note, provisoire pour l'apprenant"
+" jusqu'a validation"
+msgstr ""
+"Reviewed by a grader: the AI suggests a grade, provisional for the learner "
+"until validated"
+
+#: app/templates/admin/_grading_options.html:24
+msgid ""
+"Dans les deux cas, une copie que l'IA n'a pas pu corriger (quota, erreur) "
+"attend un correcteur."
+msgstr ""
+"Either way, a paper the AI could not grade (quota, error) waits for a "
+"grader."
+
+#: app/templates/admin/_grading_options.html:28
+msgid "Correcteurs"
+msgstr "Graders"
+
+#: app/templates/admin/_grading_options.html:39
+msgid "Aucun intervenant disponible."
+msgstr "No instructor available."
+
+#: app/templates/admin/_grading_options.html:41
+msgid ""
+"En plus de l'auteur du quiz. Les correcteurs voient toutes les copies de ce "
+"quiz, les notent, les valident, traitent les contestations et recoivent un "
+"recapitulatif par email."
+msgstr ""
+"In addition to the quiz author. Graders see every paper of this quiz, grade "
+"and validate them, handle contests and receive an email digest."
+
+#: app/templates/admin/_grading_options.html:45
+msgid "Delai de contestation (jours)"
+msgstr "Contest period (days)"
+
+#: app/templates/admin/_grading_options.html:47
+msgid ""
+"A partir de la publication de la note, l'apprenant peut contester chaque "
+"question une fois. 0 = pas de contestation."
+msgstr ""
+"Once the grade is published, the learner may contest each question once. 0 ="
+" no contest."
+
 #: app/templates/admin/_list_filters.html:28
 #: app/templates/admin/_list_filters.html:36
-#: app/templates/admin/quiz_results.html:20 app/templates/quiz/list.html:56
+#: app/templates/admin/quiz_results.html:46 app/templates/quiz/list.html:56
 #: app/templates/quiz/list.html:64
 msgid "Tous les groupes"
 msgstr "All groups"
@@ -1196,7 +1303,7 @@ msgid "Groupes et roles"
 msgstr "Groups and roles"
 
 #: app/templates/admin/_user_roles.html:48
-#: app/templates/admin/quiz_results.html:70
+#: app/templates/admin/quiz_results.html:96
 #: app/templates/admin/user_detail.html:186 app/templates/admin/users.html:114
 #: app/templates/quiz/list.html:90
 msgid "Groupe"
@@ -1211,7 +1318,7 @@ msgstr "Role in the group"
 #: app/templates/admin/class_analysis.html:399
 #: app/templates/admin/interviews/session.html:133
 #: app/templates/admin/interviews/view.html:180
-#: app/templates/admin/quiz_results.html:69
+#: app/templates/admin/quiz_results.html:95
 #: app/templates/admin/user_detail.html:22
 #: app/templates/admin/user_detail.html:202 app/templates/admin/users.html:17
 #: app/templates/admin/users.html:28 app/templates/admin/users.html:176
@@ -1358,7 +1465,7 @@ msgstr "Average score"
 
 #: app/templates/admin/class_analysis.html:362
 #: app/templates/admin/class_analysis.html:402
-#: app/templates/admin/quiz_results.html:75
+#: app/templates/admin/quiz_results.html:101
 #: app/templates/admin/response_analysis.html:348
 msgid "Focus"
 msgstr "Focus"
@@ -1368,10 +1475,10 @@ msgid "Comparaison des apprenants"
 msgstr "Learner comparison"
 
 #: app/templates/admin/class_analysis.html:400
-#: app/templates/admin/edit_response.html:88
+#: app/templates/admin/edit_response.html:137
 #: app/templates/admin/interviews/session.html:98
 #: app/templates/admin/interviews/view.html:184
-#: app/templates/admin/quiz_results.html:71
+#: app/templates/admin/quiz_results.html:97
 #: app/templates/admin/response_analysis.html:247
 #: app/templates/admin/response_analysis.html:349
 #: app/templates/admin/user_detail.html:88
@@ -1408,8 +1515,8 @@ msgid "Analyse en cours..."
 msgstr "Analysis in progress..."
 
 #: app/templates/admin/class_analysis.html:472
-#: app/templates/admin/create_quiz.html:316
-#: app/templates/admin/edit_quiz.html:324
+#: app/templates/admin/create_quiz.html:319
+#: app/templates/admin/edit_quiz.html:327
 #: app/templates/admin/interviews/wizard.html:863
 #: app/templates/admin/response_analysis.html:486
 #: app/templates/admin/settings.html:460 app/templates/admin/settings.html:492
@@ -1424,8 +1531,8 @@ msgid "Erreur inconnue"
 msgstr "Unknown error"
 
 #: app/templates/admin/class_analysis.html:477
-#: app/templates/admin/create_quiz.html:320
-#: app/templates/admin/edit_quiz.html:328
+#: app/templates/admin/create_quiz.html:323
+#: app/templates/admin/edit_quiz.html:331
 #: app/templates/admin/response_analysis.html:491
 #: app/templates/interview/chat.html:269
 msgid "Erreur de connexion"
@@ -1498,12 +1605,12 @@ msgid "Creer le groupe"
 msgstr "Create the group"
 
 #: app/templates/admin/create_group.html:44
-#: app/templates/admin/create_quiz.html:251
+#: app/templates/admin/create_quiz.html:254
 #: app/templates/admin/create_user.html:49
 #: app/templates/admin/edit_group.html:48
 #: app/templates/admin/edit_page.html:138
-#: app/templates/admin/edit_quiz.html:254
-#: app/templates/admin/edit_response.html:115
+#: app/templates/admin/edit_quiz.html:257
+#: app/templates/admin/edit_response.html:173
 #: app/templates/admin/email_group.html:59
 #: app/templates/admin/generate_quiz.html:86
 #: app/templates/admin/generate_quiz_preview.html:132
@@ -1515,76 +1622,76 @@ msgstr "Create the group"
 msgid "Annuler"
 msgstr "Cancel"
 
-#: app/templates/admin/create_quiz.html:3
+#: app/templates/admin/create_quiz.html:4
 #: app/templates/admin/group_detail.html:249
 msgid "Creer un quiz"
 msgstr "Create a quiz"
 
-#: app/templates/admin/create_quiz.html:7
+#: app/templates/admin/create_quiz.html:8
 msgid "Creer un nouveau quiz"
 msgstr "Create a new quiz"
 
-#: app/templates/admin/create_quiz.html:10
+#: app/templates/admin/create_quiz.html:11
 msgid "Format Markdown"
 msgstr "Markdown format"
 
-#: app/templates/admin/create_quiz.html:12
+#: app/templates/admin/create_quiz.html:13
 msgid "Exemple de format :"
 msgstr "Example format:"
 
-#: app/templates/admin/create_quiz.html:31
-#: app/templates/admin/edit_quiz.html:25
+#: app/templates/admin/create_quiz.html:32
+#: app/templates/admin/edit_quiz.html:26
 msgid "Images"
 msgstr "Images"
 
-#: app/templates/admin/create_quiz.html:34
-#: app/templates/admin/edit_quiz.html:28
+#: app/templates/admin/create_quiz.html:35
+#: app/templates/admin/edit_quiz.html:29
 msgid ""
 "Uploadez des images puis inserez le code Markdown genere dans votre quiz."
 msgstr ""
 "Upload images and then insert the generated Markdown code into your quiz."
 
-#: app/templates/admin/create_quiz.html:35
-#: app/templates/admin/edit_quiz.html:29
+#: app/templates/admin/create_quiz.html:36
+#: app/templates/admin/edit_quiz.html:30
 msgid "Syntaxe:"
 msgstr "Syntax:"
 
-#: app/templates/admin/create_quiz.html:40
-#: app/templates/admin/edit_quiz.html:34
+#: app/templates/admin/create_quiz.html:41
+#: app/templates/admin/edit_quiz.html:35
 msgid "Ajouter une image"
 msgstr "Add an image"
 
-#: app/templates/admin/create_quiz.html:49
-#: app/templates/admin/edit_quiz.html:43
+#: app/templates/admin/create_quiz.html:50
+#: app/templates/admin/edit_quiz.html:44
 msgid "Contenu Markdown"
 msgstr "Markdown content"
 
-#: app/templates/admin/create_quiz.html:64
-#: app/templates/admin/edit_quiz.html:48
+#: app/templates/admin/create_quiz.html:65
+#: app/templates/admin/edit_quiz.html:49
 #: app/templates/admin/generate_quiz_preview.html:21
 msgid "Limite de temps (optionnel)"
 msgstr "Time limit (optional)"
 
-#: app/templates/admin/create_quiz.html:69
-#: app/templates/admin/edit_quiz.html:53
+#: app/templates/admin/create_quiz.html:70
+#: app/templates/admin/edit_quiz.html:54
 #: app/templates/admin/generate_quiz_preview.html:25
 msgid "minutes (laisser vide pour illimite)"
 msgstr "minutes (leave blank for unlimited)"
 
-#: app/templates/admin/create_quiz.html:74
-#: app/templates/admin/edit_quiz.html:58
+#: app/templates/admin/create_quiz.html:75
+#: app/templates/admin/edit_quiz.html:59
 #: app/templates/admin/generate_quiz_preview.html:30
 msgid "Lien personnalise (optionnel)"
 msgstr "Custom link (optional)"
 
-#: app/templates/admin/create_quiz.html:78
-#: app/templates/admin/edit_quiz.html:63
+#: app/templates/admin/create_quiz.html:79
+#: app/templates/admin/edit_quiz.html:64
 #: app/templates/admin/generate_quiz_preview.html:34
 #: app/templates/admin/interviews/wizard.html:259
 msgid "Lettres minuscules, chiffres et tirets uniquement"
 msgstr "Lowercase letters, numbers and dashes only"
 
-#: app/templates/admin/create_quiz.html:81
+#: app/templates/admin/create_quiz.html:82
 #: app/templates/admin/generate_quiz_preview.html:37
 msgid ""
 "Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID "
@@ -1593,113 +1700,113 @@ msgstr ""
 "Lowercase letters, numbers, and dashes. If empty, the quiz will use its "
 "numeric ID."
 
-#: app/templates/admin/create_quiz.html:86
-#: app/templates/admin/edit_quiz.html:69
+#: app/templates/admin/create_quiz.html:87
+#: app/templates/admin/edit_quiz.html:70
 #: app/templates/admin/generate_quiz_preview.html:42
 msgid "Periode de disponibilite (optionnel)"
 msgstr "Availability period (optional)"
 
-#: app/templates/admin/create_quiz.html:89
-#: app/templates/admin/edit_quiz.html:72
+#: app/templates/admin/create_quiz.html:90
+#: app/templates/admin/edit_quiz.html:73
 #: app/templates/admin/generate_quiz_preview.html:45
 #: app/templates/admin/interviews/view.html:106
 #: app/templates/admin/quizzes.html:46
 msgid "Du"
 msgstr "Of"
 
-#: app/templates/admin/create_quiz.html:94
-#: app/templates/admin/edit_quiz.html:78
+#: app/templates/admin/create_quiz.html:95
+#: app/templates/admin/edit_quiz.html:79
 #: app/templates/admin/generate_quiz_preview.html:50
 #: app/templates/admin/interviews/view.html:107
 #: app/templates/admin/quizzes.html:49
 msgid "au"
 msgstr "At"
 
-#: app/templates/admin/create_quiz.html:100
-#: app/templates/admin/edit_quiz.html:84
+#: app/templates/admin/create_quiz.html:101
+#: app/templates/admin/edit_quiz.html:85
 #: app/templates/admin/generate_quiz_preview.html:56
 msgid "Laisser vide pour un quiz toujours disponible"
 msgstr "Leave blank for a quiz that's always available"
 
-#: app/templates/admin/create_quiz.html:105
-#: app/templates/admin/edit_quiz.html:88
+#: app/templates/admin/create_quiz.html:106
+#: app/templates/admin/edit_quiz.html:89
 #: app/templates/admin/generate_quiz_preview.html:61
 msgid "Groupes autorises (optionnel)"
 msgstr "Allowed groups (optional)"
 
-#: app/templates/admin/create_quiz.html:127
-#: app/templates/admin/create_quiz.html:269
-#: app/templates/admin/edit_quiz.html:111
-#: app/templates/admin/edit_quiz.html:279
+#: app/templates/admin/create_quiz.html:128
+#: app/templates/admin/create_quiz.html:272
+#: app/templates/admin/edit_quiz.html:112
+#: app/templates/admin/edit_quiz.html:282
 msgid "Tout selectionner"
 msgstr "Select all"
 
-#: app/templates/admin/create_quiz.html:135
-#: app/templates/admin/create_quiz.html:153
-#: app/templates/admin/create_quiz.html:166
-#: app/templates/admin/dashboard.html:113
+#: app/templates/admin/create_quiz.html:136
+#: app/templates/admin/create_quiz.html:154
+#: app/templates/admin/create_quiz.html:167
+#: app/templates/admin/dashboard.html:132
 #: app/templates/admin/edit_group.html:40
-#: app/templates/admin/edit_quiz.html:119
-#: app/templates/admin/edit_quiz.html:137
-#: app/templates/admin/edit_quiz.html:150
+#: app/templates/admin/edit_quiz.html:120
+#: app/templates/admin/edit_quiz.html:138
+#: app/templates/admin/edit_quiz.html:151
 msgid "membre(s)"
 msgstr "member(s)"
 
-#: app/templates/admin/create_quiz.html:146
-#: app/templates/admin/edit_quiz.html:130 app/templates/admin/groups.html:57
+#: app/templates/admin/create_quiz.html:147
+#: app/templates/admin/edit_quiz.html:131 app/templates/admin/groups.html:57
 #: app/templates/admin/user_detail.html:200
 msgid "Sans etablissement"
 msgstr "No organization"
 
-#: app/templates/admin/create_quiz.html:172
-#: app/templates/admin/edit_quiz.html:155
+#: app/templates/admin/create_quiz.html:173
+#: app/templates/admin/edit_quiz.html:156
 #: app/templates/admin/generate_quiz_preview.html:71
 msgid ""
 "Si aucun groupe n'est selectionne, le quiz ne sera visible par aucun "
 "apprenant"
 msgstr "If no group is selected, no learner will see the quiz"
 
-#: app/templates/admin/create_quiz.html:177
-#: app/templates/admin/edit_quiz.html:159
+#: app/templates/admin/create_quiz.html:178
+#: app/templates/admin/edit_quiz.html:160
 #: app/templates/admin/generate_quiz_preview.html:76
 msgid "Severite de la correction IA"
 msgstr "Severity of AI correction"
 
-#: app/templates/admin/create_quiz.html:181
-#: app/templates/admin/edit_quiz.html:163
+#: app/templates/admin/create_quiz.html:182
+#: app/templates/admin/edit_quiz.html:164
 #: app/templates/admin/generate_quiz_preview.html:80
 msgid "Gentil"
 msgstr "Kind"
 
-#: app/templates/admin/create_quiz.html:185
-#: app/templates/admin/edit_quiz.html:167
+#: app/templates/admin/create_quiz.html:186
+#: app/templates/admin/edit_quiz.html:168
 #: app/templates/admin/generate_quiz.html:60
 #: app/templates/admin/generate_quiz_preview.html:84
 msgid "Modere"
 msgstr "Moderate"
 
-#: app/templates/admin/create_quiz.html:189
-#: app/templates/admin/edit_quiz.html:171
+#: app/templates/admin/create_quiz.html:190
+#: app/templates/admin/edit_quiz.html:172
 #: app/templates/admin/generate_quiz_preview.html:88
 msgid "Severe"
 msgstr "Severe"
 
-#: app/templates/admin/create_quiz.html:193
-#: app/templates/admin/edit_quiz.html:174
+#: app/templates/admin/create_quiz.html:194
+#: app/templates/admin/edit_quiz.html:175
 #: app/templates/admin/generate_quiz_preview.html:92
 msgid ""
 "Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision"
 msgstr ""
 "Gentle = values ​​effort, Moderate = balance, Severe = demands precision"
 
-#: app/templates/admin/create_quiz.html:198
-#: app/templates/admin/edit_quiz.html:178
+#: app/templates/admin/create_quiz.html:199
+#: app/templates/admin/edit_quiz.html:179
 #: app/templates/admin/generate_quiz_preview.html:97
 msgid "Humeur du correcteur (optionnel, plusieurs choix possibles)"
 msgstr "Proofreader's mood (optional, multiple choices possible)"
 
-#: app/templates/admin/create_quiz.html:208
-#: app/templates/admin/edit_quiz.html:188
+#: app/templates/admin/create_quiz.html:209
+#: app/templates/admin/edit_quiz.html:189
 #: app/templates/admin/generate_quiz_preview.html:107
 msgid ""
 "Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre."
@@ -1707,48 +1814,48 @@ msgstr ""
 "Defines the tone of the feedback. If no choice is made, the corrector will "
 "be neutral."
 
-#: app/templates/admin/create_quiz.html:212
-#: app/templates/admin/edit_quiz.html:191
+#: app/templates/admin/create_quiz.html:215
+#: app/templates/admin/edit_quiz.html:194
 msgid "Options d'affichage"
 msgstr "Display options"
 
-#: app/templates/admin/create_quiz.html:217
-#: app/templates/admin/edit_quiz.html:196
+#: app/templates/admin/create_quiz.html:220
+#: app/templates/admin/edit_quiz.html:199
 #: app/templates/admin/generate_quiz_preview.html:114
 msgid "Ordre aleatoire des questions"
 msgstr "Random order of questions"
 
-#: app/templates/admin/create_quiz.html:220
-#: app/templates/admin/edit_quiz.html:198
+#: app/templates/admin/create_quiz.html:223
+#: app/templates/admin/edit_quiz.html:201
 #: app/templates/admin/generate_quiz_preview.html:117
 msgid ""
 "Si active, les questions seront affichees dans un ordre different pour "
 "chaque apprenant"
 msgstr "If enabled, questions are shown in a different order for each learner"
 
-#: app/templates/admin/create_quiz.html:227
-#: app/templates/admin/edit_quiz.html:204
+#: app/templates/admin/create_quiz.html:230
+#: app/templates/admin/edit_quiz.html:207
 msgid "Ordre aleatoire des reponses QCM"
 msgstr "Random order of multiple-choice answers"
 
-#: app/templates/admin/create_quiz.html:230
-#: app/templates/admin/edit_quiz.html:206
+#: app/templates/admin/create_quiz.html:233
+#: app/templates/admin/edit_quiz.html:209
 msgid ""
 "Si active, les options de chaque QCM seront melangees pour chaque apprenant"
 msgstr "If enabled, MCQ options are shuffled for each learner"
 
-#: app/templates/admin/create_quiz.html:234
-#: app/templates/admin/edit_quiz.html:209
+#: app/templates/admin/create_quiz.html:237
+#: app/templates/admin/edit_quiz.html:212
 msgid "Mode Examen (Anti-triche)"
 msgstr "Exam Mode (Anti-cheat)"
 
-#: app/templates/admin/create_quiz.html:239
-#: app/templates/admin/edit_quiz.html:214
+#: app/templates/admin/create_quiz.html:242
+#: app/templates/admin/edit_quiz.html:217
 msgid "Une question par page"
 msgstr "One question per page"
 
-#: app/templates/admin/create_quiz.html:242
-#: app/templates/admin/edit_quiz.html:217
+#: app/templates/admin/create_quiz.html:245
+#: app/templates/admin/edit_quiz.html:220
 msgid ""
 "Active le mode examen : navigation question par question, chronometrage "
 "individuel, detection des changements de fenetre. Ideal pour les evaluations"
@@ -1757,23 +1864,23 @@ msgstr ""
 "Activates exam mode: question-by-question navigation, individual time "
 "tracking, window change detection. Ideal for proctored assessments."
 
-#: app/templates/admin/create_quiz.html:248
+#: app/templates/admin/create_quiz.html:251
 #: app/templates/admin/generate_quiz_preview.html:123
 msgid "Creer le quiz"
 msgstr "Create the quiz"
 
-#: app/templates/admin/create_quiz.html:269
-#: app/templates/admin/edit_quiz.html:279
+#: app/templates/admin/create_quiz.html:272
+#: app/templates/admin/edit_quiz.html:282
 msgid "Tout deselectionner"
 msgstr "Deselect all"
 
-#: app/templates/admin/create_quiz.html:280
-#: app/templates/admin/edit_quiz.html:290
+#: app/templates/admin/create_quiz.html:283
+#: app/templates/admin/edit_quiz.html:293
 msgid "Upload en cours..."
 msgstr "Uploading..."
 
-#: app/templates/admin/create_quiz.html:296
-#: app/templates/admin/edit_quiz.html:305
+#: app/templates/admin/create_quiz.html:299
+#: app/templates/admin/edit_quiz.html:308
 msgid "Image ajoutee ! Code:"
 msgstr "Image added! Code:"
 
@@ -1857,32 +1964,37 @@ msgstr "Quizzes created"
 msgid "Réponses soumises"
 msgstr "Submitted responses"
 
-#: app/templates/admin/dashboard.html:48
-msgid ""
-"copie(s) a corriger : le quota mensuel de corrections IA a ete atteint. "
-"Ouvrez les resultats du quiz pour les noter."
-msgstr ""
-"paper(s) to grade: the monthly AI grading quota was reached. Open the quiz "
-"results to grade them."
+#: app/templates/admin/dashboard.html:47
+msgid "Corrections a traiter"
+msgstr "Grading to do"
 
-#: app/templates/admin/dashboard.html:55
+#: app/templates/admin/dashboard.html:53
+#: app/templates/admin/quiz_results.html:40
+msgid "En attente d'un correcteur"
+msgstr "Waiting for a grader"
+
+#: app/templates/admin/dashboard.html:54
+msgid "Contestations"
+msgstr "Contests"
+
+#: app/templates/admin/dashboard.html:74
 msgid "correction(s) en attente ou en cours"
 msgstr "correction(s) pending or in progress"
 
-#: app/templates/admin/dashboard.html:62
+#: app/templates/admin/dashboard.html:81
 msgid "Entretiens recents"
 msgstr "Recent interviews"
 
-#: app/templates/admin/dashboard.html:63
-#: app/templates/admin/dashboard.html:100
+#: app/templates/admin/dashboard.html:82
+#: app/templates/admin/dashboard.html:119
 msgid "Voir tout"
 msgstr "See all"
 
-#: app/templates/admin/dashboard.html:72
+#: app/templates/admin/dashboard.html:91
 msgid "a passe"
 msgstr "a pass"
 
-#: app/templates/admin/dashboard.html:84
+#: app/templates/admin/dashboard.html:103
 #: app/templates/admin/interviews/session.html:113
 #: app/templates/admin/interviews/view.html:219
 #: app/templates/admin/user_detail.html:157
@@ -1890,7 +2002,7 @@ msgstr "a pass"
 msgid "En cours"
 msgstr "In progress"
 
-#: app/templates/admin/dashboard.html:86
+#: app/templates/admin/dashboard.html:105
 #: app/templates/admin/interviews/session.html:115
 #: app/templates/admin/interviews/view.html:221
 #: app/templates/admin/user_detail.html:159
@@ -1898,41 +2010,41 @@ msgstr "In progress"
 msgid "Evaluation"
 msgstr "Assessment"
 
-#: app/templates/admin/dashboard.html:99
+#: app/templates/admin/dashboard.html:118
 msgid "Mes Groupes"
 msgstr "My Groups"
 
-#: app/templates/admin/dashboard.html:108
+#: app/templates/admin/dashboard.html:127
 #: app/templates/admin/group_detail.html:36
 msgid "Copier le code"
 msgstr "Copy the code"
 
-#: app/templates/admin/dashboard.html:124
+#: app/templates/admin/dashboard.html:143
 #: app/templates/quiz/dashboard.html:112
 msgid "Activite recente"
 msgstr "Recent activity"
 
-#: app/templates/admin/dashboard.html:133
+#: app/templates/admin/dashboard.html:152
 msgid "a soumis"
 msgstr "submitted"
 
-#: app/templates/admin/dashboard.html:154
+#: app/templates/admin/dashboard.html:173
 msgid "Actions rapides"
 msgstr "Quick actions"
 
-#: app/templates/admin/dashboard.html:160
+#: app/templates/admin/dashboard.html:179
 msgid "Voir les Quiz"
 msgstr "View the Quizzes"
 
-#: app/templates/admin/dashboard.html:164
+#: app/templates/admin/dashboard.html:183
 msgid "Nouveau Quiz"
 msgstr "New Quiz"
 
-#: app/templates/admin/dashboard.html:168
+#: app/templates/admin/dashboard.html:187
 msgid "Generator IA"
 msgstr "AI Generator"
 
-#: app/templates/admin/dashboard.html:176
+#: app/templates/admin/dashboard.html:195
 msgid "Nouvel Entretien"
 msgstr "New Interview"
 
@@ -1954,8 +2066,8 @@ msgstr "Currently :"
 
 #: app/templates/admin/edit_group.html:45
 #: app/templates/admin/edit_page.html:130
-#: app/templates/admin/edit_quiz.html:251
-#: app/templates/admin/edit_response.html:112
+#: app/templates/admin/edit_quiz.html:254
+#: app/templates/admin/edit_response.html:169
 #: app/templates/admin/interviews/session.html:270
 #: app/templates/admin/interviews/wizard.html:568
 #: app/templates/admin/tenants/edit.html:167
@@ -2076,59 +2188,59 @@ msgstr "Create the page"
 msgid "Apercu"
 msgstr "Preview"
 
-#: app/templates/admin/edit_quiz.html:7
+#: app/templates/admin/edit_quiz.html:8
 #: app/templates/admin/preview_quiz.html:125
 msgid "Modifier le quiz"
 msgstr "Edit the quiz"
 
-#: app/templates/admin/edit_quiz.html:11
+#: app/templates/admin/edit_quiz.html:12
 msgid "Lien de partage"
 msgstr "Sharing link"
 
-#: app/templates/admin/edit_quiz.html:14
+#: app/templates/admin/edit_quiz.html:15
 msgid "Copier dans le presse-papier"
 msgstr "Copy to clipboard"
 
-#: app/templates/admin/edit_quiz.html:15
+#: app/templates/admin/edit_quiz.html:16
 #: app/templates/admin/generate_quiz_preview.html:129
 msgid "Copier"
 msgstr "Copy"
 
-#: app/templates/admin/edit_quiz.html:17
+#: app/templates/admin/edit_quiz.html:18
 msgid "Voir le quiz"
 msgstr "See the quiz"
 
-#: app/templates/admin/edit_quiz.html:18
+#: app/templates/admin/edit_quiz.html:19
 msgid "Preview"
 msgstr "Preview"
 
-#: app/templates/admin/edit_quiz.html:65
+#: app/templates/admin/edit_quiz.html:66
 msgid ""
 "Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID"
 msgstr ""
 "Lowercase letters, numbers, and dashes. If empty, the quiz uses its ID."
 
-#: app/templates/admin/edit_quiz.html:222
+#: app/templates/admin/edit_quiz.html:225
 msgid "Administration"
 msgstr "Administration"
 
-#: app/templates/admin/edit_quiz.html:225
+#: app/templates/admin/edit_quiz.html:228
 msgid "Auteur du quiz"
 msgstr "Author of the quiz"
 
-#: app/templates/admin/edit_quiz.html:229
+#: app/templates/admin/edit_quiz.html:232
 msgid "Selectionner un auteur"
 msgstr "Select an author"
 
-#: app/templates/admin/edit_quiz.html:234
+#: app/templates/admin/edit_quiz.html:237
 msgid "Rechercher un utilisateur..."
 msgstr "Search for a user..."
 
-#: app/templates/admin/edit_quiz.html:245
+#: app/templates/admin/edit_quiz.html:248
 msgid "L'auteur affiche sur le dashboard et dans les stats"
 msgstr "The author displays on the dashboard and in the stats"
 
-#: app/templates/admin/edit_quiz.html:266
+#: app/templates/admin/edit_quiz.html:269
 msgid "Lien copie !"
 msgstr "Copy link!"
 
@@ -2159,58 +2271,141 @@ msgstr "Current score:"
 msgid "Soumis le:"
 msgstr "Submitted on:"
 
-#: app/templates/admin/edit_response.html:29
+#: app/templates/admin/edit_response.html:30
+msgid "Copie a corriger."
+msgstr "Paper to grade."
+
+#: app/templates/admin/edit_response.html:30
+msgid ""
+"L'IA n'a pas pu corriger certaines reponses (quota atteint ou erreur) : "
+"elles valent 0 pour l'instant. Notez-les, puis validez la copie."
+msgstr ""
+"The AI could not grade some answers (quota reached or error): they are worth"
+" 0 for now. Grade them, then validate the paper."
+
+#: app/templates/admin/edit_response.html:32
+msgid "Copie a valider."
+msgstr "Paper to validate."
+
+#: app/templates/admin/edit_response.html:32
+msgid ""
+"L'IA a propose une note, que l'apprenant voit comme provisoire. Verifiez, "
+"ajustez si besoin, puis validez pour la publier."
+msgstr ""
+"The AI suggested a grade, which the learner sees as provisional. Check it, "
+"adjust if needed, then validate to publish it."
+
+#: app/templates/admin/edit_response.html:37
+#, python-format
+msgid "Note publiee le %(date)s"
+msgstr "Grade published on %(date)s"
+
+#: app/templates/admin/edit_response.html:37
+#, python-format
+msgid "validee par %(name)s"
+msgstr "validated by %(name)s"
+
+#: app/templates/admin/edit_response.html:39
+#, python-format
+msgid "Contestation possible jusqu'au %(date)s."
+msgstr "Can be contested until %(date)s."
+
+#: app/templates/admin/edit_response.html:45
 msgid "Reponses et scores"
 msgstr "Responses and scores"
 
-#: app/templates/admin/edit_response.html:37
+#: app/templates/admin/edit_response.html:53
 msgid "OUVERTE"
 msgstr "OPEN"
 
-#: app/templates/admin/edit_response.html:39
+#: app/templates/admin/edit_response.html:55
 msgid "pt"
 msgstr "pt"
 
-#: app/templates/admin/edit_response.html:47
+#: app/templates/admin/edit_response.html:63
 msgid "Options selectionnees:"
 msgstr "Selected options:"
 
-#: app/templates/admin/edit_response.html:57
+#: app/templates/admin/edit_response.html:73
 msgid "Aucune selection"
 msgstr "No selection"
 
-#: app/templates/admin/edit_response.html:60
+#: app/templates/admin/edit_response.html:76
 msgid "Reponses correctes:"
 msgstr "Correct answers:"
 
-#: app/templates/admin/edit_response.html:68
+#: app/templates/admin/edit_response.html:84
 msgid "Reponse de l'apprenant :"
 msgstr "Learner's answer:"
 
-#: app/templates/admin/edit_response.html:69
+#: app/templates/admin/edit_response.html:85
 msgid "(Aucune reponse)"
 msgstr "(No response)"
 
-#: app/templates/admin/edit_response.html:73
+#: app/templates/admin/edit_response.html:89
 msgid "Reponse attendue:"
 msgstr "Expected answer:"
 
-#: app/templates/admin/edit_response.html:79
-msgid "Feedback IA (modifiable)"
-msgstr "AI feedback (editable)"
+#: app/templates/admin/edit_response.html:94
+msgid "Retour a l'apprenant (modifiable)"
+msgstr "Feedback to the learner (editable)"
 
-#: app/templates/admin/edit_response.html:102
-#: app/templates/quiz/result.html:52
+#: app/templates/admin/edit_response.html:104
+#: app/templates/admin/quiz_results.html:136
+msgid "Contestation"
+msgstr "Contest"
+
+#: app/templates/admin/edit_response.html:105
+msgid "A traiter"
+msgstr "To handle"
+
+#: app/templates/admin/edit_response.html:106
+#: app/templates/quiz/result.html:143
+msgid "Acceptee"
+msgstr "Accepted"
+
+#: app/templates/admin/edit_response.html:107
+#: app/templates/quiz/result.html:144
+msgid "Refusee"
+msgstr "Rejected"
+
+#: app/templates/admin/edit_response.html:115
+msgid "Accepter : la note devient celle du champ Score"
+msgstr "Accept: the grade becomes the one in the Score field"
+
+#: app/templates/admin/edit_response.html:119
+msgid "Refuser : la note est maintenue"
+msgstr "Reject: the grade is kept"
+
+#: app/templates/admin/edit_response.html:123
+msgid "Reponse a l'apprenant (recommande)"
+msgstr "Reply to the learner (recommended)"
+
+#: app/templates/admin/edit_response.html:126
+#, python-format
+msgid "Note : %(before)s puis %(after)s"
+msgstr "Grade: %(before)s then %(after)s"
+
+#: app/templates/admin/edit_response.html:151
+#: app/templates/quiz/result.html:63
 msgid "Commentaire du correcteur"
 msgstr "Editor's comment"
 
-#: app/templates/admin/edit_response.html:105
+#: app/templates/admin/edit_response.html:154
 msgid "Ajoutez un commentaire pour l'apprenant (optionnel)..."
 msgstr "Add a comment for the learner (optional)..."
 
-#: app/templates/admin/edit_response.html:106
+#: app/templates/admin/edit_response.html:155
 msgid "Ce commentaire sera visible par l'apprenant sur sa copie."
 msgstr "This comment will be visible to the learner on their paper."
+
+#: app/templates/admin/edit_response.html:162
+msgid "Enregistrer et valider"
+msgstr "Save and validate"
+
+#: app/templates/admin/edit_response.html:165
+msgid "Enregistrer sans valider"
+msgstr "Save without validating"
 
 #: app/templates/admin/email_group.html:3
 msgid "Email au groupe"
@@ -2337,10 +2532,6 @@ msgstr "Multiple Choice Questions"
 #: app/templates/admin/generate_quiz.html:40
 msgid "0 a 20 questions"
 msgstr "0 to 20 questions"
-
-#: app/templates/admin/generate_quiz.html:44
-msgid "Questions ouvertes"
-msgstr "Open questions"
 
 #: app/templates/admin/generate_quiz.html:47
 msgid "0 a 10 questions"
@@ -2596,7 +2787,7 @@ msgstr "Complete quizzes"
 #: app/templates/admin/group_detail.html:259
 #: app/templates/admin/groups.html:40
 #: app/templates/admin/interviews/view.html:186
-#: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:77
+#: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:103
 #: app/templates/admin/tenants/view.html:94
 #: app/templates/admin/tenants/view.html:149
 #: app/templates/admin/tenants/view.html:199
@@ -2790,7 +2981,7 @@ msgstr "this group"
 #: app/templates/admin/groups.html:88
 #: app/templates/admin/interviews/list.html:99
 #: app/templates/admin/interviews/view.html:234
-#: app/templates/admin/pages.html:72 app/templates/admin/quiz_results.html:171
+#: app/templates/admin/pages.html:72 app/templates/admin/quiz_results.html:214
 #: app/templates/admin/quizzes.html:98
 #: app/templates/admin/tenants/delete.html:3
 #: app/templates/admin/tenants/list.html:51
@@ -2815,7 +3006,7 @@ msgstr "Create your first group"
 
 #: app/templates/admin/groups.html:114
 #: app/templates/admin/preview_quiz.html:131
-#: app/templates/admin/quiz_results.html:190
+#: app/templates/admin/quiz_results.html:233
 #: app/templates/admin/tenants/list.html:69
 #: app/templates/admin/tenants/view.html:337
 msgid "Retour au dashboard"
@@ -3018,7 +3209,7 @@ msgstr "Time limit:"
 #: app/templates/admin/preview_quiz.html:40
 #: app/templates/interview/result.html:157
 #: app/templates/interview/result_pdf.html:168
-#: app/templates/quiz/result.html:41 app/templates/quiz/take.html:22
+#: app/templates/quiz/result.html:52 app/templates/quiz/take.html:22
 #: app/templates/quiz/take_exam.html:428
 msgid "minutes"
 msgstr "minutes"
@@ -3075,7 +3266,7 @@ msgstr "moderate"
 msgid "point(s)"
 msgstr "points)"
 
-#: app/templates/admin/preview_quiz.html:94 app/templates/quiz/result.html:101
+#: app/templates/admin/preview_quiz.html:94 app/templates/quiz/result.html:112
 msgid "Correct"
 msgstr "Correct"
 
@@ -3089,7 +3280,7 @@ msgid "Zone de reponse de l'apprenant..."
 msgstr "Learner's answer area..."
 
 #: app/templates/admin/preview_quiz.html:111
-#: app/templates/quiz/result.html:114
+#: app/templates/quiz/result.html:125
 msgid "Reponse attendue :"
 msgstr "Expected answer:"
 
@@ -3118,102 +3309,149 @@ msgstr "Results"
 msgid "Resultats :"
 msgstr "Results :"
 
-#: app/templates/admin/quiz_results.html:16
-msgid "Filtrer par groupe"
-msgstr "Filter by group"
+#: app/templates/admin/quiz_results.html:18
+#, python-format
+msgid "%(count)s copie(s) en attente d'un correcteur"
+msgstr "%(count)s paper(s) waiting for a grader"
 
-#: app/templates/admin/quiz_results.html:29
+#: app/templates/admin/quiz_results.html:20
+#, python-format
+msgid "%(count)s contestation(s) a traiter"
+msgstr "%(count)s contest(s) to handle"
+
+#: app/templates/admin/quiz_results.html:24
+msgid ""
+"Valider et publier toutes les copies entierement notees par l'IA ? Les "
+"copies que l'IA n'a pas pu corriger restent a corriger."
+msgstr ""
+"Validate and publish every paper fully graded by the AI? Papers the AI could"
+" not grade stay to be graded."
+
+#: app/templates/admin/quiz_results.html:27
+msgid "Valider les copies notees par l'IA"
+msgstr "Validate the papers graded by the AI"
+
+#: app/templates/admin/quiz_results.html:35
+msgid "Filtrer"
+msgstr "Filter"
+
+#: app/templates/admin/quiz_results.html:39
+msgid "Toutes les copies"
+msgstr "All papers"
+
+#: app/templates/admin/quiz_results.html:41
+msgid "Contestations a traiter"
+msgstr "Contests to handle"
+
+#: app/templates/admin/quiz_results.html:55
 msgid "Reinitialiser le filtre"
 msgstr "Reset the filter"
 
-#: app/templates/admin/quiz_results.html:39
+#: app/templates/admin/quiz_results.html:65
 msgid "Soumissions des apprenants"
 msgstr "Learner submissions"
 
-#: app/templates/admin/quiz_results.html:47
+#: app/templates/admin/quiz_results.html:73
 msgid "soumission(s)"
 msgstr "submission(s)"
 
-#: app/templates/admin/quiz_results.html:52
+#: app/templates/admin/quiz_results.html:78
 msgid ""
 "Re-corriger toutes les questions ouvertes ? Les notes actuelles seront "
 "recalculees."
 msgstr ""
 "Re-grade all open-ended questions? Current grades will be recalculated."
 
-#: app/templates/admin/quiz_results.html:54
+#: app/templates/admin/quiz_results.html:80
 msgid "Re-corriger les questions ouvertes"
 msgstr "Re-correct the open questions"
 
-#: app/templates/admin/quiz_results.html:55
+#: app/templates/admin/quiz_results.html:81
 msgid "Re-corriger"
 msgstr "Re-correct"
 
 #: app/templates/admin/interviews/view.html:170
-#: app/templates/admin/quiz_results.html:58
+#: app/templates/admin/quiz_results.html:84
 msgid "Telecharger les resultats"
 msgstr "Download the results"
 
-#: app/templates/admin/quiz_results.html:72
+#: app/templates/admin/quiz_results.html:98
 msgid "Pourcentage"
 msgstr "Percentage"
 
-#: app/templates/admin/quiz_results.html:73
+#: app/templates/admin/quiz_results.html:99
 msgid "Durée"
 msgstr "Duration"
 
-#: app/templates/admin/quiz_results.html:74
+#: app/templates/admin/quiz_results.html:100
 msgid "Moy/Q"
 msgstr "Average/Q"
 
-#: app/templates/admin/quiz_results.html:76
+#: app/templates/admin/quiz_results.html:102
 msgid "Date de soumission"
 msgstr "Submission date"
 
-#: app/templates/admin/quiz_results.html:101
-msgid "Quota IA atteint : des reponses attendent votre correction"
-msgstr "AI quota reached: some answers are waiting for your grading"
+#: app/templates/admin/quiz_results.html:129
+msgid ""
+"L'IA n'a pas pu corriger certaines reponses (quota ou erreur) : a noter a la"
+" main"
+msgstr ""
+"The AI could not grade some answers (quota or error): grade them by hand"
 
-#: app/templates/admin/quiz_results.html:101
+#: app/templates/admin/quiz_results.html:129
 #: app/templates/admin/user_detail.html:111
 msgid "A corriger"
 msgstr "To grade"
 
-#: app/templates/admin/quiz_results.html:139
+#: app/templates/admin/quiz_results.html:132
+msgid "Note proposee par l'IA, provisoire pour l'apprenant jusqu'a validation"
+msgstr ""
+"Grade suggested by the AI, provisional for the learner until validated"
+
+#: app/templates/admin/quiz_results.html:132
+#: app/templates/admin/user_detail.html:111
+msgid "A valider"
+msgstr "To validate"
+
+#: app/templates/admin/quiz_results.html:174
 msgid "perte(s) de focus"
 msgstr "loss(s) of focus"
 
-#: app/templates/admin/quiz_results.html:144
+#: app/templates/admin/quiz_results.html:179
 msgid "action(s) bloquee(s)/detectee(s)"
 msgstr "action(s) blocked/detected"
 
-#: app/templates/admin/quiz_results.html:155
+#: app/templates/admin/quiz_results.html:190
 #: app/templates/admin/user_detail.html:112
 msgid "En retard"
 msgstr "Late"
 
-#: app/templates/admin/quiz_results.html:160
+#: app/templates/admin/quiz_results.html:195
 #: app/templates/admin/response_analysis.html:455
 #: app/templates/admin/user_detail.html:116
 msgid "Voir les reponses"
 msgstr "See the answers"
 
-#: app/templates/admin/quiz_results.html:163
+#: app/templates/admin/quiz_results.html:198
 #: app/templates/admin/response_analysis.html:232
 msgid "Analyse detaillee"
 msgstr "Detailed analysis"
 
-#: app/templates/admin/quiz_results.html:166
+#: app/templates/admin/quiz_results.html:201
 #: app/templates/admin/user_detail.html:119
 msgid "Editer les notes"
 msgstr "Edit the notes"
 
-#: app/templates/admin/quiz_results.html:170
+#: app/templates/admin/quiz_results.html:207
+msgid "Valider la note proposee"
+msgstr "Validate the suggested grade"
+
+#: app/templates/admin/quiz_results.html:213
 #: app/templates/admin/user_detail.html:123
 msgid "cette reponse (l'utilisateur pourra repasser le quiz)"
 msgstr "this answer (the user will be able to retake the quiz)"
 
-#: app/templates/admin/quiz_results.html:183
+#: app/templates/admin/quiz_results.html:226
 msgid "Aucune soumission pour ce quiz."
 msgstr "No submissions for this quiz."
 
@@ -5873,15 +6111,19 @@ msgstr "Correction of:"
 msgid "Correction terminee !"
 msgstr "Correction complete!"
 
-#: app/templates/quiz/grading.html:193
+#: app/templates/quiz/grading.html:190
+msgid "Note provisoire, en attente de validation par un correcteur."
+msgstr "Provisional grade, waiting for a grader to validate it."
+
+#: app/templates/quiz/grading.html:194
 msgid "Redirection vers les resultats..."
 msgstr "Redirecting to results..."
 
-#: app/templates/quiz/grading.html:207
+#: app/templates/quiz/grading.html:208
 msgid "Erreur lors de la correction"
 msgstr "Error during correction"
 
-#: app/templates/quiz/grading.html:212
+#: app/templates/quiz/grading.html:213
 msgid "Une erreur est survenue"
 msgstr "An error has occurred"
 
@@ -5905,7 +6147,7 @@ msgstr "Search an organization..."
 msgid "Repondu"
 msgstr "Answered"
 
-#: app/templates/quiz/list.html:115 app/templates/quiz/result.html:86
+#: app/templates/quiz/list.html:115 app/templates/quiz/result.html:97
 msgid "points"
 msgstr "points"
 
@@ -5942,36 +6184,49 @@ msgstr "This is an admin test - not counted in the statistics."
 msgid "Retour preview"
 msgstr "Back to preview"
 
-#: app/templates/quiz/result.html:23
+#: app/templates/quiz/result.html:26
 msgid ""
 "Note provisoire : certaines reponses seront corrigees par votre intervenant."
 msgstr "Provisional grade: some answers will be graded by your instructor."
 
-#: app/templates/quiz/result.html:31
+#: app/templates/quiz/result.html:28
+msgid "Note provisoire : un correcteur doit encore valider votre copie."
+msgstr "Provisional grade: a grader still has to validate your paper."
+
+#: app/templates/quiz/result.html:34
+#, python-format
+msgid ""
+"Une note vous semble injuste ? Vous pouvez contester chaque question une "
+"fois, jusqu'au %(date)s, en expliquant pourquoi."
+msgstr ""
+"A grade seems unfair? You can contest each question once, until %(date)s, "
+"explaining why."
+
+#: app/templates/quiz/result.html:42
 msgid "Soit"
 msgstr "Either"
 
-#: app/templates/quiz/result.html:31
+#: app/templates/quiz/result.html:42
 msgid "de reussite"
 msgstr "success"
 
-#: app/templates/quiz/result.html:34
+#: app/templates/quiz/result.html:45
 msgid "Soumis le"
 msgstr "Submitted on"
 
-#: app/templates/quiz/result.html:36
+#: app/templates/quiz/result.html:47
 msgid "Soumission en retard"
 msgstr "Late submission"
 
-#: app/templates/quiz/result.html:41
+#: app/templates/quiz/result.html:52
 msgid "Duree :"
 msgstr "Duration :"
 
-#: app/templates/quiz/result.html:43
+#: app/templates/quiz/result.html:54
 msgid "minutes allouees"
 msgstr "minutes allocated"
 
-#: app/templates/quiz/result.html:61
+#: app/templates/quiz/result.html:72
 msgid ""
 "Les questions etaient affichees dans un ordre aleatoire pendant l'examen. "
 "Ci-dessous, elles sont presentees dans l'ordre original du quiz."
@@ -5979,23 +6234,56 @@ msgstr ""
 "The questions were displayed in a random order during the exam. Below, they "
 "are presented in the original order of the quiz."
 
-#: app/templates/quiz/result.html:65
+#: app/templates/quiz/result.html:76
 msgid "Details des reponses"
 msgstr "Details of the answers"
 
-#: app/templates/quiz/result.html:108
+#: app/templates/quiz/result.html:119
 msgid "Votre reponse :"
 msgstr "Your answer:"
 
-#: app/templates/quiz/result.html:109
+#: app/templates/quiz/result.html:120
 msgid "Aucune reponse"
 msgstr "No response"
 
-#: app/templates/quiz/result.html:121
+#: app/templates/quiz/result.html:132
 msgid "Correction :"
 msgstr "Correction:"
 
-#: app/templates/quiz/result.html:131
+#: app/templates/quiz/result.html:141
+msgid "Votre contestation"
+msgstr "Your contest"
+
+#: app/templates/quiz/result.html:142
+msgid "En cours de traitement"
+msgstr "Being reviewed"
+
+#: app/templates/quiz/result.html:148
+#, python-format
+msgid "Note corrigee : %(before)s puis %(after)s."
+msgstr "Grade corrected: %(before)s then %(after)s."
+
+#: app/templates/quiz/result.html:149
+msgid "Reponse du correcteur :"
+msgstr "Grader's reply:"
+
+#: app/templates/quiz/result.html:155
+msgid "Contester cette note"
+msgstr "Contest this grade"
+
+#: app/templates/quiz/result.html:159
+msgid "Expliquez precisement ce qui vous semble mal note"
+msgstr "Explain precisely what seems wrongly graded"
+
+#: app/templates/quiz/result.html:161
+msgid "Une seule contestation par question : envoyer ?"
+msgstr "Only one contest per question: send it?"
+
+#: app/templates/quiz/result.html:162
+msgid "Envoyer la contestation"
+msgstr "Send the contest"
+
+#: app/templates/quiz/result.html:172
 msgid "Retour aux quiz"
 msgstr "Back to quizzes"
 
@@ -6496,3 +6784,19 @@ msgstr "Intelligent assessment platform with AI correction for education"
 
 #~ msgid "Langue"
 #~ msgstr "Language"
+
+#~ msgid ""
+#~ "copie(s) a corriger : le quota mensuel de corrections IA a ete atteint. "
+#~ "Ouvrez les resultats du quiz pour les noter."
+#~ msgstr ""
+#~ "paper(s) to grade: the monthly AI grading quota was reached. Open the quiz "
+#~ "results to grade them."
+
+#~ msgid "Feedback IA (modifiable)"
+#~ msgstr "AI feedback (editable)"
+
+#~ msgid "Filtrer par groupe"
+#~ msgstr "Filter by group"
+
+#~ msgid "Quota IA atteint : des reponses attendent votre correction"
+#~ msgstr "AI quota reached: some answers are waiting for your grading"

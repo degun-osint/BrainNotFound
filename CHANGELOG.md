@@ -4,7 +4,24 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 
 ## [Non publié]
 
+### Nouveautés
+
+- **Mode de correction par quiz** : correction IA directe, ou revue par un correcteur (l'IA propose, l'apprenant voit une note provisoire, un correcteur valide). Validation copie par copie ou de toutes les copies notées par l'IA d'un coup ; les copies que l'IA n'a pas pu noter restent à part.
+- **Correcteurs** : en plus de l'auteur, des intervenants ou admins d'établissement désignés sur le quiz voient, notent et valident toutes ses copies.
+- **Contestation** : l'apprenant conteste chaque question une fois, dans un délai réglable par quiz (7 jours par défaut) après publication de la note ; le correcteur accepte ou refuse avec une réponse.
+- **Récapitulatif par email** aux correcteurs (copies en attente, contestations), au plus un par quiz toutes les 30 minutes ; nouvelle variable `PUBLIC_URL` pour les liens. Tableau de bord : liste des corrections à traiter.
+- `app/routes/admin.py` découpé en un module par domaine (`app/routes/admin/`), sans changement de comportement.
+
+### À lire avant de mettre à jour
+
+- Migration 015 appliquée au démarrage : les quiz existants passent en correction IA directe avec 7 jours de contestation ; les copies déjà notées prennent leur date de soumission comme date de publication.
+- Enregistrer une copie « à corriger » ne la valide plus : utiliser **Enregistrer et valider**.
+- Renseigner `PUBLIC_URL` dans le `.env` pour que le récapitulatif contienne un lien.
+
 ### Corrections
+
+- La copie d'un apprenant pouvait être ouverte par tout admin ayant accès au quiz, même hors de son périmètre (quiz partagé entre établissements).
+- Le test d'un quiz sans question ouverte se terminait par une erreur.
 
 - Après une période sans activité de plus de 8 heures (une nuit calme), la première requête pouvait échouer avec une erreur 500 : MariaDB avait fermé la connexion restée ouverte dans le pool. Les connexions sont désormais vérifiées avant usage et renouvelées toutes les 30 minutes.
 - Après un redémarrage du serveur, la base de données ne repartait pas toute seule (pas de politique de redémarrage), et l'application plantait en boucle si elle démarrait avant la base. La base redémarre désormais avec le serveur, et l'application l'attend jusqu'à 90 secondes.

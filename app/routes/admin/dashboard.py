@@ -10,6 +10,7 @@ from app.utils.prompt_loader import get_fallback_warnings, is_using_fallback
 from app.utils.scope import get_tenant_context, scoped_groups, scoped_quizzes, scoped_interviews, scoped_users
 from app.routes.admin import admin_bp
 from app.routes.admin.common import admin_required
+from app.routes.admin.results import grading_todo
 
 
 @admin_bp.route('/dashboard')
@@ -54,10 +55,7 @@ def dashboard():
         QuizResponse.quiz_id.in_(quiz_ids),
         QuizResponse.grading_status.in_(['pending', 'grading'])
     ).count()
-    to_review = QuizResponse.query.filter(
-        QuizResponse.quiz_id.in_(quiz_ids),
-        QuizResponse.grading_status == QuizResponse.STATUS_REVIEW
-    ).count()
+    todo = grading_todo()
 
     recent_interviews = InterviewSession.query.filter(
         InterviewSession.interview_id.in_(interview_ids),
@@ -71,5 +69,5 @@ def dashboard():
 
     return render_template('admin/dashboard.html', quizzes=pagination.items, stats=stats, pagination=pagination,
                            search=search, all_groups=all_groups, filter_group_id=filter_group_id,
-                           recent_responses=recent_responses, pending_grading=pending_grading, to_review=to_review,
+                           recent_responses=recent_responses, pending_grading=pending_grading, grading_todo=todo,
                            fallback_warnings=fallback_warnings, recent_interviews=recent_interviews)

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_grading_options.html" as go with context %}
 
 {% block title %}{{ _('Modifier') }} {{ quiz.title }} - BrainNotFound{% endblock %}
 
@@ -187,6 +188,8 @@
             </div>
             <small class="help-text">{{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}</small>
         </div>
+
+        {{ go.grading_options(quiz) }}
 
         <div class="card-header mt-1">{{ _('Options d\'affichage') }}</div>
 

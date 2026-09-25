@@ -91,10 +91,12 @@ def test_instructor_grading_clears_review_status(app, world, content, login, mon
     client = login(world['prof_3a'])
     results = client.get(f"/admin/quiz/{content['quiz_a'].get_url_identifier()}/results").get_data(as_text=True)
     assert 'A corriger' in results
-    assert 'copie(s) a corriger' in client.get('/admin/dashboard').get_data(as_text=True)
+    assert 'Corrections a traiter' in client.get('/admin/dashboard').get_data(as_text=True)
 
-    client.post(f'/admin/response/{response.get_url_identifier()}/edit',
-                data={f"score_{a['answer_id']}": '1' for a in answers})
+    scores = {f"score_{a['answer_id']}": '1' for a in answers}
+    client.post(f'/admin/response/{response.get_url_identifier()}/edit', data=scores)
+    assert db.session.get(QuizResponse, response.id).grading_status == QuizResponse.STATUS_REVIEW  # saved only
+    client.post(f'/admin/response/{response.get_url_identifier()}/edit', data={**scores, 'action': 'validate'})
     assert db.session.get(QuizResponse, response.id).grading_status == QuizResponse.STATUS_COMPLETED
 
 

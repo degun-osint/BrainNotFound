@@ -69,6 +69,11 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@localhost')
 
+    # Public address of the site, for links in emails sent outside a request (grader digest)
+    PUBLIC_URL = os.environ.get('PUBLIC_URL', '').strip().rstrip('/')
+    # Grader digest: at most one email per quiz every N minutes
+    GRADER_DIGEST_MINUTES = max(5, int(os.environ.get('GRADER_DIGEST_MINUTES', 30)))
+
     # Internationalization
     LANGUAGES = ['fr', 'en']
     BABEL_DEFAULT_LOCALE = 'fr'

@@ -108,7 +108,7 @@
                         {% else %}-{% endif %}
                     </td>
                     <td class="flex gap-sm flex-wrap">
-                        {% if response.grading_status == 'review' %}<span class="badge badge-warning">{{ _('A corriger') }}</span>{% endif %}
+                        {% if response.grading_status == 'review' %}<span class="badge {{ 'badge-warning' if response.review_reason == 'ai' else 'badge-info' }}">{{ _('A corriger') if response.review_reason == 'ai' else _('A valider') }}</span>{% endif %}
                         {% if response.is_late %}<span class="badge badge-error">{{ _('En retard') }}</span>{% endif %}
                     </td>
                     <td>

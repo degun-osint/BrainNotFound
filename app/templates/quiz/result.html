@@ -17,10 +17,21 @@
 
 <h1 class="mb-2">{{ _('Resultats :') }} {{ quiz_response.quiz.title }}</h1>
 
+{% set is_owner = quiz_response.user_id == current_user.id %}
+{% set can_contest = is_owner and quiz_response.can_contest() %}
 {% if quiz_response.grading_status == 'review' %}
 <div class="alert alert-info mb-2">
     <i class="iconoir-hourglass"></i>
+    {% if quiz_response.review_reason == 'ai' %}
     {{ _("Note provisoire : certaines reponses seront corrigees par votre intervenant.") }}
+    {% else %}
+    {{ _("Note provisoire : un correcteur doit encore valider votre copie.") }}
+    {% endif %}
+</div>
+{% elif can_contest %}
+<div class="alert alert-info mb-2">
+    <i class="iconoir-info-circle"></i>
+    {{ _("Une note vous semble injuste ? Vous pouvez contester chaque question une fois, jusqu'au %(date)s, en expliquant pourquoi.", date=quiz_response.contest_deadline()|localtime) }}
 </div>
 {% endif %}
 
@@ -79,7 +90,7 @@
         {% set answer_class = "" %}
     {% endif %}
 
-    <div class="question {{ answer_class }}">
+    <div class="question {{ answer_class }}"{% if answer %} id="answer-{{ answer.id }}"{% endif %}>
         <div class="question-header">
             <span class="question-type">{{ question.question_type|upper }}</span>
             <span class="question-points">
@@ -122,6 +133,36 @@
                 <p class="mt-0">{{ answer.ai_feedback }}</p>
             </div>
             {% endif %}
+        {% endif %}
+
+        {% if answer and answer.contest %}
+        {% set contest = answer.contest %}
+        <div class="contest-box {{ 'contest-open' if contest.is_open }} mt-1">
+            <strong><i class="iconoir-chat-bubble-warning"></i> {{ _('Votre contestation') }}</strong>
+            {% if contest.is_open %}<span class="badge badge-warning ml-1">{{ _('En cours de traitement') }}</span>
+            {% elif contest.status == 'accepted' %}<span class="badge badge-success ml-1">{{ _('Acceptee') }}</span>
+            {% else %}<span class="badge badge-default ml-1">{{ _('Refusee') }}</span>{% endif %}
+            <p class="whitespace-pre mt-1 mb-0">{{ contest.reason }}</p>
+            {% if not contest.is_open %}
+            <p class="mt-1 mb-0 text-sm">
+                {% if contest.status == 'accepted' %}{{ _('Note corrigee : %(before)s puis %(after)s.', before=contest.score_before, after=contest.score_after) }}{% endif %}
+                {% if contest.reply %}<br><strong>{{ _('Reponse du correcteur :') }}</strong> <span class="whitespace-pre">{{ contest.reply }}</span>{% endif %}
+            </p>
+            {% endif %}
+        </div>
+        {% elif answer and can_contest %}
+        <details class="mt-1">
+            <summary class="text-sm link-primary">{{ _('Contester cette note') }}</summary>
+            <form method="POST" action="{{ url_for('quiz.contest_answer', identifier=quiz_response.get_url_identifier(), answer_id=answer.id) }}" class="mt-1">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <textarea name="reason" class="form-textarea form-textarea-short" maxlength="2000" required
+                          placeholder="{{ _('Expliquez precisement ce qui vous semble mal note') }}"></textarea>
+                <button type="submit" class="btn btn-secondary btn-small mt-1"
+                        onclick="return confirm({{ _('Une seule contestation par question : envoyer ?')|tojson }});">
+                    <i class="iconoir-send"></i> {{ _('Envoyer la contestation') }}
+                </button>
+            </form>
+        </details>
         {% endif %}
     </div>
 {% endfor %}

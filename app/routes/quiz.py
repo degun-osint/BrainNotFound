@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import random
 import json
 from app import db, socketio
-from app.models.quiz import Quiz, Question, QuizResponse, Answer
+from app.models.quiz import Quiz, Question, QuizResponse, Answer, AnswerContest
 from app.models.group import Group
 from app.models.tenant import Tenant
 from app.models.interview import InterviewSession
@@ -486,6 +486,8 @@ def take(identifier):
         # Update quiz response totals (MCQ score only for now)
         quiz_response.total_score = total_score
         quiz_response.max_score = max_score
+        if not has_open_questions:
+            quiz_response.publish()  # MCQ only: graded mechanically, nothing to review
 
         db.session.commit()
 
@@ -629,7 +631,10 @@ def result(identifier):
 
     # Check ownership or admin access
     is_owner = quiz_response.user_id == current_user.id
-    is_admin_with_access = current_user.is_any_admin and current_user.can_access_quiz(quiz_response.quiz)
+    quiz = quiz_response.quiz
+    is_admin_with_access = current_user.is_any_admin and (
+        current_user.is_grader_of(quiz)
+        or (current_user.can_access_quiz(quiz) and current_user.can_access_user(quiz_response.user)))
     if not is_owner and not is_admin_with_access:
         flash(_l('Acces non autorise'), 'error')
         return redirect(url_for('quiz.quiz_list'))
@@ -647,6 +652,37 @@ def result(identifier):
                          quiz_response=quiz_response,
                          questions=questions,
                          answers_by_question=answers_by_question)
+
+
+CONTEST_REASON_MAX = 2000
+
+
+@quiz_bp.route('/result/<identifier>/contest/<int:answer_id>', methods=['POST'])
+@login_required
+def contest_answer(identifier, answer_id):
+    """The learner contests the grade of one answer: once, within the quiz's delay."""
+    quiz_response = QuizResponse.get_by_identifier(identifier)
+    if not quiz_response or quiz_response.user_id != current_user.id:
+        flash(_l('Acces non autorise'), 'error')
+        return redirect(url_for('quiz.quiz_list'))
+    back = redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier(), _anchor=f'answer-{answer_id}'))
+
+    answer = db.session.get(Answer, answer_id)
+    reason = request.form.get('reason', '').strip()[:CONTEST_REASON_MAX]
+    if not answer or answer.quiz_response_id != quiz_response.id:
+        flash(_l('Question introuvable'), 'error')
+    elif not quiz_response.can_contest():
+        flash(_l('Le delai de contestation est depasse, ou la note n\'est pas encore publiee.'), 'error')
+    elif answer.contest is not None:
+        flash(_l('Vous avez deja conteste cette question.'), 'error')
+    elif not reason:
+        flash(_l('Expliquez pourquoi vous contestez cette note.'), 'error')
+    else:
+        db.session.add(AnswerContest(answer=answer, reason=reason))
+        quiz_response.quiz.mark_digest_pending()
+        db.session.commit()
+        flash(_l('Contestation envoyee : un correcteur va la traiter.'), 'success')
+    return back
 
 
 @quiz_bp.route('/grading/<identifier>')

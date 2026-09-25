@@ -2266,6 +2266,19 @@ a.tenant-option {
     font-size: 0.9rem;
 }
 
+/* Contest of a grade (learner result page, grader's paper page) */
+.contest-box {
+    border: 1px dashed var(--border);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.contest-box.contest-open {
+    border-style: solid;
+    background: rgba(139, 105, 20, 0.08);
+}
+
 .answer-box.correct {
     background: rgba(45, 90, 39, 0.1);
     border: 1px solid var(--accent-success);

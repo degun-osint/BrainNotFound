@@ -24,7 +24,23 @@
     </div>
 </div>
 
-<form method="POST">
+{% if response.grading_status == 'review' %}
+<div class="alert alert-warning mb-2">
+    {% if response.review_reason == 'ai' %}
+    <strong>{{ _('Copie a corriger.') }}</strong> {{ _("L'IA n'a pas pu corriger certaines reponses (quota atteint ou erreur) : elles valent 0 pour l'instant. Notez-les, puis validez la copie.") }}
+    {% else %}
+    <strong>{{ _('Copie a valider.') }}</strong> {{ _("L'IA a propose une note, que l'apprenant voit comme provisoire. Verifiez, ajustez si besoin, puis validez pour la publier.") }}
+    {% endif %}
+</div>
+{% elif response.graded_at %}
+<p class="text-light text-sm mb-2">
+    {{ _('Note publiee le %(date)s', date=response.graded_at|localtime) }}{% if response.reviewed_by %} - {{ _('validee par %(name)s', name=response.reviewed_by.full_name) }}{% endif %}.
+    {% set deadline = response.contest_deadline() %}
+    {% if deadline %}{{ _("Contestation possible jusqu'au %(date)s.", date=deadline|localtime) }}{% endif %}
+</p>
+{% endif %}
+
+<form method="POST" action="{{ url_for('admin.edit_response', identifier=response.get_url_identifier(), status=status or None, group=group or None) }}">
     <div class="card">
         <div class="card-header">{{ _('Reponses et scores') }}</div>
 
@@ -74,13 +90,46 @@
                             <div class="whitespace-pre mt-1">{{ answer.question.expected_answer }}</div>
                         </div>
                         {% endif %}
-                        {% if answer.ai_feedback %}
                         <div class="mt-1">
-                            <label class="form-label" for="feedback_{{ answer.id }}">{{ _('Feedback IA (modifiable)') }}</label>
+                            <label class="form-label" for="feedback_{{ answer.id }}">{{ _('Retour a l\'apprenant (modifiable)') }}</label>
                             <textarea id="feedback_{{ answer.id }}" name="feedback_{{ answer.id }}"
-                                      class="form-textarea form-textarea-short">{{ answer.ai_feedback }}</textarea>
+                                      class="form-textarea form-textarea-short">{{ answer.ai_feedback or '' }}</textarea>
                         </div>
+                    {% endif %}
+
+                    {% set contest = answer.contest %}
+                    {% if contest %}
+                    <div class="contest-box {{ 'contest-open' if contest.is_open }} mt-1">
+                        <div class="flex justify-between items-center flex-wrap gap-sm">
+                            <strong><i class="iconoir-chat-bubble-warning"></i> {{ _('Contestation') }}</strong>
+                            {% if contest.is_open %}<span class="badge badge-warning">{{ _('A traiter') }}</span>
+                            {% elif contest.status == 'accepted' %}<span class="badge badge-success">{{ _('Acceptee') }}</span>
+                            {% else %}<span class="badge badge-default">{{ _('Refusee') }}</span>{% endif %}
+                        </div>
+                        <p class="whitespace-pre mt-1 mb-1">{{ contest.reason }}</p>
+                        <small class="text-light">{{ contest.created_at|localtime }}</small>
+                        {% if contest.is_open %}
+                        <div class="radio-group mt-1">
+                            <label class="radio-item">
+                                <input type="radio" name="contest_{{ answer.id }}" value="accept">
+                                <span>{{ _('Accepter : la note devient celle du champ Score') }}</span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="contest_{{ answer.id }}" value="reject">
+                                <span>{{ _('Refuser : la note est maintenue') }}</span>
+                            </label>
+                        </div>
+                        <textarea name="contest_reply_{{ answer.id }}" class="form-textarea form-textarea-short mt-1"
+                                  placeholder="{{ _("Reponse a l'apprenant (recommande)") }}"></textarea>
+                        {% else %}
+                        <p class="text-sm mt-1 mb-0">
+                            {{ _('Note : %(before)s puis %(after)s', before=contest.score_before, after=contest.score_after) }}
+                            {% if contest.resolved_by %} - {{ contest.resolved_by.full_name }}{% endif %}
+                            {% if contest.resolved_at %}, {{ contest.resolved_at|localtime }}{% endif %}
+                        </p>
+                        {% if contest.reply %}<p class="whitespace-pre text-sm mt-1 mb-0">{{ contest.reply }}</p>{% endif %}
                         {% endif %}
+                    </div>
                     {% endif %}
                 </div>
 
@@ -108,10 +157,19 @@
     </div>
 
     <div class="actions">
+        {% if response.grading_status == 'review' %}
+        <button type="submit" name="action" value="validate" class="btn btn-primary">
+            <i class="iconoir-check-circle"></i> {{ _('Enregistrer et valider') }}
+        </button>
+        <button type="submit" name="action" value="save" class="btn btn-secondary">
+            <i class="iconoir-floppy-disk"></i> {{ _('Enregistrer sans valider') }}
+        </button>
+        {% else %}
         <button type="submit" class="btn btn-primary">
             <i class="iconoir-check"></i> {{ _('Enregistrer') }}
         </button>
-        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
+        {% endif %}
+        <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), status=status or None, group=group or None) }}" class="btn btn-secondary">
             <i class="iconoir-xmark"></i> {{ _('Annuler') }}
         </a>
     </div>

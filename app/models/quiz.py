@@ -10,6 +10,12 @@ quiz_groups = db.Table('quiz_groups',
     db.Column('assigned_at', db.DateTime, default=datetime.utcnow)
 )
 
+# Graders of a quiz, in addition to its author (instructors or organization admins)
+quiz_graders = db.Table('quiz_graders',
+    db.Column('quiz_id', db.Integer, db.ForeignKey('quizzes.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True),
+)
+
 
 class Quiz(UIDMixin, db.Model):
     __tablename__ = 'quizzes'
@@ -30,6 +36,15 @@ class Quiz(UIDMixin, db.Model):
     grading_severity = db.Column(db.String(20), default='modere')  # gentil, modere, severe
     grading_mood = db.Column(db.JSON, default=list)  # List of moods: neutre, jovial, severe, taquin, encourageant, sarcastique
     class_analysis_result = db.Column(db.JSON, nullable=True)  # AI class-wide analysis result
+
+    # Grading trust: 'direct' = the AI grade is final, 'review' = a grader validates each paper
+    GRADING_DIRECT = 'direct'
+    GRADING_REVIEW = 'review'
+    grading_mode = db.Column(db.String(10), default=GRADING_DIRECT)
+    contest_days = db.Column(db.Integer, default=7)  # Days to contest a grade once published (0 = no contest)
+    # Grouped email to graders: something happened since digest_pending_since, last email at digest_sent_at
+    digest_pending_since = db.Column(db.DateTime, nullable=True)
+    digest_sent_at = db.Column(db.DateTime, nullable=True)
     created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Creator of the quiz
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -42,9 +57,27 @@ class Quiz(UIDMixin, db.Model):
     responses = db.relationship('QuizResponse', back_populates='quiz', cascade='all, delete-orphan', lazy='dynamic')
     groups = db.relationship('Group', secondary=quiz_groups, backref=db.backref('quizzes', lazy='dynamic'), lazy='dynamic')
     created_by = db.relationship('User', foreign_keys=[created_by_id], backref='created_quizzes')
+    graders = db.relationship('User', secondary=quiz_graders, lazy='dynamic',
+                              backref=db.backref('graded_quizzes', lazy='dynamic'))
 
     def __repr__(self):
         return f'<Quiz {self.title}>'
+
+    @property
+    def needs_review(self):
+        return self.grading_mode == self.GRADING_REVIEW
+
+    def grader_ids(self):
+        """Author and designated graders."""
+        ids = {row[0] for row in db.session.query(quiz_graders.c.user_id).filter(quiz_graders.c.quiz_id == self.id)}
+        if self.created_by_id:
+            ids.add(self.created_by_id)
+        return ids
+
+    def mark_digest_pending(self):
+        """Something for the graders (paper to validate, contest): include it in the next digest."""
+        if self.digest_pending_since is None:
+            self.digest_pending_since = datetime.utcnow()
 
     def is_available_for_group(self, group_id):
         """Check if quiz is assigned to a specific group."""
@@ -113,7 +146,7 @@ class QuizResponse(UIDMixin, db.Model):
     STATUS_GRADING = 'grading'
     STATUS_COMPLETED = 'completed'
     STATUS_ERROR = 'error'
-    STATUS_REVIEW = 'review'  # graded, but some answers wait for the instructor (AI quota reached)
+    STATUS_REVIEW = 'review'  # graded, waiting for a grader (review mode, AI quota reached or AI failure)
 
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
@@ -140,14 +173,51 @@ class QuizResponse(UIDMixin, db.Model):
     # Admin feedback
     admin_comment = db.Column(db.Text, nullable=True)  # Manual comment from admin/teacher
 
+    # Publication: when the grade became final (AI in direct mode, or a grader's validation);
+    # the contest delay starts here
+    graded_at = db.Column(db.DateTime, nullable=True)
+    # Why a paper waits (status review): 'mode' = AI graded it, a grader validates;
+    # 'ai' = the AI could not grade some answers (quota, error): a grader must grade them
+    REVIEW_MODE = 'mode'
+    REVIEW_AI = 'ai'
+    review_reason = db.Column(db.String(10), nullable=True)
+    reviewed_by_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+
     # Relationships
-    user = db.relationship('User', back_populates='responses')
+    user = db.relationship('User', back_populates='responses', foreign_keys=[user_id])
+    reviewed_by = db.relationship('User', foreign_keys=[reviewed_by_id])
     quiz = db.relationship('Quiz', back_populates='responses')
     answers = db.relationship('Answer', back_populates='quiz_response', cascade='all, delete-orphan')
 
     def get_url_identifier(self):
         """Get the URL identifier (uid)."""
         return self.uid if self.uid else str(self.id)
+
+    def publish(self, reviewer=None):
+        """The grade becomes final (the contest delay starts now)."""
+        now = datetime.utcnow()
+        self.grading_status = self.STATUS_COMPLETED
+        self.review_reason = None
+        self.graded_at = now
+        if reviewer is not None:
+            self.reviewed_by_id = reviewer.id
+            self.reviewed_at = now
+
+    def contest_deadline(self):
+        """Last moment the learner may contest, or None if contests are closed or not possible."""
+        from datetime import timedelta
+        days = self.quiz.contest_days or 0
+        if self.is_test or days <= 0 or self.grading_status != self.STATUS_COMPLETED or not self.graded_at:
+            return None
+        return self.graded_at + timedelta(days=days)
+
+    def can_contest(self):
+        deadline = self.contest_deadline()
+        return deadline is not None and datetime.utcnow() <= deadline
+
+    def recompute_total(self):
+        self.total_score = sum(a.score or 0 for a in self.answers)
 
     def __repr__(self):
         return f'<QuizResponse User:{self.user_id} Quiz:{self.quiz_id}>'
@@ -178,9 +248,37 @@ class Answer(db.Model):
     # Relationships
     quiz_response = db.relationship('QuizResponse', back_populates='answers')
     question = db.relationship('Question', back_populates='answers')
+    contest = db.relationship('AnswerContest', back_populates='answer', uselist=False, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Answer Q:{self.question_id} Score:{self.score}/{self.max_score}>'
+
+
+class AnswerContest(db.Model):
+    """A learner contests the grade of one answer (once per answer), a grader resolves it."""
+    __tablename__ = 'answer_contests'
+
+    STATUS_OPEN = 'open'
+    STATUS_ACCEPTED = 'accepted'  # grade changed
+    STATUS_REJECTED = 'rejected'  # grade kept
+
+    id = db.Column(db.Integer, primary_key=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answers.id', ondelete='CASCADE'), nullable=False, unique=True)
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(10), default=STATUS_OPEN, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reply = db.Column(db.Text, nullable=True)
+    score_before = db.Column(db.Float, nullable=True)
+    score_after = db.Column(db.Float, nullable=True)
+    resolved_by_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+
+    answer = db.relationship('Answer', back_populates='contest')
+    resolved_by = db.relationship('User', foreign_keys=[resolved_by_id])
+
+    @property
+    def is_open(self):
+        return self.status == self.STATUS_OPEN
 
 
 # Register event listeners for auto-generating UIDs

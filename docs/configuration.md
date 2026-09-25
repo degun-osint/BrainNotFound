@@ -46,7 +46,7 @@ Non configurables par variable : cookie inaccessible au JavaScript, `SameSite=La
 
 ### Email
 
-Utilisé pour la vérification des adresses, les liens de mot de passe, les emails de groupe et les alertes de quota.
+Utilisé pour la vérification des adresses, les liens de mot de passe, les emails de groupe, les alertes de quota et le récapitulatif des correcteurs.
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
@@ -57,6 +57,8 @@ Utilisé pour la vérification des adresses, les liens de mot de passe, les emai
 | `MAIL_USERNAME` | Utilisateur SMTP | aucun |
 | `MAIL_PASSWORD` | Mot de passe SMTP | aucun |
 | `MAIL_DEFAULT_SENDER` | Expéditeur, par exemple `BrainNotFound <noreply@example.com>` | `noreply@localhost` |
+| `PUBLIC_URL` | Adresse publique du site (`https://quiz.example.com`), pour les liens des emails envoyés en arrière-plan (récapitulatif des correcteurs). Sans elle, ces emails n'ont pas de lien. | vide |
+| `GRADER_DIGEST_MINUTES` | Récapitulatif des correcteurs : au plus un email par quiz toutes les N minutes (minimum 5) | `30` |
 
 ### Sauvegardes
 

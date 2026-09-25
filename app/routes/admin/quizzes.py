@@ -34,6 +34,7 @@ from app.utils.scope import (
     quota_tenant,
     filter_content_status,
     CONTENT_STATUSES,
+    assign_graders,
 )
 from datetime import datetime
 from io import BytesIO
@@ -68,6 +69,16 @@ def quiz_list():
         filter_group_id=filter_group_id,
         status=status if status in CONTENT_STATUSES else '',
     )
+
+
+def read_grading_mode(form):
+    """Grading mode and contest delay from the quiz form."""
+    mode = form.get('grading_mode')
+    days = form.get('contest_days', type=int)
+    return {
+        'grading_mode': mode if mode in (Quiz.GRADING_DIRECT, Quiz.GRADING_REVIEW) else Quiz.GRADING_DIRECT,
+        'contest_days': max(0, min(365, days)) if days is not None else 7,
+    }
 
 
 @admin_bp.route('/quiz/create', methods=['GET', 'POST'])
@@ -170,12 +181,14 @@ def create_quiz():
                 available_until=available_until,
                 grading_severity=grading_severity,
                 grading_mood=grading_mood,
+                **read_grading_mode(request.form),
                 created_by_id=current_user.id,
                 tenant_id=quiz_tenant_id  # Assign to tenant if applicable
             )
             db.session.add(quiz)
             db.session.flush()
             adopt_temp_uploads(quiz)
+            assign_graders(quiz, request.form.getlist('grader_ids'))
 
             # Assign groups
             if group_ids:
@@ -345,6 +358,9 @@ def edit_quiz(identifier):
             quiz.available_until = available_until
             quiz.grading_severity = grading_severity
             quiz.grading_mood = grading_mood
+            for field, value in read_grading_mode(request.form).items():
+                setattr(quiz, field, value)
+            assign_graders(quiz, request.form.getlist('grader_ids'))
             quiz.updated_at = datetime.utcnow()
 
             # Allow superadmins to change the author
@@ -633,7 +649,7 @@ def test_quiz(identifier):
             return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
 
         flash(_l('Test du quiz termine !'), 'success')
-        return redirect(url_for('quiz.result', response_id=quiz_response.id))
+        return redirect(url_for('quiz.result', identifier=quiz_response.get_url_identifier()))
 
     # GET request - show the quiz
     if session_key not in session:
@@ -733,6 +749,8 @@ def duplicate_quiz(identifier):
         available_until=None,
         grading_severity=original.grading_severity,
         grading_mood=original.grading_mood,
+        grading_mode=original.grading_mode,
+        contest_days=original.contest_days,
         created_by_id=current_user.id,  # New copy is created by current user
         tenant_id=tenant_id
     )
@@ -740,6 +758,8 @@ def duplicate_quiz(identifier):
     db.session.flush()
     for group in copied_groups:
         new_quiz.groups.append(group)
+    for grader in original.graders:
+        new_quiz.graders.append(grader)
 
     # Copy questions
     for orig_q in original.questions.order_by(Question.order):

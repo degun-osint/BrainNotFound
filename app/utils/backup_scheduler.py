@@ -83,6 +83,19 @@ def init_backup_scheduler(app):
         with app.app_context():
             run_scheduled_backup()
 
+    # Grader digest emails, every 5 minutes (each quiz is throttled on its own)
+    def digest_job():
+        with app.app_context():
+            from app.utils.grading_digest import send_due_digests
+            try:
+                send_due_digests()
+            except Exception as e:
+                logger.error(f"Grader digest job failed: {e}")
+
+    from apscheduler.triggers.interval import IntervalTrigger
+    scheduler.add_job(digest_job, trigger=IntervalTrigger(minutes=5), id='grader_digest',
+                      name='Grader digest', replace_existing=True)
+
     # Get settings and schedule job
     with app.app_context():
         from app.models.settings import SiteSettings
@@ -104,6 +117,8 @@ def init_backup_scheduler(app):
 
         except Exception as e:
             logger.error(f"Failed to initialize backup scheduler: {str(e)}")
+            if not scheduler.running:
+                scheduler.start()  # the digest job still runs
 
 
 def update_backup_schedule():

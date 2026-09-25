@@ -186,6 +186,8 @@ def create_app(config_class=Config):
 
     from app.models.group import Group
     app.jinja_env.globals['group_member_counts'] = Group.member_counts
+    from app.utils.scope import grader_candidates
+    app.jinja_env.globals['grader_candidates'] = grader_candidates
 
     # Timezone conversion filters for templates
     from app.utils import format_datetime, format_time
