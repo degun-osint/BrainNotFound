@@ -33,7 +33,8 @@ Flask-Babel==4.0.0
 polib==1.2.0
 
 # Scheduled tasks (backups)
-APScheduler==3.11.3
+celery[redis]==5.6.3
+redis==6.4.0  # highest version kombu 5.6 accepts
 
 # URL-friendly unique identifiers
 coolname==5.0.0

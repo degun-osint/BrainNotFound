@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session, jsonify
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from datetime import datetime, timedelta
 import random
 import json
-from app import db, socketio
+from app import db
 from app.models.quiz import Quiz, Question, QuizResponse, Answer, AnswerContest
 from app.models.group import Group
 from app.models.tenant import Tenant
@@ -498,13 +498,8 @@ def take(identifier):
 
         # Start async grading if there are open questions
         if has_open_questions:
-            from app.utils.grading_tasks import grade_quiz_async
-            socketio.start_background_task(
-                grade_quiz_async,
-                current_app._get_current_object(),
-                quiz_response.id,
-                answers_to_grade
-            )
+            from app.tasks import grade_quiz, run_task
+            run_task(grade_quiz, quiz_response.id, answers_to_grade)
             return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
         else:
             flash(_l('Quiz soumis avec succes !'), 'success')

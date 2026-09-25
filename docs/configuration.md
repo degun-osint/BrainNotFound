@@ -60,6 +60,15 @@ Utilisé pour la vérification des adresses, les liens de mot de passe, les emai
 | `PUBLIC_URL` | Adresse publique du site (`https://quiz.example.com`), pour les liens des emails envoyés en arrière-plan (récapitulatif des correcteurs). Sans elle, ces emails n'ont pas de lien. | vide |
 | `GRADER_DIGEST_MINUTES` | Récapitulatif des correcteurs : au plus un email par quiz toutes les N minutes (minimum 5) | `30` |
 
+### Tâches de fond
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `REDIS_URL` | Redis pour Celery et Socket.IO. Fixé à `redis://redis:6379/0` dans `docker-compose.yml`. Vide : tout tourne dans le processus web. | vide |
+| `CELERY_CONCURRENCY` | Tâches menées en parallèle par le worker (surtout des attentes de l'IA) | `20` |
+
+Un seul conteneur `worker` : c'est lui qui porte le battement des tâches périodiques ; à plusieurs, elles tourneraient en double.
+
 ### Sauvegardes
 
 | Variable | Description | Défaut |
@@ -162,6 +171,8 @@ Une sauvegarde contient la base de données et les fichiers envoyés (images des
 |---------|-------|------|
 | `db` | `mariadb:12.3` | Base de données, avec des réglages mémoire réduits (`docker/mariadb/low-memory.cnf`) |
 | `web` | construite depuis le `Dockerfile` | Application (gunicorn, un worker gevent) |
+| `worker` | la même image | Tâches de fond (Celery) : correction IA, entretiens, emails, battement toutes les 5 minutes (récapitulatif des correcteurs, sauvegarde planifiée) |
+| `redis` | `redis:8-alpine` | File des tâches et des événements temps réel ; rien n'est gardé sur disque |
 
 ### Volumes
 
@@ -198,6 +209,8 @@ Le conteneur `web` attend que MariaDB soit prête (healthcheck de `docker-compos
 1. applique les migrations de schéma (`scripts/migrate_db.py`) ;
 2. crée s'ils n'existent pas le compte `admin`, un « Groupe par défaut » (code `DEMO2024`) et les pages par défaut ;
 3. compile les traductions et lance gunicorn.
+
+Le conteneur `worker` part de la même image, avec `entrypoint.sh worker` : il lance directement Celery, sans migration.
 
 Sur une instance ouverte au public, générez un nouveau code pour le groupe par défaut, ou supprimez-le.
 

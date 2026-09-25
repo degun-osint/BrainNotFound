@@ -3,6 +3,14 @@ set -e
 
 export FLASK_APP=wsgi:app
 
+# Background worker (docker compose service `worker`): AI grading, interviews,
+# emails, and the periodic tick (app/tasks.py). Migrations are the web's job.
+# Keep a single worker container: the tick loop runs in each worker.
+if [ "$1" = "worker" ]; then
+    echo "Starting Celery worker..."
+    exec celery -A celery_worker worker -P gevent --concurrency "${CELERY_CONCURRENCY:-20}" --loglevel INFO
+fi
+
 # Apply database migrations (deterministic: no runtime autogenerate, never resets alembic_version)
 echo "Applying database migrations..."
 python -m scripts.migrate_db

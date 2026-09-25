@@ -69,6 +69,10 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@localhost')
 
+    # Redis: Celery broker (AI grading, interviews, emails, periodic jobs in the `worker`
+    # container) and Socket.IO message queue. Empty = everything runs in the web process.
+    REDIS_URL = os.environ.get('REDIS_URL', '').strip()
+
     # Public address of the site, for links in emails sent outside a request (grader digest)
     PUBLIC_URL = os.environ.get('PUBLIC_URL', '').strip().rstrip('/')
     # Grader digest: at most one email per quiz every N minutes

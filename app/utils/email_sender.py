@@ -1,27 +1,15 @@
 from flask_mail import Message
 from flask import current_app, url_for
-from threading import Thread
 from app import mail
 
 
 ADMIN_RESET_LINK_HOURS = 72
 
 
-def send_async_email(app, msg):
-    """Send email in background thread."""
-    with app.app_context():
-        try:
-            mail.send(msg)
-        except Exception as e:
-            app.logger.error(f"Failed to send email: {e}")
-
-
 def send_email_async(msg):
-    """Queue email to be sent asynchronously."""
-    app = current_app._get_current_object()
-    thread = Thread(target=send_async_email, args=(app, msg))
-    thread.start()
-    return thread
+    """Send in the background: Celery worker, or a greenlet of this process without Redis."""
+    from app.tasks import run_task, send_email
+    run_task(send_email, msg.subject, list(msg.recipients), msg.body, msg.html, msg.sender)
 
 
 def send_verification_email(user, async_send=True):

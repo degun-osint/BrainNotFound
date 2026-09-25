@@ -77,7 +77,11 @@ def create_app(config_class=Config):
     else:
         # Default: only allow same origin (empty list = same origin only in Flask-SocketIO)
         cors_origins = []
-    socketio.init_app(app, cors_allowed_origins=cors_origins if cors_origins else None, async_mode='gevent')
+    # With Redis, Socket.IO events emitted by the Celery worker reach the browsers through it
+    socketio.init_app(app, cors_allowed_origins=cors_origins if cors_origins else None, async_mode='gevent',
+                      message_queue=app.config.get('REDIS_URL') or None)
+    from app.tasks import init_celery
+    init_celery(app)
 
     from app.models.user import User
 
@@ -224,13 +228,12 @@ def create_app(config_class=Config):
             'get_locale': get_locale
         }
 
-    # Initialize backup scheduler (only in main process, not in reloader)
-    skip_scheduler = app.testing or os.environ.get('SKIP_BACKUP_SCHEDULER')
+    # Periodic jobs (grader digest, scheduled backups): Celery beat runs them in the
+    # worker when Redis is configured; otherwise a background loop of the web process
+    # (only in the served app: not in scripts, tests, or the debug reloader's parent)
+    skip_scheduler = app.testing or os.environ.get('SKIP_BACKUP_SCHEDULER') or app.config.get('REDIS_URL')
     if not skip_scheduler and (not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true'):
-        try:
-            from app.utils.backup_scheduler import init_backup_scheduler
-            init_backup_scheduler(app)
-        except Exception as e:
-            app.logger.warning(f"Failed to initialize backup scheduler: {str(e)}")
+        from app.tasks import start_tick_loop
+        start_tick_loop()
 
     return app

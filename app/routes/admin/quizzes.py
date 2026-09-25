@@ -454,8 +454,7 @@ def test_quiz(identifier):
     import random
     from flask import session
     from datetime import timedelta
-    from app.utils.grading_tasks import grade_quiz_async
-
+    
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
         flash(_l('Quiz introuvable'), 'error')
@@ -637,15 +636,10 @@ def test_quiz(identifier):
 
         # Start async grading if needed
         if has_open_questions:
-            from app import socketio
             quiz_response.grading_status = QuizResponse.STATUS_GRADING
             db.session.commit()
-            socketio.start_background_task(
-                grade_quiz_async,
-                current_app._get_current_object(),
-                quiz_response.id,
-                answers_to_grade
-            )
+            from app.tasks import grade_quiz, run_task
+            run_task(grade_quiz, quiz_response.id, answers_to_grade)
             return redirect(url_for('quiz.grading', identifier=quiz_response.get_url_identifier()))
 
         flash(_l('Test du quiz termine !'), 'success')

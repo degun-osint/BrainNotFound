@@ -140,7 +140,7 @@ def quiz_results(identifier):
 @admin_required
 def regrade_quiz(identifier):
     """Re-grade all open questions for a quiz."""
-    from app.utils.grading_tasks import grade_quiz_async
+    from app.tasks import grade_quiz, run_task
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
@@ -185,13 +185,7 @@ def regrade_quiz(identifier):
             db.session.commit()
 
             # Start async grading
-            from app import socketio
-            socketio.start_background_task(
-                grade_quiz_async,
-                current_app._get_current_object(),
-                response.id,
-                answers_to_grade
-            )
+            run_task(grade_quiz, response.id, answers_to_grade)
             regrade_count += 1
 
     if regrade_count > 0:

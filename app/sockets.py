@@ -84,7 +84,6 @@ def handle_send_message(data):
         return
 
     from app.models.interview import InterviewSession
-    from flask import current_app
 
     session = InterviewSession.query.get(session_id)
 
@@ -107,11 +106,5 @@ def handle_send_message(data):
 
     # Process message in background
     room = f'interview_{session_id}'
-    from app.utils.interview_tasks import process_interview_message_async
-    socketio.start_background_task(
-        process_interview_message_async,
-        current_app._get_current_object(),
-        session_id,
-        content,
-        room
-    )
+    from app.tasks import interview_reply, run_task
+    run_task(interview_reply, session_id, content, room)

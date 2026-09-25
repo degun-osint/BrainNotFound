@@ -17,7 +17,7 @@ from app.routes.admin.common import superadmin_required
 def site_settings():
     """Manage site settings and backup configuration."""
     from app.models.settings import SiteSettings
-    from app.utils.backup_scheduler import get_next_backup_time, update_backup_schedule
+    from app.utils.backup_scheduler import get_next_backup_time
 
     settings = SiteSettings.get_settings()
 
@@ -52,13 +52,7 @@ def site_settings():
             settings.backup_day = int(request.form.get('backup_day', 0) or 0)
             settings.backup_retention_days = int(request.form.get('backup_retention_days', 30) or 30)
 
-            db.session.commit()
-
-            # Update scheduler
-            try:
-                update_backup_schedule()
-            except Exception as e:
-                current_app.logger.error(f"Failed to update backup schedule: {str(e)}")
+            db.session.commit()  # the periodic tick reads the new schedule, nothing to restart
 
             flash(_l('Parametres sauvegardes avec succes'), 'success')
             return redirect(url_for('admin.site_settings'))

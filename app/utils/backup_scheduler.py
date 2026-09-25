@@ -1,198 +1,75 @@
-"""Backup scheduler using APScheduler."""
+"""Scheduled FTP backups: when the next one is due.
+
+No scheduler to keep in sync with the settings: the periodic tick (app.tasks.tick,
+every 5 minutes) calls run_backup_if_due(), which compares the last scheduled
+slot with the last backup. Slots are in the server's local time (TZ).
+"""
 import logging
-from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
-# Global scheduler instance
-scheduler = None
+PERIODS = {'hourly': timedelta(hours=1), 'daily': timedelta(days=1), 'weekly': timedelta(days=7)}
 
 
-def run_scheduled_backup():
-    """Execute backup within app context."""
-    from flask import current_app
-    from app import db
+def _schedule(settings):
+    frequency = settings.backup_frequency if settings.backup_frequency in PERIODS else 'daily'
+    hour = settings.backup_hour if settings.backup_hour is not None else 3  # 0 = midnight, not "unset"
+    day = settings.backup_day if settings.backup_day is not None else 0     # 0 = Monday
+    return frequency, hour, day
+
+
+def last_slot(settings, now=None):
+    """Most recent scheduled backup time <= now (aware, local time)."""
+    now = now or datetime.now().astimezone()
+    frequency, hour, day = _schedule(settings)
+    if frequency == 'hourly':
+        return now.replace(minute=0, second=0, microsecond=0)
+    slot = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+    if frequency == 'weekly':
+        slot -= timedelta(days=(now.weekday() - day) % 7)
+    if slot > now:
+        slot -= PERIODS[frequency]
+    return slot
+
+
+def next_slot(settings, now=None):
+    """Next scheduled backup time (aware, local time)."""
+    frequency, _, _ = _schedule(settings)
+    return last_slot(settings, now) + PERIODS[frequency]
+
+
+def backup_due(settings, now=None):
+    """FTP backups on, and no backup since the last scheduled slot (a missed slot is caught up)."""
+    if not settings.ftp_enabled:
+        return False
+    if settings.last_backup_at is None:
+        return True
+    last = settings.last_backup_at.replace(tzinfo=timezone.utc)  # stored as naive UTC
+    return last < last_slot(settings, now)
+
+
+def run_backup_if_due(now=None):
+    """Run the scheduled backup if it is due. Needs an app context."""
     from app.models.settings import SiteSettings
     from app.utils.backup_manager import BackupManager
 
-    try:
-        # Check if backup is enabled
-        settings = SiteSettings.get_settings()
-        if not settings.ftp_enabled:
-            logger.info("Scheduled backup skipped: FTP not enabled")
-            return
-
-        logger.info("Starting scheduled backup...")
-        manager = BackupManager(settings)
-        result = manager.run_backup()
-
-        if result['success']:
-            logger.info(f"Scheduled backup completed: {result['message']}")
-        else:
-            logger.error(f"Scheduled backup failed: {result['message']}")
-
-    except Exception as e:
-        logger.error(f"Scheduled backup error: {str(e)}")
-
-
-def get_cron_trigger(settings):
-    """
-    Build cron trigger from settings.
-
-    Args:
-        settings: SiteSettings instance
-
-    Returns:
-        CronTrigger instance
-    """
-    frequency = settings.backup_frequency or 'daily'
-    hour = settings.backup_hour or 3
-    day_of_week = settings.backup_day or 0
-
-    if frequency == 'hourly':
-        # Every hour at minute 0
-        return CronTrigger(minute=0)
-    elif frequency == 'weekly':
-        # Weekly on specified day at specified hour
-        return CronTrigger(day_of_week=day_of_week, hour=hour, minute=0)
-    else:  # daily (default)
-        # Daily at specified hour
-        return CronTrigger(hour=hour, minute=0)
-
-
-def init_backup_scheduler(app):
-    """
-    Initialize the backup scheduler.
-
-    Args:
-        app: Flask application instance
-    """
-    global scheduler
-
-    if scheduler is not None:
-        logger.info("Scheduler already initialized")
-        return
-
-    # Create scheduler
-    scheduler = BackgroundScheduler(daemon=True)
-
-    # We need to wrap the job function to use app context
-    def backup_job():
-        with app.app_context():
-            run_scheduled_backup()
-
-    # Grader digest emails, every 5 minutes (each quiz is throttled on its own)
-    def digest_job():
-        with app.app_context():
-            from app.utils.grading_digest import send_due_digests
-            try:
-                send_due_digests()
-            except Exception as e:
-                logger.error(f"Grader digest job failed: {e}")
-
-    from apscheduler.triggers.interval import IntervalTrigger
-    scheduler.add_job(digest_job, trigger=IntervalTrigger(minutes=5), id='grader_digest',
-                      name='Grader digest', replace_existing=True)
-
-    # Get settings and schedule job
-    with app.app_context():
-        from app.models.settings import SiteSettings
-
-        try:
-            settings = SiteSettings.get_settings()
-            trigger = get_cron_trigger(settings)
-
-            scheduler.add_job(
-                backup_job,
-                trigger=trigger,
-                id='backup_job',
-                name='Database Backup',
-                replace_existing=True
-            )
-
-            scheduler.start()
-            logger.info(f"Backup scheduler started (frequency: {settings.backup_frequency})")
-
-        except Exception as e:
-            logger.error(f"Failed to initialize backup scheduler: {str(e)}")
-            if not scheduler.running:
-                scheduler.start()  # the digest job still runs
-
-
-def update_backup_schedule():
-    """
-    Update the backup schedule after settings change.
-    Call this when backup settings are modified.
-    """
-    global scheduler
-
-    if scheduler is None:
-        logger.warning("Scheduler not initialized, cannot update schedule")
-        return
-
-    from app.models.settings import SiteSettings
-
-    try:
-        settings = SiteSettings.get_settings()
-
-        # Remove existing job
-        try:
-            scheduler.remove_job('backup_job')
-        except Exception:
-            pass
-
-        if not settings.ftp_enabled:
-            logger.info("Backup disabled, job removed")
-            return
-
-        # Get the Flask app from the current context
-        from flask import current_app
-        app = current_app._get_current_object()
-
-        def backup_job():
-            with app.app_context():
-                run_scheduled_backup()
-
-        trigger = get_cron_trigger(settings)
-
-        scheduler.add_job(
-            backup_job,
-            trigger=trigger,
-            id='backup_job',
-            name='Database Backup',
-            replace_existing=True
-        )
-
-        logger.info(f"Backup schedule updated (frequency: {settings.backup_frequency}, hour: {settings.backup_hour})")
-
-    except Exception as e:
-        logger.error(f"Failed to update backup schedule: {str(e)}")
+    settings = SiteSettings.get_settings()
+    if not backup_due(settings, now):
+        return False
+    logger.info('Starting scheduled backup...')
+    result = BackupManager(settings).run_backup()  # records last_backup_at, even on failure
+    if result['success']:
+        logger.info(f"Scheduled backup completed: {result['message']}")
+    else:
+        logger.error(f"Scheduled backup failed: {result['message']}")
+    return True
 
 
 def get_next_backup_time():
-    """Get the next scheduled backup time."""
-    global scheduler
-
-    if scheduler is None:
+    """Next scheduled backup for the settings page, or None when FTP backups are off."""
+    from app.models.settings import SiteSettings
+    settings = SiteSettings.get_settings()
+    if not settings.ftp_enabled:
         return None
-
-    try:
-        job = scheduler.get_job('backup_job')
-        if job and job.next_run_time:
-            return job.next_run_time
-    except Exception:
-        pass
-
-    return None
-
-
-def shutdown_scheduler():
-    """Shutdown the scheduler gracefully."""
-    global scheduler
-
-    if scheduler is not None:
-        scheduler.shutdown(wait=False)
-        scheduler = None
-        logger.info("Backup scheduler shut down")
+    return next_slot(settings)
