@@ -9,6 +9,10 @@ Les nouveautés et les points à vérifier avant une mise à jour sont dans le [
 ### Évaluation via IA
 - **Questions QCM** : Réponses uniques ou multiples, correction automatique
 - **Questions ouvertes** : Correction par l'IA avec feedback personnalisé ; si l'IA ne peut pas corriger (quota atteint, refus), la réponse est laissée à l'intervenant
+- **Correction directe ou revue** : par quiz, la note de l'IA est publiée tout de suite, ou reste provisoire jusqu'à la validation d'un correcteur (copie par copie, ou toutes les copies notées par l'IA d'un coup)
+- **Correcteurs** : en plus de l'auteur, des intervenants désignés sur le quiz notent et valident toutes ses copies, et reçoivent un récapitulatif par email (au plus un par quiz toutes les 30 minutes)
+- **Contestation** : l'apprenant conteste chaque question une fois, dans un délai réglable après publication ; le correcteur accepte ou refuse avec une réponse
+- **Emails aux apprenants** (option par quiz, activée par défaut) : note définitive après validation, contestation traitée, dans la langue de l'apprenant
 - **Fournisseur d'IA au choix** : Claude (Anthropic, par défaut et recommandé) ou tout service compatible OpenAI (OpenAI, Mistral, Gemini, OpenRouter, Ollama en local...), réglable dans Paramètres sans redémarrage
 - **Sévérité configurable** : Indulgent, modéré ou strict selon le contexte
 - **Génération de quiz** : Création automatique depuis un PDF, DOCX, Markdown ou TXT
@@ -100,13 +104,14 @@ cd BrainNotFound
 
 # Configurer l'environnement
 cp .env.example .env
-# Éditer .env : SECRET_KEY, mots de passe MYSQL_*, ADMIN_DEFAULT_PASSWORD, clé d'API
+# Éditer .env : SECRET_KEY, mots de passe MYSQL_*, ADMIN_DEFAULT_PASSWORD, clé d'API,
+# PUBLIC_URL (adresse du site, pour les liens des emails envoyés en arrière-plan)
 
 # Lancer
 docker compose up -d --build
 ```
 
-Application accessible sur http://localhost:5006. Au premier démarrage, la base est créée et les migrations s'appliquent automatiquement.
+Application accessible sur http://localhost:5006. Au premier démarrage, la base est créée et les migrations s'appliquent automatiquement. Quatre conteneurs : `db` (MariaDB), `redis`, `web` (l'application) et `worker` (corrections IA, entretiens, emails, tâches périodiques).
 
 ### Identifiants par défaut
 
@@ -231,14 +236,17 @@ private/                  # Vos personnalisations (non commitée)
 
 ```
 app/
-├── models/       # User, Group, Quiz, Question, Answer, Tenant, Interview, SiteSettings, Page
-├── routes/       # auth, admin, quiz, interview, tenant, docs
+├── models/       # User, Group, Quiz, Question, Answer, AnswerContest, Tenant, Interview, SiteSettings, Page
+├── routes/       # auth, quiz, interview, tenant, docs ; admin/ (un module par domaine)
+├── tasks.py      # Tâches de fond (Celery, ou processus web sans Redis) et battement périodique
 ├── templates/    # Jinja2
 ├── static/       # CSS, JS
 └── utils/
     ├── scope.py        # Périmètre d'un admin (établissements, groupes, contenus, utilisateurs)
     ├── ai_client.py    # Accès unique au fournisseur d'IA
     ├── deletion.py     # Suppression d'utilisateurs et d'établissements
+    ├── grading_digest.py        # Récapitulatif email des correcteurs
+    ├── learner_notifications.py # Emails aux apprenants (note définitive, contestation)
     ├── db_schema.py    # Mise à jour du schéma (démarrage, restauration)
     └── ...             # Parser Markdown, correction IA, sauvegardes, détection d'anomalies
 
@@ -246,6 +254,7 @@ docker/mariadb/   # Configuration MariaDB pour petits serveurs
 docs/             # Documentation Markdown intégrée
 migrations/       # Migrations Alembic (appliquées au démarrage)
 scripts/          # Migration au démarrage, restauration, étapes de déploiement
+celery_worker.py  # Point d'entrée du worker (celery -A celery_worker worker)
 tests/            # Tests pytest
 ```
 
@@ -307,7 +316,7 @@ GRADING_PROMPT_TEMPLATE = {
 - **Base de données** : MariaDB 12.3 LTS
 - **IA** : Anthropic Claude (par défaut), ou API compatible OpenAI
 - **Temps réel** : WebSocket (Flask-SocketIO, gevent, simple-websocket)
-- **Planification** : APScheduler
+- **Tâches de fond** : Celery (pool gevent) et Redis, qui sert aussi de file de messages à Socket.IO
 - **Déploiement** : Docker, Gunicorn
 
 ## Sécurité

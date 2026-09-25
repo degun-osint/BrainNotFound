@@ -153,6 +153,15 @@ Le correcteur traite la contestation depuis **Éditer les notes** : **Accepter**
 
 **Re-corriger** relance l'IA sur toutes les copies du quiz et écrase les notes, y compris celles modifiées à la main ou après contestation ; en mode revue, les copies repassent **À valider**.
 
+### Emails aux apprenants
+
+L'option **Prévenir les apprenants par email** (section **Correction**, cochée par défaut) envoie un email à l'apprenant :
+
+- quand un correcteur valide sa copie : sa note est définitive, avec la date limite de contestation ;
+- quand sa contestation est traitée : acceptée (avec la nouvelle note) ou refusée, avec la réponse du correcteur.
+
+Rien n'est envoyé en correction IA directe (la note s'affiche dès la fin du quiz), ni pour les copies de test ou les comptes sans adresse réelle. L'email est dans la langue choisie par l'apprenant dans son profil.
+
 ### Récapitulatif par email
 
 L'auteur et les correcteurs reçoivent un email quand des copies attendent ou qu'une contestation arrive, **au plus un par quiz toutes les 30 minutes** (réglable avec `GRADER_DIGEST_MINUTES`). Il résume ce qui attend et donne le lien vers les résultats si `PUBLIC_URL` est configurée (voir [Configuration](configuration#email)). Le tableau de bord liste aussi les quiz concernés, dans **Corrections à traiter**.

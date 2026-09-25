@@ -78,6 +78,7 @@ def read_grading_mode(form):
     return {
         'grading_mode': mode if mode in (Quiz.GRADING_DIRECT, Quiz.GRADING_REVIEW) else Quiz.GRADING_DIRECT,
         'contest_days': max(0, min(365, days)) if days is not None else 7,
+        'notify_learners': form.get('notify_learners') == 'on',
     }
 
 
@@ -745,6 +746,7 @@ def duplicate_quiz(identifier):
         grading_mood=original.grading_mood,
         grading_mode=original.grading_mode,
         contest_days=original.contest_days,
+        notify_learners=original.notify_learners,
         created_by_id=current_user.id,  # New copy is created by current user
         tenant_id=tenant_id
     )

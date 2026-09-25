@@ -46,6 +46,22 @@ def get_locale():
         current_app.config.get('LANGUAGES', ['fr', 'en'])
     ) or 'fr'
 
+def _fast_message_ids(app):
+    """Message-ID domain from the sender address.
+
+    Flask-Mail calls email.utils.make_msgid() with no domain, which does a reverse
+    DNS lookup of the host for every email: seconds each where DNS is slow (seen:
+    5 s per email, i.e. minutes when validating a whole class).
+    """
+    import functools
+    from email.utils import make_msgid, parseaddr
+    import flask_mail
+    sender = app.config.get('MAIL_DEFAULT_SENDER') or ''
+    address = parseaddr(sender if isinstance(sender, str) else sender[-1])[1]
+    domain = address.rpartition('@')[2] or 'brainnotfound.local'
+    flask_mail.make_msgid = functools.partial(make_msgid, domain=domain)
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -68,6 +84,7 @@ def create_app(config_class=Config):
     login_manager.login_view = 'auth.login'
     csrf.init_app(app)
     mail.init_app(app)
+    _fast_message_ids(app)
     limiter.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
     # WebSocket CORS: Use ALLOWED_HOSTS or restrict to same origin

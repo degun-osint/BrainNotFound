@@ -151,3 +151,14 @@ def test_only_one_worker_runs_each_tick(app, monkeypatch):
     finally:
         app.config['REDIS_URL'] = ''
     assert runs == ['digest']
+
+
+def test_message_ids_skip_the_dns_lookup(app, monkeypatch):
+    """Flask-Mail's Message-ID used a reverse DNS lookup per email (5 s each on a slow resolver)."""
+    import socket
+    from flask_mail import Message
+    monkeypatch.setattr(socket, 'getfqdn', lambda *a: pytest.fail('DNS lookup for a Message-ID'))
+    from email.utils import parseaddr
+    msg = Message('S', recipients=['a@x.test'], body='b')
+    domain = parseaddr(app.config['MAIL_DEFAULT_SENDER'])[1].rpartition('@')[2] or 'brainnotfound.local'
+    assert msg.msgId.endswith(f'@{domain}>')  # the sender's domain

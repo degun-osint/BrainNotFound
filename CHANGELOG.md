@@ -9,6 +9,7 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 - **Mode de correction par quiz** : correction IA directe, ou revue par un correcteur (l'IA propose, l'apprenant voit une note provisoire, un correcteur valide). Validation copie par copie ou de toutes les copies notées par l'IA d'un coup ; les copies que l'IA n'a pas pu noter restent à part.
 - **Correcteurs** : en plus de l'auteur, des intervenants ou admins d'établissement désignés sur le quiz voient, notent et valident toutes ses copies.
 - **Contestation** : l'apprenant conteste chaque question une fois, dans un délai réglable par quiz (7 jours par défaut) après publication de la note ; le correcteur accepte ou refuse avec une réponse.
+- **Emails aux apprenants** (option par quiz, cochée par défaut) : note définitive quand un correcteur valide la copie, contestation traitée (acceptée avec la nouvelle note, ou refusée) avec la réponse du correcteur ; dans la langue de l'apprenant, jamais pour les copies de test ni les comptes sans adresse réelle. Rien en correction IA directe : la note s'affiche dès la fin du quiz.
 - **Récapitulatif par email** aux correcteurs (copies en attente, contestations), au plus un par quiz toutes les 30 minutes ; nouvelle variable `PUBLIC_URL` pour les liens. Tableau de bord : liste des corrections à traiter.
 - **Tâches de fond dans un worker** : corrections IA, entretiens et emails passent dans un conteneur `worker` (Celery) via un conteneur `redis`, qui relaie aussi les événements temps réel. Les pages restent rapides pendant une vague de corrections ; une tâche interrompue par un redémarrage est reprise. Sans Redis, tout continue de tourner dans le processus web. Pour plus de corrections simultanées : `CELERY_CONCURRENCY`, ou plusieurs workers (`--scale worker=3`), un verrou Redis évitant les tâches périodiques en double.
 - Tâches périodiques (récapitulatif, sauvegarde planifiée) : un battement toutes les 5 minutes remplace APScheduler ; changer l'heure de sauvegarde ne demande plus de reprogrammer quoi que ce soit.
@@ -26,6 +27,7 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 - La copie d'un apprenant pouvait être ouverte par tout admin ayant accès au quiz, même hors de son périmètre (quiz partagé entre établissements).
 - Le test d'un quiz sans question ouverte se terminait par une erreur.
 - Une sauvegarde planifiée à 0 h partait à 3 h.
+- Chaque email coûtait une résolution DNS inverse de la machine (identifiant de message de Flask-Mail) : jusqu'à 5 s par email là où le DNS est lent, soit plusieurs minutes pour valider toute une classe.
 
 - Après une période sans activité de plus de 8 heures (une nuit calme), la première requête pouvait échouer avec une erreur 500 : MariaDB avait fermé la connexion restée ouverte dans le pool. Les connexions sont désormais vérifiées avant usage et renouvelées toutes les 30 minutes.
 - Après un redémarrage du serveur, la base de données ne repartait pas toute seule (pas de politique de redémarrage), et l'application plantait en boucle si elle démarrait avant la base. La base redémarre désormais avec le serveur, et l'application l'attend jusqu'à 90 secondes.

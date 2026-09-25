@@ -6,6 +6,7 @@
 {# The author grades anyway: not offered #}
 {% set author_id = quiz.created_by_id if quiz else current_user.id %}
 {% set candidates = grader_candidates()|rejectattr('id', 'equalto', author_id)|list %}
+{% set notify = (request.form.get('notify_learners') == 'on') if request.method == 'POST' else (quiz.notify_learners if quiz and quiz.notify_learners is not none else true) %}
 
 <div class="card-header mt-1">{{ _('Correction') }}</div>
 
@@ -45,5 +46,13 @@
     <label class="form-label" for="contest_days">{{ _('Delai de contestation (jours)') }}</label>
     <input type="number" id="contest_days" name="contest_days" class="form-input" min="0" max="365" value="{{ days }}" style="max-width: 8rem;">
     <small class="help-text">{{ _("A partir de la publication de la note, l'apprenant peut contester chaque question une fois. 0 = pas de contestation.") }}</small>
+</div>
+
+<div class="form-group">
+    <label class="checkbox-item">
+        <input type="checkbox" name="notify_learners" {{ 'checked' if notify }}>
+        <span>{{ _('Prevenir les apprenants par email') }}</span>
+    </label>
+    <small class="help-text">{{ _("Quand un correcteur valide leur copie (note definitive) et quand il traite leur contestation. Pas d'email en correction IA directe : la note s'affiche des la fin du quiz.") }}</small>
 </div>
 {% endmacro %}
