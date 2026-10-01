@@ -5,7 +5,7 @@ from flask_babel import lazy_gettext as _l
 from app import db
 from app.models.user import user_groups
 from app.models.group import Group
-from app.models.quiz import Quiz, Question, QuizResponse, Answer, AnswerContest
+from app.models.quiz import Quiz, Question, QuizResponse, Answer, AnswerContest, QuizAnalysis
 from app.utils.scope import scoped_groups, scoped_group_ids, scoped_user_ids
 from datetime import datetime
 from app.routes.admin import admin_bp
@@ -498,71 +498,85 @@ def analyze_response(identifier):
         return jsonify({'error': 'Erreur lors de l\'analyse. Veuillez reessayer.'}), 500
 
 
+def _analysis_groups(quiz):
+    """Groups offered on the analysis page: those in scope, plus the quiz's groups for its graders."""
+    groups = scoped_groups(active_only=False).all()
+    if current_user.is_grader_of(quiz):
+        groups = sorted({g.id: g for g in groups + quiz.groups.all()}.values(), key=lambda g: g.name)
+    return groups
+
+
+def _analysed_papers(quiz, group_id):
+    """(group, papers): the real papers of the group (or all visible ones) the current user can see."""
+    group = None
+    if group_id:
+        group = next((g for g in _analysis_groups(quiz) if g.id == group_id), None)
+        if group is None:
+            return None, None
+    papers = scoped_quiz_responses(quiz, group_id).filter(QuizResponse.is_test.isnot(True)).all()
+    return group, papers
+
+
 @admin_bp.route('/quiz/<identifier>/class-analysis')
 @login_required
 @admin_required
 def class_analysis(identifier):
-    """Show class-wide analysis page for a quiz."""
+    """Group analysis of a quiz: statistics and the AI's pedagogical analysis, for one group or all visible papers."""
     from app.utils.anomaly_detector import get_class_stats
 
-    quiz = Quiz.get_by_identifier(identifier)
-    if not quiz:
-        flash(_l('Quiz introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    # Redirect if accessed by old numeric ID
+    quiz, error = _quiz_for_grading(identifier)
+    if error:
+        return error
+    group_id = request.args.get('group', type=int)
     if identifier != quiz.get_url_identifier():
-        return redirect(url_for('admin.class_analysis', identifier=quiz.get_url_identifier()), code=301)
+        return redirect(url_for('admin.class_analysis', identifier=quiz.get_url_identifier(), group=group_id), code=301)
 
-    # Check permission
-    if not current_user.can_access_quiz(quiz):
-        flash(_l('Vous n\'avez pas acces a ce quiz'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    stats = get_class_stats(quiz.id)
-    if not stats:
-        flash(_l('Quiz introuvable'), 'error')
-        return redirect(url_for('admin.dashboard'))
-
-    if 'error' in stats:
-        flash(stats['error'], 'warning')
+    group, papers = _analysed_papers(quiz, group_id)
+    if papers is None:
+        flash(_l('Groupe introuvable'), 'error')
         return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier()))
+    if not papers:
+        flash(_l('Aucune copie a analyser pour ce groupe.'), 'warning')
+        return redirect(url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), group=group_id))
 
-    # Check if analysis exists in quiz
-    analysis_result = quiz.class_analysis_result if hasattr(quiz, 'class_analysis_result') else None
-
-    return render_template('admin/class_analysis.html',
-                          quiz=quiz,
-                          stats=stats,
-                          analysis=analysis_result)
+    stats = get_class_stats(quiz.id, papers)
+    paper_ids = [p.id for p in papers]
+    analysis = QuizAnalysis.latest_visible(quiz, group_id, paper_ids)
+    new_papers = len(set(paper_ids) - set(analysis.response_ids)) if analysis else 0
+    return render_template('admin/class_analysis.html', quiz=quiz, stats=stats, group=group,
+                           groups=_analysis_groups(quiz), analysis=analysis.result if analysis else None,
+                           analysis_meta=analysis, new_papers=new_papers)
 
 
 @admin_bp.route('/quiz/<identifier>/analyze-class', methods=['POST'])
 @login_required
 @admin_required
 def analyze_class_route(identifier):
-    """Run AI analysis on all responses for a quiz."""
+    """Run the AI analysis on the papers of one group (or all the papers the user can see)."""
     from app.utils.anomaly_detector import analyze_class
 
     quiz = Quiz.get_by_identifier(identifier)
     if not quiz:
         return jsonify({'error': 'Quiz not found'}), 404
-
-    # Check permission
-    if not current_user.can_access_quiz(quiz):
+    if not current_user.can_grade_quiz(quiz):
         return jsonify({'error': 'Unauthorized'}), 403
-
     if quiz.tenant and not quiz.tenant.can_analyze_class():
         return jsonify({'error': str(_l('Quota mensuel d\'analyses IA atteint pour cet etablissement'))}), 429
 
+    group_id = request.args.get('group', type=int)
+    group, papers = _analysed_papers(quiz, group_id)
+    if not papers:
+        return jsonify({'error': str(_l('Aucune copie a analyser pour ce groupe.'))}), 400
+
     try:
-        result = analyze_class(quiz.id)
+        result = analyze_class(quiz.id, papers)
 
         if 'error' in result and result.get('class_risk_level') == 'unknown':
             return jsonify({'error': result['error']}), 500
 
-        # Store result in quiz
-        quiz.class_analysis_result = result
+        db.session.add(QuizAnalysis(quiz_id=quiz.id, group_id=group.id if group else None,
+                                    response_ids=[p.id for p in papers], result=result,
+                                    created_by_id=current_user.id))
         db.session.commit()
         if quiz.tenant:
             quiz.tenant.increment_class_analyses()

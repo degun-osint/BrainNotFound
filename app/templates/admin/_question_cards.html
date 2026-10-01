@@ -1,0 +1,50 @@
+{# One card per question of a quiz (generator preview, live preview of the quiz editor) #}
+{% macro question_card(index, block, question, quiz_id=None, selectable=False, regenerated=()) %}
+<div class="generated-question {{ 'just-regenerated' if index in regenerated }}">
+    <div class="flex justify-between items-start gap-md flex-wrap">
+        <div class="flex items-center gap-sm flex-wrap">
+            <span class="question-badge">Q{{ index + 1 }}</span>
+            {% if question %}
+            <span class="badge badge-default">{{ _('QCM') if question.question_type == 'mcq' else _('Ouverte') }}</span>
+            <span class="text-light text-sm">{{ '%g'|format(question.points) }} {{ _('point(s)') }}</span>
+            {% if question.question_type == 'mcq' and question.correct_answers|length > 1 %}
+            <span class="text-light text-sm">{{ _('plusieurs bonnes reponses') }}</span>
+            {% endif %}
+            {% endif %}
+            {% if index in regenerated %}<span class="badge badge-success">{{ _('Nouvelle') }}</span>{% endif %}
+        </div>
+        {% if selectable %}
+        <label class="checkbox-item mb-0">
+            <input type="checkbox" name="regen" value="{{ index }}" class="regen-check">
+            <span>{{ _('A regenerer') }}</span>
+        </label>
+        {% endif %}
+    </div>
+    {% if question %}
+    <div class="font-medium mt-1 mb-1 whitespace-pre">{{ question.question_text|render_quiz_images(quiz_id) if quiz_id else question.question_text }}</div>
+    {% if question.question_type == 'mcq' %}
+    <ul class="generated-options">
+        {% for option in question.options %}
+        <li class="{{ 'correct' if loop.index0 in question.correct_answers }}">
+            <i class="iconoir-{{ 'check-circle' if loop.index0 in question.correct_answers else 'circle' }}"></i>
+            {{ option|render_quiz_images(quiz_id) if quiz_id else option }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% if not question.correct_answers %}
+    <div class="alert alert-warning mb-0 mt-1">{{ _('Aucune bonne reponse : cochez-en une avec [x].') }}</div>
+    {% endif %}
+    {% elif question.expected_answer %}
+    <div class="expected-answer">
+        <strong>{{ _('Reponse attendue :') }}</strong>
+        <div class="whitespace-pre mt-1">{{ question.expected_answer }}</div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mb-0 mt-1">{{ _("Pas de reponse attendue : l'IA ne pourra pas corriger cette question.") }}</div>
+    {% endif %}
+    {% else %}
+    <div class="alert alert-warning mb-0 mt-1">{{ _("Question illisible : la premiere ligne doit etre ## QCM - ... ou ## OUVERTE - ...") }}</div>
+    <pre class="text-sm overflow-x-auto">{{ block }}</pre>
+    {% endif %}
+</div>
+{% endmacro %}

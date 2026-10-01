@@ -6,8 +6,8 @@
 <div class="flex justify-between items-center mb-2 flex-wrap gap-md">
     <h1 class="mb-0">{{ _('Resultats :') }} {{ quiz.title }}</h1>
     {% if responses %}
-    <a href="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier()) }}" class="btn btn-primary">
-        <i class="iconoir-stats-report"></i> {{ _('Analyse du groupe') }}
+    <a href="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier(), group=selected_group or None) }}" class="btn btn-primary">
+        <i class="iconoir-stats-report"></i> {{ _('Analyse du groupe') if selected_group else _('Analyse des copies') }}
     </a>
     {% endif %}
 </div>

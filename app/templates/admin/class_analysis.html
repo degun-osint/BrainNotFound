@@ -184,10 +184,20 @@
 <div class="analysis-header">
     <div>
         <h1 class="mb-0">{{ _('Analyse du groupe') }}</h1>
-        <span class="text-light">{{ quiz.title }}</span>
+        <span class="text-light">{{ quiz.title }} - {{ group.name if group else _('toutes les copies que vous voyez') }}</span>
     </div>
-    <div class="flex gap-sm">
-        {% if not quiz.class_analysis_result %}
+    <div class="flex gap-sm items-center flex-wrap">
+        {% if groups|length > 1 or not group %}
+        <select class="form-select" aria-label="{{ _('Groupe analyse') }}"
+                data-url="{{ url_for('admin.class_analysis', identifier=quiz.get_url_identifier()) }}"
+                onchange="location.href = this.dataset.url + (this.value ? '?group=' + this.value : '')">
+            <option value="" {{ 'selected' if not group }}>{{ _('Tous les groupes') }}</option>
+            {% for g in groups %}
+            <option value="{{ g.id }}" {{ 'selected' if group and g.id == group.id }}>{{ g.name }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        {% if not analysis %}
         <button type="button" class="btn btn-primary" id="analyze-btn" onclick="runClassAnalysis()">
             <i class="iconoir-sparks"></i> {{ _('Lancer l\'analyse IA') }}
         </button>
@@ -234,8 +244,12 @@
     <div class="card-header"><i class="iconoir-sparks"></i> {{ _('Analyse pedagogique IA') }}</div>
 
     <div id="analysis-container">
-        {% if quiz.class_analysis_result %}
-            {% set result = quiz.class_analysis_result %}
+        {% if analysis %}
+            {% set result = analysis %}
+            <p class="text-light text-sm mb-1">
+                {{ _('Analyse du %(date)s sur %(count)s copie(s)', date=analysis_meta.created_at|localtime, count=analysis_meta.response_ids|length) }}{% if analysis_meta.created_by %}, {{ _('lancee par %(name)s', name=analysis_meta.created_by.full_name) }}{% endif %}.
+                {% if new_papers %}<strong>{{ _('%(count)s nouvelle(s) copie(s) depuis : relancez l\'analyse pour les inclure.', count=new_papers) }}</strong>{% endif %}
+            </p>
             <div class="ai-result low" style="background: var(--gray-50);">
 
                 <!-- Summary -->
@@ -438,7 +452,7 @@
 </div>
 
 <div class="mt-2 flex gap-md">
-    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier()) }}" class="btn btn-secondary">
+    <a href="{{ url_for('admin.quiz_results', identifier=quiz.get_url_identifier(), group=group.id if group else None) }}" class="btn btn-secondary">
         <i class="iconoir-arrow-left"></i> {{ _('Retour aux resultats') }}
     </a>
 </div>
@@ -446,7 +460,7 @@
 
 {% block extra_js %}
 <script>
-const quizId = {{ quiz.id }};
+const analyzeUrl = {{ url_for('admin.analyze_class_route', identifier=quiz.get_url_identifier(), group=group.id if group else None)|tojson }};
 
 async function runClassAnalysis() {
     const btn = document.getElementById('analyze-btn');
@@ -456,7 +470,7 @@ async function runClassAnalysis() {
     btn.innerHTML = '<i class="iconoir-refresh-double rotating"></i> {{ _('Analyse en cours...') }}';
 
     try {
-        const response = await fetch('/admin/quiz/' + quizId + '/analyze-class', {
+        const response = await fetch(analyzeUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

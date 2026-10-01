@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_markdown_preview.html" as mdp with context %}
 {% import "admin/_grading_options.html" as go with context %}
 
 {% block title %}{{ _('Modifier') }} {{ quiz.title }} - BrainNotFound{% endblock %}
@@ -40,9 +41,12 @@
     </div>
 
     <form method="POST">
-        <div class="form-group">
+        <div class="form-group md-editor">
+            <div>
             <label class="form-label" for="markdown_content">{{ _('Contenu Markdown') }}</label>
             <textarea id="markdown_content" name="markdown_content" class="form-textarea" required>{{ quiz.markdown_content }}</textarea>
+            </div>
+            {{ mdp.preview_pane() }}
         </div>
 
         <div class="form-group">
@@ -304,6 +308,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
             const markdown = '\n' + data.markdown + '\n';
             const pos = textarea.selectionStart;
             textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
+            textarea.dispatchEvent(new Event('input'));  // live preview
 
             document.getElementById('upload-status').textContent = '{{ _('Image ajoutee ! Code:') }} ' + data.markdown;
 
@@ -335,4 +340,5 @@ document.getElementById('image-upload').addEventListener('change', async functio
     e.target.value = '';
 });
 </script>
+{{ mdp.preview_script(quiz) }}
 {% endblock %}

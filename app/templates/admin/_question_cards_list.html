@@ -1,0 +1,6 @@
+{% import "admin/_question_cards.html" as qc with context %}
+{% for index, block, question in questions %}
+{{ qc.question_card(index, block, question, quiz_id=quiz_id) }}
+{% else %}
+<p class="text-light">{{ _('Aucune question pour le moment. Une question commence par ## QCM - ou ## OUVERTE -') }}</p>
+{% endfor %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "admin/_markdown_preview.html" as mdp with context %}
 {% import "admin/_grading_options.html" as go with context %}
 
 {% block title %}{{ _('Creer un quiz') }} - BrainNotFound{% endblock %}
@@ -46,7 +47,8 @@ Une fonction récursive est une fonction qui s'appelle elle-même...</pre>
     </div>
 
     <form method="POST">
-        <div class="form-group">
+        <div class="form-group md-editor">
+            <div>
             <label class="form-label" for="markdown_content">{{ _('Contenu Markdown') }}</label>
             <textarea id="markdown_content" name="markdown_content" class="form-textarea"
                       style="min-height: 400px;" required>{% if markdown_content %}{{ markdown_content }}{% else %}# Mon Quiz
@@ -59,6 +61,8 @@ Une fonction récursive est une fonction qui s'appelle elle-même...</pre>
 ## OUVERTE - Question 2 [2 points]
 ### Réponse attendue
 Réponse modèle ici...{% endif %}</textarea>
+            </div>
+            {{ mdp.preview_pane() }}
         </div>
 
         <div class="form-group">
@@ -295,6 +299,7 @@ document.getElementById('image-upload').addEventListener('change', async functio
             const markdown = '\n' + data.markdown + '\n';
             const pos = textarea.selectionStart;
             textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
+            textarea.dispatchEvent(new Event('input'));  // live preview
 
             document.getElementById('upload-status').textContent = '{{ _("Image ajoutee ! Code:") }} ' + data.markdown;
 
@@ -327,4 +332,5 @@ document.getElementById('image-upload').addEventListener('change', async functio
     e.target.value = '';  // Reset input for next upload
 });
 </script>
+{{ mdp.preview_script() }}
 {% endblock %}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 11:21+0200\n"
+"POT-Creation-Date: 2026-10-01 15:34+0200\n"
 "PO-Revision-Date: 2024-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -357,7 +357,6 @@ msgstr ""
 #: app/routes/admin/quizzes.py:716 app/routes/admin/quizzes.py:790
 #: app/routes/admin/results.py:93 app/routes/admin/results.py:107
 #: app/routes/admin/results.py:148 app/routes/admin/results.py:211
-#: app/routes/admin/results.py:510 app/routes/admin/results.py:524
 #: app/routes/quiz.py:235 app/routes/quiz.py:245 app/routes/quiz.py:538
 msgid "Quiz introuvable"
 msgstr ""
@@ -531,6 +530,7 @@ msgstr ""
 #: app/routes/admin/groups.py:102 app/routes/admin/groups.py:160
 #: app/routes/admin/groups.py:182 app/routes/admin/groups.py:206
 #: app/routes/admin/groups.py:377 app/routes/admin/groups.py:474
+#: app/routes/admin/results.py:536
 msgid "Groupe introuvable"
 msgstr ""
 
@@ -544,7 +544,7 @@ msgstr ""
 #: app/routes/admin/groups.py:127 app/routes/admin/groups.py:133
 #: app/routes/admin/groups.py:137 app/routes/admin/groups.py:151
 #: app/templates/admin/edit_group.html:4 app/templates/admin/edit_page.html:3
-#: app/templates/admin/edit_quiz.html:4
+#: app/templates/admin/edit_quiz.html:5
 #: app/templates/admin/group_detail.html:17
 #: app/templates/admin/group_detail.html:81
 #: app/templates/admin/group_detail.html:240 app/templates/admin/groups.html:70
@@ -695,7 +695,6 @@ msgstr ""
 #: app/routes/admin/results.py:96 app/routes/admin/results.py:116
 #: app/routes/admin/results.py:155 app/routes/admin/results.py:216
 #: app/routes/admin/results.py:402 app/routes/admin/results.py:441
-#: app/routes/admin/results.py:519
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr ""
 
@@ -796,6 +795,11 @@ msgstr ""
 msgid "%(count)s question(s) regeneree(s)."
 msgstr ""
 
+#: app/routes/admin/quizzes.py:1070
+#, python-format
+msgid "Question(s) illisible(s) : %(n)s"
+msgstr ""
+
 #: app/routes/admin/results.py:193
 #, python-format
 msgid ""
@@ -838,8 +842,12 @@ msgid ""
 "quiz."
 msgstr ""
 
-#: app/routes/admin/results.py:475 app/routes/admin/results.py:556
+#: app/routes/admin/results.py:475 app/routes/admin/results.py:564
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
+msgstr ""
+
+#: app/routes/admin/results.py:539 app/routes/admin/results.py:569
+msgid "Aucune copie a analyser pour ce groupe."
 msgstr ""
 
 #: app/routes/admin/settings.py:57
@@ -1226,6 +1234,7 @@ msgstr ""
 
 #: app/templates/admin/_list_filters.html:28
 #: app/templates/admin/_list_filters.html:36
+#: app/templates/admin/class_analysis.html:194
 #: app/templates/admin/quiz_results.html:46 app/templates/quiz/list.html:56
 #: app/templates/quiz/list.html:64
 msgid "Tous les groupes"
@@ -1258,6 +1267,74 @@ msgstr ""
 
 #: app/templates/admin/_list_filters.html:75
 msgid "Voir tous les etablissements"
+msgstr ""
+
+#: app/templates/admin/_markdown_preview.html:5
+#: app/templates/admin/edit_page.html:134 app/templates/admin/pages.html:61
+msgid "Apercu"
+msgstr ""
+
+#: app/templates/admin/_markdown_preview.html:9
+#: app/templates/admin/settings.html:332 app/templates/admin/settings.html:597
+msgid "Chargement..."
+msgstr ""
+
+#: app/templates/admin/_markdown_preview.html:23
+#, python-brace-format
+msgid "{count} question(s), {points} point(s)"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:8
+#: app/templates/quiz/take_exam.html:498
+msgid "QCM"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:8
+msgid "Ouverte"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:9
+#: app/templates/admin/preview_quiz.html:77 app/templates/quiz/take.html:38
+#: app/templates/quiz/take_exam.html:500
+msgid "point(s)"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:11
+msgid "plusieurs bonnes reponses"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:14
+#: app/templates/admin/edit_page.html:3
+msgid "Nouvelle"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:19
+msgid "A regenerer"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:35
+msgid "Aucune bonne reponse : cochez-en une avec [x]."
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:39
+#: app/templates/admin/preview_quiz.html:111 app/templates/quiz/result.html:125
+msgid "Reponse attendue :"
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:43
+msgid "Pas de reponse attendue : l'IA ne pourra pas corriger cette question."
+msgstr ""
+
+#: app/templates/admin/_question_cards.html:46
+msgid ""
+"Question illisible : la premiere ligne doit etre ## QCM - ... ou ## "
+"OUVERTE - ..."
+msgstr ""
+
+#: app/templates/admin/_question_cards_list.html:5
+msgid ""
+"Aucune question pour le moment. Une question commence par ## QCM - ou ## "
+"OUVERTE -"
 msgstr ""
 
 #: app/templates/admin/_tenant_field.html:9
@@ -1327,7 +1404,7 @@ msgid "Role dans le groupe"
 msgstr ""
 
 #: app/templates/admin/_user_roles.html:64
-#: app/templates/admin/class_analysis.html:399
+#: app/templates/admin/class_analysis.html:413
 #: app/templates/admin/interviews/session.html:133
 #: app/templates/admin/interviews/view.html:180
 #: app/templates/admin/quiz_results.html:95
@@ -1360,131 +1437,156 @@ msgstr ""
 msgid "Analyse du groupe"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:192
-#: app/templates/admin/class_analysis.html:474
-#: app/templates/admin/class_analysis.html:479
+#: app/templates/admin/class_analysis.html:187
+msgid "toutes les copies que vous voyez"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:191
+msgid "Groupe analyse"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:202
+#: app/templates/admin/class_analysis.html:488
+#: app/templates/admin/class_analysis.html:493
 msgid "Lancer l'analyse IA"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:196
+#: app/templates/admin/class_analysis.html:206
 msgid "Relancer l'analyse"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:205
+#: app/templates/admin/class_analysis.html:215
 #: app/templates/admin/group_detail.html:73
 #: app/templates/admin/group_detail.html:123 app/templates/admin/groups.html:37
 #: app/templates/admin/tenants/view.html:91
 msgid "Apprenants"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:209
+#: app/templates/admin/class_analysis.html:219
 #: app/templates/admin/interviews/view.html:37
 msgid "Duree moyenne"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:213
+#: app/templates/admin/class_analysis.html:223
 #: app/templates/admin/interviews/view.html:33
 msgid "Score moyen"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:219
+#: app/templates/admin/class_analysis.html:229
 #: app/templates/admin/response_analysis.html:253
 msgid "Pertes de focus"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:225
+#: app/templates/admin/class_analysis.html:235
 msgid "Avec focus issues"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:234
+#: app/templates/admin/class_analysis.html:244
 #: app/templates/admin/response_analysis.html:263
 msgid "Analyse pedagogique IA"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:247
+#: app/templates/admin/class_analysis.html:250
+#, python-format
+msgid "Analyse du %(date)s sur %(count)s copie(s)"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:250
+#, python-format
+msgid "lancee par %(name)s"
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:251
+#, python-format
+msgid ""
+"%(count)s nouvelle(s) copie(s) depuis : relancez l'analyse pour les "
+"inclure."
+msgstr ""
+
+#: app/templates/admin/class_analysis.html:261
 msgid "Points forts du groupe"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:259
+#: app/templates/admin/class_analysis.html:273
 msgid "Notions a revoir en cours"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:263
+#: app/templates/admin/class_analysis.html:277
 msgid "reussite"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:269
+#: app/templates/admin/class_analysis.html:283
 msgid "Erreurs frequentes:"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:279
+#: app/templates/admin/class_analysis.html:293
 msgid "Apprenants a accompagner"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:299
+#: app/templates/admin/class_analysis.html:313
 msgid "Observations comportementales"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:310
+#: app/templates/admin/class_analysis.html:324
 msgid "Explications possibles:"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:320
+#: app/templates/admin/class_analysis.html:334
 msgid "Recommandations"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:341
+#: app/templates/admin/class_analysis.html:355
 msgid ""
 "Cliquez sur \"Lancer l'analyse IA\" pour obtenir une analyse pedagogique "
 "du groupe."
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:349
+#: app/templates/admin/class_analysis.html:363
 msgid "Statistiques par question"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:356
+#: app/templates/admin/class_analysis.html:370
 #: app/templates/admin/settings.html:576 app/templates/quiz/dashboard.html:200
 msgid "Type"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:357
+#: app/templates/admin/class_analysis.html:371
 #: app/templates/admin/response_analysis.html:324
 #: app/templates/admin/response_analysis.html:346
 #: app/templates/quiz/take_exam.html:467 app/templates/quiz/take_exam.html:545
 msgid "Question"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:358
+#: app/templates/admin/class_analysis.html:372
 #: app/templates/admin/interviews/view.html:134
 #: app/templates/interview/result_pdf.html:181
 msgid "Points"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:359
+#: app/templates/admin/class_analysis.html:373
 msgid "Temps moy"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:360
+#: app/templates/admin/class_analysis.html:374
 msgid "Ecart-type"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:361
+#: app/templates/admin/class_analysis.html:375
 msgid "Score moy"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:362
-#: app/templates/admin/class_analysis.html:402
+#: app/templates/admin/class_analysis.html:376
+#: app/templates/admin/class_analysis.html:416
 #: app/templates/admin/quiz_results.html:101
 #: app/templates/admin/response_analysis.html:348
 msgid "Focus"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:396
+#: app/templates/admin/class_analysis.html:410
 msgid "Comparaison des apprenants"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:400
+#: app/templates/admin/class_analysis.html:414
 #: app/templates/admin/edit_response.html:137
 #: app/templates/admin/interviews/session.html:98
 #: app/templates/admin/interviews/view.html:184
@@ -1498,35 +1600,35 @@ msgstr ""
 msgid "Score"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:401
+#: app/templates/admin/class_analysis.html:415
 #: app/templates/admin/interviews/session.html:102
 #: app/templates/admin/interviews/view.html:182
 #: app/templates/admin/user_detail.html:90
 msgid "Duree"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:403
+#: app/templates/admin/class_analysis.html:417
 msgid "Temps par question (vert=rapide, rouge=lent)"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:431
+#: app/templates/admin/class_analysis.html:445
 #: app/templates/admin/response_analysis.html:370
 msgid "moy:"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:442
+#: app/templates/admin/class_analysis.html:456
 #: app/templates/admin/response_analysis.html:452
 msgid "Retour aux resultats"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:456
+#: app/templates/admin/class_analysis.html:470
 #: app/templates/admin/response_analysis.html:469
 msgid "Analyse en cours..."
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:472
-#: app/templates/admin/create_quiz.html:319
-#: app/templates/admin/edit_quiz.html:327
+#: app/templates/admin/class_analysis.html:486
+#: app/templates/admin/create_quiz.html:324
+#: app/templates/admin/edit_quiz.html:332
 #: app/templates/admin/interviews/wizard.html:863
 #: app/templates/admin/response_analysis.html:486
 #: app/templates/admin/settings.html:460 app/templates/admin/settings.html:492
@@ -1535,14 +1637,14 @@ msgstr ""
 msgid "Erreur:"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:472
+#: app/templates/admin/class_analysis.html:486
 #: app/templates/admin/response_analysis.html:486
 msgid "Erreur inconnue"
 msgstr ""
 
-#: app/templates/admin/class_analysis.html:477
-#: app/templates/admin/create_quiz.html:323
-#: app/templates/admin/edit_quiz.html:331
+#: app/templates/admin/class_analysis.html:491
+#: app/templates/admin/create_quiz.html:328
+#: app/templates/admin/edit_quiz.html:336
 #: app/templates/admin/response_analysis.html:491
 #: app/templates/interview/chat.html:269
 msgid "Erreur de connexion"
@@ -1615,15 +1717,15 @@ msgid "Creer le groupe"
 msgstr ""
 
 #: app/templates/admin/create_group.html:44
-#: app/templates/admin/create_quiz.html:254
+#: app/templates/admin/create_quiz.html:258
 #: app/templates/admin/create_user.html:49
 #: app/templates/admin/edit_group.html:48
 #: app/templates/admin/edit_page.html:138
-#: app/templates/admin/edit_quiz.html:257
+#: app/templates/admin/edit_quiz.html:261
 #: app/templates/admin/edit_response.html:173
 #: app/templates/admin/email_group.html:59
 #: app/templates/admin/generate_quiz.html:86
-#: app/templates/admin/generate_quiz_preview.html:205
+#: app/templates/admin/generate_quiz_preview.html:171
 #: app/templates/admin/import_users.html:59
 #: app/templates/admin/tenants/create.html:127
 #: app/templates/admin/tenants/delete.html:55
@@ -1632,257 +1734,257 @@ msgstr ""
 msgid "Annuler"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:4
+#: app/templates/admin/create_quiz.html:5
 #: app/templates/admin/group_detail.html:249
 msgid "Creer un quiz"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:8
+#: app/templates/admin/create_quiz.html:9
 msgid "Creer un nouveau quiz"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:11
+#: app/templates/admin/create_quiz.html:12
 msgid "Format Markdown"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:13
+#: app/templates/admin/create_quiz.html:14
 msgid "Exemple de format :"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:32
-#: app/templates/admin/edit_quiz.html:26
+#: app/templates/admin/create_quiz.html:33
+#: app/templates/admin/edit_quiz.html:27
 msgid "Images"
-msgstr ""
-
-#: app/templates/admin/create_quiz.html:35
-#: app/templates/admin/edit_quiz.html:29
-msgid "Uploadez des images puis inserez le code Markdown genere dans votre quiz."
 msgstr ""
 
 #: app/templates/admin/create_quiz.html:36
 #: app/templates/admin/edit_quiz.html:30
+msgid "Uploadez des images puis inserez le code Markdown genere dans votre quiz."
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:37
+#: app/templates/admin/edit_quiz.html:31
 msgid "Syntaxe:"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:41
-#: app/templates/admin/edit_quiz.html:35
+#: app/templates/admin/create_quiz.html:42
+#: app/templates/admin/edit_quiz.html:36
 msgid "Ajouter une image"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:50
-#: app/templates/admin/edit_quiz.html:44
+#: app/templates/admin/create_quiz.html:52
+#: app/templates/admin/edit_quiz.html:46
 msgid "Contenu Markdown"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:65
-#: app/templates/admin/edit_quiz.html:49
-#: app/templates/admin/generate_quiz_preview.html:98
+#: app/templates/admin/create_quiz.html:69
+#: app/templates/admin/edit_quiz.html:53
+#: app/templates/admin/generate_quiz_preview.html:64
 msgid "Limite de temps (optionnel)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:70
-#: app/templates/admin/edit_quiz.html:54
-#: app/templates/admin/generate_quiz_preview.html:103
+#: app/templates/admin/create_quiz.html:74
+#: app/templates/admin/edit_quiz.html:58
+#: app/templates/admin/generate_quiz_preview.html:69
 msgid "minutes (laisser vide pour illimite)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:75
-#: app/templates/admin/edit_quiz.html:59
-#: app/templates/admin/generate_quiz_preview.html:108
+#: app/templates/admin/create_quiz.html:79
+#: app/templates/admin/edit_quiz.html:63
+#: app/templates/admin/generate_quiz_preview.html:74
 msgid "Lien personnalise (optionnel)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:79
-#: app/templates/admin/edit_quiz.html:64
-#: app/templates/admin/generate_quiz_preview.html:112
+#: app/templates/admin/create_quiz.html:83
+#: app/templates/admin/edit_quiz.html:68
+#: app/templates/admin/generate_quiz_preview.html:78
 #: app/templates/admin/interviews/wizard.html:259
 msgid "Lettres minuscules, chiffres et tirets uniquement"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:82
-#: app/templates/admin/generate_quiz_preview.html:116
+#: app/templates/admin/create_quiz.html:86
+#: app/templates/admin/generate_quiz_preview.html:82
 msgid ""
 "Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID"
 " numerique."
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:87
-#: app/templates/admin/edit_quiz.html:70
-#: app/templates/admin/generate_quiz_preview.html:121
+#: app/templates/admin/create_quiz.html:91
+#: app/templates/admin/edit_quiz.html:74
+#: app/templates/admin/generate_quiz_preview.html:87
 msgid "Periode de disponibilite (optionnel)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:90
-#: app/templates/admin/edit_quiz.html:73
-#: app/templates/admin/generate_quiz_preview.html:124
+#: app/templates/admin/create_quiz.html:94
+#: app/templates/admin/edit_quiz.html:77
+#: app/templates/admin/generate_quiz_preview.html:90
 #: app/templates/admin/interviews/view.html:106
 #: app/templates/admin/quizzes.html:46
 msgid "Du"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:95
-#: app/templates/admin/edit_quiz.html:79
-#: app/templates/admin/generate_quiz_preview.html:129
+#: app/templates/admin/create_quiz.html:99
+#: app/templates/admin/edit_quiz.html:83
+#: app/templates/admin/generate_quiz_preview.html:95
 #: app/templates/admin/interviews/view.html:107
 #: app/templates/admin/quizzes.html:49
 msgid "au"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:101
-#: app/templates/admin/edit_quiz.html:85
-#: app/templates/admin/generate_quiz_preview.html:134
+#: app/templates/admin/create_quiz.html:105
+#: app/templates/admin/edit_quiz.html:89
+#: app/templates/admin/generate_quiz_preview.html:100
 msgid "Laisser vide pour un quiz toujours disponible"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:106
-#: app/templates/admin/edit_quiz.html:89
-#: app/templates/admin/generate_quiz_preview.html:139
+#: app/templates/admin/create_quiz.html:110
+#: app/templates/admin/edit_quiz.html:93
+#: app/templates/admin/generate_quiz_preview.html:105
 msgid "Groupes autorises (optionnel)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:128
-#: app/templates/admin/create_quiz.html:272
-#: app/templates/admin/edit_quiz.html:112
-#: app/templates/admin/edit_quiz.html:282
+#: app/templates/admin/create_quiz.html:132
+#: app/templates/admin/create_quiz.html:276
+#: app/templates/admin/edit_quiz.html:116
+#: app/templates/admin/edit_quiz.html:286
 msgid "Tout selectionner"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:136
-#: app/templates/admin/create_quiz.html:154
-#: app/templates/admin/create_quiz.html:167
+#: app/templates/admin/create_quiz.html:140
+#: app/templates/admin/create_quiz.html:158
+#: app/templates/admin/create_quiz.html:171
 #: app/templates/admin/dashboard.html:132
 #: app/templates/admin/edit_group.html:40
-#: app/templates/admin/edit_quiz.html:120
-#: app/templates/admin/edit_quiz.html:138
-#: app/templates/admin/edit_quiz.html:151
+#: app/templates/admin/edit_quiz.html:124
+#: app/templates/admin/edit_quiz.html:142
+#: app/templates/admin/edit_quiz.html:155
 msgid "membre(s)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:147
-#: app/templates/admin/edit_quiz.html:131 app/templates/admin/groups.html:57
+#: app/templates/admin/create_quiz.html:151
+#: app/templates/admin/edit_quiz.html:135 app/templates/admin/groups.html:57
 #: app/templates/admin/user_detail.html:200
 msgid "Sans etablissement"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:173
-#: app/templates/admin/edit_quiz.html:156
-#: app/templates/admin/generate_quiz_preview.html:149
+#: app/templates/admin/create_quiz.html:177
+#: app/templates/admin/edit_quiz.html:160
+#: app/templates/admin/generate_quiz_preview.html:115
 msgid ""
 "Si aucun groupe n'est selectionne, le quiz ne sera visible par aucun "
 "apprenant"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:178
-#: app/templates/admin/edit_quiz.html:160
-#: app/templates/admin/generate_quiz_preview.html:155
-msgid "Severite de la correction IA"
-msgstr ""
-
 #: app/templates/admin/create_quiz.html:182
 #: app/templates/admin/edit_quiz.html:164
-#: app/templates/admin/generate_quiz_preview.html:157
-msgid "Gentil"
+#: app/templates/admin/generate_quiz_preview.html:121
+msgid "Severite de la correction IA"
 msgstr ""
 
 #: app/templates/admin/create_quiz.html:186
 #: app/templates/admin/edit_quiz.html:168
-#: app/templates/admin/generate_quiz.html:60
-#: app/templates/admin/generate_quiz_preview.html:157
-msgid "Modere"
+#: app/templates/admin/generate_quiz_preview.html:123
+msgid "Gentil"
 msgstr ""
 
 #: app/templates/admin/create_quiz.html:190
 #: app/templates/admin/edit_quiz.html:172
-#: app/templates/admin/generate_quiz_preview.html:157
-msgid "Severe"
+#: app/templates/admin/generate_quiz.html:60
+#: app/templates/admin/generate_quiz_preview.html:123
+msgid "Modere"
 msgstr ""
 
 #: app/templates/admin/create_quiz.html:194
-#: app/templates/admin/edit_quiz.html:175
-#: app/templates/admin/generate_quiz_preview.html:165
+#: app/templates/admin/edit_quiz.html:176
+#: app/templates/admin/generate_quiz_preview.html:123
+msgid "Severe"
+msgstr ""
+
+#: app/templates/admin/create_quiz.html:198
+#: app/templates/admin/edit_quiz.html:179
+#: app/templates/admin/generate_quiz_preview.html:131
 msgid ""
 "Gentil = valorise les efforts, Modere = equilibre, Severe = exige "
 "precision"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:199
-#: app/templates/admin/edit_quiz.html:179
-#: app/templates/admin/generate_quiz_preview.html:171
+#: app/templates/admin/create_quiz.html:203
+#: app/templates/admin/edit_quiz.html:183
+#: app/templates/admin/generate_quiz_preview.html:137
 msgid "Humeur du correcteur (optionnel, plusieurs choix possibles)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:209
-#: app/templates/admin/edit_quiz.html:189
-#: app/templates/admin/generate_quiz_preview.html:181
+#: app/templates/admin/create_quiz.html:213
+#: app/templates/admin/edit_quiz.html:193
+#: app/templates/admin/generate_quiz_preview.html:147
 msgid "Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre."
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:215
-#: app/templates/admin/edit_quiz.html:194
+#: app/templates/admin/create_quiz.html:219
+#: app/templates/admin/edit_quiz.html:198
 msgid "Options d'affichage"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:220
-#: app/templates/admin/edit_quiz.html:199
-#: app/templates/admin/generate_quiz_preview.html:190
+#: app/templates/admin/create_quiz.html:224
+#: app/templates/admin/edit_quiz.html:203
+#: app/templates/admin/generate_quiz_preview.html:156
 msgid "Ordre aleatoire des questions"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:223
-#: app/templates/admin/edit_quiz.html:201
-#: app/templates/admin/generate_quiz_preview.html:193
+#: app/templates/admin/create_quiz.html:227
+#: app/templates/admin/edit_quiz.html:205
+#: app/templates/admin/generate_quiz_preview.html:159
 msgid ""
 "Si active, les questions seront affichees dans un ordre different pour "
 "chaque apprenant"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:230
-#: app/templates/admin/edit_quiz.html:207
+#: app/templates/admin/create_quiz.html:234
+#: app/templates/admin/edit_quiz.html:211
 msgid "Ordre aleatoire des reponses QCM"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:233
-#: app/templates/admin/edit_quiz.html:209
+#: app/templates/admin/create_quiz.html:237
+#: app/templates/admin/edit_quiz.html:213
 msgid ""
 "Si active, les options de chaque QCM seront melangees pour chaque "
 "apprenant"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:237
-#: app/templates/admin/edit_quiz.html:212
+#: app/templates/admin/create_quiz.html:241
+#: app/templates/admin/edit_quiz.html:216
 msgid "Mode Examen (Anti-triche)"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:242
-#: app/templates/admin/edit_quiz.html:217
+#: app/templates/admin/create_quiz.html:246
+#: app/templates/admin/edit_quiz.html:221
 msgid "Une question par page"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:245
-#: app/templates/admin/edit_quiz.html:220
+#: app/templates/admin/create_quiz.html:249
+#: app/templates/admin/edit_quiz.html:224
 msgid ""
 "Active le mode examen : navigation question par question, chronometrage "
 "individuel, detection des changements de fenetre. Ideal pour les "
 "evaluations surveillees."
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:251
-#: app/templates/admin/generate_quiz_preview.html:199
+#: app/templates/admin/create_quiz.html:255
+#: app/templates/admin/generate_quiz_preview.html:165
 msgid "Creer le quiz"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:272
-#: app/templates/admin/edit_quiz.html:282
+#: app/templates/admin/create_quiz.html:276
+#: app/templates/admin/edit_quiz.html:286
 msgid "Tout deselectionner"
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:283
-#: app/templates/admin/edit_quiz.html:293
+#: app/templates/admin/create_quiz.html:287
+#: app/templates/admin/edit_quiz.html:297
 msgid "Upload en cours..."
 msgstr ""
 
-#: app/templates/admin/create_quiz.html:299
-#: app/templates/admin/edit_quiz.html:308
+#: app/templates/admin/create_quiz.html:304
+#: app/templates/admin/edit_quiz.html:313
 msgid "Image ajoutee ! Code:"
 msgstr ""
 
@@ -2064,18 +2166,13 @@ msgstr ""
 
 #: app/templates/admin/edit_group.html:45
 #: app/templates/admin/edit_page.html:130
-#: app/templates/admin/edit_quiz.html:254
+#: app/templates/admin/edit_quiz.html:258
 #: app/templates/admin/edit_response.html:169
 #: app/templates/admin/interviews/session.html:270
 #: app/templates/admin/interviews/wizard.html:568
 #: app/templates/admin/tenants/edit.html:167
 #: app/templates/admin/user_detail.html:286 app/templates/auth/profile.html:34
 msgid "Enregistrer"
-msgstr ""
-
-#: app/templates/admin/edit_page.html:3
-#: app/templates/admin/generate_quiz_preview.html:36
-msgid "Nouvelle"
 msgstr ""
 
 #: app/templates/admin/edit_page.html:3
@@ -2181,61 +2278,57 @@ msgstr ""
 msgid "Creer la page"
 msgstr ""
 
-#: app/templates/admin/edit_page.html:134 app/templates/admin/pages.html:61
-msgid "Apercu"
-msgstr ""
-
-#: app/templates/admin/edit_quiz.html:8
+#: app/templates/admin/edit_quiz.html:9
 #: app/templates/admin/preview_quiz.html:125
 msgid "Modifier le quiz"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:12
+#: app/templates/admin/edit_quiz.html:13
 msgid "Lien de partage"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:15
+#: app/templates/admin/edit_quiz.html:16
 msgid "Copier dans le presse-papier"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:16
-#: app/templates/admin/generate_quiz_preview.html:89
+#: app/templates/admin/edit_quiz.html:17
+#: app/templates/admin/generate_quiz_preview.html:55
 msgid "Copier"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:18
+#: app/templates/admin/edit_quiz.html:19
 msgid "Voir le quiz"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:19
+#: app/templates/admin/edit_quiz.html:20
 msgid "Preview"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:66
+#: app/templates/admin/edit_quiz.html:70
 msgid "Lettres minuscules, chiffres et tirets. Si vide, le quiz utilise son ID"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:225
+#: app/templates/admin/edit_quiz.html:229
 msgid "Administration"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:228
+#: app/templates/admin/edit_quiz.html:232
 msgid "Auteur du quiz"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:232
+#: app/templates/admin/edit_quiz.html:236
 msgid "Selectionner un auteur"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:237
+#: app/templates/admin/edit_quiz.html:241
 msgid "Rechercher un utilisateur..."
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:248
+#: app/templates/admin/edit_quiz.html:252
 msgid "L'auteur affiche sur le dashboard et dans les stats"
 msgstr ""
 
-#: app/templates/admin/edit_quiz.html:269
+#: app/templates/admin/edit_quiz.html:273
 msgid "Lien copie !"
 msgstr ""
 
@@ -2585,106 +2678,78 @@ msgstr ""
 msgid "Generation..."
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:4
+#: app/templates/admin/generate_quiz_preview.html:5
 msgid "Quiz genere"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:9
+#: app/templates/admin/generate_quiz_preview.html:10
 msgid "Quiz genere :"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:12
+#: app/templates/admin/generate_quiz_preview.html:13
 msgid ""
 "Relisez les questions. Cochez celles qui ne vous conviennent pas et "
 "regenerez-les : les autres restent telles quelles. Le document reste "
 "disponible 24 heures pour regenerer."
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:20
+#: app/templates/admin/generate_quiz_preview.html:21
 #: app/templates/quiz/take_exam.html:405
 msgid "Questions"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:23
+#: app/templates/admin/generate_quiz_preview.html:24
 msgid "Tout cocher"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:33
-#: app/templates/quiz/take_exam.html:498
-msgid "QCM"
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:33
-msgid "Ouverte"
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:34
-#: app/templates/admin/preview_quiz.html:77 app/templates/quiz/take.html:38
-#: app/templates/quiz/take_exam.html:500
-msgid "point(s)"
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:40
-msgid "A regenerer"
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:55
-#: app/templates/admin/preview_quiz.html:111 app/templates/quiz/result.html:125
-msgid "Reponse attendue :"
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:60
-msgid "Question illisible : corrigez-la dans le Markdown ci-dessous."
-msgstr ""
-
-#: app/templates/admin/generate_quiz_preview.html:65
+#: app/templates/admin/generate_quiz_preview.html:31
 msgid "Aucune question lisible : corrigez le Markdown ci-dessous."
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:69
+#: app/templates/admin/generate_quiz_preview.html:35
 msgid "Consigne pour la regeneration (optionnel)"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:72
+#: app/templates/admin/generate_quiz_preview.html:38
 msgid ""
 "Ex : plus difficile, plutot sur le chapitre 3, eviter les questions de "
 "dates"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:76
+#: app/templates/admin/generate_quiz_preview.html:42
 msgid "Regenerer les questions cochees"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:78
+#: app/templates/admin/generate_quiz_preview.html:44
 msgid ""
 "Les questions conservees et celles que vous rejetez sont transmises a "
 "l'IA pour eviter les doublons. Chaque regeneration compte dans le quota "
 "de generations."
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:84
+#: app/templates/admin/generate_quiz_preview.html:50
 msgid "Modifier le Markdown"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:86
+#: app/templates/admin/generate_quiz_preview.html:52
 msgid ""
 "Vos modifications sont prises en compte a la creation du quiz et a la "
 "prochaine regeneration."
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:95
+#: app/templates/admin/generate_quiz_preview.html:61
 msgid "Options du quiz"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:202
+#: app/templates/admin/generate_quiz_preview.html:168
 msgid "Recommencer avec un autre document"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:213
+#: app/templates/admin/generate_quiz_preview.html:179
 msgid "Markdown copie dans le presse-papiers !"
 msgstr ""
 
-#: app/templates/admin/generate_quiz_preview.html:235
+#: app/templates/admin/generate_quiz_preview.html:201
 msgid "Regeneration en cours..."
 msgstr ""
 
@@ -3341,6 +3406,10 @@ msgstr ""
 
 #: app/templates/admin/quiz_results.html:7 app/templates/quiz/result.html:18
 msgid "Resultats :"
+msgstr ""
+
+#: app/templates/admin/quiz_results.html:10
+msgid "Analyse des copies"
 msgstr ""
 
 #: app/templates/admin/quiz_results.html:18
@@ -4010,10 +4079,6 @@ msgstr ""
 msgid ""
 "Sans FTP, les sauvegardes manuelles sont conservees sur le serveur "
 "(dossier backups/)."
-msgstr ""
-
-#: app/templates/admin/settings.html:332 app/templates/admin/settings.html:597
-msgid "Chargement..."
 msgstr ""
 
 #: app/templates/admin/settings.html:338
@@ -7195,5 +7260,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Regenerer"
+#~ msgstr ""
+
+#~ msgid "Question illisible : corrigez-la dans le Markdown ci-dessous."
 #~ msgstr ""
 

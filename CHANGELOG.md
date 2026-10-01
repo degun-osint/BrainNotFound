@@ -7,12 +7,14 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 ### Nouveautés
 
 - **Générateur de quiz : régénérer seulement certaines questions.** Le quiz généré s'affiche question par question ; on coche celles qui ne conviennent pas et on les régénère, les autres restent telles quelles. L'IA reçoit les questions conservées et rejetées (pas de doublon, pas de question écartée reproposée) ; la nouvelle question garde le type, la place et les points. Consigne facultative ; chaque régénération compte dans le quota de générations. Le texte du document est conservé 24 h (migration 017), puis supprimé.
+- **Aperçu en direct dans l'éditeur de quiz** (création et modification) : les questions en cartes à côté du Markdown, total de questions et de points, erreurs signalées pendant la frappe (question mal écrite, QCM sans bonne réponse, question ouverte sans réponse attendue). Pratique quand on ne maîtrise pas le Markdown.
 - Les quiz peuvent utiliser les mots-clés anglais `## MCQ -`, `## OPEN -` et `### Expected answer`.
 
 ### Corrections
 
 - L'aperçu du générateur n'avait pas la section Correction (mode, correcteurs, contestation, emails aux apprenants) ajoutée en 2.2.0.
 - La case « Prévenir les apprenants par email » apparaissait décochée sur l'aperçu du générateur.
+- **Analyse du groupe** : elle portait sur toutes les copies du quiz, quel que soit le groupe sélectionné ; sur un quiz partagé entre établissements, elle montrait les noms et notes d'apprenants d'un autre établissement, et comptait les copies de test. Elle porte désormais sur le groupe choisi (sélecteur sur la page) ou sur les copies que l'on peut voir, sans copies de test. Les analyses sont enregistrées par quiz et par groupe (migration 018), et ne s'affichent qu'à qui peut voir toutes les copies analysées ; la page signale les copies arrivées depuis. Les correcteurs désignés y ont accès.
 
 ## [2.2.1] - 2026-09-25
 
