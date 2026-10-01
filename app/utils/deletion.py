@@ -2,7 +2,7 @@
 from app import db
 from app.models import Group, Interview, Quiz, QuizResponse, Tenant, User, tenant_admins, user_groups
 from app.models.interview import InterviewSession, interview_groups
-from app.models.quiz import AnswerContest, quiz_graders, quiz_groups
+from app.models.quiz import AnswerContest, GeneratorDraft, quiz_graders, quiz_groups
 
 
 def delete_user_account(user):
@@ -16,6 +16,7 @@ def delete_user_account(user):
     Interview.query.filter_by(created_by_id=user.id).update({'created_by_id': None}, synchronize_session=False)
     # Papers they validated and contests they resolved stay, without the grader's name
     db.session.execute(quiz_graders.delete().where(quiz_graders.c.user_id == user.id))
+    GeneratorDraft.query.filter_by(user_id=user.id).delete(synchronize_session=False)
     QuizResponse.query.filter_by(reviewed_by_id=user.id).update({'reviewed_by_id': None}, synchronize_session=False)
     AnswerContest.query.filter_by(resolved_by_id=user.id).update({'resolved_by_id': None}, synchronize_session=False)
     db.session.delete(user)  # cascades: quiz responses + answers, interview sessions + messages

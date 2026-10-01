@@ -68,8 +68,9 @@ class QuizParser:
         header = lines[start_idx].strip()
 
         # Parse header: ## TYPE - Question text [X points]
-        mcq_match = re.match(r'^##\s+QCM\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
-        open_match = re.match(r'^##\s+OUVERTE?\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
+        # French (QCM / OUVERTE) or English (MCQ / OPEN) keywords
+        mcq_match = re.match(r'^##\s+(?:QCM|MCQ)\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
+        open_match = re.match(r'^##\s+(?:OUVERTE?|OPEN)\s*-?\s*(.+?)(?:\[(\d+(?:\.\d+)?)\s*(?:points?|pts?)\s*\])?\s*$', header, re.IGNORECASE)
 
         if mcq_match:
             return self._parse_mcq_question(lines, start_idx, mcq_match)
@@ -155,7 +156,7 @@ class QuizParser:
             line = lines[i].strip()
 
             # Check for expected answer section (accept both "Réponse" and "Reponse")
-            if line.startswith('### ') and ('réponse' in line.lower() or 'reponse' in line.lower()):
+            if line.startswith('### ') and any(w in line.lower() for w in ('réponse', 'reponse', 'expected answer')):
                 i += 1
                 # Collect expected answer
                 answer_lines = []

@@ -2,6 +2,18 @@
 
 Les versions antérieures ne sont décrites que dans l'historique git.
 
+## [Non publié]
+
+### Nouveautés
+
+- **Générateur de quiz : régénérer seulement certaines questions.** Le quiz généré s'affiche question par question ; on coche celles qui ne conviennent pas et on les régénère, les autres restent telles quelles. L'IA reçoit les questions conservées et rejetées (pas de doublon, pas de question écartée reproposée) ; la nouvelle question garde le type, la place et les points. Consigne facultative ; chaque régénération compte dans le quota de générations. Le texte du document est conservé 24 h (migration 017), puis supprimé.
+- Les quiz peuvent utiliser les mots-clés anglais `## MCQ -`, `## OPEN -` et `### Expected answer`.
+
+### Corrections
+
+- L'aperçu du générateur n'avait pas la section Correction (mode, correcteurs, contestation, emails aux apprenants) ajoutée en 2.2.0.
+- La case « Prévenir les apprenants par email » apparaissait décochée sur l'aperçu du générateur.
+
 ## [2.2.1] - 2026-09-25
 
 ### Corrections (trouvées par un test de charge jusqu'à 500 apprenants simultanés)

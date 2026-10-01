@@ -111,12 +111,13 @@ def _claim_tick():
 
 @shared_task(name='app.tasks.tick')
 def tick():
-    """Every TICK_SECONDS: grader digests, and the scheduled backup when it is due."""
+    """Every TICK_SECONDS: grader digests, scheduled backup when due, expired generator drafts."""
     if not _claim_tick():
         return
     from app.utils.grading_digest import send_due_digests
     from app.utils.backup_scheduler import run_backup_if_due
-    for job in (send_due_digests, run_backup_if_due):
+    from app.models import GeneratorDraft
+    for job in (send_due_digests, run_backup_if_due, GeneratorDraft.purge_expired):
         try:
             job()
         except Exception as e:

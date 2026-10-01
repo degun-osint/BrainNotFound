@@ -2,13 +2,17 @@
 {% macro grading_options(quiz=None) %}
 {% set mode = request.form.get('grading_mode') or (quiz.grading_mode if quiz else 'direct') %}
 {% set days = request.form.get('contest_days') or (quiz.contest_days if quiz and quiz.contest_days is not none else 7) %}
-{% set selected = request.form.getlist('grader_ids')|map('int')|list if request.method == 'POST' else (quiz.graders|map(attribute='id')|list if quiz else []) %}
+{# Re-displayed after our own form was posted (error, regeneration): keep what was entered.
+   Not any POST: the generator preview answers the upload of a document. #}
+{% set submitted = 'grading_options_shown' in request.form %}
+{% set selected = request.form.getlist('grader_ids')|map('int')|list if submitted else (quiz.graders|map(attribute='id')|list if quiz else []) %}
 {# The author grades anyway: not offered #}
 {% set author_id = quiz.created_by_id if quiz else current_user.id %}
 {% set candidates = grader_candidates()|rejectattr('id', 'equalto', author_id)|list %}
-{% set notify = (request.form.get('notify_learners') == 'on') if request.method == 'POST' else (quiz.notify_learners if quiz and quiz.notify_learners is not none else true) %}
+{% set notify = (request.form.get('notify_learners') == 'on') if submitted else (quiz.notify_learners if quiz and quiz.notify_learners is not none else true) %}
 
 <div class="card-header mt-1">{{ _('Correction') }}</div>
+<input type="hidden" name="grading_options_shown" value="1">
 
 <div class="form-group">
     <label class="form-label">{{ _('Questions ouvertes') }}</label>

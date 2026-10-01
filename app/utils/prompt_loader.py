@@ -225,6 +225,11 @@ def get_generator_prompts(lang: str = None) -> Dict[str, Any]:
 
     module = _get_prompt_module('generator')
     if module:
+        # Prompts added after a private copy was made fall back to the example version
+        example = None
+        if not hasattr(module, 'REGENERATION_PROMPT_TEMPLATE'):
+            example_path = _EXAMPLE_DIR / 'prompts' / 'generator.py'
+            example = _load_module_from_path('private_example.prompts.generator', example_path)
         return {
             'QUIZ_FORMAT': _get_prompt_value(
                 getattr(module, 'QUIZ_FORMAT', ''), lang
@@ -235,8 +240,12 @@ def get_generator_prompts(lang: str = None) -> Dict[str, Any]:
             'GENERATION_PROMPT_TEMPLATE': _get_prompt_value(
                 getattr(module, 'GENERATION_PROMPT_TEMPLATE', ''), lang
             ),
+            'REGENERATION_PROMPT_TEMPLATE': _get_prompt_value(
+                getattr(example or module, 'REGENERATION_PROMPT_TEMPLATE', ''), lang
+            ),
         }
-    return {'QUIZ_FORMAT': '', 'DIFFICULTY_INSTRUCTIONS': {}, 'GENERATION_PROMPT_TEMPLATE': ''}
+    return {'QUIZ_FORMAT': '', 'DIFFICULTY_INSTRUCTIONS': {}, 'GENERATION_PROMPT_TEMPLATE': '',
+            'REGENERATION_PROMPT_TEMPLATE': ''}
 
 
 def get_anomaly_prompts(lang: str = None) -> Dict[str, Any]:

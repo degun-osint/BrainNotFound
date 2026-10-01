@@ -15,6 +15,8 @@ BrainNotFound utilise le format **Markdown** pour définir les quiz. Ce format e
 - Chaque **question** commence par `##` suivi du type et de l'énoncé
 - Les **points** sont indiqués entre crochets à la fin de la ligne : `[2 points]`, `[1 point]` ou en abrégé `[2 pts]`, décimales acceptées (`[1.5 points]`). Sans mention, la question vaut 1 point.
 
+Les mots-clés anglais sont aussi acceptés : `## MCQ -`, `## OPEN -` et `### Expected answer`.
+
 ## Types de questions
 
 ### QCM (Question à Choix Multiples)
