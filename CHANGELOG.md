@@ -7,6 +7,7 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 ### Nouveautés
 
 - **Générateur de quiz : régénérer seulement certaines questions.** Le quiz généré s'affiche question par question ; on coche celles qui ne conviennent pas et on les régénère, les autres restent telles quelles. L'IA reçoit les questions conservées et rejetées (pas de doublon, pas de question écartée reproposée) ; la nouvelle question garde le type, la place et les points. Consigne facultative ; chaque régénération compte dans le quota de générations. Le texte du document est conservé 24 h (migration 017), puis supprimé.
+- **Aperçu en direct dans l'éditeur de quiz** (création et modification) : les questions en cartes à côté du Markdown, total de questions et de points, erreurs signalées pendant la frappe (question mal écrite, QCM sans bonne réponse, question ouverte sans réponse attendue). Pratique quand on ne maîtrise pas le Markdown.
 - Les quiz peuvent utiliser les mots-clés anglais `## MCQ -`, `## OPEN -` et `### Expected answer`.
 
 ### Corrections

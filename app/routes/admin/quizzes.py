@@ -1046,3 +1046,34 @@ def regenerate_quiz_questions(token):
     flash(_l('%(count)s question(s) regeneree(s).', count=len(chosen)), 'success')
     return _render_generator_preview(draft, join_blocks(preamble, blocks), groups, regenerated=chosen)
 
+
+
+@admin_bp.route('/quiz/preview-markdown', methods=['POST'])
+@login_required
+@admin_required
+def preview_markdown():
+    """Live preview of the quiz editor: question cards, totals, errors and warnings."""
+    data = request.get_json(silent=True) or {}
+    markdown = (data.get('markdown') or '')[:200000]
+    quiz_id = None
+    if data.get('quiz'):
+        quiz = Quiz.get_by_identifier(str(data['quiz']))
+        if quiz and current_user.can_access_quiz(quiz):
+            quiz_id = quiz.id  # images of this quiz can be shown
+    preamble, blocks = split_blocks(markdown)
+    questions = [(i, block, describe_block(block)) for i, block in enumerate(blocks)]
+    parsed = parse_quiz_markdown(markdown)
+    check = validate_quiz_data(parsed)
+    unreadable = [i + 1 for i, _, q in questions if q is None]
+    errors = list(check['errors'])
+    if unreadable:
+        errors.insert(0, str(_l('Question(s) illisible(s) : %(n)s', n=', '.join(map(str, unreadable)))))
+    html = render_template('admin/_question_cards_list.html', questions=questions, quiz_id=quiz_id)
+    return jsonify({
+        'html': html,
+        'title': parsed.get('title') or '',
+        'count': len(parsed.get('questions', [])),
+        'points': sum(q.get('points', 0) for q in parsed.get('questions', [])),
+        'errors': errors,
+        'warnings': check['warnings'],
+    })

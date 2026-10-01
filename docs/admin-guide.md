@@ -89,6 +89,10 @@ La suppression efface le compte et tous ses résultats (quiz et entretiens). Il 
 
 **Quiz** affiche les quiz de votre périmètre, avec recherche et filtre par groupe. Pour chaque quiz : **Modifier**, **Prévisualiser**, **Résultats**, **Dupliquer**, **Activer / Désactiver**, **Copier le lien**, **Supprimer**. Un badge « Aucun groupe » signale un quiz qu'aucun apprenant ne peut voir.
 
+### Aperçu en direct
+
+Sur la création et la modification d'un quiz, un **aperçu** s'affiche à côté du Markdown (en dessous sur un petit écran) et se met à jour pendant la frappe : chaque question en carte (énoncé, options avec la bonne réponse, réponse attendue), le total de questions et de points, et les erreurs à corriger, par exemple une question mal écrite, un QCM sans bonne réponse cochée ou une question ouverte sans réponse attendue. Les images du quiz s'y affichent.
+
 ### Options d'un quiz
 
 | Option | Description |

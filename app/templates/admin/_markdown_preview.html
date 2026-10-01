@@ -1,0 +1,53 @@
+{# Live preview next to the quiz Markdown editor (create and edit forms) #}
+{% macro preview_pane() %}
+<div class="md-preview" id="md-preview" aria-live="polite">
+    <div class="md-preview-head">
+        <strong>{{ _('Apercu') }}</strong>
+        <span class="text-light text-sm" id="md-preview-summary"></span>
+    </div>
+    <div id="md-preview-issues"></div>
+    <div id="md-preview-cards"><p class="text-light">{{ _('Chargement...') }}</p></div>
+</div>
+{% endmacro %}
+
+{% macro preview_script(quiz=None) %}
+<script>
+(function() {
+    const textarea = document.getElementById('markdown_content');
+    if (!textarea) return;
+    const summary = document.getElementById('md-preview-summary');
+    const issues = document.getElementById('md-preview-issues');
+    const cards = document.getElementById('md-preview-cards');
+    const url = {{ url_for('admin.preview_markdown')|tojson }};
+    const quiz = {{ (quiz.get_url_identifier() if quiz else none)|tojson }};
+    const label = {{ _('{count} question(s), {points} point(s)')|tojson }};
+    let timer = null, seq = 0;
+
+    function list(items, css) {
+        if (!items.length) return '';
+        const ul = document.createElement('ul');
+        items.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+        return '<div class="alert ' + css + ' mb-1">' + ul.outerHTML + '</div>';
+    }
+
+    async function refresh() {
+        const mine = ++seq;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+                body: JSON.stringify({markdown: textarea.value, quiz: quiz})
+            });
+            if (!response.ok || mine !== seq) return;  // a newer refresh is on its way
+            const data = await response.json();
+            summary.textContent = label.replace('{count}', data.count).replace('{points}', data.points);
+            issues.innerHTML = list(data.errors, 'alert-error') + list(data.warnings, 'alert-warning');
+            cards.innerHTML = data.html;
+        } catch (e) { /* offline: keep the last preview */ }
+    }
+
+    textarea.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(refresh, 400); });
+    refresh();
+})();
+</script>
+{% endmacro %}
