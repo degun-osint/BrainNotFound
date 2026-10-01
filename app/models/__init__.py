@@ -2,7 +2,7 @@
 from app.models.user import User, user_groups
 from app.models.group import Group
 from app.models.quiz import (
-    Quiz, Question, QuizResponse, Answer, AnswerContest, GeneratorDraft, quiz_groups, quiz_graders,
+    Quiz, Question, QuizResponse, Answer, AnswerContest, GeneratorDraft, QuizAnalysis, quiz_groups, quiz_graders,
 )
 from app.models.settings import SiteSettings
 from app.models.page import Page
@@ -15,7 +15,7 @@ from app.models.interview import (
 __all__ = [
     'User', 'user_groups',
     'Group',
-    'Quiz', 'Question', 'QuizResponse', 'Answer', 'AnswerContest', 'GeneratorDraft', 'quiz_groups', 'quiz_graders',
+    'Quiz', 'Question', 'QuizResponse', 'Answer', 'AnswerContest', 'GeneratorDraft', 'QuizAnalysis', 'quiz_groups', 'quiz_graders',
     'SiteSettings',
     'Page',
     'Tenant', 'tenant_admins',

@@ -13,6 +13,7 @@ Les versions antérieures ne sont décrites que dans l'historique git.
 
 - L'aperçu du générateur n'avait pas la section Correction (mode, correcteurs, contestation, emails aux apprenants) ajoutée en 2.2.0.
 - La case « Prévenir les apprenants par email » apparaissait décochée sur l'aperçu du générateur.
+- **Analyse du groupe** : elle portait sur toutes les copies du quiz, quel que soit le groupe sélectionné ; sur un quiz partagé entre établissements, elle montrait les noms et notes d'apprenants d'un autre établissement, et comptait les copies de test. Elle porte désormais sur le groupe choisi (sélecteur sur la page) ou sur les copies que l'on peut voir, sans copies de test. Les analyses sont enregistrées par quiz et par groupe (migration 018), et ne s'affichent qu'à qui peut voir toutes les copies analysées ; la page signale les copies arrivées depuis. Les correcteurs désignés y ont accès.
 
 ## [2.2.1] - 2026-09-25
 

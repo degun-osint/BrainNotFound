@@ -312,3 +312,32 @@ class GeneratorDraft(db.Model):
         count = cls.query.filter(cls.created_at < cutoff).delete(synchronize_session=False)
         db.session.commit()
         return count
+
+
+class QuizAnalysis(db.Model):
+    """AI analysis of the papers of a quiz, for one group (or all the papers the
+    author of the analysis could see). Shown only to someone who can see every
+    paper it was made from."""
+    __tablename__ = 'quiz_analyses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False, index=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id', ondelete='CASCADE'), nullable=True, index=True)
+    response_ids = db.Column(db.JSON, nullable=False)  # papers analysed
+    result = db.Column(db.JSON, nullable=False)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    quiz = db.relationship('Quiz', backref=db.backref('analyses', lazy='dynamic', cascade='all, delete-orphan'))
+    group = db.relationship('Group')
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
+
+    @classmethod
+    def latest_visible(cls, quiz, group_id, visible_ids):
+        """Most recent analysis of this quiz and group made only from papers in visible_ids."""
+        visible = set(visible_ids)
+        for analysis in cls.query.filter_by(quiz_id=quiz.id, group_id=group_id).order_by(cls.created_at.desc()):
+            if set(analysis.response_ids) <= visible:
+                return analysis
+        return None
+

@@ -344,12 +344,14 @@ def get_class_average_times(quiz_id):
     return result
 
 
-def get_class_stats(quiz_id):
+def get_class_stats(quiz_id, responses=None):
     """
     Get comprehensive class statistics for a quiz.
 
     Args:
         quiz_id: The Quiz ID
+        responses: the papers to analyse (a group, the viewer's scope); default:
+            every real (non-test) paper of the quiz
 
     Returns:
         dict: Class-wide statistics for analysis
@@ -360,7 +362,9 @@ def get_class_stats(quiz_id):
     if not quiz:
         return None
 
-    responses = QuizResponse.query.filter_by(quiz_id=quiz_id).all()
+    if responses is None:
+        responses = QuizResponse.query.filter(QuizResponse.quiz_id == quiz_id,
+                                              QuizResponse.is_test.isnot(True)).all()
     if not responses:
         return {'error': 'No responses yet'}
 
@@ -467,17 +471,18 @@ def get_class_stats(quiz_id):
     }
 
 
-def analyze_class(quiz_id):
+def analyze_class(quiz_id, responses=None):
     """
-    Run AI analysis on all responses for a quiz.
+    Run AI analysis on the papers of a quiz.
 
     Args:
         quiz_id: The Quiz ID
+        responses: the papers to analyse (see get_class_stats)
 
     Returns:
         dict: Class-wide analysis with suspicious patterns
     """
-    stats = get_class_stats(quiz_id)
+    stats = get_class_stats(quiz_id, responses)
     if not stats or 'error' in stats:
         return stats
 

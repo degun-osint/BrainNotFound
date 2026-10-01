@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 11:21+0200\n"
+"POT-Creation-Date: 2026-10-01 15:26+0200\n"
 "PO-Revision-Date: 2026-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: en <LL@li.org>\n"
@@ -361,7 +361,6 @@ msgstr "Import error: %(error)s"
 #: app/routes/admin/quizzes.py:716 app/routes/admin/quizzes.py:790
 #: app/routes/admin/results.py:93 app/routes/admin/results.py:107
 #: app/routes/admin/results.py:148 app/routes/admin/results.py:211
-#: app/routes/admin/results.py:510 app/routes/admin/results.py:524
 #: app/routes/quiz.py:235 app/routes/quiz.py:245 app/routes/quiz.py:538
 msgid "Quiz introuvable"
 msgstr "Quiz not found"
@@ -538,6 +537,7 @@ msgstr "Group \"%(name)s\" created with the code: %(code)s"
 #: app/routes/admin/groups.py:102 app/routes/admin/groups.py:160
 #: app/routes/admin/groups.py:182 app/routes/admin/groups.py:206
 #: app/routes/admin/groups.py:377 app/routes/admin/groups.py:474
+#: app/routes/admin/results.py:536
 msgid "Groupe introuvable"
 msgstr "Group not found"
 
@@ -704,7 +704,6 @@ msgstr "Error creating quiz. Check the Markdown format."
 #: app/routes/admin/results.py:96 app/routes/admin/results.py:116
 #: app/routes/admin/results.py:155 app/routes/admin/results.py:216
 #: app/routes/admin/results.py:402 app/routes/admin/results.py:441
-#: app/routes/admin/results.py:519
 msgid "Vous n'avez pas acces a ce quiz"
 msgstr "You do not have access to this quiz."
 
@@ -853,9 +852,13 @@ msgid ""
 "quiz."
 msgstr "Response from %(name)s deleted. The user can now retake the quiz."
 
-#: app/routes/admin/results.py:475 app/routes/admin/results.py:556
+#: app/routes/admin/results.py:475 app/routes/admin/results.py:564
 msgid "Quota mensuel d'analyses IA atteint pour cet etablissement"
 msgstr "Monthly AI analysis quota reached for this organization"
+
+#: app/routes/admin/results.py:539 app/routes/admin/results.py:569
+msgid "Aucune copie a analyser pour ce groupe."
+msgstr "No paper to analyse for this group."
 
 #: app/routes/admin/settings.py:57
 msgid "Parametres sauvegardes avec succes"
@@ -1255,6 +1258,7 @@ msgstr ""
 
 #: app/templates/admin/_list_filters.html:28
 #: app/templates/admin/_list_filters.html:36
+#: app/templates/admin/class_analysis.html:194
 #: app/templates/admin/quiz_results.html:46 app/templates/quiz/list.html:56
 #: app/templates/quiz/list.html:64
 msgid "Tous les groupes"
@@ -1358,7 +1362,7 @@ msgid "Role dans le groupe"
 msgstr "Role in the group"
 
 #: app/templates/admin/_user_roles.html:64
-#: app/templates/admin/class_analysis.html:399
+#: app/templates/admin/class_analysis.html:413
 #: app/templates/admin/interviews/session.html:133
 #: app/templates/admin/interviews/view.html:180
 #: app/templates/admin/quiz_results.html:95
@@ -1393,131 +1397,155 @@ msgstr "No groups available"
 msgid "Analyse du groupe"
 msgstr "Group analysis"
 
-#: app/templates/admin/class_analysis.html:192
-#: app/templates/admin/class_analysis.html:474
-#: app/templates/admin/class_analysis.html:479
+#: app/templates/admin/class_analysis.html:187
+msgid "toutes les copies que vous voyez"
+msgstr "all the papers you can see"
+
+#: app/templates/admin/class_analysis.html:191
+msgid "Groupe analyse"
+msgstr "Analysed group"
+
+#: app/templates/admin/class_analysis.html:202
+#: app/templates/admin/class_analysis.html:488
+#: app/templates/admin/class_analysis.html:493
 msgid "Lancer l'analyse IA"
 msgstr "Launch AI analysis"
 
-#: app/templates/admin/class_analysis.html:196
+#: app/templates/admin/class_analysis.html:206
 msgid "Relancer l'analyse"
 msgstr "Restart the analysis"
 
-#: app/templates/admin/class_analysis.html:205
+#: app/templates/admin/class_analysis.html:215
 #: app/templates/admin/group_detail.html:73
 #: app/templates/admin/group_detail.html:123
 #: app/templates/admin/groups.html:37 app/templates/admin/tenants/view.html:91
 msgid "Apprenants"
 msgstr "Learners"
 
-#: app/templates/admin/class_analysis.html:209
+#: app/templates/admin/class_analysis.html:219
 #: app/templates/admin/interviews/view.html:37
 msgid "Duree moyenne"
 msgstr "Average duration"
 
-#: app/templates/admin/class_analysis.html:213
+#: app/templates/admin/class_analysis.html:223
 #: app/templates/admin/interviews/view.html:33
 msgid "Score moyen"
 msgstr "Average score"
 
-#: app/templates/admin/class_analysis.html:219
+#: app/templates/admin/class_analysis.html:229
 #: app/templates/admin/response_analysis.html:253
 msgid "Pertes de focus"
 msgstr "Loss of focus"
 
-#: app/templates/admin/class_analysis.html:225
+#: app/templates/admin/class_analysis.html:235
 msgid "Avec focus issues"
 msgstr "With focus issues"
 
-#: app/templates/admin/class_analysis.html:234
+#: app/templates/admin/class_analysis.html:244
 #: app/templates/admin/response_analysis.html:263
 msgid "Analyse pedagogique IA"
 msgstr "Pedagogical analysis of AI"
 
-#: app/templates/admin/class_analysis.html:247
+#: app/templates/admin/class_analysis.html:250
+#, python-format
+msgid "Analyse du %(date)s sur %(count)s copie(s)"
+msgstr "Analysis of %(date)s on %(count)s paper(s)"
+
+#: app/templates/admin/class_analysis.html:250
+#, python-format
+msgid "lancee par %(name)s"
+msgstr "run by %(name)s"
+
+#: app/templates/admin/class_analysis.html:251
+#, python-format
+msgid ""
+"%(count)s nouvelle(s) copie(s) depuis : relancez l'analyse pour les inclure."
+msgstr "%(count)s new paper(s) since: run the analysis again to include them."
+
+#: app/templates/admin/class_analysis.html:261
 msgid "Points forts du groupe"
 msgstr "Group strengths"
 
-#: app/templates/admin/class_analysis.html:259
+#: app/templates/admin/class_analysis.html:273
 msgid "Notions a revoir en cours"
 msgstr "Concepts to review in class"
 
-#: app/templates/admin/class_analysis.html:263
+#: app/templates/admin/class_analysis.html:277
 msgid "reussite"
 msgstr "success"
 
-#: app/templates/admin/class_analysis.html:269
+#: app/templates/admin/class_analysis.html:283
 msgid "Erreurs frequentes:"
 msgstr "Common mistakes:"
 
-#: app/templates/admin/class_analysis.html:279
+#: app/templates/admin/class_analysis.html:293
 msgid "Apprenants a accompagner"
 msgstr "Learners needing support"
 
-#: app/templates/admin/class_analysis.html:299
+#: app/templates/admin/class_analysis.html:313
 msgid "Observations comportementales"
 msgstr "Behavioral observations"
 
-#: app/templates/admin/class_analysis.html:310
+#: app/templates/admin/class_analysis.html:324
 msgid "Explications possibles:"
 msgstr "Possible explanations:"
 
-#: app/templates/admin/class_analysis.html:320
+#: app/templates/admin/class_analysis.html:334
 msgid "Recommandations"
 msgstr "Recommendations"
 
-#: app/templates/admin/class_analysis.html:341
+#: app/templates/admin/class_analysis.html:355
 msgid ""
 "Cliquez sur \"Lancer l'analyse IA\" pour obtenir une analyse pedagogique du "
 "groupe."
 msgstr "Click \"Run AI analysis\" to get a teaching analysis of the group."
 
-#: app/templates/admin/class_analysis.html:349
+#: app/templates/admin/class_analysis.html:363
 msgid "Statistiques par question"
 msgstr "Statistics by question"
 
-#: app/templates/admin/class_analysis.html:356
+#: app/templates/admin/class_analysis.html:370
 #: app/templates/admin/settings.html:576 app/templates/quiz/dashboard.html:200
 msgid "Type"
 msgstr "Kind"
 
-#: app/templates/admin/class_analysis.html:357
+#: app/templates/admin/class_analysis.html:371
 #: app/templates/admin/response_analysis.html:324
 #: app/templates/admin/response_analysis.html:346
 #: app/templates/quiz/take_exam.html:467 app/templates/quiz/take_exam.html:545
 msgid "Question"
 msgstr "Question"
 
-#: app/templates/admin/class_analysis.html:358
+#: app/templates/admin/class_analysis.html:372
 #: app/templates/admin/interviews/view.html:134
 #: app/templates/interview/result_pdf.html:181
 msgid "Points"
 msgstr "Points"
 
-#: app/templates/admin/class_analysis.html:359
+#: app/templates/admin/class_analysis.html:373
 msgid "Temps moy"
 msgstr "Average time"
 
-#: app/templates/admin/class_analysis.html:360
+#: app/templates/admin/class_analysis.html:374
 msgid "Ecart-type"
 msgstr "Standard deviation"
 
-#: app/templates/admin/class_analysis.html:361
+#: app/templates/admin/class_analysis.html:375
 msgid "Score moy"
 msgstr "Average score"
 
-#: app/templates/admin/class_analysis.html:362
-#: app/templates/admin/class_analysis.html:402
+#: app/templates/admin/class_analysis.html:376
+#: app/templates/admin/class_analysis.html:416
 #: app/templates/admin/quiz_results.html:101
 #: app/templates/admin/response_analysis.html:348
 msgid "Focus"
 msgstr "Focus"
 
-#: app/templates/admin/class_analysis.html:396
+#: app/templates/admin/class_analysis.html:410
 msgid "Comparaison des apprenants"
 msgstr "Learner comparison"
 
-#: app/templates/admin/class_analysis.html:400
+#: app/templates/admin/class_analysis.html:414
 #: app/templates/admin/edit_response.html:137
 #: app/templates/admin/interviews/session.html:98
 #: app/templates/admin/interviews/view.html:184
@@ -1531,33 +1559,33 @@ msgstr "Learner comparison"
 msgid "Score"
 msgstr "Score"
 
-#: app/templates/admin/class_analysis.html:401
+#: app/templates/admin/class_analysis.html:415
 #: app/templates/admin/interviews/session.html:102
 #: app/templates/admin/interviews/view.html:182
 #: app/templates/admin/user_detail.html:90
 msgid "Duree"
 msgstr "Duration"
 
-#: app/templates/admin/class_analysis.html:403
+#: app/templates/admin/class_analysis.html:417
 msgid "Temps par question (vert=rapide, rouge=lent)"
 msgstr "Time per question (green=fast, red=slow)"
 
-#: app/templates/admin/class_analysis.html:431
+#: app/templates/admin/class_analysis.html:445
 #: app/templates/admin/response_analysis.html:370
 msgid "moy:"
 msgstr "average:"
 
-#: app/templates/admin/class_analysis.html:442
+#: app/templates/admin/class_analysis.html:456
 #: app/templates/admin/response_analysis.html:452
 msgid "Retour aux resultats"
 msgstr "Back to results"
 
-#: app/templates/admin/class_analysis.html:456
+#: app/templates/admin/class_analysis.html:470
 #: app/templates/admin/response_analysis.html:469
 msgid "Analyse en cours..."
 msgstr "Analysis in progress..."
 
-#: app/templates/admin/class_analysis.html:472
+#: app/templates/admin/class_analysis.html:486
 #: app/templates/admin/create_quiz.html:319
 #: app/templates/admin/edit_quiz.html:327
 #: app/templates/admin/interviews/wizard.html:863
@@ -1568,12 +1596,12 @@ msgstr "Analysis in progress..."
 msgid "Erreur:"
 msgstr "Error:"
 
-#: app/templates/admin/class_analysis.html:472
+#: app/templates/admin/class_analysis.html:486
 #: app/templates/admin/response_analysis.html:486
 msgid "Erreur inconnue"
 msgstr "Unknown error"
 
-#: app/templates/admin/class_analysis.html:477
+#: app/templates/admin/class_analysis.html:491
 #: app/templates/admin/create_quiz.html:323
 #: app/templates/admin/edit_quiz.html:331
 #: app/templates/admin/response_analysis.html:491
@@ -3423,6 +3451,10 @@ msgstr "Results"
 #: app/templates/admin/quiz_results.html:7 app/templates/quiz/result.html:18
 msgid "Resultats :"
 msgstr "Results :"
+
+#: app/templates/admin/quiz_results.html:10
+msgid "Analyse des copies"
+msgstr "Paper analysis"
 
 #: app/templates/admin/quiz_results.html:18
 #, python-format
