@@ -1,141 +1,214 @@
 {% extends "base.html" %}
+{% import "admin/_grading_options.html" as go with context %}
 
 {% block title %}{{ _('Quiz genere') }} - BrainNotFound{% endblock %}
 
 {% block content %}
+{% set posted = request.method == 'POST' %}
+{% set form = request.form %}
 <h1 class="mb-2">{{ _('Quiz genere :') }} {{ title }}</h1>
 
-<div class="alert alert-success mb-2">
-    <strong>{{ _('Quiz genere avec succes !') }}</strong> {{ _('Verifiez et modifiez le contenu si necessaire avant de creer le quiz.') }}
-</div>
+<p class="text-light mb-2">
+    {{ _("Relisez les questions. Cochez celles qui ne vous conviennent pas et regenerez-les : les autres restent telles quelles. Le document reste disponible 24 heures pour regenerer.") }}
+</p>
 
-<div class="card">
-    <div class="card-header">{{ _('Contenu genere (modifiable)') }}</div>
+<form method="POST" action="{{ url_for('admin.create_quiz') }}" id="generated-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <form method="POST" action="{{ url_for('admin.create_quiz') }}">
-        <div class="form-group">
-            <textarea id="markdown_content" name="markdown_content" class="form-textarea form-textarea-tall font-mono" required>{{ generated_markdown }}</textarea>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="time_limit_minutes">{{ _('Limite de temps (optionnel)') }}</label>
-            <div class="flex items-center gap-sm">
-                <input type="number" id="time_limit_minutes" name="time_limit_minutes"
-                       class="form-input input-sm" min="1" max="180" placeholder="--">
-                <span class="text-light">{{ _('minutes (laisser vide pour illimite)') }}</span>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="slug">{{ _('Lien personnalise (optionnel)') }}</label>
-            <div class="flex items-center gap-sm">
-                <span class="text-light">/quiz/</span>
-                <input type="text" id="slug" name="slug" class="form-input input-lg"
-                       placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="{{ _('Lettres minuscules, chiffres et tirets uniquement') }}">
-            </div>
-            <small class="help-text">
-                {{ _('Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.') }}
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">{{ _('Periode de disponibilite (optionnel)') }}</label>
-            <div class="flex items-center gap-md flex-wrap">
-                <div class="flex items-center gap-sm">
-                    <span class="text-light">{{ _('Du') }}</span>
-                    <input type="datetime-local" id="available_from" name="available_from"
-                           class="form-input input-md">
-                </div>
-                <div class="flex items-center gap-sm">
-                    <span class="text-light">{{ _('au') }}</span>
-                    <input type="datetime-local" id="available_until" name="available_until"
-                           class="form-input input-md">
-                </div>
-            </div>
-            <small class="help-text">
-                {{ _('Laisser vide pour un quiz toujours disponible') }}
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">{{ _('Groupes autorises (optionnel)') }}</label>
-            <div class="flex flex-wrap gap-md mt-1">
-                {% for group in groups %}
-                <label class="check-item">
-                    <input type="checkbox" name="group_ids" value="{{ group.id }}">
-                    <span>{{ group.name }}</span>
-                </label>
-                {% endfor %}
-            </div>
-            <small class="help-text">
-                {{ _("Si aucun groupe n'est selectionne, le quiz ne sera visible par aucun apprenant") }}
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">{{ _('Severite de la correction IA') }}</label>
-            <div class="flex gap-lg mt-1">
-                <label class="flex items-center gap-sm cursor-pointer">
-                    <input type="radio" name="grading_severity" value="gentil">
-                    <span class="text-success">{{ _('Gentil') }}</span>
-                </label>
-                <label class="flex items-center gap-sm cursor-pointer">
-                    <input type="radio" name="grading_severity" value="modere" checked>
-                    <span>{{ _('Modere') }}</span>
-                </label>
-                <label class="flex items-center gap-sm cursor-pointer">
-                    <input type="radio" name="grading_severity" value="severe">
-                    <span class="text-error">{{ _('Severe') }}</span>
-                </label>
-            </div>
-            <small class="help-text">
-                {{ _('Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision') }}
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">{{ _('Humeur du correcteur (optionnel, plusieurs choix possibles)') }}</label>
-            <div class="flex flex-wrap gap-md mt-1">
-                {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
-                <label class="check-item">
-                    <input type="checkbox" name="grading_mood" value="{{ mood }}">
-                    <span>{{ mood|capitalize }}</span>
-                </label>
-                {% endfor %}
-            </div>
-            <small class="help-text">
-                {{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label class="flex items-center gap-sm cursor-pointer">
-                <input type="checkbox" name="randomize_questions">
-                <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
+    <div class="card mb-2">
+        <div class="card-header flex justify-between items-center flex-wrap gap-sm">
+            <span>{{ _('Questions') }} ({{ questions|length }})</span>
+            <label class="checkbox-item mb-0">
+                <input type="checkbox" id="regen-all">
+                <span>{{ _('Tout cocher') }}</span>
             </label>
-            <small class="help-text">
-                {{ _('Si active, les questions seront affichees dans un ordre different pour chaque apprenant') }}
-            </small>
         </div>
+        <div class="p-2">
+            {% for index, block, question in questions %}
+            <div class="generated-question {{ 'just-regenerated' if index in regenerated }}">
+                <div class="flex justify-between items-start gap-md flex-wrap">
+                    <div class="flex items-center gap-sm flex-wrap">
+                        <span class="question-badge">Q{{ index + 1 }}</span>
+                        {% if question %}
+                        <span class="badge badge-default">{{ _('QCM') if question.question_type == 'mcq' else _('Ouverte') }}</span>
+                        <span class="text-light text-sm">{{ '%g'|format(question.points) }} {{ _('point(s)') }}</span>
+                        {% endif %}
+                        {% if index in regenerated %}<span class="badge badge-success">{{ _('Nouvelle') }}</span>{% endif %}
+                    </div>
+                    <label class="checkbox-item mb-0">
+                        <input type="checkbox" name="regen" value="{{ index }}" class="regen-check">
+                        <span>{{ _('A regenerer') }}</span>
+                    </label>
+                </div>
+                {% if question %}
+                <p class="font-medium mt-1 mb-1 whitespace-pre">{{ question.question_text }}</p>
+                {% if question.question_type == 'mcq' %}
+                <ul class="generated-options">
+                    {% for option in question.options %}
+                    <li class="{{ 'correct' if loop.index0 in question.correct_answers }}">
+                        <i class="iconoir-{{ 'check-circle' if loop.index0 in question.correct_answers else 'circle' }}"></i> {{ option }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% elif question.expected_answer %}
+                <div class="expected-answer">
+                    <strong>{{ _('Reponse attendue :') }}</strong>
+                    <div class="whitespace-pre mt-1">{{ question.expected_answer }}</div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="alert alert-warning mb-0 mt-1">{{ _("Question illisible : corrigez-la dans le Markdown ci-dessous.") }}</div>
+                <pre class="text-sm overflow-x-auto">{{ block }}</pre>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="text-light">{{ _("Aucune question lisible : corrigez le Markdown ci-dessous.") }}</p>
+            {% endfor %}
+        </div>
+        <div class="p-2 regen-panel">
+            <label class="form-label" for="regen_guidance">{{ _('Consigne pour la regeneration (optionnel)') }}</label>
+            <input type="text" id="regen_guidance" name="regen_guidance" class="form-input" maxlength="1000"
+                   value="{{ form.get('regen_guidance', '') if posted else '' }}"
+                   placeholder="{{ _('Ex : plus difficile, plutot sur le chapitre 3, eviter les questions de dates') }}">
+            <div class="flex items-center gap-sm flex-wrap mt-1">
+                <button type="submit" class="btn btn-secondary" id="regen-button" disabled formnovalidate
+                        formaction="{{ url_for('admin.regenerate_quiz_questions', token=draft.token) }}">
+                    <i class="iconoir-refresh"></i> {{ _('Regenerer les questions cochees') }}
+                </button>
+                <small class="text-light">{{ _("Les questions conservees et celles que vous rejetez sont transmises a l'IA pour eviter les doublons. Chaque regeneration compte dans le quota de generations.") }}</small>
+            </div>
+        </div>
+    </div>
 
-        <div class="actions flex-wrap">
-            <button type="submit" class="btn btn-primary">
-                <i class="iconoir-plus"></i> {{ _('Creer le quiz') }}
-            </button>
-            <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary">
-                <i class="iconoir-refresh"></i> {{ _('Regenerer') }}
-            </a>
-            <button type="button" class="btn btn-secondary" onclick="copyMarkdown()">
+    <details class="card mb-2">
+        <summary class="card-header cursor-pointer">{{ _('Modifier le Markdown') }}</summary>
+        <div class="p-2">
+            <small class="text-light block mb-1">{{ _("Vos modifications sont prises en compte a la creation du quiz et a la prochaine regeneration.") }}</small>
+            <textarea id="markdown_content" name="markdown_content" class="form-textarea form-textarea-tall font-mono" required>{{ generated_markdown }}</textarea>
+            <button type="button" class="btn btn-secondary btn-small mt-1" onclick="copyMarkdown()">
                 <i class="iconoir-copy"></i> {{ _('Copier') }}
             </button>
-            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="iconoir-xmark"></i> {{ _('Annuler') }}
-            </a>
         </div>
-    </form>
-</div>
+    </details>
 
-<!-- Copy success notification -->
+    <div class="card">
+        <div class="card-header">{{ _('Options du quiz') }}</div>
+        <div class="p-2">
+            <div class="form-group">
+                <label class="form-label" for="time_limit_minutes">{{ _('Limite de temps (optionnel)') }}</label>
+                <div class="flex items-center gap-sm">
+                    <input type="number" id="time_limit_minutes" name="time_limit_minutes"
+                           class="form-input input-sm" min="1" max="180" placeholder="--"
+                           value="{{ form.get('time_limit_minutes', '') if posted else '' }}">
+                    <span class="text-light">{{ _('minutes (laisser vide pour illimite)') }}</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="slug">{{ _('Lien personnalise (optionnel)') }}</label>
+                <div class="flex items-center gap-sm">
+                    <span class="text-light">/quiz/</span>
+                    <input type="text" id="slug" name="slug" class="form-input input-lg"
+                           placeholder="mon-quiz" pattern="[a-z0-9\-]+" title="{{ _('Lettres minuscules, chiffres et tirets uniquement') }}"
+                           value="{{ form.get('slug', '') if posted else '' }}">
+                </div>
+                <small class="help-text">
+                    {{ _('Lettres minuscules, chiffres et tirets. Si vide, le quiz utilisera son ID numerique.') }}
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ _('Periode de disponibilite (optionnel)') }}</label>
+                <div class="flex items-center gap-md flex-wrap">
+                    <div class="flex items-center gap-sm">
+                        <span class="text-light">{{ _('Du') }}</span>
+                        <input type="datetime-local" id="available_from" name="available_from"
+                               class="form-input input-md" value="{{ form.get('available_from', '') if posted else '' }}">
+                    </div>
+                    <div class="flex items-center gap-sm">
+                        <span class="text-light">{{ _('au') }}</span>
+                        <input type="datetime-local" id="available_until" name="available_until"
+                               class="form-input input-md" value="{{ form.get('available_until', '') if posted else '' }}">
+                    </div>
+                </div>
+                <small class="help-text">{{ _('Laisser vide pour un quiz toujours disponible') }}</small>
+            </div>
+
+            {% set chosen_groups = form.getlist('group_ids') if posted else [] %}
+            <div class="form-group">
+                <label class="form-label">{{ _('Groupes autorises (optionnel)') }}</label>
+                <div class="flex flex-wrap gap-md mt-1">
+                    {% for group in groups %}
+                    <label class="check-item">
+                        <input type="checkbox" name="group_ids" value="{{ group.id }}" {{ 'checked' if group.id|string in chosen_groups }}>
+                        <span>{{ group.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <small class="help-text">
+                    {{ _("Si aucun groupe n'est selectionne, le quiz ne sera visible par aucun apprenant") }}
+                </small>
+            </div>
+
+            {% set severity = form.get('grading_severity', 'modere') if posted else 'modere' %}
+            <div class="form-group">
+                <label class="form-label">{{ _('Severite de la correction IA') }}</label>
+                <div class="flex gap-lg mt-1">
+                    {% for value, label, css in [('gentil', _('Gentil'), 'text-success'), ('modere', _('Modere'), ''), ('severe', _('Severe'), 'text-error')] %}
+                    <label class="flex items-center gap-sm cursor-pointer">
+                        <input type="radio" name="grading_severity" value="{{ value }}" {{ 'checked' if severity == value }}>
+                        <span class="{{ css }}">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <small class="help-text">
+                    {{ _('Gentil = valorise les efforts, Modere = equilibre, Severe = exige precision') }}
+                </small>
+            </div>
+
+            {% set moods = form.getlist('grading_mood') if posted else [] %}
+            <div class="form-group">
+                <label class="form-label">{{ _('Humeur du correcteur (optionnel, plusieurs choix possibles)') }}</label>
+                <div class="flex flex-wrap gap-md mt-1">
+                    {% for mood in ['neutre', 'jovial', 'taquin', 'encourageant', 'sarcastique', 'professoral'] %}
+                    <label class="check-item">
+                        <input type="checkbox" name="grading_mood" value="{{ mood }}" {{ 'checked' if mood in moods }}>
+                        <span>{{ mood|capitalize }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <small class="help-text">
+                    {{ _('Definit le ton des feedbacks. Si aucun choix, le correcteur sera neutre.') }}
+                </small>
+            </div>
+
+            {{ go.grading_options() }}
+
+            <div class="form-group">
+                <label class="flex items-center gap-sm cursor-pointer">
+                    <input type="checkbox" name="randomize_questions" {{ 'checked' if posted and form.get('randomize_questions') }}>
+                    <span class="form-label mb-0">{{ _('Ordre aleatoire des questions') }}</span>
+                </label>
+                <small class="help-text">
+                    {{ _('Si active, les questions seront affichees dans un ordre different pour chaque apprenant') }}
+                </small>
+            </div>
+
+            <div class="actions flex-wrap">
+                <button type="submit" class="btn btn-primary">
+                    <i class="iconoir-plus"></i> {{ _('Creer le quiz') }}
+                </button>
+                <a href="{{ url_for('admin.generate_quiz') }}" class="btn btn-secondary">
+                    <i class="iconoir-page"></i> {{ _('Recommencer avec un autre document') }}
+                </a>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                    <i class="iconoir-xmark"></i> {{ _('Annuler') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div id="copy-toast" class="toast">
     {{ _('Markdown copie dans le presse-papiers !') }}
 </div>
@@ -143,34 +216,37 @@
 
 {% block extra_js %}
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checks = document.querySelectorAll('.regen-check');
+    const button = document.getElementById('regen-button');
+    const all = document.getElementById('regen-all');
+    function refresh() {
+        const n = [...checks].filter(c => c.checked).length;
+        button.disabled = n === 0;
+        all.checked = n > 0 && n === checks.length;
+    }
+    checks.forEach(c => c.addEventListener('change', refresh));
+    all.addEventListener('change', () => { checks.forEach(c => { c.checked = all.checked; }); refresh(); });
+    // The AI takes a few seconds: say so, and avoid double submissions
+    button.form.addEventListener('submit', function(e) {
+        if (e.submitter === button) {
+            setTimeout(function() {  // after the submission has taken the button's formaction
+                button.disabled = true;
+                button.innerHTML = '<i class="iconoir-refresh"></i> ' + {{ _('Regeneration en cours...')|tojson }};
+            }, 0);
+        }
+    });
+    const fresh = document.querySelector('.just-regenerated');
+    if (fresh) fresh.scrollIntoView({block: 'center'});
+});
+
 function copyMarkdown() {
     const textarea = document.getElementById('markdown_content');
-
-    // Modern clipboard API
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(textarea.value).then(function() {
-            showToast();
-        }).catch(function() {
-            fallbackCopy(textarea);
-        });
-    } else {
-        fallbackCopy(textarea);
-    }
-}
-
-function fallbackCopy(textarea) {
-    textarea.select();
-    textarea.setSelectionRange(0, 99999); // For mobile
-    document.execCommand('copy');
-    showToast();
-}
-
-function showToast() {
-    const toast = document.getElementById('copy-toast');
-    toast.classList.add('show');
-    setTimeout(function() {
-        toast.classList.remove('show');
-    }, 3000);
+    navigator.clipboard.writeText(textarea.value).then(function() {
+        const toast = document.getElementById('copy-toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    });
 }
 </script>
 {% endblock %}

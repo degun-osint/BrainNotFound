@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime
 from sqlalchemy import event
+from sqlalchemy.dialects import mysql
 from app.models.mixins import UIDMixin, init_uid_on_create
 
 # Association table for Quiz-Group many-to-many relationship
@@ -285,3 +286,29 @@ class AnswerContest(db.Model):
 # Register event listeners for auto-generating UIDs
 event.listen(Quiz, 'before_insert', init_uid_on_create)
 event.listen(QuizResponse, 'before_insert', init_uid_on_create)
+
+class GeneratorDraft(db.Model):
+    """Course text kept while an instructor reviews an AI-generated quiz, so that
+    chosen questions can be regenerated. Deleted after DRAFT_HOURS (periodic tick)."""
+    __tablename__ = 'generator_drafts'
+
+    DRAFT_HOURS = 24
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    difficulty = db.Column(db.String(20), default='modere')
+    instructions = db.Column(db.Text, nullable=True)
+    # up to ~50 000 characters: more than MySQL/MariaDB TEXT (64 KB) holds
+    content = db.Column(db.Text().with_variant(mysql.MEDIUMTEXT(), 'mysql', 'mariadb'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    @classmethod
+    def purge_expired(cls, now=None):
+        """Delete drafts older than DRAFT_HOURS. Returns how many."""
+        from datetime import timedelta
+        cutoff = (now or datetime.utcnow()) - timedelta(hours=cls.DRAFT_HOURS)
+        count = cls.query.filter(cls.created_at < cutoff).delete(synchronize_session=False)
+        db.session.commit()
+        return count

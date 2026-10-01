@@ -3,6 +3,7 @@ import os
 import shutil
 import uuid
 import re
+import secrets
 from flask import (
     render_template,
     redirect,
@@ -20,10 +21,12 @@ from werkzeug.utils import secure_filename
 from app import db
 from app.models.user import User, user_groups
 from app.models.group import Group
-from app.models.quiz import Quiz, Question, QuizResponse, Answer
+from app.models.quiz import Quiz, Question, QuizResponse, Answer, GeneratorDraft
 from app.models.tenant import Tenant
 from app.utils.markdown_parser import parse_quiz_markdown, validate_quiz_data
-from app.utils.quiz_generator import ContentExtractor, generate_quiz_from_content
+from app.utils.quiz_generator import (
+    ContentExtractor, generate_quiz_from_content, split_blocks, join_blocks, describe_block, regenerate_questions,
+)
 from app.utils.scope import (
     get_tenant_context,
     scoped_groups,
@@ -967,11 +970,12 @@ def generate_quiz():
             if result['success']:
                 if tenant:
                     tenant.increment_quiz_generations()
-                # Render preview page with generated markdown
-                return render_template('admin/generate_quiz_preview.html',
-                                     generated_markdown=result['markdown'],
-                                     title=title,
-                                     groups=groups)
+                # Keep the course text a while: chosen questions can then be regenerated
+                draft = GeneratorDraft(token=secrets.token_urlsafe(24), user_id=current_user.id, title=title,
+                                       difficulty=difficulty, instructions=instructions or None, content=content)
+                db.session.add(draft)
+                db.session.commit()
+                return _render_generator_preview(draft, result['markdown'], groups)
             else:
                 flash(_l('Erreur lors de la generation: %(error)s', error=result.get("error", _l("Erreur inconnue"))), 'error')
                 return render_template('admin/generate_quiz.html', groups=groups)
@@ -982,3 +986,63 @@ def generate_quiz():
             return render_template('admin/generate_quiz.html', groups=groups)
 
     return render_template('admin/generate_quiz.html', groups=groups)
+
+
+def _render_generator_preview(draft, markdown, groups, regenerated=()):
+    """Generated quiz, question by question, with the regeneration controls."""
+    preamble, blocks = split_blocks(markdown)
+    questions = [(i, block, describe_block(block)) for i, block in enumerate(blocks)]
+    return render_template('admin/generate_quiz_preview.html', draft=draft, title=draft.title,
+                           generated_markdown=markdown, questions=questions, groups=groups,
+                           regenerated=set(regenerated))
+
+
+@admin_bp.route('/quiz/generate/<token>/regenerate', methods=['POST'])
+@login_required
+@admin_required
+def regenerate_quiz_questions(token):
+    """Replace the checked questions of a generated quiz, keeping the others as they are."""
+    draft = GeneratorDraft.query.filter_by(token=token, user_id=current_user.id).first()
+    if not draft:
+        flash(_l('Ce brouillon a expire (24 h) : relancez la generation depuis le document.'), 'error')
+        return redirect(url_for('admin.generate_quiz'))
+    groups = scoped_groups().all()
+    markdown = request.form.get('markdown_content', '')
+    preamble, blocks = split_blocks(markdown)
+    chosen = sorted({int(i) for i in request.form.getlist('regen') if i.isdigit() and int(i) < len(blocks)})
+    if not chosen:
+        flash(_l('Cochez les questions a regenerer.'), 'error')
+        return _render_generator_preview(draft, markdown, groups)
+
+    specs = []
+    for i in chosen:
+        question = describe_block(blocks[i])
+        if question is None:
+            flash(_l('La question %(n)s est illisible : corrigez-la dans le Markdown avant de la regenerer.', n=i + 1),
+                  'error')
+            return _render_generator_preview(draft, markdown, groups)
+        specs.append((question['question_type'], question['points']))
+
+    tenant = quota_tenant()
+    if tenant and not tenant.can_generate_quiz():
+        flash(_l('Quota mensuel de generations IA atteint pour cet etablissement'), 'error')
+        return _render_generator_preview(draft, markdown, groups)
+
+    result = regenerate_questions(
+        draft.content, draft.title,
+        kept=[b for i, b in enumerate(blocks) if i not in chosen],
+        rejected=[blocks[i] for i in chosen],
+        specs=specs, difficulty=draft.difficulty or 'modere', instructions=draft.instructions or '',
+        guidance=request.form.get('regen_guidance', '').strip()[:1000],
+    )
+    if not result['success']:
+        flash(_l('Regeneration impossible : %(error)s. Les questions sont inchangees.', error=result['error']), 'error')
+        return _render_generator_preview(draft, markdown, groups)
+
+    if tenant:
+        tenant.increment_quiz_generations()
+    for i, block in zip(chosen, result['blocks']):
+        blocks[i] = block
+    flash(_l('%(count)s question(s) regeneree(s).', count=len(chosen)), 'success')
+    return _render_generator_preview(draft, join_blocks(preamble, blocks), groups, regenerated=chosen)
+

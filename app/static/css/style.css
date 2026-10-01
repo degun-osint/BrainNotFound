@@ -2266,6 +2266,39 @@ a.tenant-option {
     font-size: 0.9rem;
 }
 
+/* Generated quiz preview: one card per question, regeneration controls */
+.generated-question {
+    border: 1px solid var(--border-light, var(--border));
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.generated-question.just-regenerated {
+    border-color: var(--accent-success);
+    background: rgba(45, 90, 39, 0.06);
+}
+
+.generated-options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.generated-options li {
+    padding: 0.2rem 0;
+    color: var(--text-light);
+}
+
+.generated-options li.correct {
+    color: var(--accent-success);
+    font-weight: 500;
+}
+
+.regen-panel {
+    border-top: 1px solid var(--border-light, var(--border));
+}
+
 /* Contest of a grade (learner result page, grader's paper page) */
 .contest-box {
     border: 1px dashed var(--border);

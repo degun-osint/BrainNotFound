@@ -193,7 +193,19 @@ Le générateur crée un quiz à partir d'un support de cours.
 | **Niveau de difficulté** | Facile (compréhension), Modéré (application), Difficile (analyse et synthèse) |
 | **Instructions** | Consignes pour l'IA : chapitres à cibler, style des questions, etc. |
 
-La génération prend de 10 à 30 secondes. Le Markdown proposé s'affiche ensuite pour relecture et correction avant la création du quiz.
+La génération prend de 10 à 30 secondes.
+
+### Relire et régénérer des questions
+
+Le quiz généré s'affiche question par question : énoncé, options avec la bonne réponse, réponse attendue. Si une question ne convient pas, cochez **À régénérer** puis **Régénérer les questions cochées** : seules ces questions sont remplacées, les autres ne bougent pas.
+
+- La nouvelle question garde le type (QCM ou ouverte), la place et les points de celle qu'elle remplace.
+- L'IA reçoit les questions conservées et celles que vous rejetez : elle évite les doublons et ne repropose pas une question écartée.
+- Une **consigne** facultative oriente la régénération (« plus difficile », « plutôt sur le chapitre 3 »).
+- On peut régénérer autant de fois que nécessaire ; chaque régénération compte dans le quota « Générations quiz / mois ».
+- Le Markdown complet reste modifiable dans **Modifier le Markdown** ; vos retouches sont gardées à la régénération et à la création.
+
+Le document est conservé 24 heures pour permettre ces régénérations, puis supprimé. Les options du quiz (groupes, correction, dates) se règlent sur la même page, avant **Créer le quiz**.
 
 ### Limites
 
