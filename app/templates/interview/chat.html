@@ -147,11 +147,129 @@
     color: var(--text-light);
 }
 .end-btn {
-    color: var(--danger);
+    color: var(--accent-error);
 }
 .progress-counter {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+}
+.chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.voice-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.voice-toggle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.voice-toggle.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+.voice-toggle.speaking i {
+    animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+.message-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+.message-footer .message-time {
+    margin-top: 0;
+}
+.replay-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+}
+.message-assistant:hover .replay-btn,
+.replay-btn:focus {
+    opacity: 0.8;
+}
+.replay-btn:hover {
+    color: var(--primary);
+    opacity: 1;
+}
+.mic-btn {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.mic-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.mic-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.mic-btn.recording {
+    /* --danger does not exist in the stylesheet: the rule was dropped and the
+       white icon sat on a transparent background, so it simply disappeared */
+    background: var(--accent-error);
+    border-color: var(--accent-error);
+    color: var(--white);
+    animation: pulse 1.2s ease-in-out infinite;
+}
+.voice-status {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    padding: 0 1rem 0.25rem;
+    min-height: 1.2em;
+}
+.voice-status.error {
+    color: var(--accent-error);
+}
+.consent-panel {
+    margin: 0 1rem 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+}
+.consent-panel h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+}
+.consent-panel p {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+.consent-panel .flex {
+    display: flex;
     gap: 0.5rem;
 }
 .empty-chat-hint {
@@ -205,8 +323,17 @@
             <h2>{{ interview.persona_name or _('Entretien') }}</h2>
             <p>{{ interview.title }}</p>
         </div>
-        <div class="progress-counter">
-            <span id="interaction-count">{{ session.interaction_count }}</span> / {{ interview.max_interactions }} {{ _('echanges') }}
+        <div class="chat-header-actions">
+            {% if interview.tts_offered() %}
+            <button type="button" class="voice-toggle" id="voice-toggle" onclick="toggleVoice()"
+                    aria-pressed="false" aria-label="{{ _('Lire les reponses a voix haute') }}"
+                    data-tooltip="{{ _('Lire les reponses a voix haute') }}" hidden>
+                <i class="iconoir-sound-off" id="voice-icon"></i>
+            </button>
+            {% endif %}
+            <div class="progress-counter">
+                <span id="interaction-count">{{ session.interaction_count }}</span> / {{ interview.max_interactions }} {{ _('echanges') }}
+            </div>
         </div>
     </div>
 
@@ -222,9 +349,17 @@
         {% endif %}
 
         {% for message in messages %}
-        <div class="message message-{{ message.role }}">
+        <div class="message message-{{ message.role }}" data-message-id="{{ message.id }}">
             <div class="message-content" data-raw="{{ message.content | e }}"></div>
-            <div class="message-time">{{ message.created_at|localtime_short }}</div>
+            <div class="message-footer">
+                <span class="message-time">{{ message.created_at|localtime_short }}</span>
+                {% if message.role == 'assistant' and interview.tts_offered() %}
+                <button type="button" class="replay-btn" onclick="replayMessage(this)" hidden
+                        aria-label="{{ _('Reecouter ce message') }}" data-tooltip="{{ _('Reecouter') }}">
+                    <i class="iconoir-sound-high"></i>
+                </button>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
 
@@ -235,15 +370,41 @@
         </div>
     </div>
 
+    {% if voice_input %}
+    <div class="consent-panel" id="consent-panel" hidden>
+        <h4>{{ _('Dicter votre reponse') }}</h4>
+        <p>
+            {{ _("Votre voix sera envoyee a un service de transcription externe pour etre convertie en texte. L'enregistrement n'est pas conserve : seul le texte obtenu est enregistre, et vous pourrez le relire et le corriger avant de l'envoyer. Vous pouvez aussi taper vos reponses, c'est equivalent.") }}
+        </p>
+        <div class="flex">
+            <button type="button" class="btn btn-primary btn-sm" onclick="grantVoiceConsent()">
+                {{ _("J'accepte, activer le micro") }}
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="hideConsent()">
+                {{ _('Non merci, je tape') }}
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="chat-input-container">
         <form class="chat-input-form" id="chat-form" onsubmit="sendMessage(event)">
             <textarea class="chat-input" id="message-input" rows="1"
                    placeholder="{{ _('Ecrivez votre message... (Shift+Entree pour retour a la ligne)') }}"
                    onkeydown="handleKeyDown(event)"></textarea>
+            {% if voice_input %}
+            <button type="button" class="mic-btn" id="mic-btn" onclick="toggleRecording()" hidden
+                    aria-label="{{ _('Dicter votre reponse') }}" data-tooltip="{{ _('Dicter') }}">
+                <i class="iconoir-microphone" id="mic-icon"></i>
+            </button>
+            {% endif %}
             <button type="submit" class="chat-send-btn" id="send-btn">
                 <i class="iconoir-send"></i>
             </button>
         </form>
+        {% if voice_input %}
+        <div class="voice-status" id="voice-status" role="status" aria-live="polite"></div>
+        {% endif %}
     </div>
 
     <div class="chat-footer">
@@ -270,14 +431,59 @@ const i18n = {
     endInterviewConfirm: {{ _("Terminer l'entretien ? Vous ne pourrez plus envoyer de messages.")|tojson }},
     interviewEndedTitle: {{ _('Entretien termine')|tojson }},
     interviewEndedDefault: {{ _("L'entretien est maintenant termine.")|tojson }},
-    goToAnalysis: {{ _("Passer a l'analyse et la correction")|tojson }}
+    goToAnalysis: {{ _("Passer a l'analyse et la correction")|tojson }},
+    voiceOn: {{ _('Couper la lecture vocale')|tojson }},
+    voiceOff: {{ _('Lire les reponses a voix haute')|tojson }},
+    replay: {{ _('Reecouter')|tojson }},
+    recording: {{ _('Enregistrement... cliquez a nouveau pour arreter')|tojson }},
+    transcribing: {{ _('Transcription en cours...')|tojson }},
+    transcribed: {{ _('Relisez et corrigez si besoin, puis envoyez')|tojson }},
+    micRefused: {{ _("Micro indisponible : autorisez l'acces, ou tapez votre reponse")|tojson }},
+    nothingRecorded: {{ _('Aucun son enregistre')|tojson }},
+    dictationFailed: {{ _('La dictee a echoue, tapez votre reponse')|tojson }},
+    tooShort: {{ _('Enregistrement trop court : gardez le micro actif pendant votre reponse')|tojson }}
 };
+
+// Voice reading runs entirely in the browser (Web Speech API): nothing is sent or stored.
+const voice = {
+    offered: {{ interview.tts_offered()|tojson }},
+    startOn: {{ tts_on|tojson }},
+    // 'always' is the interview's call, so a learner muting it here is not saved as their preference
+    persist: {{ (interview.get_tts_mode() == interview.TTS_OPTIONAL)|tojson }},
+    lang: {{ ('en-US' if get_locale()|string == 'en' else 'fr-FR')|tojson }},
+    hint: {{ (interview.tts_voice_hint or '')|tojson }},
+    rate: {{ interview.get_tts_rate()|tojson }},
+    prefUrl: {{ url_for('interview.set_voice_preference')|tojson }},
+    // Server synthesis when a provider is configured; the browser voice is the fallback
+    server: {{ server_voice|tojson }},
+    audioUrl: {{ url_for('interview.message_audio', identifier=session.get_url_identifier(), message_id=0)|tojson }}
+};
+let currentAudio = null;
+let voiceOn = false;
+let availableVoices = [];
+
+// Dictation: the learner speaks, the transcript lands in the input box for them
+// to check. The recording is never stored, here or on the server.
+const dictation = {
+    offered: {{ voice_input|tojson }},
+    consented: {{ voice_consent|tojson }},
+    consentUrl: {{ url_for('interview.voice_consent', identifier=session.get_url_identifier())|tojson }},
+    transcribeUrl: {{ url_for('interview.transcribe_answer', identifier=session.get_url_identifier())|tojson }},
+    maxSeconds: 180
+};
+let recorder = null;
+let recordingStream = null;
+let recordingTimer = null;
+let lastAnswerDictated = false;
+
 let socket;
 let isProcessing = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-    initWebSocket();
     formatExistingMessages();
+    initVoice();      // before the socket: a CDN that fails to load must not cost the voice
+    initDictation();
+    initWebSocket();
     scrollToBottom();
 
     // Auto-resize textarea
@@ -293,8 +499,327 @@ function formatExistingMessages() {
     document.querySelectorAll('.message-content[data-raw]').forEach(el => {
         const rawContent = el.dataset.raw;
         el.innerHTML = formatMessage(rawContent, true);
+        el.closest('.message').dataset.speak = speakableText(unescapeHtml(rawContent));
         el.removeAttribute('data-raw');
     });
+}
+
+// ==================== Dictation (MediaRecorder + server transcription) ====================
+
+function dictationSupported() {
+    return dictation.offered
+        && typeof MediaRecorder === 'function'
+        && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+}
+
+function initDictation() {
+    // getUserMedia needs a secure context: it exists on https and on localhost,
+    // and silently does not over plain http to another host. No point in a button then.
+    if (!dictationSupported()) return;
+    document.getElementById('mic-btn').hidden = false;
+    window.addEventListener('beforeunload', releaseMicrophone);
+}
+
+function setVoiceStatus(text, isError) {
+    const status = document.getElementById('voice-status');
+    if (!status) return;
+    status.textContent = text || '';
+    status.classList.toggle('error', !!isError);
+}
+
+function hideConsent() {
+    document.getElementById('consent-panel').hidden = true;
+}
+
+async function grantVoiceConsent() {
+    hideConsent();
+    try {
+        const response = await fetch(dictation.consentUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'}
+        });
+        if (!response.ok) throw new Error((await response.json()).error);
+        dictation.consented = true;
+        startRecording();
+    } catch (error) {
+        setVoiceStatus(i18n.dictationFailed, true);
+    }
+}
+
+function toggleRecording() {
+    if (recorder && recorder.state === 'recording') {
+        stopRecording();
+        return;
+    }
+    if (!dictation.consented) {
+        document.getElementById('consent-panel').hidden = false;
+        return;
+    }
+    startRecording();
+}
+
+function preferredRecordingType() {
+    const preferred = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4',
+                       'audio/ogg;codecs=opus', 'audio/wav'];
+    return preferred.find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+
+async function startRecording() {
+    const button = document.getElementById('mic-btn');
+    try {
+        recordingStream = await navigator.mediaDevices.getUserMedia({audio: true});
+    } catch (error) {
+        // Refused permission, no microphone, or an insecure context
+        setVoiceStatus(i18n.micRefused, true);
+        return;
+    }
+
+    const chunks = [];
+    // Ask for a container we know the server accepts, rather than trusting the
+    // default: an unexpected type reaches the provider as application/octet-stream
+    const type = preferredRecordingType();
+    recorder = new MediaRecorder(recordingStream, type ? {mimeType: type} : undefined);
+    const startedAt = Date.now();
+    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+    recorder.onstop = () => {
+        releaseMicrophone();
+        button.classList.remove('recording');
+        document.getElementById('mic-icon').className = 'iconoir-microphone';
+        if (Date.now() - startedAt < 700) {
+            setVoiceStatus(i18n.tooShort, true);   // a tap on the button, not an answer
+            return;
+        }
+        sendForTranscription(new Blob(chunks, {type: recorder.mimeType || type || 'audio/webm'}));
+    };
+
+    recorder.start();
+    button.classList.add('recording');
+    document.getElementById('mic-icon').className = 'iconoir-microphone-mute';
+    setVoiceStatus(i18n.recording);
+    // A tab left recording would send a huge file and bill for it
+    recordingTimer = setTimeout(stopRecording, dictation.maxSeconds * 1000);
+}
+
+function stopRecording() {
+    clearTimeout(recordingTimer);
+    if (recorder && recorder.state !== 'inactive') recorder.stop();
+}
+
+function releaseMicrophone() {
+    clearTimeout(recordingTimer);
+    if (recordingStream) {
+        recordingStream.getTracks().forEach(track => track.stop());   // turns the browser's mic indicator off
+        recordingStream = null;
+    }
+}
+
+async function sendForTranscription(blob) {
+    if (!blob.size) {
+        setVoiceStatus(i18n.nothingRecorded, true);
+        return;
+    }
+    const button = document.getElementById('mic-btn');
+    button.disabled = true;
+    setVoiceStatus(i18n.transcribing);
+
+    const body = new FormData();
+    const extension = (blob.type.split(';')[0].split('/')[1] || 'webm').replace('x-', '');
+    body.append('audio', blob, `answer.${extension}`);
+    try {
+        const response = await fetch(dictation.transcribeUrl, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token() }}'},
+            body
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || i18n.dictationFailed);
+
+        const input = document.getElementById('message-input');
+        input.value = input.value.trim() ? input.value.trim() + ' ' + data.text : data.text;
+        input.dispatchEvent(new Event('input'));   // re-runs the auto-resize
+        input.focus();
+        lastAnswerDictated = true;
+        setVoiceStatus(i18n.transcribed);
+    } catch (error) {
+        setVoiceStatus(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// ==================== Voice (Web Speech API) ====================
+
+function speechSupported() {
+    return 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function';
+}
+
+function voiceAvailable() {
+    return voice.offered && (voice.server || speechSupported());
+}
+
+function initVoice() {
+    if (!voiceAvailable()) return;
+
+    if (speechSupported()) {
+        loadVoices();
+        // Chrome fills the voice list asynchronously
+        window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    }
+
+    document.querySelectorAll('.replay-btn').forEach(btn => btn.hidden = false);
+    const toggle = document.getElementById('voice-toggle');
+    if (toggle) toggle.hidden = false;
+
+    // We never speak the history on load: browsers block audio before a gesture,
+    // and nobody wants a page to start talking by itself.
+    setVoiceOn(voice.startOn, false);
+
+    window.addEventListener('beforeunload', stopSpeaking);
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) stopSpeaking();
+    });
+}
+
+function loadVoices() {
+    availableVoices = window.speechSynthesis.getVoices() || [];
+}
+
+function pickVoice() {
+    if (!availableVoices.length) return null;
+    const hint = voice.hint.trim().toLowerCase();
+    if (hint) {
+        const match = availableVoices.find(v => v.name.toLowerCase().includes(hint)
+                                             || v.lang.toLowerCase().includes(hint));
+        if (match) return match;
+    }
+    const wanted = voice.lang.toLowerCase();
+    const base = wanted.slice(0, 2);
+    const normalize = v => v.lang.toLowerCase().replace('_', '-');
+    return availableVoices.find(v => normalize(v) === wanted)
+        || availableVoices.find(v => normalize(v).startsWith(base))
+        || null;
+}
+
+function speakableText(text) {
+    // *Didascalies* are staging directions, not speech: a pause reads better than "soupire"
+    let spoken = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '. ');
+    spoken = spoken.replace(/\s*\n+\s*/g, '. ');       // line breaks become sentence breaks
+    spoken = spoken.replace(/(\.\s*){2,}/g, '. ');     // collapse the dots we just piled up
+    return spoken.replace(/\s+/g, ' ').trim();
+}
+
+// Callers gate on voiceOn: a replay may land here after the toggle went back off
+function speak(text) {
+    if (!speechSupported()) return;
+    const spoken = speakableText(text);
+    if (!spoken) return;
+
+    window.speechSynthesis.cancel();  // a new reply interrupts the previous one
+
+    const utterance = new SpeechSynthesisUtterance(spoken);
+    const picked = pickVoice();
+    if (picked) utterance.voice = picked;
+    utterance.lang = picked ? picked.lang : voice.lang;
+    utterance.rate = voice.rate;
+    utterance.onstart = () => markSpeaking(true);
+    utterance.onend = () => markSpeaking(false);
+    utterance.onerror = () => markSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+}
+
+function playReply(text, messageId) {
+    if (!voiceOn) return;
+    stopSpeaking();
+    // A configured provider sounds far better than a browser voice, but it can be
+    // down, out of quota or misconfigured: the browser voice then takes over.
+    if (voice.server && messageId) {
+        playServerAudio(messageId, () => speak(text));
+    } else {
+        speak(text);
+    }
+}
+
+function playServerAudio(messageId, onFailure) {
+    const element = new Audio(voice.audioUrl.replace(/\/0\/audio$/, '/' + messageId + '/audio'));
+    let failed = false;
+    const giveUp = () => {
+        // Pausing an element rejects its pending play() with AbortError: that is us
+        // replacing it, not the provider failing, and reading the previous reply
+        // over the new one would be worse than no voice at all.
+        if (currentAudio !== element || failed) return;
+        failed = true;
+        markSpeaking(false);
+        onFailure();
+    };
+
+    currentAudio = element;
+    element.playbackRate = voice.rate;
+    element.onplaying = () => markSpeaking(true);
+    element.onended = () => markSpeaking(false);
+    element.onerror = giveUp;
+    element.play().catch(giveUp);
+}
+
+function stopSpeaking() {
+    if (currentAudio) {
+        // Drop the handlers first: a discarded element must not touch the UI it no longer owns
+        currentAudio.onplaying = currentAudio.onended = currentAudio.onerror = null;
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    if (speechSupported()) window.speechSynthesis.cancel();
+    markSpeaking(false);
+}
+
+function markSpeaking(speaking) {
+    const toggle = document.getElementById('voice-toggle');
+    if (toggle) toggle.classList.toggle('speaking', speaking);
+}
+
+function setVoiceOn(on, save) {
+    voiceOn = on;
+    const toggle = document.getElementById('voice-toggle');
+    if (toggle) {
+        toggle.classList.toggle('active', on);
+        toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+        const label = on ? i18n.voiceOn : i18n.voiceOff;
+        toggle.setAttribute('aria-label', label);
+        toggle.setAttribute('data-tooltip', label);
+        document.getElementById('voice-icon').className = on ? 'iconoir-sound-high' : 'iconoir-sound-off';
+    }
+    if (!on) stopSpeaking();
+    if (save && voice.persist) saveVoicePreference(on);
+}
+
+function saveVoicePreference(on) {
+    // Best effort: the voice works for this session even if the preference is not stored
+    fetch(voice.prefUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ enabled: on })
+    }).catch(() => {});
+}
+
+function toggleVoice() {
+    const turningOn = !voiceOn;
+    setVoiceOn(turningOn, true);
+    // Turning it on is a user gesture: a good moment to read the last reply back
+    if (turningOn) {
+        const last = [...document.querySelectorAll('.message-assistant')].pop();
+        if (last && last.dataset.speak) playReply(last.dataset.speak, last.dataset.messageId);
+    }
+}
+
+function replayMessage(button) {
+    const message = button.closest('.message');
+    if (!message || !message.dataset.speak) return;
+    const wasOff = !voiceOn;
+    if (wasOff) voiceOn = true;   // an explicit click speaks once, without turning the voice on
+    playReply(message.dataset.speak, message.dataset.messageId);
+    if (wasOff) voiceOn = false;
 }
 
 function handleKeyDown(event) {
@@ -327,7 +852,9 @@ function initWebSocket() {
 
     socket.on('message_received', function(data) {
         document.getElementById('typing-indicator').classList.remove('show');
-        addMessage('assistant', data.content);
+        addMessage('assistant', data.content, data.message_id);
+        voice.server = !!data.has_audio;   // the admin may have changed provider mid-session
+        playReply(data.content, data.message_id);
         document.getElementById('interaction-count').textContent = data.interaction_count;
         isProcessing = false;
         document.getElementById('send-btn').disabled = false;
@@ -377,14 +904,18 @@ function sendMessage(event) {
     input.value = '';
     input.style.height = 'auto';
 
-    // Send to server
+    // Send to server. from_voice marks a dictated answer: transcription makes
+    // mistakes, and an instructor reading the transcript should know.
     socket.emit('send_message', {
         session_id: sessionId,
-        content: content
+        content: content,
+        from_voice: lastAnswerDictated
     });
+    lastAnswerDictated = false;
+    setVoiceStatus('');
 }
 
-function addMessage(role, content) {
+function addMessage(role, content, messageId) {
     const container = document.getElementById('chat-messages');
     const typingIndicator = document.getElementById('typing-indicator');
 
@@ -396,14 +927,27 @@ function addMessage(role, content) {
 
     const msg = document.createElement('div');
     msg.className = 'message message-' + role;
+    msg.dataset.speak = speakableText(content);
+    if (messageId) msg.dataset.messageId = messageId;
 
     const now = new Date();
     const time = now.getHours().toString().padStart(2, '0') + ':' +
                  now.getMinutes().toString().padStart(2, '0');
 
+    const canReplay = role === 'assistant' && voiceAvailable();
+    const replay = canReplay
+        ? `<button type="button" class="replay-btn" onclick="replayMessage(this)"
+                   aria-label="${escapeHtml(i18n.replay)}" data-tooltip="${escapeHtml(i18n.replay)}">
+               <i class="iconoir-sound-high"></i>
+           </button>`
+        : '';
+
     msg.innerHTML = `
         <div class="message-content">${formatMessage(content)}</div>
-        <div class="message-time">${time}</div>
+        <div class="message-footer">
+            <span class="message-time">${time}</span>
+            ${replay}
+        </div>
     `;
 
     container.insertBefore(msg, typingIndicator);
@@ -449,6 +993,12 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function unescapeHtml(html) {
+    const area = document.createElement('textarea');
+    area.innerHTML = html;
+    return area.value;
 }
 
 function formatMessage(text, alreadyEscaped = false) {

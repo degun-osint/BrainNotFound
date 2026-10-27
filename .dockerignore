@@ -6,6 +6,7 @@
 # Runtime data (bind-mounted volumes)
 uploads/
 backups/
+tts_cache/
 
 # Development
 .git

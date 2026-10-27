@@ -35,8 +35,8 @@ class AIConfigError(Exception):
 
 # ==================== Configuration ====================
 
-def _settings():
-    """Site settings, read in a short separate session.
+def read_settings():
+    """Site settings, read in a short separate session (tts_client shares this).
 
     complete() calls this right before waiting seconds for the AI: reading through
     db.session would open a transaction and hold a pooled connection all that time
@@ -58,7 +58,7 @@ def _settings():
 
 def get_config():
     """Effective {provider, base_url, api_key, model}: admin settings first, then env."""
-    settings = _settings()
+    settings = read_settings()
     env = current_app.config
     provider = (settings.ai_provider if settings and settings.ai_provider else None) \
         or env.get('AI_PROVIDER') or ANTHROPIC

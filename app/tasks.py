@@ -84,9 +84,11 @@ def evaluate_interview(session_id):
 
 
 @shared_task(name='app.tasks.interview_reply')
-def interview_reply(session_id, content, room):
+def interview_reply(session_id, content, room, from_voice=False):
+    # from_voice has a default so a task queued before this deploy still runs
     from app.utils.interview_tasks import process_interview_message_async
-    process_interview_message_async(current_app._get_current_object(), session_id, content, room)
+    process_interview_message_async(current_app._get_current_object(), session_id, content, room,
+                                    from_voice)
 
 
 @shared_task(name='app.tasks.send_email')
@@ -111,13 +113,14 @@ def _claim_tick():
 
 @shared_task(name='app.tasks.tick')
 def tick():
-    """Every TICK_SECONDS: grader digests, scheduled backup when due, expired generator drafts."""
+    """Every TICK_SECONDS: grader digests, scheduled backup when due, expired drafts, audio cache."""
     if not _claim_tick():
         return
     from app.utils.grading_digest import send_due_digests
     from app.utils.backup_scheduler import run_backup_if_due
+    from app.utils.tts_cache import purge_audio_cache
     from app.models import GeneratorDraft
-    for job in (send_due_digests, run_backup_if_due, GeneratorDraft.purge_expired):
+    for job in (send_due_digests, run_backup_if_due, GeneratorDraft.purge_expired, purge_audio_cache):
         try:
             job()
         except Exception as e:

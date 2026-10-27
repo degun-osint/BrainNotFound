@@ -163,6 +163,9 @@
     <div class="mt-lg text-center">
         <span class="badge"><i class="iconoir-clock"></i> {{ interview.max_duration_minutes }} {{ _('min max') }}</span>
         <span class="badge"><i class="iconoir-chat-bubble"></i> {{ interview.max_interactions }} {{ _('echanges max') }}</span>
+        {% if interview.get_tts_mode() == interview.TTS_ALWAYS %}
+        <span class="badge"><i class="iconoir-sound-high"></i> {{ _('reponses lues a voix haute') }}</span>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

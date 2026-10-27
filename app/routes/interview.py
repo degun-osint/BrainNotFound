@@ -4,11 +4,11 @@ Interview routes - Admin and student routes for conversational AI interviews.
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_required, current_user
-from flask_babel import lazy_gettext as _l
+from flask_babel import lazy_gettext as _l, get_locale
 from datetime import datetime
 import json
 import re
-from app import db
+from app import db, limiter
 from app.models.interview import (
     Interview, EvaluationCriterion, InterviewSession,
     InterviewMessage, CriterionScore
@@ -16,6 +16,7 @@ from app.models.interview import (
 from app.models.group import Group
 from app.models.tenant import Tenant
 from app.utils.claude_interviewer import ClaudeInterviewer, get_criteria_templates
+from app.utils import stt_client, tts_client
 from app.utils.scope import (
     scoped_groups, scoped_interviews,
     validate_group_ids, assign_groups, default_tenant_id, filter_content_status, CONTENT_STATUSES,
@@ -61,6 +62,38 @@ def admin_required(f):
             return redirect(url_for('quiz.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+def apply_stt_settings(interview, data):
+    """Read the voice-input setting off the wizard form onto an interview."""
+    mode = data.get('stt_mode', Interview.STT_OFF)
+    interview.stt_mode = mode if mode in Interview.STT_MODES else Interview.STT_OFF
+
+
+def apply_tts_settings(interview, data):
+    """Read the voice settings off the wizard form onto an interview.
+
+    The form shows one voice field, for the engine currently selected. Only that
+    engine's column is written: the other keeps its previous value, so switching
+    back and forth does not lose a choice.
+    """
+    mode = data.get('tts_mode', Interview.TTS_OPTIONAL)
+    interview.tts_mode = mode if mode in Interview.TTS_MODES else Interview.TTS_OPTIONAL
+
+    source = data.get('tts_source', Interview.TTS_SOURCE_PROVIDER)
+    interview.tts_source = source if source in Interview.TTS_SOURCES else Interview.TTS_SOURCE_PROVIDER
+
+    voice = data.get('tts_voice', '').strip()[:100] or None
+    if interview.uses_provider_voice():
+        interview.tts_server_voice = voice
+    else:
+        interview.tts_voice_hint = voice
+
+    try:
+        rate = float(data.get('tts_rate', 1.0))
+    except (TypeError, ValueError):
+        rate = 1.0
+    interview.tts_rate = min(max(rate, 0.5), 1.5)
 
 
 def get_admin_groups():
@@ -339,8 +372,137 @@ def chat(identifier):
         'interview/chat.html',
         session=session,
         interview=interview,
-        messages=session.messages
+        messages=session.messages,
+        tts_on=interview.tts_on_by_default(current_user),
+        server_voice=(interview.tts_offered() and interview.uses_provider_voice()
+                      and tts_client.is_enabled()),
+        voice_input=interview.stt_offered() and stt_client.is_enabled(),
+        voice_consent=session.voice_consent_at is not None
     )
+
+
+@interview_bp.route('/session/<identifier>/message/<int:message_id>/audio')
+@login_required
+def message_audio(identifier, message_id):
+    """MP3 of one reply, generated on first request and cached by content.
+
+    The text is already on the page: this only adds the voice, so a provider
+    failure is a 503 the chat quietly falls back from, not a broken interview.
+    """
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        return jsonify({'error': 'Session introuvable'}), 404
+    if session.user_id != current_user.id and not current_user.is_any_admin:
+        return jsonify({'error': 'Acces non autorise'}), 403
+    if not session.interview.tts_offered():
+        return jsonify({'error': 'Lecture vocale desactivee'}), 404
+
+    message = InterviewMessage.query.filter_by(
+        id=message_id, session_id=session.id, role=InterviewMessage.ROLE_ASSISTANT).first()
+    if not message:
+        return jsonify({'error': 'Message introuvable'}), 404
+
+    from app.utils import tts_cache, tts_client
+    try:
+        path = tts_cache.audio_path(message.content, voice=session.interview.tts_server_voice)
+    except (tts_client.TTSConfigError, tts_client.TTSError) as e:
+        current_app.logger.warning(f'Speech synthesis unavailable for message {message_id}: {e}')
+        return jsonify({'error': 'Synthese vocale indisponible'}), 503
+
+    from flask import send_file
+    # conditional=True gives the browser Range requests, so the player can seek
+    response = send_file(path, mimetype=tts_client.AUDIO_MIME, conditional=True)
+    # One learner's interview: cacheable in their browser, never in a shared proxy
+    response.headers['Cache-Control'] = 'private, max-age=86400'
+    return response
+
+
+def _own_live_session(identifier):
+    """The learner's own session, still open, or (None, error response)."""
+    session = InterviewSession.get_by_identifier(identifier)
+    if not session:
+        return None, (jsonify({'error': 'Session introuvable'}), 404)
+    if session.user_id != current_user.id:
+        return None, (jsonify({'error': 'Acces non autorise'}), 403)
+    if session.status != InterviewSession.STATUS_IN_PROGRESS:
+        return None, (jsonify({'error': 'Session terminee'}), 400)
+    return session, None
+
+
+@interview_bp.route('/session/<identifier>/voice-consent', methods=['POST'])
+@login_required
+def voice_consent(identifier):
+    """Record that the learner agreed to have their voice sent for transcription.
+
+    Asked once per session, before the microphone does anything. Without it the
+    transcription route refuses, so a misbehaving client cannot skip the step.
+    """
+    session, error = _own_live_session(identifier)
+    if error:
+        return error
+    if not session.interview.stt_offered():
+        return jsonify({'error': 'Saisie vocale desactivee'}), 404
+
+    if session.voice_consent_at is None:
+        session.voice_consent_at = datetime.utcnow()
+        db.session.commit()
+    return jsonify({'success': True, 'granted_at': session.voice_consent_at.isoformat()})
+
+
+@interview_bp.route('/session/<identifier>/transcribe', methods=['POST'])
+@login_required
+@limiter.limit('30 per minute')  # one answer at a time, not a transcription pipeline
+def transcribe_answer(identifier):
+    """Transcribe one recording and hand the text back for the learner to check.
+
+    The text is NOT sent as a message here: it lands in the input box, so the
+    learner reads what was understood and fixes it before committing. The
+    recording is never written to disk.
+    """
+    from app.utils import stt_client
+
+    session, error = _own_live_session(identifier)
+    if error:
+        return error
+    if not session.interview.stt_offered():
+        return jsonify({'error': 'Saisie vocale desactivee'}), 404
+    if not session.voice_consent_at:
+        return jsonify({'error': 'Consentement requis'}), 403
+
+    recording = request.files.get('audio')
+    if not recording:
+        return jsonify({'error': 'Aucun enregistrement recu'}), 400
+
+    audio = recording.read()
+    content_type = recording.mimetype or ''
+    try:
+        text = stt_client.transcribe(audio, content_type, lang=str(get_locale())[:2],
+                                     filename=recording.filename)
+    except stt_client.STTConfigError as e:
+        current_app.logger.warning(f'Transcription not configured: {e}')
+        return jsonify({'error': 'Transcription indisponible'}), 503
+    except stt_client.STTError as e:
+        # warning, not info: a Flask logger filters info out in production, which
+        # left a failing provider with no trace at all to diagnose from
+        current_app.logger.warning(f'Transcription failed for session {session.id}: {e}')
+        message = str(_l("Enregistrement non compris. Reessayez ou tapez votre reponse."))
+        # A learner does not need the provider's wording, but whoever set the
+        # provider up does - and they are usually the one testing the interview
+        if current_user.is_any_admin:
+            message = f'{message} ({e})'
+        return jsonify({'error': message}), 422
+
+    return jsonify({'success': True, 'text': text})
+
+
+@interview_bp.route('/preferences/voice', methods=['POST'])
+@login_required
+def set_voice_preference():
+    """Remember the learner's voice choice so it follows them to their next device."""
+    enabled = bool((request.get_json(silent=True) or {}).get('enabled'))
+    current_user.tts_enabled = enabled
+    db.session.commit()
+    return jsonify({'success': True, 'enabled': enabled})
 
 
 @interview_bp.route('/session/<identifier>/end', methods=['POST'])
@@ -595,6 +757,8 @@ def admin_create():
             created_by_id=current_user.id,
             tenant_id=default_tenant_id(selected_groups)
         )
+        apply_tts_settings(interview, data)
+        apply_stt_settings(interview, data)
         db.session.add(interview)
         db.session.flush()
 
@@ -629,7 +793,8 @@ def admin_create():
     return render_template(
         'admin/interviews/wizard.html',
         groups_by_tenant=groups_by_tenant,
-        criteria_templates=criteria_templates
+        criteria_templates=criteria_templates,
+        stt_available=stt_client.is_enabled()
     )
 
 
@@ -729,6 +894,8 @@ def admin_edit(identifier):
         interview.file_upload_label = data.get('file_upload_label', 'Fichier').strip()
         interview.file_upload_description = data.get('file_upload_description', '').strip()
         interview.file_upload_prompt_injection = data.get('file_upload_prompt_injection', '').strip()
+        apply_tts_settings(interview, data)
+        apply_stt_settings(interview, data)
 
         # Handle slug
         new_slug = data.get('slug', '').strip() or None
@@ -800,7 +967,8 @@ def admin_edit(identifier):
         criteria_templates=criteria_templates,
         current_criteria=json.dumps(current_criteria),
         edit_mode=True,
-        has_results=has_results
+        has_results=has_results,
+        stt_available=stt_client.is_enabled()
     )
 
 
@@ -1183,6 +1351,27 @@ def generate_opening():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@interview_bp.route('/admin/interviews/provider-voices')
+@login_required
+@admin_required
+def provider_voices():
+    """Voices offered by the configured speech provider, for the wizard's list.
+
+    Open to any interview admin, not just superadmins: voice names are not
+    sensitive, and whoever writes an interview is the one choosing its voice.
+    No key is ever accepted or returned here - the saved configuration is used.
+    """
+    if not tts_client.is_enabled():
+        return jsonify({'success': False, 'configured': False, 'voices': []})
+    try:
+        voices = tts_client.list_voices()
+    except Exception as e:
+        current_app.logger.warning(f'Could not list provider voices for the wizard: {e}')
+        return jsonify({'success': False, 'configured': True, 'voices': []})
+    return jsonify({'success': True, 'configured': True,
+                    'voices': [{'id': v_id, 'name': name} for v_id, name in voices]})
+
+
 @interview_bp.route('/admin/interviews/criteria-templates')
 @login_required
 @admin_required
@@ -1247,6 +1436,14 @@ def admin_export_json(identifier):
         'ai_can_end': interview.ai_can_end,
         'student_starts': interview.student_starts,
         'opening_message': interview.opening_message,
+
+        # Voice
+        'tts_mode': interview.get_tts_mode(),
+        'tts_voice_hint': interview.tts_voice_hint,
+        'tts_source': interview.get_tts_source(),
+        'tts_server_voice': interview.tts_server_voice,
+        'tts_rate': interview.get_tts_rate(),
+        'stt_mode': interview.get_stt_mode(),
 
         # File upload
         'require_file_upload': interview.require_file_upload,
@@ -1355,6 +1552,18 @@ def admin_import():
             tenant_id=default_tenant_id(),
             created_by_id=current_user.id
         )
+
+        # Voice (absent from exports made before the feature: 'optional' then)
+        apply_tts_settings(interview, {
+            'tts_mode': data.get('tts_mode', Interview.TTS_OPTIONAL),
+            'tts_source': data.get('tts_source', Interview.TTS_SOURCE_PROVIDER),
+            'tts_rate': data.get('tts_rate', 1.0),
+        })
+        # Both vocabularies are kept as exported, whichever engine is selected
+        interview.tts_voice_hint = (data.get('tts_voice_hint') or '').strip()[:100] or None
+        interview.tts_server_voice = (data.get('tts_server_voice') or '').strip()[:100] or None
+
+        apply_stt_settings(interview, {'stt_mode': data.get('stt_mode', Interview.STT_OFF)})
 
         db.session.add(interview)
         db.session.flush()  # Get the interview ID

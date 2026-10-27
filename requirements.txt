@@ -11,6 +11,7 @@ python-dotenv==1.2.3
 markdown==3.10.3
 anthropic>=1.8.0
 openai>=3.19.2  # OpenAI-compatible providers (Mistral, Gemini, Ollama...)
+httpx>=0.28.1  # ElevenLabs speech API (already a dependency of the SDKs above)
 gunicorn==26.2.0
 gevent==26.9.0
 simple-websocket==1.1.0  # WebSocket for Flask-SocketIO under gevent (gevent-websocket is unmaintained)

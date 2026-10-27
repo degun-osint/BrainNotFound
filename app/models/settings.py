@@ -43,6 +43,19 @@ class SiteSettings(db.Model):
     ai_model = db.Column(db.String(100), nullable=True)
     ai_api_key_encrypted = db.Column(db.Text, nullable=True)  # Encrypted
 
+    # Speech synthesis provider (see utils/tts_client.py), same live-reload as the LLM
+    tts_provider = db.Column(db.String(30), nullable=True)   # 'none' (default), 'openai_compatible', 'elevenlabs'
+    tts_base_url = db.Column(db.String(255), nullable=True)  # openai_compatible only
+    tts_model = db.Column(db.String(100), nullable=True)
+    tts_voice = db.Column(db.String(100), nullable=True)     # Default voice, an interview can override it
+    tts_api_key_encrypted = db.Column(db.Text, nullable=True)  # Encrypted
+
+    # Speech recognition provider (see utils/stt_client.py), same live-reload
+    stt_provider = db.Column(db.String(30), nullable=True)   # 'none' (default) or 'openai_compatible'
+    stt_base_url = db.Column(db.String(255), nullable=True)
+    stt_model = db.Column(db.String(100), nullable=True)
+    stt_api_key_encrypted = db.Column(db.Text, nullable=True)  # Encrypted
+
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -114,6 +127,45 @@ class SiteSettings(db.Model):
         try:
             f = Fernet(self._get_encryption_key())
             return f.decrypt(self.ai_api_key_encrypted.encode()).decode()
+        except Exception:
+            # Wrong SECRET_KEY / SETTINGS_ENCRYPTION_KEY (e.g. restored backup): fall back to env
+            return None
+
+    def set_tts_api_key(self, api_key):
+        """Encrypt and store the speech API key (None/empty clears it)."""
+        if not api_key:
+            self.tts_api_key_encrypted = None
+            return
+        # Same rule as the LLM key: never stored readable
+        f = Fernet(self._get_encryption_key())
+        self.tts_api_key_encrypted = f.encrypt(api_key.encode()).decode()
+
+    def get_tts_api_key(self):
+        """Decrypt and return the speech API key, or None."""
+        if not self.tts_api_key_encrypted:
+            return None
+        try:
+            f = Fernet(self._get_encryption_key())
+            return f.decrypt(self.tts_api_key_encrypted.encode()).decode()
+        except Exception:
+            # Wrong SECRET_KEY / SETTINGS_ENCRYPTION_KEY (e.g. restored backup): fall back to env
+            return None
+
+    def set_stt_api_key(self, api_key):
+        """Encrypt and store the transcription API key (None/empty clears it)."""
+        if not api_key:
+            self.stt_api_key_encrypted = None
+            return
+        f = Fernet(self._get_encryption_key())
+        self.stt_api_key_encrypted = f.encrypt(api_key.encode()).decode()
+
+    def get_stt_api_key(self):
+        """Decrypt and return the transcription API key, or None."""
+        if not self.stt_api_key_encrypted:
+            return None
+        try:
+            f = Fernet(self._get_encryption_key())
+            return f.decrypt(self.stt_api_key_encrypted.encode()).decode()
         except Exception:
             # Wrong SECRET_KEY / SETTINGS_ENCRYPTION_KEY (e.g. restored backup): fall back to env
             return None

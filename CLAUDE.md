@@ -88,6 +88,23 @@ All LLM calls go through `app/utils/ai_client.py` (`complete()`):
 - Prompts are tuned for Claude; `parse_json()` tolerates chatty models
 - Grading prompt compares student answer to expected answer and returns `{score, feedback}` in French
 
+## Voice in interviews
+
+Three independent layers, each off by default and each with its own client module:
+- **Reading replies aloud**: `app/utils/tts_client.py` (`none` / `openai_compatible` /
+  `elevenlabs`). Without a provider the learner's own browser speaks (Web Speech API),
+  which costs nothing. Generated audio is cached by content in `TTS_CACHE_DIR`,
+  deliberately outside `UPLOAD_FOLDER` so it never lands in the FTP backups, and purged
+  by `tick()`.
+- **Dictating answers**: `app/utils/stt_client.py` (`none` / `openai_compatible`). The
+  recording is transcribed in memory and never stored; the transcript goes into the input
+  box for the learner to check before sending. Requires per-session consent
+  (`InterviewSession.voice_consent_at`) and is enabled per interview (`Interview.stt_mode`).
+- Both read their provider from `SiteSettings` on every call, like `ai_client`.
+
+A dictated answer is flagged `InterviewMessage.from_voice`: transcription makes mistakes,
+and an instructor reading the transcript should know what they are looking at.
+
 ## Environment Variables
 
 Required in `.env`:
@@ -96,6 +113,8 @@ Required in `.env`:
 - `DATABASE_URL` - MySQL connection string
 - `CLAUDE_MODEL` - Claude model to use (default: `claude-opus-5-5`)
 - `AI_PROVIDER`, `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` - optional non-Anthropic provider
+- `TTS_*` / `STT_*` - optional speech providers (read aloud / dictate); see Admin > Settings
+- `TTS_CACHE_DIR`, `TTS_CACHE_MAX_MB`, `TTS_CACHE_MAX_DAYS` - generated audio cache
 
 ## Internationalization (i18n)
 

@@ -1,0 +1,11 @@
+# Git for Windows checks files out with CRLF by default (core.autocrlf=true in
+# its own system gitconfig). These files are read by Linux inside the containers,
+# where CRLF is not cosmetic: a shebang becomes "#!/bin/bash\r", the kernel looks
+# for an interpreter literally named /bin/bash\r, and the container dies with
+# "exec ./entrypoint.sh: no such file or directory".
+#
+# So they stay LF in the working tree, whatever the platform or the developer's
+# core.autocrlf.
+
+*.sh    text eol=lf
+*.cnf   text eol=lf

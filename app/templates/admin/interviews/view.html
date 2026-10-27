@@ -93,6 +93,18 @@
                     <td class="text-light">{{ _('Fin auto IA') }}</td>
                     <td>{% if interview.ai_can_end %}<span class="text-success">{{ _('Oui') }}</span>{% else %}<span class="text-error">{{ _('Non') }}</span>{% endif %}</td>
                 </tr>
+                <tr>
+                    <td class="text-light">{{ _('Lecture vocale') }}</td>
+                    <td>
+                        {% set mode = interview.get_tts_mode() %}
+                        {% if mode == interview.TTS_ALWAYS %}{{ _('Activee par defaut') }}
+                        {% elif mode == interview.TTS_OPTIONAL %}{{ _("Proposee a l'apprenant") }}
+                        {% else %}<span class="text-light">{{ _('Desactivee') }}</span>{% endif %}
+                        {% if mode != interview.TTS_OFF and interview.tts_voice_hint %}
+                        <span class="text-light">({{ interview.tts_voice_hint }})</span>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% if interview.require_file_upload %}
                 <tr>
                     <td class="text-light">{{ _('Fichier requis') }}</td>

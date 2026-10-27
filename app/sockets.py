@@ -78,6 +78,7 @@ def handle_send_message(data):
 
     session_id = data.get('session_id')
     content = data.get('content', '').strip()
+    from_voice = bool(data.get('from_voice'))
 
     if not session_id or not content:
         emit('error', {'message': 'Donnees manquantes'})
@@ -107,4 +108,4 @@ def handle_send_message(data):
     # Process message in background
     room = f'interview_{session_id}'
     from app.tasks import interview_reply, run_task
-    run_task(interview_reply, session_id, content, room)
+    run_task(interview_reply, session_id, content, room, from_voice)

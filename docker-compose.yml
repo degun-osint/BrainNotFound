@@ -57,6 +57,9 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./backups:/app/backups
+      # Generated audio, keyed by content: shared so the worker's periodic purge
+      # sees what the web container wrote. Safe to delete, never backed up.
+      - ./tts_cache:/app/tts_cache
     restart: unless-stopped
 
   # AI grading, interviews, emails, digest and scheduled backups (Celery, same image)
@@ -79,6 +82,9 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./backups:/app/backups
+      # Generated audio, keyed by content: shared so the worker's periodic purge
+      # sees what the web container wrote. Safe to delete, never backed up.
+      - ./tts_cache:/app/tts_cache
     restart: unless-stopped
 
 volumes:

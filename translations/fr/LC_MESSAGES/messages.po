@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BrainNotFound 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 15:34+0200\n"
+"POT-Creation-Date: 2026-10-27 14:18+0100\n"
 "PO-Revision-Date: 2024-01-27 00:00+0000\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -196,158 +196,162 @@ msgstr ""
 msgid "Une erreur est survenue lors de la suppression du compte."
 msgstr ""
 
-#: app/routes/admin/common.py:68 app/routes/interview.py:60
-#: app/routes/interview.py:327 app/routes/interview.py:387
-#: app/routes/interview.py:413 app/routes/interview.py:442
+#: app/routes/admin/common.py:68 app/routes/interview.py:61
+#: app/routes/interview.py:360 app/routes/interview.py:541
+#: app/routes/interview.py:567 app/routes/interview.py:596
 #: app/routes/quiz.py:634 app/routes/quiz.py:661 app/routes/quiz.py:700
 #: app/routes/tenant.py:39 app/routes/tenant.py:162
 msgid "Acces non autorise"
 msgstr ""
 
-#: app/routes/interview.py:142 app/routes/interview.py:153
-#: app/routes/interview.py:643 app/routes/interview.py:685
-#: app/routes/interview.py:814 app/routes/interview.py:833
-#: app/routes/interview.py:891 app/routes/interview.py:931
-#: app/routes/interview.py:977 app/routes/interview.py:1045
-#: app/routes/interview.py:1065 app/routes/interview.py:1098
-#: app/routes/interview.py:1208
+#: app/routes/interview.py:175 app/routes/interview.py:186
+#: app/routes/interview.py:800 app/routes/interview.py:842
+#: app/routes/interview.py:974 app/routes/interview.py:993
+#: app/routes/interview.py:1051 app/routes/interview.py:1091
+#: app/routes/interview.py:1137 app/routes/interview.py:1205
+#: app/routes/interview.py:1225 app/routes/interview.py:1258
+#: app/routes/interview.py:1389
 msgid "Entretien introuvable"
 msgstr ""
 
-#: app/routes/interview.py:164
+#: app/routes/interview.py:197
 msgid "Cet entretien n'est pas disponible actuellement"
 msgstr ""
 
-#: app/routes/interview.py:169 app/routes/interview.py:647
-#: app/routes/interview.py:689 app/routes/interview.py:818
-#: app/routes/interview.py:837 app/routes/interview.py:895
-#: app/routes/interview.py:935 app/routes/interview.py:981
-#: app/routes/interview.py:1049 app/routes/interview.py:1069
-#: app/routes/interview.py:1104 app/routes/interview.py:1214
+#: app/routes/interview.py:202 app/routes/interview.py:804
+#: app/routes/interview.py:846 app/routes/interview.py:978
+#: app/routes/interview.py:997 app/routes/interview.py:1055
+#: app/routes/interview.py:1095 app/routes/interview.py:1141
+#: app/routes/interview.py:1209 app/routes/interview.py:1229
+#: app/routes/interview.py:1264 app/routes/interview.py:1395
 msgid "Vous n'avez pas acces a cet entretien"
 msgstr ""
 
-#: app/routes/interview.py:184
+#: app/routes/interview.py:217
 msgid "Vous avez deja complete cet entretien"
 msgstr ""
 
-#: app/routes/interview.py:195
+#: app/routes/interview.py:228
 msgid ""
 "Quota d'entretiens IA atteint pour ce mois. Contactez votre "
 "administrateur."
 msgstr ""
 
-#: app/routes/interview.py:204 app/routes/interview.py:1004
+#: app/routes/interview.py:237 app/routes/interview.py:1164
 msgid "Veuillez telecharger un fichier"
 msgstr ""
 
-#: app/routes/interview.py:211 app/routes/interview.py:1011
+#: app/routes/interview.py:244 app/routes/interview.py:1171
 msgid "Impossible de lire le contenu du fichier"
 msgstr ""
 
-#: app/routes/interview.py:215 app/routes/interview.py:1015
+#: app/routes/interview.py:248 app/routes/interview.py:1175
 msgid "Erreur lors de la lecture du fichier"
 msgstr ""
 
-#: app/routes/interview.py:318 app/routes/interview.py:379
-#: app/routes/interview.py:405 app/routes/interview.py:433
+#: app/routes/interview.py:351 app/routes/interview.py:533
+#: app/routes/interview.py:559 app/routes/interview.py:587
 msgid "Session introuvable"
 msgstr ""
 
-#: app/routes/interview.py:447
+#: app/routes/interview.py:485
+msgid "Enregistrement non compris. Reessayez ou tapez votre reponse."
+msgstr ""
+
+#: app/routes/interview.py:601
 msgid "Entretien non termine"
 msgstr ""
 
-#: app/routes/interview.py:469 app/routes/interview.py:966
+#: app/routes/interview.py:623 app/routes/interview.py:1126
 msgid "Erreur lors de la generation du PDF"
 msgstr ""
 
 #: app/routes/admin/pages.py:39 app/routes/admin/pages.py:103
-#: app/routes/interview.py:538
+#: app/routes/interview.py:692
 msgid "Le titre est requis"
 msgstr ""
 
-#: app/routes/interview.py:542
+#: app/routes/interview.py:696
 msgid "Le prompt systeme est requis"
 msgstr ""
 
-#: app/routes/interview.py:554 app/routes/interview.py:739
+#: app/routes/interview.py:708 app/routes/interview.py:898
 #: app/routes/tenant.py:102
 msgid "Ce slug est deja utilise"
 msgstr ""
 
-#: app/routes/interview.py:622
+#: app/routes/interview.py:778
 msgid "Entretien cree avec succes"
 msgstr ""
 
-#: app/routes/interview.py:778
+#: app/routes/interview.py:937
 msgid "Entretien mis a jour"
 msgstr ""
 
-#: app/routes/interview.py:822
+#: app/routes/interview.py:982
 msgid "Entretien supprime"
 msgstr ""
 
-#: app/routes/interview.py:842 app/routes/interview.py:846
-#: app/routes/interview.py:900 app/routes/interview.py:904
-#: app/routes/interview.py:940 app/routes/interview.py:944
-#: app/routes/interview.py:1074 app/routes/interview.py:1078
+#: app/routes/interview.py:1002 app/routes/interview.py:1006
+#: app/routes/interview.py:1060 app/routes/interview.py:1064
+#: app/routes/interview.py:1100 app/routes/interview.py:1104
+#: app/routes/interview.py:1234 app/routes/interview.py:1238
 msgid "Session non trouvee"
 msgstr ""
 
-#: app/routes/interview.py:880
+#: app/routes/interview.py:1040
 msgid "Commentaire enregistre"
 msgstr ""
 
-#: app/routes/interview.py:920
+#: app/routes/interview.py:1080
 msgid ""
 "Re-evaluation lancee. Veuillez patienter quelques secondes puis "
 "rafraichir la page."
 msgstr ""
 
-#: app/routes/interview.py:1026 app/routes/interview.py:1034
+#: app/routes/interview.py:1186 app/routes/interview.py:1194
 msgid "Session de test demarree"
 msgstr ""
 
-#: app/routes/interview.py:1053
+#: app/routes/interview.py:1213
 msgid "active"
 msgstr ""
 
-#: app/routes/interview.py:1053
+#: app/routes/interview.py:1213
 msgid "desactive"
 msgstr ""
 
-#: app/routes/interview.py:1054
+#: app/routes/interview.py:1214
 #, python-format
 msgid "Entretien %(status)s"
 msgstr ""
 
-#: app/routes/interview.py:1083
+#: app/routes/interview.py:1243
 msgid "Session supprimee"
 msgstr ""
 
-#: app/routes/interview.py:1291 app/routes/interview.py:1296
+#: app/routes/interview.py:1480 app/routes/interview.py:1485
 msgid "Aucun fichier selectionne."
 msgstr ""
 
-#: app/routes/interview.py:1300
+#: app/routes/interview.py:1489
 msgid "Le fichier doit etre au format JSON."
 msgstr ""
 
-#: app/routes/interview.py:1309
+#: app/routes/interview.py:1498
 msgid "Format de fichier invalide."
 msgstr ""
 
-#: app/routes/interview.py:1376
+#: app/routes/interview.py:1577
 #, python-format
 msgid "Entretien \"%(title)s\" importe avec succes ! Il est inactif par defaut."
 msgstr ""
 
-#: app/routes/interview.py:1380
+#: app/routes/interview.py:1581
 msgid "Erreur de lecture du fichier JSON."
 msgstr ""
 
-#: app/routes/admin/users.py:490 app/routes/interview.py:1385
+#: app/routes/admin/users.py:490 app/routes/interview.py:1586
 #, python-format
 msgid "Erreur lors de l'import: %(error)s"
 msgstr ""
@@ -741,7 +745,7 @@ msgstr ""
 msgid "Veuillez selectionner un fichier"
 msgstr ""
 
-#: app/routes/admin/quizzes.py:939 app/routes/admin/settings.py:316
+#: app/routes/admin/quizzes.py:939 app/routes/admin/settings.py:500
 #: app/routes/admin/users.py:386 app/routes/admin/users.py:391
 msgid "Aucun fichier selectionne"
 msgstr ""
@@ -850,47 +854,77 @@ msgstr ""
 msgid "Aucune copie a analyser pour ce groupe."
 msgstr ""
 
-#: app/routes/admin/settings.py:57
+#: app/routes/admin/settings.py:65
 msgid "Parametres sauvegardes avec succes"
 msgstr ""
 
-#: app/routes/admin/settings.py:83
+#: app/routes/admin/settings.py:93
 msgid "URL du fournisseur requise"
 msgstr ""
 
-#: app/routes/admin/settings.py:85
+#: app/routes/admin/settings.py:95
 msgid "Modele requis pour ce fournisseur"
 msgstr ""
 
-#: app/routes/admin/settings.py:87
+#: app/routes/admin/settings.py:97
 msgid "Configuration non enregistree : utilisation de Grok non confirmee"
 msgstr ""
 
-#: app/routes/admin/settings.py:136
+#: app/routes/admin/settings.py:132
+msgid "URL du fournisseur de voix requise"
+msgstr ""
+
+#: app/routes/admin/settings.py:140
+msgid "Cle API requise pour ElevenLabs"
+msgstr ""
+
+#: app/routes/admin/settings.py:183
+msgid "URL du fournisseur de transcription requise"
+msgstr ""
+
+#: app/routes/admin/settings.py:250 app/routes/admin/settings.py:345
+msgid "Configuration incomplete (cle ou URL manquante)"
+msgstr ""
+
+#: app/routes/admin/settings.py:257
+#, python-format
+msgid "Cle API refusee par le fournisseur (HTTP %(status)s)"
+msgstr ""
+
+#: app/routes/admin/settings.py:264
+msgid "Impossible de joindre le fournisseur de voix"
+msgstr ""
+
+#: app/routes/admin/settings.py:267
+#, python-format
+msgid "Echec de la liste des voix : %(error)s"
+msgstr ""
+
+#: app/routes/admin/settings.py:279
+msgid "Bonjour, installez-vous. Parlez-moi de votre parcours."
+msgstr ""
+
+#: app/routes/admin/settings.py:320
 #, python-format
 msgid ""
 "Modele inconnu chez ce fournisseur : %(model)s. Configuration non "
 "modifiee."
 msgstr ""
 
-#: app/routes/admin/settings.py:155
+#: app/routes/admin/settings.py:339
 msgid "Cle API refusee par le fournisseur"
 msgstr ""
 
-#: app/routes/admin/settings.py:157
+#: app/routes/admin/settings.py:341
 msgid "Impossible de joindre le fournisseur"
 msgstr ""
 
-#: app/routes/admin/settings.py:161
-msgid "Configuration incomplete (cle ou URL manquante)"
-msgstr ""
-
-#: app/routes/admin/settings.py:282 app/routes/admin/settings.py:319
-#: app/templates/admin/settings.html:351
+#: app/routes/admin/settings.py:466 app/routes/admin/settings.py:503
+#: app/templates/admin/settings.html:499
 msgid "Tapez RESTAURER pour confirmer"
 msgstr ""
 
-#: app/routes/admin/settings.py:324
+#: app/routes/admin/settings.py:508
 msgid "Format attendu : .tar.gz ou .sql.gz"
 msgstr ""
 
@@ -1275,7 +1309,8 @@ msgid "Apercu"
 msgstr ""
 
 #: app/templates/admin/_markdown_preview.html:9
-#: app/templates/admin/settings.html:332 app/templates/admin/settings.html:597
+#: app/templates/admin/settings.html:480 app/templates/admin/settings.html:570
+#: app/templates/admin/settings.html:814
 msgid "Chargement..."
 msgstr ""
 
@@ -1406,7 +1441,7 @@ msgstr ""
 #: app/templates/admin/_user_roles.html:64
 #: app/templates/admin/class_analysis.html:413
 #: app/templates/admin/interviews/session.html:133
-#: app/templates/admin/interviews/view.html:180
+#: app/templates/admin/interviews/view.html:192
 #: app/templates/admin/quiz_results.html:95
 #: app/templates/admin/user_detail.html:22
 #: app/templates/admin/user_detail.html:202 app/templates/admin/users.html:17
@@ -1546,7 +1581,7 @@ msgid "Statistiques par question"
 msgstr ""
 
 #: app/templates/admin/class_analysis.html:370
-#: app/templates/admin/settings.html:576 app/templates/quiz/dashboard.html:200
+#: app/templates/admin/settings.html:793 app/templates/quiz/dashboard.html:200
 msgid "Type"
 msgstr ""
 
@@ -1558,7 +1593,7 @@ msgid "Question"
 msgstr ""
 
 #: app/templates/admin/class_analysis.html:372
-#: app/templates/admin/interviews/view.html:134
+#: app/templates/admin/interviews/view.html:146
 #: app/templates/interview/result_pdf.html:181
 msgid "Points"
 msgstr ""
@@ -1589,7 +1624,7 @@ msgstr ""
 #: app/templates/admin/class_analysis.html:414
 #: app/templates/admin/edit_response.html:137
 #: app/templates/admin/interviews/session.html:98
-#: app/templates/admin/interviews/view.html:184
+#: app/templates/admin/interviews/view.html:196
 #: app/templates/admin/quiz_results.html:97
 #: app/templates/admin/response_analysis.html:247
 #: app/templates/admin/response_analysis.html:349
@@ -1602,7 +1637,7 @@ msgstr ""
 
 #: app/templates/admin/class_analysis.html:415
 #: app/templates/admin/interviews/session.html:102
-#: app/templates/admin/interviews/view.html:182
+#: app/templates/admin/interviews/view.html:194
 #: app/templates/admin/user_detail.html:90
 msgid "Duree"
 msgstr ""
@@ -1629,11 +1664,11 @@ msgstr ""
 #: app/templates/admin/class_analysis.html:486
 #: app/templates/admin/create_quiz.html:324
 #: app/templates/admin/edit_quiz.html:332
-#: app/templates/admin/interviews/wizard.html:863
+#: app/templates/admin/interviews/wizard.html:987
 #: app/templates/admin/response_analysis.html:486
-#: app/templates/admin/settings.html:460 app/templates/admin/settings.html:492
-#: app/templates/admin/settings.html:529 app/templates/admin/settings.html:552
-#: app/templates/admin/settings.html:555 app/templates/admin/settings.html:609
+#: app/templates/admin/settings.html:677 app/templates/admin/settings.html:709
+#: app/templates/admin/settings.html:746 app/templates/admin/settings.html:769
+#: app/templates/admin/settings.html:772 app/templates/admin/settings.html:826
 msgid "Erreur:"
 msgstr ""
 
@@ -1646,7 +1681,7 @@ msgstr ""
 #: app/templates/admin/create_quiz.html:328
 #: app/templates/admin/edit_quiz.html:336
 #: app/templates/admin/response_analysis.html:491
-#: app/templates/interview/chat.html:269
+#: app/templates/interview/chat.html:428
 msgid "Erreur de connexion"
 msgstr ""
 
@@ -1691,7 +1726,7 @@ msgstr ""
 #: app/templates/admin/create_group.html:27
 #: app/templates/admin/edit_group.html:32
 #: app/templates/admin/interviews/wizard.html:248
-#: app/templates/admin/interviews/wizard.html:748
+#: app/templates/admin/interviews/wizard.html:872
 #: app/templates/admin/tenants/create.html:32
 #: app/templates/admin/tenants/edit.html:25
 msgid "Description"
@@ -1817,7 +1852,7 @@ msgstr ""
 #: app/templates/admin/create_quiz.html:94
 #: app/templates/admin/edit_quiz.html:77
 #: app/templates/admin/generate_quiz_preview.html:90
-#: app/templates/admin/interviews/view.html:106
+#: app/templates/admin/interviews/view.html:118
 #: app/templates/admin/quizzes.html:46
 msgid "Du"
 msgstr ""
@@ -1825,7 +1860,7 @@ msgstr ""
 #: app/templates/admin/create_quiz.html:99
 #: app/templates/admin/edit_quiz.html:83
 #: app/templates/admin/generate_quiz_preview.html:95
-#: app/templates/admin/interviews/view.html:107
+#: app/templates/admin/interviews/view.html:119
 #: app/templates/admin/quizzes.html:49
 msgid "au"
 msgstr ""
@@ -2003,14 +2038,14 @@ msgid "Prenom"
 msgstr ""
 
 #: app/templates/admin/create_user.html:17
-#: app/templates/admin/interviews/wizard.html:743
+#: app/templates/admin/interviews/wizard.html:867
 #: app/templates/admin/user_detail.html:234 app/templates/auth/profile.html:23
 #: app/templates/auth/register.html:18
 msgid "Nom"
 msgstr ""
 
 #: app/templates/admin/create_user.html:23
-#: app/templates/admin/settings.html:156
+#: app/templates/admin/settings.html:304
 #: app/templates/admin/user_detail.html:241 app/templates/auth/login.html:22
 #: app/templates/auth/profile.html:29 app/templates/auth/register.html:24
 msgid "Nom d'utilisateur"
@@ -2026,7 +2061,7 @@ msgid "Email"
 msgstr ""
 
 #: app/templates/admin/create_user.html:33
-#: app/templates/admin/settings.html:162 app/templates/auth/login.html:27
+#: app/templates/admin/settings.html:310 app/templates/auth/login.html:27
 #: app/templates/auth/profile.html:80 app/templates/auth/profile.html:218
 #: app/templates/auth/register.html:48
 msgid "Mot de passe"
@@ -2097,7 +2132,7 @@ msgstr ""
 
 #: app/templates/admin/dashboard.html:103
 #: app/templates/admin/interviews/session.html:113
-#: app/templates/admin/interviews/view.html:219
+#: app/templates/admin/interviews/view.html:231
 #: app/templates/admin/user_detail.html:157
 #: app/templates/quiz/dashboard.html:239
 msgid "En cours"
@@ -2105,7 +2140,7 @@ msgstr ""
 
 #: app/templates/admin/dashboard.html:105
 #: app/templates/admin/interviews/session.html:115
-#: app/templates/admin/interviews/view.html:221
+#: app/templates/admin/interviews/view.html:233
 #: app/templates/admin/user_detail.html:159
 #: app/templates/quiz/dashboard.html:241
 msgid "Evaluation"
@@ -2168,8 +2203,8 @@ msgstr ""
 #: app/templates/admin/edit_page.html:130
 #: app/templates/admin/edit_quiz.html:258
 #: app/templates/admin/edit_response.html:169
-#: app/templates/admin/interviews/session.html:270
-#: app/templates/admin/interviews/wizard.html:568
+#: app/templates/admin/interviews/session.html:276
+#: app/templates/admin/interviews/wizard.html:648
 #: app/templates/admin/tenants/edit.html:167
 #: app/templates/admin/user_detail.html:286 app/templates/auth/profile.html:34
 msgid "Enregistrer"
@@ -2559,7 +2594,7 @@ msgstr ""
 #: app/templates/admin/interviews/import.html:9
 #: app/templates/admin/interviews/session.html:83
 #: app/templates/admin/interviews/view.html:16
-#: app/templates/admin/settings.html:295 app/templates/interview/start.html:95
+#: app/templates/admin/settings.html:443 app/templates/interview/start.html:95
 msgid "Retour"
 msgstr ""
 
@@ -2658,7 +2693,7 @@ msgid "Generer le quiz"
 msgstr ""
 
 #: app/templates/admin/generate_quiz.html:95
-#: app/templates/admin/interviews/wizard.html:578
+#: app/templates/admin/interviews/wizard.html:658
 msgid "Generation en cours..."
 msgstr ""
 
@@ -2902,7 +2937,7 @@ msgstr ""
 #: app/templates/admin/group_detail.html:191
 #: app/templates/admin/group_detail.html:223
 #: app/templates/admin/group_detail.html:259 app/templates/admin/groups.html:40
-#: app/templates/admin/interviews/view.html:186
+#: app/templates/admin/interviews/view.html:198
 #: app/templates/admin/pages.html:23 app/templates/admin/quiz_results.html:103
 #: app/templates/admin/tenants/view.html:94
 #: app/templates/admin/tenants/view.html:149
@@ -3068,7 +3103,7 @@ msgstr ""
 msgid "Rattachez-le a un etablissement via Modifier"
 msgstr ""
 
-#: app/templates/admin/groups.html:64 app/templates/admin/settings.html:572
+#: app/templates/admin/groups.html:64 app/templates/admin/settings.html:789
 msgid "Complet"
 msgstr ""
 
@@ -3080,7 +3115,7 @@ msgstr ""
 
 #: app/templates/admin/groups.html:81
 #: app/templates/admin/interviews/list.html:92
-#: app/templates/admin/quizzes.html:91 app/templates/admin/settings.html:134
+#: app/templates/admin/quizzes.html:91 app/templates/admin/settings.html:282
 msgid "Activer"
 msgstr ""
 
@@ -3090,7 +3125,7 @@ msgstr ""
 
 #: app/templates/admin/groups.html:88
 #: app/templates/admin/interviews/list.html:99
-#: app/templates/admin/interviews/view.html:234
+#: app/templates/admin/interviews/view.html:246
 #: app/templates/admin/pages.html:72 app/templates/admin/quiz_results.html:214
 #: app/templates/admin/quizzes.html:98
 #: app/templates/admin/tenants/delete.html:3
@@ -3217,7 +3252,7 @@ msgid "Importer"
 msgstr ""
 
 #: app/templates/admin/pages.html:3 app/templates/admin/pages.html:7
-#: app/templates/admin/settings.html:114
+#: app/templates/admin/settings.html:262
 msgid "Pages personnalisees"
 msgstr ""
 
@@ -3235,9 +3270,9 @@ msgstr ""
 
 #: app/templates/admin/interviews/session.html:120
 #: app/templates/admin/interviews/view.html:57
-#: app/templates/admin/interviews/view.html:185
+#: app/templates/admin/interviews/view.html:197
 #: app/templates/admin/interviews/wizard.html:452
-#: app/templates/admin/pages.html:22 app/templates/admin/settings.html:257
+#: app/templates/admin/pages.html:22 app/templates/admin/settings.html:405
 #: app/templates/admin/user_detail.html:91
 msgid "Statut"
 msgstr ""
@@ -3470,7 +3505,7 @@ msgstr ""
 msgid "Re-corriger"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:170
+#: app/templates/admin/interviews/view.html:182
 #: app/templates/admin/quiz_results.html:84
 msgid "Telecharger les resultats"
 msgstr ""
@@ -3597,7 +3632,7 @@ msgid "par"
 msgstr ""
 
 #: app/templates/admin/interviews/list.html:57
-#: app/templates/admin/interviews/view.html:115
+#: app/templates/admin/interviews/view.html:127
 #: app/templates/admin/quizzes.html:58
 msgid "Groupes:"
 msgstr ""
@@ -3824,7 +3859,8 @@ msgid ""
 "baisser : testez avant de l'utiliser avec des apprenants."
 msgstr ""
 
-#: app/templates/admin/settings.html:54
+#: app/templates/admin/settings.html:54 app/templates/admin/settings.html:132
+#: app/templates/admin/settings.html:214
 msgid "URL du fournisseur"
 msgstr ""
 
@@ -3832,26 +3868,31 @@ msgstr ""
 msgid "Ollama (local)"
 msgstr ""
 
-#: app/templates/admin/settings.html:65
+#: app/templates/admin/settings.html:65 app/templates/admin/settings.html:139
+#: app/templates/admin/settings.html:221
 msgid ""
 "Changer de fournisseur ou d'URL efface la cle enregistree, pour qu'elle "
 "ne soit jamais envoyee a un autre serveur."
 msgstr ""
 
-#: app/templates/admin/settings.html:69
+#: app/templates/admin/settings.html:69 app/templates/admin/settings.html:143
+#: app/templates/admin/settings.html:225
 msgid "Cle API"
 msgstr ""
 
-#: app/templates/admin/settings.html:71
+#: app/templates/admin/settings.html:71 app/templates/admin/settings.html:145
+#: app/templates/admin/settings.html:227
 #: app/templates/admin/user_detail.html:268
 msgid "Laisser vide pour ne pas modifier"
 msgstr ""
 
-#: app/templates/admin/settings.html:74
+#: app/templates/admin/settings.html:74 app/templates/admin/settings.html:148
+#: app/templates/admin/settings.html:230
 msgid "Cle actuelle : definie ici"
 msgstr ""
 
-#: app/templates/admin/settings.html:76
+#: app/templates/admin/settings.html:76 app/templates/admin/settings.html:150
+#: app/templates/admin/settings.html:232
 msgid "Cle actuelle : fichier .env"
 msgstr ""
 
@@ -3863,13 +3904,15 @@ msgstr ""
 msgid "Aucune cle (normal pour un serveur local comme Ollama)"
 msgstr ""
 
-#: app/templates/admin/settings.html:84
+#: app/templates/admin/settings.html:84 app/templates/admin/settings.html:156
+#: app/templates/admin/settings.html:238
 msgid ""
 "La cle enregistree ne peut pas etre dechiffree (SECRET_KEY modifiee ?). "
 "Saisissez-la a nouveau."
 msgstr ""
 
-#: app/templates/admin/settings.html:89
+#: app/templates/admin/settings.html:89 app/templates/admin/settings.html:161
+#: app/templates/admin/settings.html:243
 msgid "Supprimer la cle enregistree (revenir au .env)"
 msgstr ""
 
@@ -3885,301 +3928,411 @@ msgstr ""
 msgid "Vide = modele du .env"
 msgstr ""
 
-#: app/templates/admin/settings.html:116
+#: app/templates/admin/settings.html:114
+msgid "Synthese vocale des entretiens"
+msgstr ""
+
+#: app/templates/admin/settings.html:118
+msgid ""
+"Sans fournisseur, les reponses sont lues par la voix du navigateur de "
+"l'apprenant : gratuit, mais de qualite variable selon son systeme. Un "
+"fournisseur donne une voix identique pour tous, facturee aux caracteres. "
+"L'audio est mis en cache par contenu et n'est jamais sauvegarde."
+msgstr ""
+
+#: app/templates/admin/settings.html:122
+msgid "Fournisseur de voix"
+msgstr ""
+
+#: app/templates/admin/settings.html:124
+msgid "Aucun (voix du navigateur)"
+msgstr ""
+
+#: app/templates/admin/settings.html:125
+msgid "Compatible OpenAI (OpenAI, serveur local...)"
+msgstr ""
+
+#: app/templates/admin/settings.html:126
+msgid "ElevenLabs (meilleures voix francaises, plus cher)"
+msgstr ""
+
+#: app/templates/admin/settings.html:137
+msgid "Serveur local (openedai-speech, Kokoro...)"
+msgstr ""
+
+#: app/templates/admin/settings.html:152 app/templates/admin/settings.html:234
+msgid "Aucune cle (normal pour un serveur local)"
+msgstr ""
+
+#: app/templates/admin/settings.html:167
+msgid "Modele de voix"
+msgstr ""
+
+#: app/templates/admin/settings.html:171 app/templates/admin/settings.html:253
+msgid "Vide = valeur par defaut du fournisseur"
+msgstr ""
+
+#: app/templates/admin/settings.html:175
+msgid "Voix par defaut"
+msgstr ""
+
+#: app/templates/admin/settings.html:181
+msgid "Lister les voix"
+msgstr ""
+
+#: app/templates/admin/settings.html:184
+msgid "Ecouter"
+msgstr ""
+
+#: app/templates/admin/settings.html:187
+msgid ""
+"Un entretien peut utiliser sa propre voix (champ « voix du serveur » dans"
+" son assistant de creation)."
+msgstr ""
+
+#: app/templates/admin/settings.html:197
+msgid "Saisie vocale des apprenants"
+msgstr ""
+
+#: app/templates/admin/settings.html:201
+msgid ""
+"Permet a l'apprenant de dicter ses reponses au lieu de les taper. Sa voix"
+" est envoyee au fournisseur pour etre transcrite : l'enregistrement n'est"
+" jamais conserve, seul le texte obtenu l'est, et l'apprenant doit y "
+"consentir une fois par entretien. A activer entretien par entretien."
+msgstr ""
+
+#: app/templates/admin/settings.html:205
+msgid "Fournisseur de transcription"
+msgstr ""
+
+#: app/templates/admin/settings.html:207
+msgid "Aucun (saisie au clavier uniquement)"
+msgstr ""
+
+#: app/templates/admin/settings.html:208
+msgid "Compatible OpenAI (Whisper, serveur local...)"
+msgstr ""
+
+#: app/templates/admin/settings.html:219
+msgid "Serveur local (faster-whisper, whisper.cpp...)"
+msgstr ""
+
+#: app/templates/admin/settings.html:249
+msgid "Modele de transcription"
+msgstr ""
+
+#: app/templates/admin/settings.html:264
 msgid "Gerer les pages"
 msgstr ""
 
-#: app/templates/admin/settings.html:121
+#: app/templates/admin/settings.html:269
 msgid ""
 "Creez des pages personnalisees (mentions legales, CGU, a propos, etc.) en"
 " Markdown."
 msgstr ""
 
-#: app/templates/admin/settings.html:122
+#: app/templates/admin/settings.html:270
 msgid "Ces pages peuvent etre affichees dans le menu ou le footer du site."
 msgstr ""
 
-#: app/templates/admin/settings.html:130
+#: app/templates/admin/settings.html:278
 msgid "Sauvegardes automatiques"
 msgstr ""
 
-#: app/templates/admin/settings.html:142
+#: app/templates/admin/settings.html:290
 msgid "Serveur FTP"
 msgstr ""
 
-#: app/templates/admin/settings.html:148
+#: app/templates/admin/settings.html:296
 msgid "Port"
 msgstr ""
 
-#: app/templates/admin/settings.html:164
+#: app/templates/admin/settings.html:312
 msgid "Inchange"
 msgstr ""
 
-#: app/templates/admin/settings.html:164
+#: app/templates/admin/settings.html:312
 msgid "Non defini"
 msgstr ""
 
-#: app/templates/admin/settings.html:166
+#: app/templates/admin/settings.html:314
 msgid "Laissez vide pour conserver l'actuel"
 msgstr ""
 
-#: app/templates/admin/settings.html:172
+#: app/templates/admin/settings.html:320
 msgid "Chemin distant"
 msgstr ""
 
-#: app/templates/admin/settings.html:180
+#: app/templates/admin/settings.html:328
 msgid "Utiliser FTPS (TLS)"
 msgstr ""
 
-#: app/templates/admin/settings.html:182
+#: app/templates/admin/settings.html:330
 msgid "Recommande pour la securite"
 msgstr ""
 
-#: app/templates/admin/settings.html:188
+#: app/templates/admin/settings.html:336
 msgid "Tester la connexion"
 msgstr ""
 
-#: app/templates/admin/settings.html:196
+#: app/templates/admin/settings.html:344
 msgid "Planification"
 msgstr ""
 
-#: app/templates/admin/settings.html:200
+#: app/templates/admin/settings.html:348
 msgid "Frequence"
 msgstr ""
 
-#: app/templates/admin/settings.html:202
+#: app/templates/admin/settings.html:350
 msgid "Toutes les heures"
 msgstr ""
 
-#: app/templates/admin/settings.html:203
+#: app/templates/admin/settings.html:351
 msgid "Quotidien"
 msgstr ""
 
-#: app/templates/admin/settings.html:204
+#: app/templates/admin/settings.html:352
 msgid "Hebdomadaire"
 msgstr ""
 
-#: app/templates/admin/settings.html:209
+#: app/templates/admin/settings.html:357
 msgid "Heure (0-23)"
 msgstr ""
 
-#: app/templates/admin/settings.html:215
+#: app/templates/admin/settings.html:363
 msgid "Jour de la semaine"
 msgstr ""
 
-#: app/templates/admin/settings.html:217
+#: app/templates/admin/settings.html:365
 msgid "Lundi"
 msgstr ""
 
-#: app/templates/admin/settings.html:218
+#: app/templates/admin/settings.html:366
 msgid "Mardi"
 msgstr ""
 
-#: app/templates/admin/settings.html:219
+#: app/templates/admin/settings.html:367
 msgid "Mercredi"
 msgstr ""
 
-#: app/templates/admin/settings.html:220
+#: app/templates/admin/settings.html:368
 msgid "Jeudi"
 msgstr ""
 
-#: app/templates/admin/settings.html:221
+#: app/templates/admin/settings.html:369
 msgid "Vendredi"
 msgstr ""
 
-#: app/templates/admin/settings.html:222
+#: app/templates/admin/settings.html:370
 msgid "Samedi"
 msgstr ""
 
-#: app/templates/admin/settings.html:223
+#: app/templates/admin/settings.html:371
 msgid "Dimanche"
 msgstr ""
 
-#: app/templates/admin/settings.html:229
+#: app/templates/admin/settings.html:377
 msgid "Conservation (jours)"
 msgstr ""
 
-#: app/templates/admin/settings.html:232
+#: app/templates/admin/settings.html:380
 msgid "Les sauvegardes plus anciennes seront supprimees automatiquement"
 msgstr ""
 
-#: app/templates/admin/settings.html:238
+#: app/templates/admin/settings.html:386
 msgid "Prochaine sauvegarde prevue :"
 msgstr ""
 
-#: app/templates/admin/settings.html:248
+#: app/templates/admin/settings.html:396
 msgid "Derniere sauvegarde"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:181
-#: app/templates/admin/settings.html:253 app/templates/admin/settings.html:576
+#: app/templates/admin/interviews/view.html:193
+#: app/templates/admin/settings.html:401 app/templates/admin/settings.html:793
 #: app/templates/admin/user_detail.html:89
 #: app/templates/admin/user_detail.html:146
 #: app/templates/quiz/dashboard.html:203
 msgid "Date"
 msgstr ""
 
-#: app/templates/admin/settings.html:259
+#: app/templates/admin/settings.html:407
 msgid "Succes"
 msgstr ""
 
-#: app/templates/admin/settings.html:261
+#: app/templates/admin/settings.html:409
 msgid "Echec"
 msgstr ""
 
-#: app/templates/admin/settings.html:265 app/templates/admin/settings.html:576
+#: app/templates/admin/settings.html:413 app/templates/admin/settings.html:793
 msgid "Taille"
 msgstr ""
 
-#: app/templates/admin/settings.html:281
+#: app/templates/admin/settings.html:429
 msgid "Message:"
 msgstr ""
 
-#: app/templates/admin/settings.html:292
+#: app/templates/admin/settings.html:440
 msgid "Enregistrer les parametres"
 msgstr ""
 
-#: app/templates/admin/settings.html:303
+#: app/templates/admin/settings.html:451
 msgid "Sauvegarde et restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:456
 msgid "Les sauvegardes incluent la"
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:456
 msgid "base de donnees"
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:456
 msgid "et les"
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:456
 msgid "fichiers uploades"
 msgstr ""
 
-#: app/templates/admin/settings.html:308
+#: app/templates/admin/settings.html:456
 msgid "(images, PDF des quiz)."
 msgstr ""
 
-#: app/templates/admin/settings.html:312
+#: app/templates/admin/settings.html:460
 msgid "Lancer une sauvegarde maintenant"
 msgstr ""
 
-#: app/templates/admin/settings.html:317
+#: app/templates/admin/settings.html:465
 msgid "Telecharger une sauvegarde"
 msgstr ""
 
-#: app/templates/admin/settings.html:321 app/templates/admin/settings.html:614
+#: app/templates/admin/settings.html:469 app/templates/admin/settings.html:831
 msgid "Voir l'historique"
 msgstr ""
 
-#: app/templates/admin/settings.html:326
+#: app/templates/admin/settings.html:474
 msgid ""
 "Sans FTP, les sauvegardes manuelles sont conservees sur le serveur "
 "(dossier backups/)."
 msgstr ""
 
-#: app/templates/admin/settings.html:338
+#: app/templates/admin/settings.html:486
 msgid "Restaurer depuis un fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:341
+#: app/templates/admin/settings.html:489
 msgid ""
 "La restauration remplace toutes les donnees actuelles. Une sauvegarde de "
 "l'etat actuel est faite automatiquement juste avant, et restauree si "
 "l'operation echoue. Vous serez deconnecte a la fin."
 msgstr ""
 
-#: app/templates/admin/settings.html:347
+#: app/templates/admin/settings.html:495
 msgid "Fichier de sauvegarde"
 msgstr ""
 
-#: app/templates/admin/settings.html:356
+#: app/templates/admin/settings.html:504
 msgid "Restaurer ce fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:415
+#: app/templates/admin/settings.html:589
+msgid "voix disponibles"
+msgstr ""
+
+#: app/templates/admin/settings.html:600
+msgid "Generation de l'extrait..."
+msgstr ""
+
+#: app/templates/admin/settings.html:609
+msgid "Echec de la synthese"
+msgstr ""
+
+#: app/templates/admin/settings.html:614
+msgid "Extrait genere avec la configuration enregistree."
+msgstr ""
+
+#: app/templates/admin/settings.html:632
 msgid "Etes-vous certain de vouloir utiliser une IA faite par un fasciste ?"
 msgstr ""
 
-#: app/templates/admin/settings.html:428 app/templates/admin/settings.html:472
+#: app/templates/admin/settings.html:645 app/templates/admin/settings.html:689
 msgid "Test en cours..."
 msgstr ""
 
-#: app/templates/admin/settings.html:452
+#: app/templates/admin/settings.html:669
 msgid "Cle valide."
 msgstr ""
 
-#: app/templates/admin/settings.html:452
+#: app/templates/admin/settings.html:669
 msgid "modele(s) disponible(s) dans la liste."
 msgstr ""
 
-#: app/templates/admin/settings.html:504
+#: app/templates/admin/settings.html:721
 msgid "Lancer une sauvegarde maintenant ?"
 msgstr ""
 
-#: app/templates/admin/settings.html:507
+#: app/templates/admin/settings.html:724
 msgid "Sauvegarde en cours..."
 msgstr ""
 
-#: app/templates/admin/settings.html:538
+#: app/templates/admin/settings.html:755
 msgid ""
 "La restauration remplace toutes les donnees actuelles (un instantane de "
 "l'etat actuel est garde). Tapez RESTAURER pour confirmer :"
 msgstr ""
 
-#: app/templates/admin/settings.html:541
+#: app/templates/admin/settings.html:758
 msgid "Restauration..."
 msgstr ""
 
-#: app/templates/admin/settings.html:552
+#: app/templates/admin/settings.html:769
 msgid "Restauration reussie !"
 msgstr ""
 
-#: app/templates/admin/settings.html:558 app/templates/admin/settings.html:580
+#: app/templates/admin/settings.html:775 app/templates/admin/settings.html:797
 msgid "Restaurer"
 msgstr ""
 
-#: app/templates/admin/settings.html:569
+#: app/templates/admin/settings.html:786
 msgid "Aucune sauvegarde trouvee"
 msgstr ""
 
-#: app/templates/admin/settings.html:573
+#: app/templates/admin/settings.html:790
 msgid "Etat sauvegarde automatiquement avant une restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:573
+#: app/templates/admin/settings.html:790
 msgid "Avant restauration"
 msgstr ""
 
-#: app/templates/admin/settings.html:574
+#: app/templates/admin/settings.html:791
 msgid "BDD seule"
 msgstr ""
 
 #: app/templates/admin/interviews/session.html:165
-#: app/templates/admin/settings.html:576
+#: app/templates/admin/settings.html:793
 msgid "Fichier"
 msgstr ""
 
-#: app/templates/admin/settings.html:576 app/templates/quiz/dashboard.html:204
+#: app/templates/admin/settings.html:793 app/templates/quiz/dashboard.html:204
 msgid "Action"
 msgstr ""
 
-#: app/templates/admin/settings.html:583
+#: app/templates/admin/settings.html:800
 msgid "Telecharger"
 msgstr ""
 
-#: app/templates/admin/settings.html:601
+#: app/templates/admin/settings.html:818
 msgid "Sur ce serveur"
 msgstr ""
 
-#: app/templates/admin/settings.html:602
+#: app/templates/admin/settings.html:819
 msgid "Sur le FTP"
 msgstr ""
 
-#: app/templates/admin/settings.html:611
+#: app/templates/admin/settings.html:828
 msgid "Masquer l'historique"
 msgstr ""
 
@@ -4211,26 +4364,26 @@ msgid "Cet utilisateur n'a pas encore complete de quiz."
 msgstr ""
 
 #: app/templates/admin/user_detail.html:144
-#: app/templates/interview/chat.html:205
+#: app/templates/interview/chat.html:321
 #: app/templates/interview/result.html:149
 #: app/templates/quiz/dashboard.html:229
 msgid "Entretien"
 msgstr ""
 
 #: app/templates/admin/interviews/session.html:106
-#: app/templates/admin/interviews/view.html:183
+#: app/templates/admin/interviews/view.html:195
 #: app/templates/admin/user_detail.html:147
 #: app/templates/interview/result_pdf.html:185
 msgid "Echanges"
 msgstr ""
 
 #: app/templates/admin/user_detail.html:158
-#: app/templates/interview/chat.html:268
+#: app/templates/interview/chat.html:427
 #: app/templates/interview/evaluating.html:97
 msgid "Erreur"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:228
+#: app/templates/admin/interviews/view.html:240
 #: app/templates/admin/user_detail.html:164
 msgid "Voir la session"
 msgstr ""
@@ -4479,7 +4632,7 @@ msgid "Programme"
 msgstr ""
 
 #: app/templates/admin/interviews/list.html:69
-#: app/templates/admin/interviews/view.html:98
+#: app/templates/admin/interviews/view.html:110
 #: app/templates/interview/list.html:27
 msgid "Fichier requis"
 msgstr ""
@@ -4532,7 +4685,7 @@ msgid "Re-evaluer"
 msgstr ""
 
 #: app/templates/admin/interviews/session.html:111
-#: app/templates/admin/interviews/view.html:217
+#: app/templates/admin/interviews/view.html:229
 #: app/templates/interview/list.html:49
 msgid "Complete"
 msgstr ""
@@ -4601,11 +4754,19 @@ msgstr ""
 msgid "Personnage"
 msgstr ""
 
-#: app/templates/admin/interviews/session.html:261
-msgid "Commentaire administrateur"
+#: app/templates/admin/interviews/session.html:252
+msgid "Reponse dictee puis transcrite automatiquement"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:253
+msgid "dictee"
 msgstr ""
 
 #: app/templates/admin/interviews/session.html:267
+msgid "Commentaire administrateur"
+msgstr ""
+
+#: app/templates/admin/interviews/session.html:273
 msgid "Ajouter un commentaire..."
 msgstr ""
 
@@ -4665,37 +4826,56 @@ msgstr ""
 msgid "Fin auto IA"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:104
+#: app/templates/admin/interviews/view.html:97
+msgid "Lecture vocale"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:100
+#: app/templates/admin/interviews/wizard.html:502
+msgid "Activee par defaut"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:101
+#: app/templates/admin/interviews/wizard.html:499
+msgid "Proposee a l'apprenant"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:102
+#: app/templates/admin/interviews/wizard.html:505
+msgid "Desactivee"
+msgstr ""
+
+#: app/templates/admin/interviews/view.html:116
 msgid "Disponibilite"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:127
+#: app/templates/admin/interviews/view.html:139
 #: app/templates/admin/interviews/wizard.html:399
 msgid "Criteres d'evaluation"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:133
+#: app/templates/admin/interviews/view.html:145
 #: app/templates/interview/evaluating.html:94
 msgid "Critere"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:152
+#: app/templates/admin/interviews/view.html:164
 msgid "Total"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:159
+#: app/templates/admin/interviews/view.html:171
 msgid "Aucun critere defini"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:168
+#: app/templates/admin/interviews/view.html:180
 msgid "Sessions"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:232
+#: app/templates/admin/interviews/view.html:244
 msgid "cette session"
 msgstr ""
 
-#: app/templates/admin/interviews/view.html:246
+#: app/templates/admin/interviews/view.html:258
 msgid "Aucune session pour le moment"
 msgstr ""
 
@@ -4929,146 +5109,243 @@ msgstr ""
 msgid "Si le bot commence, il utilisera le message d'ouverture ci-dessous"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:497
+#: app/templates/admin/interviews/wizard.html:493
+msgid "Lecture vocale des reponses du personnage"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:496
+msgid "Lecture"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:510
+msgid "Moteur"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:513
+msgid "Voix du navigateur de l'apprenant"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:516
+msgid "Voix du fournisseur configure"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:521
+msgid "Voix"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:525
+#: app/templates/admin/interviews/wizard.html:1026
+msgid "Automatique"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:529
+msgid "Vitesse"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:550
+msgid "Autoriser l'apprenant a dicter ses reponses"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:553
+msgid ""
+"Un bouton micro s'ajoute a cote du champ de saisie ; taper reste toujours"
+" possible. La voix de l'apprenant est envoyee au fournisseur de "
+"transcription configure dans les parametres du site : l'enregistrement "
+"n'est pas conserve, et l'apprenant donne son accord une fois avant le "
+"premier usage. Le texte reconnu s'affiche dans le champ pour qu'il le "
+"relise et le corrige avant d'envoyer."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:560
+msgid ""
+"Aucun fournisseur de transcription n'est configure : le bouton micro ne "
+"s'affichera pas."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:561
+msgid "Configurer maintenant"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:563
+msgid ""
+"Aucun fournisseur de transcription n'est configure : le bouton micro ne "
+"s'affichera pas tant qu'un administrateur du site ne l'aura pas mis en "
+"place."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:577
 msgid "Demander un fichier au debut"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:499
+#: app/templates/admin/interviews/wizard.html:579
 msgid "Ex: CV pour simulation d'entretien d'embauche"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:505
+#: app/templates/admin/interviews/wizard.html:585
 msgid "Label du fichier"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:507
+#: app/templates/admin/interviews/wizard.html:587
 msgid "Votre CV"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:508
+#: app/templates/admin/interviews/wizard.html:588
 msgid "Ex: Votre CV, Votre dossier"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:512
+#: app/templates/admin/interviews/wizard.html:592
 msgid "Instructions pour l'apprenant"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:514
+#: app/templates/admin/interviews/wizard.html:594
 msgid ""
 "Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise"
 " comme base pour l'entretien."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:517
+#: app/templates/admin/interviews/wizard.html:597
 msgid "Injection dans le prompt"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:519
+#: app/templates/admin/interviews/wizard.html:599
 msgid "Ex: Voici le CV du candidat que tu vas interviewer:"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:523
+#: app/templates/admin/interviews/wizard.html:603
 msgid "Base tes questions sur ce CV."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:523
+#: app/templates/admin/interviews/wizard.html:603
 msgid "Voici le document fourni par l'apprenant :"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:527
+#: app/templates/admin/interviews/wizard.html:607
 msgid "Utilise ces informations dans tes reponses et questions."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:528
+#: app/templates/admin/interviews/wizard.html:608
 #, python-brace-format
 msgid "Utilisez {file_content} comme placeholder pour le contenu du fichier"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:536
+#: app/templates/admin/interviews/wizard.html:616
 msgid "Generer le prompt"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:539
+#: app/templates/admin/interviews/wizard.html:619
 msgid "Generer message d'ouverture"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:544
+#: app/templates/admin/interviews/wizard.html:624
 msgid "Message d'ouverture (optionnel)"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:546
+#: app/templates/admin/interviews/wizard.html:626
 msgid "Premier message du personnage pour demarrer la conversation..."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:550
+#: app/templates/admin/interviews/wizard.html:630
 msgid "Prompt systeme"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:552
+#: app/templates/admin/interviews/wizard.html:632
 msgid "Cliquez sur 'Generer le prompt' ou ecrivez manuellement..."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:553
+#: app/templates/admin/interviews/wizard.html:633
 msgid "Ce prompt definit le comportement de l'IA pendant l'entretien"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:562
+#: app/templates/admin/interviews/wizard.html:642
 #: app/templates/quiz/take_exam.html:552
 msgid "Precedent"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:565
+#: app/templates/admin/interviews/wizard.html:645
 #: app/templates/quiz/take_exam.html:556
 msgid "Suivant"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:568
+#: app/templates/admin/interviews/wizard.html:648
 msgid "Creer l'entretien"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:653
+#: app/templates/admin/interviews/wizard.html:742
 msgid "Generation automatique du prompt..."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:755
+#: app/templates/admin/interviews/wizard.html:778
+msgid "Champ obligatoire a completer :"
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:879
 msgid "Points max"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:760
+#: app/templates/admin/interviews/wizard.html:884
 msgid "Indices d'evaluation (pour l'IA)"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:763
+#: app/templates/admin/interviews/wizard.html:887
 msgid "Ex: Chercher reformulations, questions ouvertes..."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:781
+#: app/templates/admin/interviews/wizard.html:905
 msgid "Remplacer les criteres actuels ?"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:820
+#: app/templates/admin/interviews/wizard.html:944
 msgid "Erreur generation:"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:824
-#: app/templates/admin/interviews/wizard.html:867
+#: app/templates/admin/interviews/wizard.html:948
+#: app/templates/admin/interviews/wizard.html:991
 msgid "Erreur de connexion:"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:830
+#: app/templates/admin/interviews/wizard.html:954
 msgid "Generation du prompt en cours..."
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:834
+#: app/templates/admin/interviews/wizard.html:958
 msgid "Erreur lors de la generation du prompt"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:841
+#: app/templates/admin/interviews/wizard.html:965
 msgid "Generez d'abord le prompt systeme"
 msgstr ""
 
-#: app/templates/admin/interviews/wizard.html:845
+#: app/templates/admin/interviews/wizard.html:969
 msgid "Generation du message d'ouverture..."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:1027
+msgid ""
+"Voix installees sur VOTRE machine : celle de l'apprenant peut en avoir "
+"d'autres. « Automatique » prend la voix de la langue de l'interface, ce "
+"qui marche partout."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:1028
+msgid ""
+"Voix proposees par le fournisseur configure dans les parametres du site. "
+"Facturee aux caracteres."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:1029
+msgid ""
+"Aucun fournisseur de voix n'est configure : la lecture utilisera la voix "
+"du navigateur de l'apprenant."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:1030
+msgid ""
+"Impossible de recuperer les voix du fournisseur ; saisissez-la dans les "
+"parametres du site."
+msgstr ""
+
+#: app/templates/admin/interviews/wizard.html:1031
+msgid "Vitesse de 0,5 a 1,5."
 msgstr ""
 
 #: app/templates/admin/tenants/create.html:6
@@ -5847,49 +6124,114 @@ msgstr ""
 msgid "Vous n'avez pas recu l'email ?"
 msgstr ""
 
-#: app/templates/interview/chat.html:209
+#: app/templates/interview/chat.html:327 app/templates/interview/chat.html:328
+#: app/templates/interview/chat.html:434
+msgid "Lire les reponses a voix haute"
+msgstr ""
+
+#: app/templates/interview/chat.html:333
 #: app/templates/interview/result.html:159
 msgid "echanges"
 msgstr ""
 
-#: app/templates/interview/chat.html:217
+#: app/templates/interview/chat.html:342
 msgid "C'est a vous de commencer la conversation."
 msgstr ""
 
-#: app/templates/interview/chat.html:241
+#: app/templates/interview/chat.html:356
+msgid "Reecouter ce message"
+msgstr ""
+
+#: app/templates/interview/chat.html:356 app/templates/interview/chat.html:435
+msgid "Reecouter"
+msgstr ""
+
+#: app/templates/interview/chat.html:373 app/templates/interview/chat.html:395
+msgid "Dicter votre reponse"
+msgstr ""
+
+#: app/templates/interview/chat.html:375
+msgid ""
+"Votre voix sera envoyee a un service de transcription externe pour etre "
+"convertie en texte. L'enregistrement n'est pas conserve : seul le texte "
+"obtenu est enregistre, et vous pourrez le relire et le corriger avant de "
+"l'envoyer. Vous pouvez aussi taper vos reponses, c'est equivalent."
+msgstr ""
+
+#: app/templates/interview/chat.html:379
+msgid "J'accepte, activer le micro"
+msgstr ""
+
+#: app/templates/interview/chat.html:382
+msgid "Non merci, je tape"
+msgstr ""
+
+#: app/templates/interview/chat.html:391
 msgid "Ecrivez votre message... (Shift+Entree pour retour a la ligne)"
 msgstr ""
 
-#: app/templates/interview/chat.html:251
+#: app/templates/interview/chat.html:395
+msgid "Dicter"
+msgstr ""
+
+#: app/templates/interview/chat.html:410
 msgid "Terminer l'entretien"
 msgstr ""
 
-#: app/templates/interview/chat.html:254
+#: app/templates/interview/chat.html:413
 msgid "Max"
 msgstr ""
 
-#: app/templates/interview/chat.html:254 app/templates/interview/list.html:24
+#: app/templates/interview/chat.html:413 app/templates/interview/list.html:24
 msgid "min"
 msgstr ""
 
-#: app/templates/interview/chat.html:266
+#: app/templates/interview/chat.html:425
 msgid "Limite d'echanges atteinte"
 msgstr ""
 
-#: app/templates/interview/chat.html:267 app/templates/interview/chat.html:271
+#: app/templates/interview/chat.html:426 app/templates/interview/chat.html:430
 msgid "Entretien termine"
 msgstr ""
 
-#: app/templates/interview/chat.html:270
+#: app/templates/interview/chat.html:429
 msgid "Terminer l'entretien ? Vous ne pourrez plus envoyer de messages."
 msgstr ""
 
-#: app/templates/interview/chat.html:272
+#: app/templates/interview/chat.html:431
 msgid "L'entretien est maintenant termine."
 msgstr ""
 
-#: app/templates/interview/chat.html:273
+#: app/templates/interview/chat.html:432
 msgid "Passer a l'analyse et la correction"
+msgstr ""
+
+#: app/templates/interview/chat.html:433
+msgid "Couper la lecture vocale"
+msgstr ""
+
+#: app/templates/interview/chat.html:436
+msgid "Enregistrement... cliquez a nouveau pour arreter"
+msgstr ""
+
+#: app/templates/interview/chat.html:437
+msgid "Transcription en cours..."
+msgstr ""
+
+#: app/templates/interview/chat.html:438
+msgid "Relisez et corrigez si besoin, puis envoyez"
+msgstr ""
+
+#: app/templates/interview/chat.html:439
+msgid "Micro indisponible : autorisez l'acces, ou tapez votre reponse"
+msgstr ""
+
+#: app/templates/interview/chat.html:440
+msgid "Aucun son enregistre"
+msgstr ""
+
+#: app/templates/interview/chat.html:441
+msgid "La dictee a echoue, tapez votre reponse"
 msgstr ""
 
 #: app/templates/interview/evaluating.html:3
@@ -6068,6 +6410,10 @@ msgstr ""
 
 #: app/templates/interview/start.html:164
 msgid "min max"
+msgstr ""
+
+#: app/templates/interview/start.html:167
+msgid "reponses lues a voix haute"
 msgstr ""
 
 #: app/templates/quiz/dashboard.html:3 app/templates/quiz/dashboard.html:6
@@ -7263,5 +7609,36 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Question illisible : corrigez-la dans le Markdown ci-dessous."
+#~ msgstr ""
+
+#~ msgid "Voix (ex: Thomas, fr-CA)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "La voix est celle du navigateur de"
+#~ " l'apprenant : aucun audio n'est "
+#~ "envoye ni stocke. Laissez la voix "
+#~ "vide pour celle de la langue de"
+#~ " l'interface ; la vitesse va de "
+#~ "0,5 a 1,5."
+#~ msgstr ""
+
+#~ msgid "Voix du navigateur (ex: Thomas, fr-CA)"
+#~ msgstr ""
+
+#~ msgid "Voix du serveur (ex: nova)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Sans fournisseur de voix configure dans"
+#~ " les parametres du site, la lecture"
+#~ " utilise la voix du navigateur de "
+#~ "l'apprenant : laissez-la vide pour "
+#~ "celle de la langue de l'interface. "
+#~ "La voix du serveur ne sert qu'avec"
+#~ " un fournisseur, et porte son nom "
+#~ "a lui (nova, alloy, un identifiant "
+#~ "ElevenLabs...). La vitesse va de 0,5 "
+#~ "a 1,5."
 #~ msgstr ""
 

@@ -45,6 +45,9 @@ class User(UIDMixin, UserMixin, db.Model):
     # Language preference for i18n
     language_preference = db.Column(db.String(5), nullable=True, default=None)
 
+    # Voice reading of interview replies (browser speech synthesis), off until asked for
+    tts_enabled = db.Column(db.Boolean, default=False)
+
     # Relationships
     responses = db.relationship('QuizResponse', back_populates='user', lazy='dynamic',
                                cascade='all, delete-orphan', foreign_keys='QuizResponse.user_id')

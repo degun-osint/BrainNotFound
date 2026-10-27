@@ -225,7 +225,7 @@
         </li>
     </ul>
 
-    <form method="POST" id="interview-form">
+    <form method="POST" id="interview-form" onsubmit="checkBeforeSubmit(event)">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="criteria_json" id="criteria_json" value="{% if edit_mode %}{{ current_criteria }}{% else %}[]{% endif %}">
 
@@ -240,21 +240,21 @@
                         <div class="form-group">
                             <label class="form-label">{{ _('Titre') }} *</label>
                             <input type="text" name="title" class="form-input" required
-                                   value="{% if interview %}{{ interview.title }}{% endif %}"
+                                   value="{% if interview %}{{ interview.title or '' }}{% endif %}"
                                    placeholder="{{ _('Ex: Entretien RPS - Collegue en difficulte') }}">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _('Description') }}</label>
                             <textarea name="description" class="form-textarea" rows="2"
-                                      placeholder="{{ _('Description visible par les apprenants') }}">{% if interview %}{{ interview.description }}{% endif %}</textarea>
+                                      placeholder="{{ _('Description visible par les apprenants') }}">{% if interview %}{{ interview.description or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-md">
                             <div class="form-group">
                                 <label class="form-label">{{ _('Slug (URL)') }}</label>
                                 <input type="text" name="slug" class="form-input"
-                                       value="{% if interview %}{{ interview.slug }}{% endif %}"
+                                       value="{% if interview %}{{ interview.slug or '' }}{% endif %}"
                                        placeholder="{{ _('ex: rps-collegue') }}" pattern="[a-z0-9\-]+">
                                 <small class="text-light">{{ _('Lettres minuscules, chiffres et tirets uniquement') }}</small>
                             </div>
@@ -316,13 +316,13 @@
                             <div class="form-group">
                                 <label class="form-label">{{ _('Nom du personnage') }}</label>
                                 <input type="text" name="persona_name" class="form-input"
-                                       value="{% if interview %}{{ interview.persona_name }}{% endif %}"
+                                       value="{% if interview %}{{ interview.persona_name or '' }}{% endif %}"
                                        placeholder="{{ _('Ex: Marie Dupont') }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">{{ _('Role / Fonction') }}</label>
                                 <input type="text" name="persona_role" class="form-input"
-                                       value="{% if interview %}{{ interview.persona_role }}{% endif %}"
+                                       value="{% if interview %}{{ interview.persona_role or '' }}{% endif %}"
                                        placeholder="{{ _('Ex: Collegue developpeur') }}">
                             </div>
                         </div>
@@ -330,7 +330,7 @@
                         <div class="form-group">
                             <label class="form-label">{{ _('Contexte professionnel') }}</label>
                             <textarea name="persona_context" class="form-textarea" rows="3"
-                                      placeholder="{{ _('Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres impliquee...') }}">{% if interview %}{{ interview.persona_context }}{% endif %}</textarea>
+                                      placeholder="{{ _('Ex: Travaille dans le meme service depuis 3 ans, connue pour etre tres impliquee...') }}">{% if interview %}{{ interview.persona_context or '' }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -346,13 +346,13 @@
                         <div class="form-group">
                             <label class="form-label">{{ _("Ce que l'apprenant sait au depart") }}</label>
                             <textarea name="student_context" class="form-textarea" rows="3"
-                                      placeholder="{{ _('Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...') }}">{% if interview %}{{ interview.student_context }}{% endif %}</textarea>
+                                      placeholder="{{ _('Ex: Vous remarquez que votre collegue Marie semble fatiguee et distante depuis quelques semaines...') }}">{% if interview %}{{ interview.student_context or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _("Objectif de l'apprenant") }}</label>
                             <textarea name="student_objective" class="form-textarea" rows="2"
-                                      placeholder="{{ _("Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide") }}">{% if interview %}{{ interview.student_objective }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Engager une conversation bienveillante pour comprendre la situation et proposer de l'aide") }}">{% if interview %}{{ interview.student_objective or '' }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -368,25 +368,25 @@
                         <div class="form-group">
                             <label class="form-label">{{ _('Traits de personnalite') }}</label>
                             <textarea name="persona_personality" class="form-textarea" rows="3"
-                                      placeholder="{{ _("Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, s'ouvre progressivement si elle se sent en confiance...") }}">{% if interview %}{{ interview.persona_personality }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Reservee, perfectionniste, a tendance a minimiser ses problemes, s'ouvre progressivement si elle se sent en confiance...") }}">{% if interview %}{{ interview.persona_personality or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _('Ce que le personnage sait / pense') }}</label>
                             <textarea name="persona_knowledge" class="form-textarea" rows="3"
-                                      placeholder="{{ _("Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a peur de passer pour faible...") }}">{% if interview %}{{ interview.persona_knowledge }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Elle sait qu'elle est en burnout mais refuse de l'admettre, elle a peur de passer pour faible...") }}">{% if interview %}{{ interview.persona_knowledge or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _('Objectifs caches du personnage') }}</label>
                             <textarea name="persona_objectives" class="form-textarea" rows="2"
-                                      placeholder="{{ _("Ex: Elle aimerait en parler mais attend qu'on lui tende la main de maniere bienveillante...") }}">{% if interview %}{{ interview.persona_objectives }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Elle aimerait en parler mais attend qu'on lui tende la main de maniere bienveillante...") }}">{% if interview %}{{ interview.persona_objectives or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _('Comportements declencheurs') }}</label>
                             <textarea name="persona_triggers" class="form-textarea" rows="3"
-                                      placeholder="{{ _("Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on reformule ses emotions, devient defensive si on minimise...") }}">{% if interview %}{{ interview.persona_triggers }}{% endif %}</textarea>
+                                      placeholder="{{ _("Ex: Se braque si on lui donne des conseils non sollicites, s'ouvre si on reformule ses emotions, devient defensive si on minimise...") }}">{% if interview %}{{ interview.persona_triggers or '' }}{% endif %}</textarea>
                         </div>
                     </div>
                 </div>
@@ -488,6 +488,86 @@
 
                         <hr class="my-lg">
 
+                        <!-- Voice reading of the persona's replies -->
+                        <div class="form-group">
+                            <label class="form-label">{{ _('Lecture vocale des reponses du personnage') }}</label>
+                            <div class="grid grid-auto gap-md">
+                                <div class="form-group">
+                                    <label class="form-label text-sm" for="tts_mode">{{ _('Lecture') }}</label>
+                                    <select name="tts_mode" id="tts_mode" class="form-input" onchange="toggleVoiceOptions()">
+                                        <option value="optional" {% if not interview or interview.get_tts_mode() == 'optional' %}selected{% endif %}>
+                                            {{ _("Proposee a l'apprenant") }}
+                                        </option>
+                                        <option value="always" {% if interview and interview.get_tts_mode() == 'always' %}selected{% endif %}>
+                                            {{ _('Activee par defaut') }}
+                                        </option>
+                                        <option value="off" {% if interview and interview.get_tts_mode() == 'off' %}selected{% endif %}>
+                                            {{ _('Desactivee') }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group voice-option">
+                                    <label class="form-label text-sm" for="tts_source">{{ _('Moteur') }}</label>
+                                    <select name="tts_source" id="tts_source" class="form-input" onchange="loadVoiceChoices()">
+                                        <option value="browser" {% if interview and not interview.uses_provider_voice() %}selected{% endif %}>
+                                            {{ _("Voix du navigateur de l'apprenant") }}
+                                        </option>
+                                        <option value="provider" {% if not interview or interview.uses_provider_voice() %}selected{% endif %}>
+                                            {{ _('Voix du fournisseur configure') }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group voice-option">
+                                    <label class="form-label text-sm" for="tts_voice">{{ _('Voix') }}</label>
+                                    <select name="tts_voice" id="tts_voice" class="form-input"
+                                            data-browser-voice="{{ interview.tts_voice_hint or '' if interview }}"
+                                            data-provider-voice="{{ interview.tts_server_voice or '' if interview }}">
+                                        <option value="">{{ _('Automatique') }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group voice-option">
+                                    <label class="form-label text-sm" for="tts_rate">{{ _('Vitesse') }}</label>
+                                    <!-- step="any": (1.0 - 0.5) / 0.1 is 5.000000000000001 in floating
+                                         point, so a step of 0.1 can be read as a mismatch. The field is
+                                         hidden when the voice is off, and an invalid hidden control makes
+                                         the browser refuse the whole form in silence. The server clamps
+                                         the value anyway (apply_tts_settings). -->
+                                    <input type="number" id="tts_rate" name="tts_rate" class="form-input"
+                                           min="0.5" max="1.5" step="any"
+                                           value="{% if interview %}{{ interview.get_tts_rate() }}{% else %}1.0{% endif %}">
+                                </div>
+                            </div>
+                            <small class="text-light" id="voice-help"></small>
+                        </div>
+
+                        <hr class="my-lg">
+
+                        <!-- Learner dictating their answers -->
+                        <div class="form-group">
+                            <label class="check-item">
+                                <input type="checkbox" name="stt_mode" value="optional"
+                                       {% if interview and interview.stt_offered() %}checked{% endif %}>
+                                <span>{{ _("Autoriser l'apprenant a dicter ses reponses") }}</span>
+                            </label>
+                            <small class="text-light">
+                                {{ _("Un bouton micro s'ajoute a cote du champ de saisie ; taper reste toujours possible. La voix de l'apprenant est envoyee au fournisseur de transcription configure dans les parametres du site : l'enregistrement n'est pas conserve, et l'apprenant donne son accord une fois avant le premier usage. Le texte reconnu s'affiche dans le champ pour qu'il le relise et le corrige avant d'envoyer.") }}
+                            </small>
+                            {% if not stt_available %}
+                            {# Cocher la case sans fournisseur ne ferait rien, et personne ne le dirait #}
+                            <small class="text-warning d-block mt-1">
+                                <i class="iconoir-warning-triangle"></i>
+                                {% if current_user.is_superadmin %}
+                                {{ _("Aucun fournisseur de transcription n'est configure : le bouton micro ne s'affichera pas.") }}
+                                <a href="{{ url_for('admin.site_settings') }}">{{ _('Configurer maintenant') }}</a>
+                                {% else %}
+                                {{ _("Aucun fournisseur de transcription n'est configure : le bouton micro ne s'affichera pas tant qu'un administrateur du site ne l'aura pas mis en place.") }}
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </div>
+
+                        <hr class="my-lg">
+
                         <!-- File upload configuration -->
                         <div class="form-group">
                             <label class="check-item">
@@ -504,14 +584,14 @@
                                 <div class="form-group">
                                     <label class="form-label">{{ _('Label du fichier') }}</label>
                                     <input type="text" name="file_upload_label" class="form-input"
-                                           value="{% if interview and interview.file_upload_label %}{{ interview.file_upload_label }}{% else %}{{ _('Votre CV') }}{% endif %}"
+                                           value="{% if interview and interview.file_upload_label %}{{ interview.file_upload_label or '' }}{% else %}{{ _('Votre CV') }}{% endif %}"
                                            placeholder="{{ _('Ex: Votre CV, Votre dossier') }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">{{ _("Instructions pour l'apprenant") }}</label>
                                 <textarea name="file_upload_description" class="form-textarea" rows="2"
-                                          placeholder="{{ _("Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.") }}">{% if interview %}{{ interview.file_upload_description }}{% endif %}</textarea>
+                                          placeholder="{{ _("Ex: Veuillez telecharger votre CV au format PDF ou texte. Il sera utilise comme base pour l'entretien.") }}">{% if interview %}{{ interview.file_upload_description or '' }}{% endif %}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">{{ _('Injection dans le prompt') }}</label>
@@ -520,7 +600,7 @@
 
 {file_content}
 
-{{ _('Base tes questions sur ce CV.') }}">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection }}{% else %}{{ _("Voici le document fourni par l'apprenant :") }}
+{{ _('Base tes questions sur ce CV.') }}">{% if interview and interview.file_upload_prompt_injection %}{{ interview.file_upload_prompt_injection or '' }}{% else %}{{ _("Voici le document fourni par l'apprenant :") }}
 
 {file_content}
 
@@ -543,13 +623,13 @@
                         <div class="form-group">
                             <label class="form-label">{{ _("Message d'ouverture (optionnel)") }}</label>
                             <textarea name="opening_message" id="opening_message" class="form-textarea" rows="3"
-                                      placeholder="{{ _('Premier message du personnage pour demarrer la conversation...') }}">{% if interview %}{{ interview.opening_message }}{% endif %}</textarea>
+                                      placeholder="{{ _('Premier message du personnage pour demarrer la conversation...') }}">{% if interview %}{{ interview.opening_message or '' }}{% endif %}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">{{ _('Prompt systeme') }} *</label>
                             <textarea name="system_prompt" id="system_prompt" class="form-textarea" rows="15" required
-                                      placeholder="{{ _("Cliquez sur 'Generer le prompt' ou ecrivez manuellement...") }}">{% if interview %}{{ interview.system_prompt }}{% endif %}</textarea>
+                                      placeholder="{{ _("Cliquez sur 'Generer le prompt' ou ecrivez manuellement...") }}">{% if interview %}{{ interview.system_prompt or '' }}{% endif %}</textarea>
                             <small class="text-light">{{ _("Ce prompt definit le comportement de l'IA pendant l'entretien") }}</small>
                         </div>
                     </div>
@@ -593,6 +673,15 @@ let creationMode = editMode ? 'wizard' : null; // 'direct' or 'wizard'
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     renderCriteria();
+    toggleVoiceOptions();
+    loadVoiceChoices();
+    document.getElementById('tts_voice').addEventListener('change', rememberVoiceChoice);
+    // Chrome fills the browser voice list asynchronously
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.addEventListener('voiceschanged', () => {
+            if (document.getElementById('tts_source').value === 'browser') loadVoiceChoices();
+        });
+    }
     if (editMode) {
         updateNavButtons();
     }
@@ -653,6 +742,41 @@ async function autoGeneratePrompt() {
     showLoading('{{ _("Generation automatique du prompt...") }}');
     await generatePromptInternal();
     hideLoading();
+}
+
+// A required field left empty on an earlier step is on a hidden panel, and a
+// browser cannot focus what it cannot show: it then refuses to submit WITHOUT
+// any message, so the button looks dead. Take the check over, land on the step
+// that holds the problem, and say which field it is.
+function checkBeforeSubmit(event) {
+    const form = event.target;
+    if (form.checkValidity()) return;
+
+    event.preventDefault();
+    const field = form.querySelector(':invalid');
+    if (!field) return;
+
+    const panel = field.closest('.wizard-panel');
+    if (panel) setStep(parseInt(panel.dataset.panel));
+
+    const label = field.closest('.form-group')?.querySelector('.form-label')?.textContent.trim()
+        || field.name;
+    field.focus();
+    field.reportValidity();
+    showFormError(label);
+}
+
+function showFormError(label) {
+    let banner = document.getElementById('form-error');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'form-error';
+        banner.className = 'alert alert-error';
+        banner.style.margin = '1rem 0';
+        document.getElementById('interview-form').prepend(banner);
+    }
+    banner.textContent = '{{ _("Champ obligatoire a completer :") }} ' + label.replace(/\s*\*$/, '');
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function setStep(step) {
@@ -887,6 +1011,80 @@ function toggleFileUploadOptions() {
     const checkbox = document.getElementById('require_file_upload');
     const options = document.getElementById('file-upload-options');
     options.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+function toggleVoiceOptions() {
+    const off = document.getElementById('tts_mode').value === 'off';
+    document.querySelectorAll('.voice-option').forEach(el => {
+        el.style.display = off ? 'none' : '';
+    });
+}
+
+// ---- Voice choice: one list, filled from whichever engine is selected ----
+
+const voiceI18n = {
+    auto: {{ _('Automatique')|tojson }},
+    browserHelp: {{ _("Voix installees sur VOTRE machine : celle de l'apprenant peut en avoir d'autres. « Automatique » prend la voix de la langue de l'interface, ce qui marche partout.")|tojson }},
+    providerHelp: {{ _('Voix proposees par le fournisseur configure dans les parametres du site. Facturee aux caracteres.')|tojson }},
+    noProvider: {{ _("Aucun fournisseur de voix n'est configure : la lecture utilisera la voix du navigateur de l'apprenant.")|tojson }},
+    providerFailed: {{ _('Impossible de recuperer les voix du fournisseur ; saisissez-la dans les parametres du site.')|tojson }},
+    rateHelp: {{ _('Vitesse de 0,5 a 1,5.')|tojson }}
+};
+
+function fillVoiceSelect(options, selected) {
+    const select = document.getElementById('tts_voice');
+    select.innerHTML = '';
+    const auto = new Option(voiceI18n.auto, '');
+    select.add(auto);
+    options.forEach(o => select.add(new Option(o.name, o.id)));
+    // A voice saved earlier may not be in the list (another machine, a custom id):
+    // keep it rather than silently resetting the interview to Automatique
+    if (selected && !options.some(o => o.id === selected)) {
+        select.add(new Option(selected, selected));
+    }
+    select.value = selected || '';
+}
+
+function setVoiceHelp(text, warning) {
+    const help = document.getElementById('voice-help');
+    help.textContent = text + ' ' + voiceI18n.rateHelp;
+    help.className = warning ? 'text-warning' : 'text-light';
+}
+
+function browserVoices() {
+    if (!('speechSynthesis' in window)) return [];
+    return window.speechSynthesis.getVoices()
+        .map(v => ({id: v.name, name: `${v.name} (${v.lang})`}));
+}
+
+async function loadVoiceChoices() {
+    const select = document.getElementById('tts_voice');
+    const useProvider = document.getElementById('tts_source').value === 'provider';
+    const saved = useProvider ? select.dataset.providerVoice : select.dataset.browserVoice;
+
+    if (!useProvider) {
+        fillVoiceSelect(browserVoices(), saved);
+        setVoiceHelp(voiceI18n.browserHelp);
+        return;
+    }
+
+    fillVoiceSelect([], saved);
+    try {
+        const data = await (await fetch('{{ url_for("interview.provider_voices") }}')).json();
+        fillVoiceSelect(data.voices || [], saved);
+        setVoiceHelp(data.configured ? voiceI18n.providerHelp : voiceI18n.noProvider, !data.configured);
+        if (data.configured && !data.success) setVoiceHelp(voiceI18n.providerFailed, true);
+    } catch (error) {
+        setVoiceHelp(voiceI18n.providerFailed, true);
+    }
+}
+
+// Remember the voice picked for each engine, so switching back restores it
+function rememberVoiceChoice() {
+    const select = document.getElementById('tts_voice');
+    const key = document.getElementById('tts_source').value === 'provider'
+        ? 'providerVoice' : 'browserVoice';
+    select.dataset[key] = select.value;
 }
 </script>
 {% endblock %}

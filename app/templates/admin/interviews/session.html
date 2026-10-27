@@ -247,6 +247,12 @@
                     {{ interview.persona_name or _('Personnage') }}
                     {% endif %}
                     - {{ message.created_at|localtime_short }}
+                    {% if message.from_voice %}
+                    {# Dictated: the transcription may have misheard a word the learner said correctly #}
+                    <span class="text-light" data-tooltip="{{ _('Reponse dictee puis transcrite automatiquement') }}">
+                        <i class="iconoir-microphone"></i> {{ _('dictee') }}
+                    </span>
+                    {% endif %}
                 </div>
                 <div class="message-content" data-raw="{{ message.content | e }}"></div>
             </div>

@@ -8,6 +8,18 @@ from app.models.interview import InterviewSession, InterviewMessage, CriterionSc
 from app.utils.claude_interviewer import ClaudeInterviewer
 
 
+def has_server_voice(session):
+    """Whether this reply can be fetched as audio from the server.
+
+    False is not a failure: the chat then reads the reply with the voice of the
+    learner's own browser, as it did before a provider was set up. The client
+    builds the URL itself - this runs in the worker, where url_for() has no
+    request context and would need SERVER_NAME to resolve.
+    """
+    from app.utils import tts_client
+    return bool(session.interview.tts_offered() and tts_client.is_enabled())
+
+
 def evaluate_interview_async(app, session_id: int):
     """
     Evaluate an interview session asynchronously and notify via WebSocket.
@@ -100,7 +112,8 @@ def evaluate_interview_async(app, session_id: int):
             }, room=f'user_{session.user_id}' if session else room)
 
 
-def process_interview_message_async(app, session_id: int, user_content: str, room: str):
+def process_interview_message_async(app, session_id: int, user_content: str, room: str,
+                                    from_voice: bool = False):
     """
     Process a user message and get AI response asynchronously.
 
@@ -133,7 +146,8 @@ def process_interview_message_async(app, session_id: int, user_content: str, roo
                 session_id=session_id,
                 role=InterviewMessage.ROLE_USER,
                 content=user_content,
-                token_count=len(user_content) // 4
+                token_count=len(user_content) // 4,
+                from_voice=from_voice
             )
             db.session.add(user_msg)
             session.interaction_count += 1
@@ -158,10 +172,13 @@ def process_interview_message_async(app, session_id: int, user_content: str, roo
             db.session.add(ai_msg)
             db.session.commit()
 
-            # Send response to client
+            # Send response to client. The audio is a URL, not bytes: the bubble shows
+            # at once and the browser fetches the voice while the learner reads.
             socketio.emit('message_received', {
                 'session_id': session_id,
                 'content': response['content'],
+                'message_id': ai_msg.id,
+                'has_audio': has_server_voice(session),
                 'interaction_count': session.interaction_count,
                 'max_interactions': interview.max_interactions
             }, room=room)

@@ -26,6 +26,22 @@ class Interview(UIDMixin, db.Model):
     """Interview template configured by admin - defines the AI persona and evaluation criteria."""
     __tablename__ = 'interviews'
 
+    # Voice input modes (the learner speaks their answers)
+    STT_OFF = 'off'            # Typing only, as before
+    STT_OPTIONAL = 'optional'  # A mic button next to the text box; typing stays available
+    STT_MODES = (STT_OFF, STT_OPTIONAL)
+
+    # Which engine reads the replies
+    TTS_SOURCE_BROWSER = 'browser'    # The learner's own browser: free, quality varies
+    TTS_SOURCE_PROVIDER = 'provider'  # The provider configured site-wide, billed per character
+    TTS_SOURCES = (TTS_SOURCE_BROWSER, TTS_SOURCE_PROVIDER)
+
+    # Voice modes
+    TTS_OFF = 'off'            # No voice at all
+    TTS_OPTIONAL = 'optional'  # The learner turns it on if they want
+    TTS_ALWAYS = 'always'      # On by default: the oral side is the exercise
+    TTS_MODES = (TTS_OFF, TTS_OPTIONAL, TTS_ALWAYS)
+
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(100), unique=True, nullable=True, index=True)  # Coolname-based identifier
     slug = db.Column(db.String(100), unique=True, nullable=True, index=True)
@@ -58,6 +74,21 @@ class Interview(UIDMixin, db.Model):
 
     # Who starts the conversation
     student_starts = db.Column(db.Boolean, default=False)  # False = bot starts, True = student starts
+
+    # Voice reading of the persona's replies (browser speech synthesis)
+    tts_mode = db.Column(db.String(10), default=TTS_OPTIONAL)
+    # Default 'provider': an install with a provider configured uses it, which is what
+    # setting one up means. 'browser' keeps an interview free of charge on purpose.
+    tts_source = db.Column(db.String(10), default=TTS_SOURCE_PROVIDER)
+    tts_voice_hint = db.Column(db.String(100), nullable=True)  # Browser voice name or locale: 'Thomas', 'fr-CA'
+    tts_rate = db.Column(db.Float, default=1.0)  # 0.5 (slow) to 1.5 (fast)
+    # Provider voice id when a server provider is configured ('nova', an ElevenLabs id...):
+    # a different vocabulary from tts_voice_hint, which only a browser understands
+    tts_server_voice = db.Column(db.String(100), nullable=True)
+
+    # Learner dictating their answers. Off by default: it sends their voice to a
+    # third party, which needs saying and consenting to, not enabling quietly.
+    stt_mode = db.Column(db.String(10), default=STT_OFF)
 
     # File upload requirement
     require_file_upload = db.Column(db.Boolean, default=False)
@@ -120,6 +151,55 @@ class Interview(UIDMixin, db.Model):
     def get_max_score(self):
         """Calculate maximum possible score from all criteria."""
         return sum(c.max_points for c in self.criteria)
+
+    def get_tts_mode(self):
+        """Voice mode, falling back to 'optional' for rows written before the column."""
+        return self.tts_mode if self.tts_mode in self.TTS_MODES else self.TTS_OPTIONAL
+
+    def tts_offered(self):
+        """Whether the chat shows the voice button at all."""
+        return self.get_tts_mode() != self.TTS_OFF
+
+    def tts_on_by_default(self, user=None):
+        """Whether the voice starts on: forced by the interview, otherwise the learner's choice."""
+        mode = self.get_tts_mode()
+        if mode == self.TTS_OFF:
+            return False
+        if mode == self.TTS_ALWAYS:
+            return True
+        return bool(user is not None and getattr(user, 'tts_enabled', False))
+
+    def get_stt_mode(self):
+        """Voice input mode, falling back to 'off' for rows written before the column."""
+        return self.stt_mode if self.stt_mode in self.STT_MODES else self.STT_OFF
+
+    def stt_offered(self):
+        """Whether this interview lets the learner dictate instead of typing."""
+        return self.get_stt_mode() != self.STT_OFF
+
+    def get_tts_source(self):
+        """Which engine reads the replies, falling back to the provider for old rows."""
+        return self.tts_source if self.tts_source in self.TTS_SOURCES else self.TTS_SOURCE_PROVIDER
+
+    def uses_provider_voice(self):
+        """Whether this interview wants the configured provider rather than the browser."""
+        return self.get_tts_source() == self.TTS_SOURCE_PROVIDER
+
+    def get_tts_voice(self):
+        """The voice for the engine in use; the two vocabularies never mix.
+
+        A browser wants a voice name ('Thomas'), a provider its own id ('nova'),
+        so each is kept in its own column and switching back restores the
+        previous choice.
+        """
+        return self.tts_server_voice if self.uses_provider_voice() else self.tts_voice_hint
+
+    def get_tts_rate(self):
+        """Speaking rate, clamped to what browser voices handle without distortion."""
+        try:
+            return min(max(float(self.tts_rate), 0.5), 1.5)
+        except (TypeError, ValueError):
+            return 1.0
 
 
 class EvaluationCriterion(db.Model):
@@ -192,6 +272,10 @@ class InterviewSession(UIDMixin, db.Model):
     # Test mode flag (for admin previews)
     is_test = db.Column(db.Boolean, default=False)
 
+    # When the learner agreed to have their voice sent for transcription.
+    # NULL means they never did, and the microphone stays refused.
+    voice_consent_at = db.Column(db.DateTime, nullable=True)
+
     # Relationships
     interview = db.relationship('Interview', back_populates='sessions')
     # Deleting a user deletes their sessions (user_id is NOT NULL)
@@ -260,6 +344,10 @@ class InterviewMessage(db.Model):
 
     # AI detected end signal in this message
     contains_end_signal = db.Column(db.Boolean, default=False)
+
+    # Dictated rather than typed: transcription makes mistakes, and an instructor
+    # reading the transcript later should know what they are looking at
+    from_voice = db.Column(db.Boolean, default=False)
 
     session = db.relationship('InterviewSession', back_populates='messages')
 

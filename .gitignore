@@ -66,5 +66,8 @@ private/
 # Server-side backups and pre-restore snapshots
 backups/
 
+# Generated audio cache (regenerates on demand)
+tts_cache/
+
 # Compiled translations (pybabel compile at container start)
 *.mo
